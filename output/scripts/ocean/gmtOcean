@@ -1,0 +1,71 @@
+#!/bin/bash
+#Kubo von Kvorkenstein, 2022
+source load_gmt4
+
+#kresli tepelny tok
+max_grid=$(cat ocean_flux_range_max_grid); rm ocean_flux_range_max_grid
+min_grid=$(cat ocean_flux_range_min_grid); rm ocean_flux_range_min_grid
+
+xyz2grd inp-f.dat -Ggeoid.grd -R0/360/-90/90 -Ddegree/degree/M/1/0/=/= -I1.
+grdsample geoid.grd -Ggeoid.grd2 -R0/360/-90/90 -I1.
+makecpt -Cno_green -T$min_grid/$max_grid/0.01 > g.cpt
+grdimage geoid.grd2 -R -JW180/12 -Cg.cpt -P -B -V -K -X2.5 -Y8 > fig.ps
+pstext -R0/220/0/220 -Jx0.07/0.07  -X -Y -O -G0 -V << END >> fig.ps
+END
+
+ps2pdf fig.ps Flux.pdf
+rm fig.ps geoid.grd geoid.grd2 g.cpt inp-f.dat
+
+pdfcrop Flux.pdf Flux.pdf
+
+#kresli rezy
+nuss=$(cat nuss);             rm nuss
+temp_max=$(cat ocean_t_max);  rm ocean_t_max
+temp_min=$(cat ocean_t_min);  rm ocean_t_min
+vzon_max=$(cat ocean_zv_max); rm ocean_zv_max
+vzon_min=$(cat ocean_zv_min); rm ocean_zv_min
+vrad_max=$(cat ocean_rv_max); rm ocean_rv_max
+vrad_min=$(cat ocean_rv_min); rm ocean_rv_min
+
+max_grid=$(cat ocean_t_max_g); rm ocean_t_max_g
+min_grid=$(cat ocean_t_min_g); rm ocean_t_min_g
+makecpt -Cno_green -T$min_grid/$max_grid/0.01 > g.cpt
+xyz2grd inp-t.dat -Ginp1.dat -R90/270/481/600 -I1/1
+grdsample inp1.dat -Ginp2.dat -R90/270/481/600 -I0.25/0.25
+grdimage inp2.dat -R90/270/481/600 -Cg.cpt -JPa8c/90 -X0.5 -Y5 -P -K > polar.ps
+rm inp-t.dat inp1.dat inp2.dat g.cpt
+
+max_grid=$(cat ocean_zv_max_g); rm ocean_zv_max_g
+min_grid=$(cat ocean_zv_min_g); rm ocean_zv_min_g
+makecpt -Cno_green -T$min_grid/$max_grid/0.01 > g.cpt
+xyz2grd inp-p.dat -Ginp1.dat -R90/270/481/600 -I1/1
+grdsample inp1.dat -Ginp2.dat -R90/270/481/600 -I0.25/0.25
+grdimage inp2.dat -R90/270/481/600 -Cg.cpt -JPa8c/90 -X6 -O -K >> polar.ps
+rm inp-p.dat inp1.dat inp2.dat g.cpt
+
+max_grid=$(cat ocean_rv_max_g); rm ocean_rv_max_g
+min_grid=$(cat ocean_rv_min_g); rm ocean_rv_min_g
+makecpt -Cno_green -T$min_grid/$max_grid/0.01 > g.cpt
+xyz2grd inp-r.dat -Ginp1.dat -R90/270/481/600 -I1/1
+grdsample inp1.dat -Ginp2.dat -R90/270/481/600 -I0.25/0.25
+grdimage inp2.dat -R90/270/481/600 -Cg.cpt -JPa8c/90 -X6 -O -K >> polar.ps
+rm inp-r.dat inp1.dat inp2.dat g.cpt
+
+pstext -R0/280/0/280 -Jx0.08/0.08  -O -X-12 -Y-2 << END >> polar.ps
+115 250 50 0 0 6 Nu = $nuss
+47 241 32 0 0 6
+40  150 50 0 0 6 @~d@~T
+36  127 26 0 0 6 min $temp_min
+36  113 26 0 0 6 max $temp_max
+130 150 50 0 0 6 v@-@~f@~@-
+126 127 26 0 0 6 $vzon_min
+129 113 26 0 0 6 $vzon_max
+205 150 50 0 0 6 v@-r@-
+201 127 26 0 0 6 $vrad_min
+204 113 26 0 0 6 $vrad_max
+END
+
+ps2pdf polar.ps polar.pdf
+rm polar.ps
+
+pdfcrop polar.pdf polar.pdf

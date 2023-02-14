@@ -1,0 +1,58 @@
+#!/bin/bash
+compiler=gfortran-12
+optimization=Ofast
+
+#vyber z moznosti
+code_ice="ice"
+code_convection="convection"
+code_tides="tides"
+code_oceanIce="iceOcean"
+
+#co sa ice pocitat
+code_type="ice"
+
+#priprava priecinkov
+rm -f data/data_ice_shape/*.dat || true   #vymaz stare data tvaru
+rm -f data/data_ice_topo/*.dat  || true   #vymaz stare data topografie
+rm -f data/data_ice_tides/*.dat || true   #vymaz stare data slapoveho zahrievania
+
+rm -f data/*.dat                  || true   #vymaz stare Nu a Re
+rm -f data/data_ocean_flux/*.dat  || true   #vymaz stare data toku
+rm -f data/data_ocean_veloc/*.dat || true   #vymaz stare data rychlosti
+rm -f data/data_ocean_temp/*.dat  || true   #vymaz stare data teploty
+
+#kompilacia zakladov programu
+./code/scripts/compileBaseLine $compiler $optimization
+
+if [ "$code_type" = "$code_oceanIce" ]; then
+#kompilacia modelu oceana a ladovej kory
+$compiler -$optimization -march=native -fopenmp -c code/ocean/OceanIce/OceanIceMod.f90  #casova schema ocean
+
+$compiler -$optimization -march=native -c code/ice/tides/IceTidesMod.f90           #casova schema slapy
+$compiler -$optimization -march=native -fopenmp -c code/ice/crust/IceCrustMod.f90  #casova schema ladova kora
+
+$compiler -$optimization -march=native -fopenmp code/codes/BielyKralik_oceanIce.f90 *.o -o Test_oceanIce -lfftw3  #vypocet
+fi
+
+if [ "$code_type" = "$code_tides" ]; then
+#kompilacia modelu oceanskych slapov
+$compiler -$optimization -march=native -fopenmp -c code/ocean/OceanTides/OceanTidesMod.f90                       #casova schema
+$compiler -$optimization -march=native -fopenmp code/codes/BielyKralik_tidesOcean.f90 *.o -o Test_tides -lfftw3  #vypocet
+fi
+
+#kompilacia modelu oceanskej konvekcie
+if [ "$code_type" = "$code_convection" ]; then
+$compiler -$optimization -march=native -fopenmp -c code/ocean/OceanConv/OceanConvMod.f90                             #casova schema
+$compiler -$optimization -march=native -fopenmp code/codes/BielyKralik_oceanConv.f90 *.o -o Test_convection -lfftw3  #vypocet
+fi
+
+if [ "$code_type" = "$code_ice" ]; then
+#kompilacia modelu ladovej kory
+$compiler -$optimization -march=native -c code/ice/tides/IceTidesMod.f90           #casova schema slapy
+$compiler -$optimization -march=native -fopenmp -c code/ice/crust/IceCrustMod.f90  #casova schema ladova kora
+
+$compiler -$optimization -march=native -fopenmp code/codes/BielyKralik_Ice.f90 *.o -o Test_ice -lfftw3  #vypocet
+fi
+
+#cistenie
+rm *.smod *.mod *.o

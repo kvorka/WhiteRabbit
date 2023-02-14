@@ -1,0 +1,65 @@
+#!/bin/bash
+#Kubo von Kvorkenstein, 2022
+compiler=$1
+optimization=$2
+
+#double, pi, cunit a specialne funkcie (Legendreove polynomy, C.-G. coeffs)
+$compiler -$optimization -march=native -c kernels/code_base_line/math/Math.f90
+$compiler -$optimization -march=native -c kernels/code_base_line/grid/spherical/mod/Clebsch_Legendre.f90
+
+#kompilacia radialneho gridu
+$compiler -$optimization -march=native -c kernels/code_base_line/grid/radial/RadialGrid.f90
+
+$compiler -$optimization -march=native -c kernels/code_base_line/grid/radial/smod/Differences.f90
+$compiler -$optimization -march=native -c kernels/code_base_line/grid/radial/smod/Integration.f90
+$compiler -$optimization -march=native -c kernels/code_base_line/grid/radial/smod/Interpolation.f90
+
+#kompilacia lateralneho gridu a sferickych funkcii
+$compiler -$optimization -march=native -c kernels/code_base_line/grid/spherical/SphericalFunctions.f90
+$compiler -$optimization -march=native -c kernels/code_base_line/grid/spherical/SphericalHarmonics.f90
+
+$compiler -$optimization -march=native -c kernels/code_base_line/grid/spherical/smod/vcsv.f90
+$compiler -$optimization -march=native -c kernels/code_base_line/grid/spherical/smod/vcvv.f90
+$compiler -$optimization -march=native -c kernels/code_base_line/grid/spherical/smod/vcvgv.f90
+$compiler -$optimization -march=native -c kernels/code_base_line/grid/spherical/smod/vcsv_vcvgv.f90
+$compiler -$optimization -march=native -c kernels/code_base_line/grid/spherical/smod/vcsv_vcvv_vcvgv.f90
+
+#kompilacia definicie sustav rovnic
+$compiler -$optimization -march=native -c kernels/code_base_line/equations/solutions/Solution.f90  #premenne pre riesenie
+
+$compiler -$optimization -march=native -c kernels/code_base_line/equations/solutions/smod/Solution_init.f90
+$compiler -$optimization -march=native -c kernels/code_base_line/equations/solutions/smod/Solution_singles.f90
+$compiler -$optimization -march=native -c kernels/code_base_line/equations/solutions/smod/Solution_radial.f90
+$compiler -$optimization -march=native -c kernels/code_base_line/equations/solutions/smod/Solution_spherical.f90
+
+$compiler -$optimization -march=native -c kernels/code_base_line/equations/matrices/mod/LU.f90      #LU rozklad
+$compiler -$optimization -march=native -c kernels/code_base_line/equations/matrices/mod/Matrix.f90  #typova premenna pre maticu
+$compiler -$optimization -march=native -c kernels/code_base_line/equations/matrices/Matrices.f90    #vektor matic
+
+#kompilacia modelu gravitacie
+$compiler -$optimization -march=native -c kernels/code_base_line/gmodel/Gravity.f90          #gravitacny model
+
+#kompilacia fyzikalneho modelu
+$compiler -$optimization -march=native -c kernels/code_base_line/object/PhysicalObject.f90   #fyzikalna synteza objektov
+
+$compiler -$optimization -march=native -c kernels/code_base_line/object/smod/Parameters.f90
+$compiler -$optimization -march=native -c kernels/code_base_line/object/smod/Variables.f90
+
+#kompilacia fyzikalnych mechanizmov pre PhysicalObject
+$compiler -$optimization -march=native -c kernels/mechanisms/NonLinearTerms.f90    #nelinearne cleny
+$compiler -$optimization -march=native -c kernels/mechanisms/BalanceEquations.f90  #zakony zachovania
+$compiler -$optimization -march=native -c kernels/mechanisms/VolumeMeassures.f90   #nusseltovo a reynoldsovo cislo
+
+#kompilacia vypocetnych matic pre PhysicalObject
+$compiler -$optimization -march=native -c kernels/matrices/def/ThermalMatrices.f90       #matice pre teplotnu sustavu
+$compiler -$optimization -march=native -c kernels/matrices/def/ToroidalMatrices.f90      #toroidalne matice
+$compiler -$optimization -march=native -c kernels/matrices/def/SpheroidalMatrices.f90    #sferoidalne matice
+$compiler -$optimization -march=native -c kernels/matrices/MatrixDefinitions.f90         #synteza matic
+
+#kompilacia konstant
+$compiler -$optimization -march=native -c code/ocean/OceanConstants.f90     #konstanty riadiace oceansky vypocet
+$compiler -$optimization -march=native -c code/ice/IceConstants.f90         #konstanty riadiace vypocet v ladovej kore
+
+#kompilacia vseobecnych struktur
+$compiler -$optimization -march=native -c code/ocean/OceanMod.f90   #vseobecny objekt pre ocean
+$compiler -$optimization -march=native -c code/ice/IceMod.f90       #vseobecny objekt pre ladovu koru

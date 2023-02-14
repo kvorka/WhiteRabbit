@@ -1,0 +1,10 @@
+#!/bin/bash
+
+#ladova kora
+./output/scripts/ice/getConvIce
+./output/scripts/ice/getDataIce
+./output/scripts/ice/gmtIce
+
+#ocean
+./output/scripts/ocean/getDataOcean
+./output/scripts/ocean/gmtOcean
