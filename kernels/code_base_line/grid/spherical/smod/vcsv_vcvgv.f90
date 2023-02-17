@@ -247,4 +247,12 @@ submodule (SphericalHarmonics) vcsv_vcvgv
 
   end function vcsv_vcvgv_fn
 
+  subroutine deallocate_fftw_vcsv_vcvgv_sub(this)
+    class(T_lateralGrid), intent(inout) :: this
+
+    call fftw_destroy_plan( this%fftw_12_forw )
+    call fftw_destroy_plan( this%fftw_03_back )
+
+  end subroutine deallocate_fftw_vcsv_vcvgv_sub
+
 end submodule vcsv_vcvgv

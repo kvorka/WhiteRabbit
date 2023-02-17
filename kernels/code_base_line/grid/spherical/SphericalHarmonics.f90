@@ -18,20 +18,25 @@ module SphericalHarmonics
     procedure :: init_sub       => init_harmonics_sub
     procedure :: deallocate_sub => deallocate_harmonics_sub
 
-    procedure :: init_vcsv_sub  => init_vcsv_sub
-    procedure :: vcsv_fn        => vcsv_fn
+    procedure :: init_vcsv_sub
+    procedure :: vcsv_fn
+    procedure :: deallocate_fftw_vcsv_sub
 
-    procedure :: init_vcvv_sub => init_vcvv_sub
-    procedure :: vcvv_fn       => vcvv_fn
+    procedure :: init_vcvv_sub
+    procedure :: vcvv_fn
+    procedure :: deallocate_fftw_vcvv_sub
 
-    procedure :: init_vcvgv_sub => init_vcvgv_sub
-    procedure :: vcvgv_fn       => vcvgv_fn
+    procedure :: init_vcvgv_sub
+    procedure :: vcvgv_fn
+    procedure :: deallocate_fftw_vcvgv_sub
 
-    procedure :: init_vcsv_vcvgv_sub => init_vcsv_vcvgv_sub
-    procedure :: vcsv_vcvgv_fn       => vcsv_vcvgv_fn
+    procedure :: init_vcsv_vcvgv_sub
+    procedure :: vcsv_vcvgv_fn
+    procedure :: deallocate_fftw_vcsv_vcvgv_sub
 
-    procedure :: init_vcsv_vcvv_vcvgv_sub => init_vcsv_vcvv_vcvgv_sub
-    procedure :: vcsv_vcvv_vcvgv_sub      => vcsv_vcvv_vcvgv_sub
+    procedure :: init_vcsv_vcvv_vcvgv_sub
+    procedure :: vcsv_vcvv_vcvgv_sub
+    procedure :: deallocate_fftw_vcsv_vcvv_vcvgv_sub
 
   end type T_lateralGrid
 
@@ -45,6 +50,59 @@ module SphericalHarmonics
       complex(kind=dbl),    intent(in) :: cajm(:), cbjml(:)
       complex(kind=dbl)                :: cjml(this%jmv)
     end function vcsv_fn
+
+    module subroutine deallocate_fftw_vcsv_sub(this)
+      class(T_lateralGrid), intent(inout) :: this
+    end subroutine deallocate_fftw_vcsv_sub
+  end interface
+
+  interface
+    module subroutine init_vcvv_sub(this)
+      class(T_lateralGrid), intent(inout) :: this
+    end subroutine init_vcvv_sub
+
+    module function vcvv_fn(this, cajml, cbjml) result(cjm)
+      class(T_lateralGrid), intent(in) :: this
+      complex(kind=dbl),    intent(in) :: cajml(:), cbjml(:)
+      complex(kind=dbl)                :: cjm(this%jmax*(this%jmax+1)/2+this%jmax+1)
+    end function vcvv_fn
+
+    module subroutine deallocate_fftw_vcvv_sub(this)
+      class(T_lateralGrid), intent(inout) :: this
+    end subroutine deallocate_fftw_vcvv_sub
+  end interface
+
+  interface
+    module subroutine init_vcvgv_sub(this)
+      class(T_lateralGrid), intent(inout) :: this
+    end subroutine init_vcvgv_sub
+
+    module function vcvgv_fn(this, cajml, cbjml) result(cjml)
+      class(T_lateralGrid), intent(in) :: this
+      complex(kind=dbl),    intent(in) :: cajml(:), cbjml(:)
+      complex(kind=dbl)                :: cjml(this%jmv)
+    end function vcvgv_fn
+
+    module subroutine deallocate_fftw_vcvgv_sub(this)
+      class(T_lateralGrid), intent(inout) :: this
+    end subroutine deallocate_fftw_vcvgv_sub
+  end interface
+
+  interface
+    module subroutine init_vcsv_vcvgv_sub(this)
+      class(T_lateralGrid), intent(inout) :: this
+    end subroutine init_vcsv_vcvgv_sub
+
+    module function vcsv_vcvgv_fn(this, ri, dv_r, v) result(cjml)
+      class(T_lateralGrid), intent(in) :: this
+      real(kind=dbl),       intent(in) :: ri
+      complex(kind=dbl),    intent(in) :: v(:), dv_r(:)
+      complex(kind=dbl)                :: cjml(this%jmv)
+    end function vcsv_vcvgv_fn
+
+    module subroutine deallocate_fftw_vcsv_vcvgv_sub(this)
+      class(T_lateralGrid), intent(inout) :: this
+    end subroutine deallocate_fftw_vcsv_vcvgv_sub
   end interface
 
   interface
@@ -59,43 +117,9 @@ module SphericalHarmonics
       complex(kind=dbl),    intent(out) :: cjm(:), cjml(:)
     end subroutine vcsv_vcvv_vcvgv_sub
     
-  end interface
-
-  interface
-    module subroutine init_vcvv_sub(this)
+    module subroutine deallocate_fftw_vcsv_vcvv_vcvgv_sub(this)
       class(T_lateralGrid), intent(inout) :: this
-    end subroutine init_vcvv_sub
-
-    module function vcvv_fn(this, cajml, cbjml) result(cjm)
-      class(T_lateralGrid), intent(in) :: this
-      complex(kind=dbl),    intent(in) :: cajml(:), cbjml(:)
-      complex(kind=dbl)                :: cjm(this%jmax*(this%jmax+1)/2+this%jmax+1)
-    end function vcvv_fn
-  end interface
-
-  interface
-    module subroutine init_vcvgv_sub(this)
-      class(T_lateralGrid), intent(inout) :: this
-    end subroutine init_vcvgv_sub
-
-    module function vcvgv_fn(this, cajml, cbjml) result(cjml)
-      class(T_lateralGrid), intent(in) :: this
-      complex(kind=dbl),    intent(in) :: cajml(:), cbjml(:)
-      complex(kind=dbl)                :: cjml(this%jmv)
-    end function vcvgv_fn
-  end interface
-
-  interface
-    module subroutine init_vcsv_vcvgv_sub(this)
-      class(T_lateralGrid), intent(inout) :: this
-    end subroutine init_vcsv_vcvgv_sub
-
-    module function vcsv_vcvgv_fn(this, ri, dv_r, v) result(cjml)
-      class(T_lateralGrid), intent(in) :: this
-      real(kind=dbl),       intent(in) :: ri
-      complex(kind=dbl),    intent(in) :: v(:), dv_r(:)
-      complex(kind=dbl)                :: cjml(this%jmv)
-    end function vcsv_vcvgv_fn
+    end subroutine deallocate_fftw_vcsv_vcvv_vcvgv_sub
   end interface
 
   private :: init_harmonics_sub
@@ -173,8 +197,7 @@ module SphericalHarmonics
 
   subroutine deallocate_harmonics_sub(this)
     class(T_lateralGrid), intent(inout) :: this
-
-    !call fftw_cleanup()
+    
     deallocate(this%roots, this%amjrr, this%bmjrr, this%cmmrr, this%fftLege)
 
   end subroutine deallocate_harmonics_sub

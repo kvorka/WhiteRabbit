@@ -358,6 +358,7 @@ module IceCrustMod
   subroutine deallocate_iceCrust_sub(this)
     class(T_iceCrust), intent(inout) :: this
     
+    call this%lat_grid%deallocate_fftw_vcvv_sub()
     call this%deallocate_ice_sub()
     
   end subroutine deallocate_iceCrust_sub
