@@ -102,7 +102,7 @@ module iceMod
     
   end subroutine init_ice_sub
   
-  real(kind=dbl) function lambda_ice_fn(this, i)
+  pure real(kind=dbl) function lambda_ice_fn(this, i)
     class(T_ice),  intent(in) :: this
     integer,       intent(in) :: i
     real(kind=dbl)            :: temp, lambdaI
@@ -180,7 +180,6 @@ module iceMod
     class(T_ice), intent(inout) :: this
     
     deallocate( this%htide )
-    
     call this%deallocate_objects_sub()
     
   end subroutine deallocate_ice_sub

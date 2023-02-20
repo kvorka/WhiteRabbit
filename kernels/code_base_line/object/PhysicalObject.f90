@@ -50,7 +50,7 @@ module PhysicalObject
   private :: deallocate_objects_sub
 
   interface
-    module real(kind=dbl) function lambda_fn(this, i)
+    module pure real(kind=dbl) function lambda_fn(this, i)
       class(T_physicalObject), intent(in) :: this
       integer,                 intent(in) :: i
     end function lambda_fn

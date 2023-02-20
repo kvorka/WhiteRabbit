@@ -3,7 +3,7 @@ submodule(PhysicalObject) Parameters
 
   contains
 
-  real(kind=dbl) function lambda_fn(this, i)
+  pure real(kind=dbl) function lambda_fn(this, i)
     class(T_physicalObject), intent(in) :: this
     integer,                 intent(in) :: i
     

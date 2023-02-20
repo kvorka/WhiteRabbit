@@ -8,19 +8,18 @@ module ToroidalVisc
   
   contains
   
-  function matica_torr_chb_viscos_fn(this, j_in, a_in) result(matica)
-    class(T_physicalObject),        intent(in) :: this
-    integer,                        intent(in) :: j_in
-    real(kind=dbl),                 intent(in) :: a_in
-    real(kind=dbl), dimension(11, 3*this%nd+1) :: matica  !vysledna matica
-    integer                                    :: i       !radialna diskretizacia
-    real(kind=dbl)                             :: j
+  pure function matica_torr_chb_viscos_fn(this, j_in, a_in) result(matica)
+    class(T_physicalObject), intent(in) :: this
+    integer,                 intent(in) :: j_in
+    real(kind=dbl),          intent(in) :: a_in
+    integer                             :: i
+    real(kind=dbl)                      :: j
+    real(kind=dbl),         allocatable :: matica(:,:)
+
+    allocate( matica(11, 3*this%nd+1) )
   
-    associate( grid => this%rad_grid )
+    associate( grid => this%rad_grid ); j = real(j_in, kind=dbl); matica = 0._dbl
     
-    j = real(j_in, kind=dbl); matica = 0._dbl
-  
-    !okrajove podmienky dole
     select case (this%mechanic_bnd)
       case('frees')
         matica(7,1) = +sqrt((j-1)/(2*(2*j+1)))
@@ -33,7 +32,6 @@ module ToroidalVisc
   
     do i = 1, this%nd
       if (i > 1) then
-      !pohybova rovnica
         matica( 1,3*(i-1)+1) = +a_in*sqrt((j-1)/(2*(2*j+1)))*(grid%dd(i,-2)                                 )
         matica( 2,3*(i-1)+1) = -a_in*sqrt((j+2)/(2*(2*j+1)))*(grid%dd(i,-2)                                 )
         matica( 4,3*(i-1)+1) = +a_in*sqrt((j-1)/(2*(2*j+1)))*(grid%dd(i,-1) - grid%cc(i,-1)*(j-1)/grid%rr(i))
@@ -44,8 +42,7 @@ module ToroidalVisc
         matica(10,3*(i-1)+1) = +a_in*sqrt((j-1)/(2*(2*j+1)))*(grid%dd(i,+2)                                 )
         matica(11,3*(i-1)+1) = -a_in*sqrt((j+2)/(2*(2*j+1)))*(grid%dd(i,+2)                                 )
       end if
-  
-      !reologicka rovnica
+      
       matica( 2,3*(i-1)+2) = -2*sqrt((j-1)/(2*(2*j+1)))*(grid%d(i,-2)                               )
       matica( 5,3*(i-1)+2) = -2*sqrt((j-1)/(2*(2*j+1)))*(grid%d(i,-1) + grid%c(i,-1)*(j+1)/grid%r(i))
       matica( 6,3*(i-1)+2) = 1._dbl
@@ -58,8 +55,7 @@ module ToroidalVisc
       matica( 7,3*(i-1)+3) = +2*sqrt((j+2)/(2*(2*j+1)))*(grid%d(i,+1) - grid%c(i,+1)*(j  )/grid%r(i))
       matica(10,3*(i-1)+3) = +2*sqrt((j+2)/(2*(2*j+1)))*(grid%d(i,+2)                               )
     end do
-  
-    !okrajove podmienky hore
+    
     select case (this%mechanic_bnd)
       case('frees')
         matica(4,3*this%nd+1) = +sqrt((j-1)/(2*(2*j+1)))
@@ -74,19 +70,18 @@ module ToroidalVisc
   
   end function matica_torr_chb_viscos_fn
 
-  function matica_torr_chb_christ_viscos_fn(this, j_in, a_in) result(matica)
-    class(T_physicalObject),        intent(in) :: this
-    integer,                        intent(in) :: j_in
-    real(kind=dbl),                 intent(in) :: a_in
-    real(kind=dbl), dimension(11, 3*this%nd+1) :: matica  !vysledna matica
-    integer                                    :: i       !radialna diskretizacia
-    real(kind=dbl)                             :: j
+  pure function matica_torr_chb_christ_viscos_fn(this, j_in, a_in) result(matica)
+    class(T_physicalObject), intent(in) :: this
+    integer,                 intent(in) :: j_in
+    real(kind=dbl),          intent(in) :: a_in
+    integer                             :: i
+    real(kind=dbl)                      :: j
+    real(kind=dbl),         allocatable :: matica(:,:)
+
+    allocate( matica(11, 3*this%nd+1) )
   
-    associate( grid => this%rad_grid )
+    associate( grid => this%rad_grid ); j = real(j_in, kind=dbl); matica = 0._dbl
     
-    j = real(j_in, kind=dbl); matica = 0._dbl
-  
-    !okrajove podmienky dole
     select case (this%mechanic_bnd)
       case('frees')
         matica(7,1) = +sqrt((j-1)/(2*(2*j+1)))
@@ -99,7 +94,6 @@ module ToroidalVisc
   
     do i = 1, this%nd
       if (i > 1) then
-      !pohybova rovnica
         matica( 1,3*(i-1)+1) = +this%Ek * a_in * sqrt((j-1)/(2*(2*j+1)))*(grid%dd(i,-2)                                 )
         matica( 2,3*(i-1)+1) = -this%Ek * a_in * sqrt((j+2)/(2*(2*j+1)))*(grid%dd(i,-2)                                 )
         matica( 4,3*(i-1)+1) = +this%Ek * a_in * sqrt((j-1)/(2*(2*j+1)))*(grid%dd(i,-1) - grid%cc(i,-1)*(j-1)/grid%rr(i))
@@ -110,8 +104,7 @@ module ToroidalVisc
         matica(10,3*(i-1)+1) = +this%Ek * a_in * sqrt((j-1)/(2*(2*j+1)))*(grid%dd(i,+2)                                 )
         matica(11,3*(i-1)+1) = -this%Ek * a_in * sqrt((j+2)/(2*(2*j+1)))*(grid%dd(i,+2)                                 )
       end if
-  
-      !reologicka rovnica
+      
       matica( 2,3*(i-1)+2) = -2*sqrt((j-1)/(2*(2*j+1)))*(grid%d(i,-2)                               )
       matica( 5,3*(i-1)+2) = -2*sqrt((j-1)/(2*(2*j+1)))*(grid%d(i,-1) + grid%c(i,-1)*(j+1)/grid%r(i))
       matica( 6,3*(i-1)+2) = 1._dbl
@@ -124,8 +117,7 @@ module ToroidalVisc
       matica( 7,3*(i-1)+3) = +2*sqrt((j+2)/(2*(2*j+1)))*(grid%d(i,+1) - grid%c(i,+1)*(j  )/grid%r(i))
       matica(10,3*(i-1)+3) = +2*sqrt((j+2)/(2*(2*j+1)))*(grid%d(i,+2)                               )
     end do
-  
-    !okrajove podmienky hore
+    
     select case (this%mechanic_bnd)
       case('frees')
         matica(4,3*this%nd+1) = +sqrt((j-1)/(2*(2*j+1)))
