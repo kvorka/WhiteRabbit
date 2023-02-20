@@ -1,4 +1,4 @@
-module ToroidalMatrices
+module ToroidalVisc
   use Math
   use PhysicalObject
   implicit none
@@ -140,4 +140,4 @@ module ToroidalMatrices
   
   end function matica_torr_chb_christ_viscos_fn
   
-end module ToroidalMatrices
+end module ToroidalVisc

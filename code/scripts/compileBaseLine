@@ -51,10 +51,11 @@ $compiler -$optimization -march=native -c kernels/mechanisms/BalanceEquations.f9
 $compiler -$optimization -march=native -c kernels/mechanisms/VolumeMeassures.f90   #nusseltovo a reynoldsovo cislo
 
 #kompilacia vypocetnych matic pre PhysicalObject
-$compiler -$optimization -march=native -c kernels/matrices/def/ThermalMatrices.f90       #matice pre teplotnu sustavu
-$compiler -$optimization -march=native -c kernels/matrices/def/ToroidalMatrices.f90      #toroidalne matice
-$compiler -$optimization -march=native -c kernels/matrices/def/SpheroidalMatrices.f90    #sferoidalne matice
-$compiler -$optimization -march=native -c kernels/matrices/MatrixDefinitions.f90         #synteza matic
+$compiler -$optimization -march=native -c kernels/matrices/mod/ThermalMatrices.f90   #matice pre teplotnu sustavu
+$compiler -$optimization -march=native -c kernels/matrices/mod/ToroidalVisc.f90      #toroidalne matice viskozne
+$compiler -$optimization -march=native -c kernels/matrices/mod/SpheroidalVisc.f90    #sferoidalne matice viskozne
+$compiler -$optimization -march=native -c kernels/matrices/mod/SpheroidalViscel.f90  #sferoidalne matica viskoelasticke
+$compiler -$optimization -march=native -c kernels/matrices/MatrixDefinitions.f90     #synteza matic
 
 #kompilacia konstant
 $compiler -$optimization -march=native -c code/ocean/OceanConstants.f90     #konstanty riadiace oceansky vypocet

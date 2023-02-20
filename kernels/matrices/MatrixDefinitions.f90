@@ -1,8 +1,8 @@
 module MatrixDefinitions
-  use Math
   use ThermalMatrices
-  use ToroidalMatrices
-  use SpheroidalMatrices
+  use ToroidalVisc
+  use SpheroidalVisc
+  use SpheroidalViscel
   implicit none
   
   public :: matica_temp_fn
