@@ -1,7 +1,7 @@
 #!/bin/bash
 #Kubo von Kvorkenstein, 2022
-compiler=gfortran-12
-optimization=Ofast
+compiler=$1
+optimization=$2
 
 $compiler -$optimization -march=native -c kernels/code_base_line/math/Math.f90       #nepostradatelne matematicke konstanty
 $compiler -$optimization -march=native -c code/ocean/OceanConstants.f90              #konstanty riadiace oceansky vypocet

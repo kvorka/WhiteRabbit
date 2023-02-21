@@ -1,10 +1,12 @@
 #!/bin/bash
+compiler=gfortran-12
+optimization=Ofast
 
 #ladova kora
-./output/scripts/ice/getConvIce
-./output/scripts/ice/getDataIce
+./output/scripts/ice/getConvIce $compiler $optimization
+./output/scripts/ice/getDataIce $compiler $optimization
 ./output/scripts/ice/gmtIce
 
 #ocean
-./output/scripts/ocean/getDataOcean
+./output/scripts/ocean/getDataOcean $compiler $optimization
 ./output/scripts/ocean/gmtOcean
