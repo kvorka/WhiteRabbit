@@ -12,7 +12,7 @@ submodule(OutputOceanMod) Temp
 
     allocate( temp120(jms, n_out), map(2*nth,nth), t(0:nth,n_out) )
 
-      call load_data_sub(jms, 'temp-averaged.dat', temp120)
+      call load_data_sub(jms, 'temp-averaged.spec', temp120)
 
       do j = 0, jmax_ocean
         do m = 0, j
@@ -48,7 +48,7 @@ submodule(OutputOceanMod) Temp
       temp = cmplx(0._dbl, 0._dbl, kind=dbl)
 
       do n = i1, i2
-        open(unit=7, file=path//trim(adjustl(int2str_fn(n)))//'.dat', status='old', action='read')
+        open(unit=7, file=path//trim(adjustl(int2str_fn(n)))//'.spec', status='old', action='read')
           do i = 1, nd_ocean+1
             read(7,*) r_init(i) , temp_i(:)
             temp(:,i) = temp(:,i) + temp_i(:) / (i2-i1)

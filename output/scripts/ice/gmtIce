@@ -1,5 +1,4 @@
 #!/bin/bash
-#Kubo von Kvorkenstein, 2022
 source load_gmt4
 
 plot () {
@@ -17,10 +16,10 @@ END
 
 ps2pdf fig.ps fig.pdf
 pdfcrop fig.pdf $5
-rm -f geoid* fig* g.cpt $1 $2 $3 
+rm -f geoid* fig* g.cpt $1 $2 $3 $4
 }
 
-plot ice_ranges_Shape_dn_max ice_ranges_Shape_dn_min ice_ranges_Shape_dn_cnt Shape-dn.dat Shape-dn.pdf
-plot ice_ranges_Shape_up_max ice_ranges_Shape_up_min ice_ranges_Shape_up_cnt Shape-up.dat Shape-up.pdf
-plot ice_ranges_Topo_dn_max ice_ranges_Topo_dn_min ice_ranges_Topo_dn_cnt Topo-dn.dat Topo-dn.pdf
-plot ice_ranges_Topo_up_max ice_ranges_Topo_up_min ice_ranges_Topo_up_cnt Topo-up.dat Topo-up.pdf
+plot i_Shape_dn_max i_Shape_dn_min i_Shape_dn_cnt Shape-dn.dat Shape-dn.pdf
+plot i_Shape_up_max i_Shape_up_min i_Shape_up_cnt Shape-up.dat Shape-up.pdf
+plot i_Topo_dn_max i_Topo_dn_min i_Topo_dn_cnt Topo-dn.dat Topo-dn.pdf
+plot i_Topo_up_max i_Topo_up_min i_Topo_up_cnt Topo-up.dat Topo-up.pdf

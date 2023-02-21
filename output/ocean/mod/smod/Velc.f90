@@ -13,7 +13,7 @@ submodule(OutputOceanMod) Velc
     allocate( velc120(jmv,n_out), x(jms1), y(jms1), z(jms1), comp_x(2*nth,nth), comp_y(2*nth,nth), comp_z(2*nth,nth), &
             & comp_r(2*nth,nth), comp_t(2*nth,nth), comp_p(2*nth,nth), t(0:nth,n_out)                                )
 
-      call load_data_sub(jmv, 'velc-averaged.dat', velc120)
+      call load_data_sub(jmv, 'velc-averaged.spec', velc120)
 
       do j = 0, jmax_ocean
         do m = 0, j
@@ -66,7 +66,7 @@ submodule(OutputOceanMod) Velc
     allocate( velc120(jmv,n_out), x(jms1), y(jms1), z(jms1), comp_x(2*nth,nth), comp_y(2*nth,nth), comp_z(2*nth,nth), &
             & comp_r(2*nth,nth), comp_t(2*nth,nth), comp_p(2*nth,nth), t(0:nth,n_out)                                 )
 
-      call load_data_sub(jmv, 'velc-averaged.dat', velc120)
+      call load_data_sub(jmv, 'velc-averaged.spec', velc120)
 
       do j = 0, jmax_ocean
         do m = 0, j
@@ -130,7 +130,7 @@ submodule(OutputOceanMod) Velc
         close(7)
       end do
 
-      call out_spectra_sub('velc-averaged.dat', r_init, velc)
+      call out_spectra_sub('velc-averaged.spec', r_init, velc)
     deallocate( r_init, velc, velc_i )
 
   end subroutine save_spectra_velc_sub

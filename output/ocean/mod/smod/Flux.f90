@@ -12,7 +12,7 @@ submodule(OutputOceanMod) Flux
     
     allocate( spectra(jmax_ocean*(jmax_ocean+1)/2+jmax_ocean+1) )
       spectra = cmplx(0._dbl, 0._dbl, kind=dbl)
-        open(unit=1, file='flux-averaged.dat', status='old', action='read')
+        open(unit=1, file='flux-averaged.spec', status='old', action='read')
           do
             read(1,*,iostat=error) jm, fluxjm ; if (error /= 0) exit
             spectra(jm) = fluxjm
@@ -70,7 +70,7 @@ submodule(OutputOceanMod) Flux
         close(7)
       end do
 
-      flux(1) = cmplx(0._dbl, 0._dbl, kind=dbl) ; call out_spectra1_sub('flux-averaged.dat', flux)
+      flux(1) = cmplx(0._dbl, 0._dbl, kind=dbl) ; call out_spectra1_sub('flux-averaged.spec', flux)
 
     deallocate( flux )
 
