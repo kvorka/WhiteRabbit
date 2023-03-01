@@ -11,5 +11,5 @@ $compiler -$optimization -march=native -c output/Paths.f90
 $compiler -$optimization -march=native -c output/ice/mod/OutputIceMod.f90         #generovanie suborov tvaru a topografie
 $compiler -$optimization -march=native output/ice/OutputIce.f90 *.o -o code_out   #topografia a tvar
 
-##./code_out
+./code_out
 rm code_out *.o *.mod
