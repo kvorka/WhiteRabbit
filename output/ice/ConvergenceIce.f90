@@ -1,8 +1,9 @@
 program ConvergenceIce
+  use Paths
   use ConvergenceCurveMod
   implicit none
   
-  call convergence_curve_ice_sub('curveShape.dat', 'code/ice/crust/data_shape/Shape-')
-  call convergence_curve_ice_sub('curveTopo.dat',  'code/ice/crust/data_topo/Topo-')
+  call convergence_curve_ice_sub('curveShape.dat', path_ice_shape)
+  call convergence_curve_ice_sub('curveTopo.dat' , path_ice_topo )
   
 end program ConvergenceIce

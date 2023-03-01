@@ -3,14 +3,15 @@
 compiler=$1
 optimization=$2
 
-$compiler -$optimization -march=native -c kernels/code_base_line/math/Math.f90       #nepostradatelne matematicke konstanty
-$compiler -$optimization -march=native -c code/ocean/OceanConstants.f90              #konstanty riadiace oceansky vypocet
+$compiler -$optimization -march=native -c kernels/code_base_line/math/Math.f90
+$compiler -$optimization -march=native -c code/ocean/OceanConstants.f90
 
-$compiler -$optimization -march=native -c output/modules/fft/FFT.f90                 #Fourierova transformacia
-$compiler -$optimization -march=native -c output/modules/mod/OutputMod.f90           #obecny modul
-$compiler -$optimization -march=native -c output/modules/mod/Vector_analysis.f90     #vektor na skalar
+$compiler -$optimization -march=native -c output/modules/fft/FFT.f90
+$compiler -$optimization -march=native -c output/modules/mod/OutputMod.f90
+$compiler -$optimization -march=native -c output/modules/mod/Vector_analysis.f90
 
-$compiler -$optimization -march=native -c output/ocean/mod/OutputOceanMod.f90        #generovanie suboru pre tepelny tok
+$compiler -$optimization -march=native -c output/Paths.f90
+$compiler -$optimization -march=native -c output/ocean/mod/OutputOceanMod.f90
 
 $compiler -$optimization -march=native -c output/ocean/mod/smod/ReGrid.f90
 $compiler -$optimization -march=native -c output/ocean/mod/smod/Temp.f90
@@ -18,7 +19,7 @@ $compiler -$optimization -march=native -c output/ocean/mod/smod/Flux.f90
 $compiler -$optimization -march=native -c output/ocean/mod/smod/Velc.f90
 $compiler -$optimization -march=native -c output/ocean/mod/smod/Nuss.f90
 
-$compiler -$optimization -march=native output/ocean/OutputOcean.f90 *.o -o code_out  #tepelny tok
+$compiler -$optimization -march=native output/ocean/OutputOcean.f90 *.o -o code_out
 
-./code_out                      #vypocet
-rm *.o *.smod *.mod code_out    #cistenie
+##./code_out
+rm *.o *.smod *.mod code_out

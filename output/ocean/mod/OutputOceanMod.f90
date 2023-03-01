@@ -1,13 +1,12 @@
 module OutputOceanMod
   use OceanConstants
+  use Paths
   use OutputMod
   use Vector_analysis
   implicit none
   
   integer,        parameter :: n_out = 120
   real(kind=dbl), parameter :: treshold = 0.8_dbl
-  integer,        parameter :: i1    = 200
-  integer,        parameter :: i2    = 400
 
   integer, parameter :: jms  = jmax_ocean * (jmax_ocean+1) / 2 + jmax_ocean + 1
   integer, parameter :: jms1 = (jmax_ocean+1)*(jmax_ocean+2)/2 + (jmax_ocean+1) + 1

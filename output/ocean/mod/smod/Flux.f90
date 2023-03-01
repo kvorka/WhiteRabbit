@@ -61,11 +61,11 @@ submodule(OutputOceanMod) Flux
 
     allocate( flux(jmax_ocean*(jmax_ocean+1)/2+jmax_ocean+1) )
 
-      do n = i1, i2
+      do n = avrg_start, avrg_end
         open( unit=7, file=path//trim(adjustl(int2str_fn(n)))//'.dat', status='old', action='read')
           do
             read(7,*,iostat=error) j, m, flux_t; if (error /= 0) exit
-            flux(j*(j+1)/2+m+1) = flux(j*(j+1)/2+m+1) + flux_t/(i2-i1)
+            flux(j*(j+1)/2+m+1) = flux(j*(j+1)/2+m+1) + flux_t/(avrg_end-avrg_start)
           end do
         close(7)
       end do

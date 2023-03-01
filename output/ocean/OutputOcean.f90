@@ -2,11 +2,11 @@ program OutputOcean
   use OutputOceanMod
   implicit none
 
-  call nuss_curve_sub('data/Nuss.dat')
+  call nuss_curve_sub(path_nuss)
 
-  call save_spectra_flux_sub('data/data_ocean_flux/Flux-')
-  call save_spectra_temp_sub('data/data_ocean_temp/Temp-')
-  call save_spectra_velc_sub('data/data_ocean_veloc/Velc-')
+  call save_spectra_flux_sub(path_ocean_flux)
+  call save_spectra_temp_sub(path_ocean_temp)
+  call save_spectra_velc_sub(path_ocean_velc)
   
   call harm_analysis_flux_sub('')
   call harm_analysis_temp_sub('')

@@ -47,11 +47,11 @@ submodule(OutputOceanMod) Temp
       
       temp = cmplx(0._dbl, 0._dbl, kind=dbl)
 
-      do n = i1, i2
+      do n = avrg_start, avrg_end
         open(unit=7, file=path//trim(adjustl(int2str_fn(n)))//'.spec', status='old', action='read')
           do i = 1, nd_ocean+1
             read(7,*) r_init(i) , temp_i(:)
-            temp(:,i) = temp(:,i) + temp_i(:) / (i2-i1)
+            temp(:,i) = temp(:,i) + temp_i(:) / (avrg_end-avrg_start)
           end do
         close(7)
       end do

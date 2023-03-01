@@ -110,8 +110,7 @@ submodule(OutputOceanMod) Velc
   end subroutine harm_analysis_zon_velc_sub
 
   subroutine save_spectra_velc_sub(path)
-    character(len=*), intent(in)   :: path
-    character(len=10)              :: subor
+    character(len=*),   intent(in) :: path
     integer                        :: n, i
     real(kind=dbl),    allocatable :: r_init(:), r_out(:)
     complex(kind=dbl), allocatable :: velc(:,:), velc_i(:), velc_out(:,:)
@@ -119,13 +118,11 @@ submodule(OutputOceanMod) Velc
     allocate( r_init(nd_ocean+1), velc(jmv,nd_ocean+1), velc_i(jmv) )
       velc = cmplx(0._dbl, 0._dbl, kind=dbl)
 
-      do n = i1, i2
-        write(subor,'(1I4)') n
-    
-        open( unit=7, file=path//trim(adjustl(subor))//'.dat', status='old', action='read' )
+      do n = avrg_start, avrg_end
+        open( unit=7, file=path//trim(adjustl(int2str_fn(n)))//'.dat', status='old', action='read' )
           do i = 1, nd_ocean+1
             read(7,*) r_init(i) , velc_i(:)
-            velc(:,i) = velc(:,i) + velc_i(:) / (i2-i1)
+            velc(:,i) = velc(:,i) + velc_i(:) / (avrg_end-avrg_start)
           end do
         close(7)
       end do
