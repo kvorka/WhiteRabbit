@@ -3,8 +3,7 @@ submodule(OutputOceanMod) Flux
 
   contains
 
-  subroutine harm_analysis_flux_sub(path)
-    character(len=*),   intent(in) :: path
+  subroutine harm_analysis_flux_sub()
     integer                        :: jm, error
     real(kind=dbl),    allocatable :: data_flux(:,:)
     complex(kind=dbl)              :: fluxjm
@@ -53,8 +52,7 @@ submodule(OutputOceanMod) Flux
     
   end subroutine harm_analysis_flux_sub
 
-  subroutine save_spectra_flux_sub(path)
-    character(len=*),  intent(in)  :: path
+  subroutine save_spectra_flux_sub()
     integer                        :: j, m, n, error
     complex(kind=dbl)              :: flux_t
     complex(kind=dbl), allocatable :: flux(:)
@@ -62,7 +60,7 @@ submodule(OutputOceanMod) Flux
     allocate( flux(jmax_ocean*(jmax_ocean+1)/2+jmax_ocean+1) )
 
       do n = avrg_start, avrg_end
-        open( unit=7, file=path//trim(adjustl(int2str_fn(n)))//'.dat', status='old', action='read')
+        open( unit=7, file=path_ocean_flux//trim(adjustl(int2str_fn(n)))//'.dat', status='old', action='read')
           do
             read(7,*,iostat=error) j, m, flux_t; if (error /= 0) exit
             flux(j*(j+1)/2+m+1) = flux(j*(j+1)/2+m+1) + flux_t/(avrg_end-avrg_start)

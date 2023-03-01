@@ -3,9 +3,8 @@ submodule(OutputOceanMod) Velc
 
   contains
 
-  subroutine harm_analysis_rad_velc_sub(path)
+  subroutine harm_analysis_rad_velc_sub()
     integer,              parameter :: jmax = 100
-    character(len=*),    intent(in) :: path
     integer                         :: i, k, ii, j, m, l
     real(kind=dbl),    allocatable  :: comp_x(:,:), comp_y(:,:), comp_z(:,:), comp_r(:,:), comp_t(:,:), comp_p(:,:), t(:,:)
     complex(kind=dbl), allocatable  :: x(:), y(:), z(:), velc120(:,:)
@@ -56,9 +55,8 @@ submodule(OutputOceanMod) Velc
   
   end subroutine harm_analysis_rad_velc_sub
 
-  subroutine harm_analysis_zon_velc_sub(path)
+  subroutine harm_analysis_zon_velc_sub()
     integer,              parameter :: jmax = 100
-    character(len=*),    intent(in) :: path
     integer                         :: i, k, ii, j, m, l
     real(kind=dbl),    allocatable  :: comp_x(:,:), comp_y(:,:), comp_z(:,:), comp_r(:,:), comp_t(:,:), comp_p(:,:), t(:,:)
     complex(kind=dbl), allocatable  :: x(:), y(:), z(:), velc120(:,:)
@@ -109,8 +107,7 @@ submodule(OutputOceanMod) Velc
 
   end subroutine harm_analysis_zon_velc_sub
 
-  subroutine save_spectra_velc_sub(path)
-    character(len=*),   intent(in) :: path
+  subroutine save_spectra_velc_sub()
     integer                        :: n, i
     real(kind=dbl),    allocatable :: r_init(:), r_out(:)
     complex(kind=dbl), allocatable :: velc(:,:), velc_i(:), velc_out(:,:)
@@ -119,7 +116,7 @@ submodule(OutputOceanMod) Velc
       velc = cmplx(0._dbl, 0._dbl, kind=dbl)
 
       do n = avrg_start, avrg_end
-        open( unit=7, file=path//trim(adjustl(int2str_fn(n)))//'.dat', status='old', action='read' )
+        open( unit=7, file=path_ocean_velc//trim(adjustl(int2str_fn(n)))//'.dat', status='old', action='read' )
           do i = 1, nd_ocean+1
             read(7,*) r_init(i) , velc_i(:)
             velc(:,i) = velc(:,i) + velc_i(:) / (avrg_end-avrg_start)

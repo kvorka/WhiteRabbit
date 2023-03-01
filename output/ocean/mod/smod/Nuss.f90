@@ -3,8 +3,7 @@ submodule(OutputOceanMod) Nuss
 
   contains
 
-  subroutine nuss_curve_sub(path)
-    character(len=*), intent(in) :: path
+  subroutine nuss_curve_sub()
     integer         :: n, error
     real(kind=dbl)  :: t, dt, Nuss, Re, zonRe, sumNuss, sumRe, sumzonRe
 
@@ -13,7 +12,7 @@ submodule(OutputOceanMod) Nuss
       sumRe = 0.0d0
       sumzonRe = 0.0d0
 
-    open(unit=1, file=path, status='old', action='read')
+    open(unit=1, file=path_nuss, status='old', action='read')
       do
         read(1,*,iostat=error) t, dt, Nuss, Re, zonRe; if (error /= 0) exit
 

@@ -3,8 +3,7 @@ submodule(OutputOceanMod) Temp
 
   contains
 
-  subroutine harm_analysis_temp_sub(path)
-    character(len=*),   intent(in) :: path
+  subroutine harm_analysis_temp_sub()
     integer,             parameter :: jmax = 100
     integer                        :: i, k, j, m
     real(kind=dbl),    allocatable :: map(:,:), t(:,:)
@@ -37,8 +36,7 @@ submodule(OutputOceanMod) Temp
 
   end subroutine harm_analysis_temp_sub
   
-  subroutine save_spectra_temp_sub(path)
-    character(len=*), intent(in)   :: path
+  subroutine save_spectra_temp_sub()
     integer                        :: n, i
     real(kind=dbl),    allocatable :: r_init(:)
     complex(kind=dbl), allocatable :: temp(:,:), temp_i(:)
@@ -48,7 +46,7 @@ submodule(OutputOceanMod) Temp
       temp = cmplx(0._dbl, 0._dbl, kind=dbl)
 
       do n = avrg_start, avrg_end
-        open(unit=7, file=path//trim(adjustl(int2str_fn(n)))//'.spec', status='old', action='read')
+        open(unit=7, file=path_ocean_temp//trim(adjustl(int2str_fn(n)))//'.dat', status='old', action='read')
           do i = 1, nd_ocean+1
             read(7,*) r_init(i) , temp_i(:)
             temp(:,i) = temp(:,i) + temp_i(:) / (avrg_end-avrg_start)
@@ -56,7 +54,7 @@ submodule(OutputOceanMod) Temp
         close(7)
       end do
 
-      call out_spectra_sub('temp-averaged.dat', r_init, temp)
+      call out_spectra_sub('temp-averaged.spec', r_init, temp)
 
     deallocate( r_init, temp, temp_i )
 
