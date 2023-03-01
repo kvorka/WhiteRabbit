@@ -21,5 +21,5 @@ $compiler -$optimization -march=native -c output/ocean/mod/smod/Nuss.f90
 
 $compiler -$optimization -march=native output/ocean/OutputOcean.f90 *.o -o code_out
 
-##./code_out
+./code_out
 rm *.o *.smod *.mod code_out

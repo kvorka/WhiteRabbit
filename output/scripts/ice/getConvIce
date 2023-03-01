@@ -8,5 +8,5 @@ $compiler -$optimization -march=native -c output/ice/mod/ConvergenceCurveMod.f90
 $compiler -$optimization -march=native output/ice/ConvergenceIce.f90 *.o -o code_out
 
 rm -f curveShape.dat curveTopo.dat curveFlux.dat || true
-##./code_out
+./code_out
 rm code_out *.o *.mod
