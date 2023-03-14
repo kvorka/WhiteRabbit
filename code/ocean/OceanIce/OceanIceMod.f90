@@ -1,10 +1,7 @@
 module OceanIceMod
   use OceanMod
-  use MatrixDefinitions
-  use NonLinearTerms
-  use BalanceEquations
-  use VolumeMeassures
   implicit none
+  private
 
   type, extends(T_ocean), public :: T_oceanice
     real(kind=dbl),                 private :: ClRoc2
@@ -12,17 +9,11 @@ module OceanIceMod
 
     contains
 
-    procedure, public, pass  :: init_sub       => init_oceanice_sub
-    procedure, public, pass  :: iter_sub       => iter_oceanice_sub
-    procedure, public, pass  :: deallocate_sub => deallocate_oceanice_sub
+    procedure, public, pass :: init_sub        => init_oceanice_sub
+    procedure, public, pass :: time_scheme_sub => time_scheme_oceanice_sub
+    procedure, public, pass :: deallocate_sub  => deallocate_oceanice_sub
 
   end type T_oceanice
-
-  private :: init_oceanice_sub
-  private :: init_state_oceanice_sub
-  private :: time_scheme_oceanice_sub
-  private :: vypis_oceanice_sub
-  private :: deallocate_oceanice_sub
 
   contains
 
@@ -46,100 +37,10 @@ module OceanIceMod
     allocate( this%nmech(this%jmv,2:this%nd), this%ntemp(this%jms,2:this%nd), this%flux_up(this%jms) )
       this%nmech = cmplx(0._dbl, 0._dbl, kind=dbl); this%ntemp = cmplx(0._dbl, 0._dbl, kind=dbl)
       this%flux_up = cmplx(0._dbl, 0._dbl, kind=dbl)
-
-    open(unit=11, file='data/Nuss.dat', status='new', action='write')
-    open(unit=12, file='data/Laws.dat', status='new', action='write')
     
-    call init_state_oceanice_sub(this); call vypis_oceanice_sub(this)
+    call this%init_state_sub(); call this%vypis_ocean_sub()
 
-  end subroutine iniT_oceanice_sub
-
-  subroutine init_state_oceanice_sub(this)
-    class(T_oceanice), intent(inout) :: this
-    integer                          :: i, j, m, jm_int, ndI1, jmsI, jmvI
-    real(kind=dbl),    allocatable   :: r(:)
-    complex(kind=dbl), allocatable   :: velc(:), temp(:,:), spher1(:,:), torr(:,:), spher2(:,:)
-
-    if (.not. init_through_file_ocean) then
-      do i = 1, this%nd+1
-        do j = 0, this%jmax
-          do m = 0, j
-            jm_int = jm(j,m)
-
-            if ((j == 0) .and. (m == 0)) then
-              this%sol%temp(3*(i-1)+1,jm_int)%re = (this%rad_grid%r(this%nd)/this%rad_grid%rr(i)-1)*this%rad_grid%r(1)*sqrt(4*pi)
-            else if (m == 0) then
-              call random_number( this%sol%temp(3*(i-1)+1, jm_int)%re )
-              this%sol%temp(3*(i-1)+1, jm_int)%re = this%sol%temp(3*(i-1)+1, jm_int)%re / 1e3
-            else
-              call random_number( this%sol%temp(3*(i-1)+1, jm_int)%re ); call random_number( this%sol%temp(3*(i-1)+1, jm_int)%im )
-              this%sol%temp(3*(i-1)+1, jm_int) = this%sol%temp(3*(i-1)+1, jm_int) / 1e3
-            end if
-
-          end do
-        end do
-      end do
-
-    else
-      ndI1 = nd_init_ocean+1; jmsI = jm(jmax_init_ocean,jmax_init_ocean); jmvI = jml(jmax_init_ocean,jmax_init_ocean,+1)
-
-      allocate( r(ndI1), velc(jmvI), temp(ndI1,jmsI), spher1(ndI1,jmsI), spher2(ndI1,jmsI), torr(ndI1,jmsI) )
-        spher1 = cmplx(0._dbl, 0._dbl, kind=dbl); spher2 = cmplx(0._dbl, 0._dbl, kind=dbl); torr = cmplx(0._dbl, 0._dbl, kind=dbl)
-
-        open(unit=8, file='code/ocean/inittemp', status='old', action='read')
-          do i = 1, ndI1
-            read(8,*) r(i), temp(i,:)
-          end do
-        close(8)
-
-        open(unit=8, file='code/ocean/initvelc', status='old', action='read')
-          do i = 1, ndI1
-            read(8,*) r(i), velc
-
-            do jm_int = 2, jmsI
-              spher1(i,jm_int) = velc(3*(jm_int-1)-1)
-              torr(  i,jm_int) = velc(3*(jm_int-1)  )
-              spher2(i,jm_int) = velc(3*(jm_int-1)+1)
-            end do
-          end do
-        close(8)
-
-      deallocate(velc)
-
-      do i = 1, this%nd+1
-        this%sol%temp(3*(i-1)+1,:) = this%rad_grid%interpolation_fn(this%jms, i, r, temp  )
-        this%sol%mech(6*(i-1)+1,:) = this%rad_grid%interpolation_fn(this%jms, i, r, spher1)
-        this%sol%torr(3*(i-1)+1,:) = this%rad_grid%interpolation_fn(this%jms, i, r, torr  )
-        this%sol%mech(6*(i-1)+2,:) = this%rad_grid%interpolation_fn(this%jms, i, r, spher2)
-      end do
-
-      deallocate(r, spher1, spher2, torr, temp)
-    end if
-    
-    call time_scheme_oceanice_sub(this, cf=1._dbl)
-
-  end subroutine init_state_oceanice_sub
-
-  subroutine iter_oceanice_sub(this, t_bnd, u_bnd)
-    class(T_oceanice), intent(inout) :: this
-    complex(kind=dbl), intent(in)    :: t_bnd(:), u_bnd(:)
-    integer                          :: k
-
-    this%sol%t_up(1:size(t_bnd)) = t_bnd / this%D_ud
-    this%sol%u_up(1:size(u_bnd)) = u_bnd / this%D_ud
-
-    this%flux_up = cmplx(0._dbl, 0._dbl, kind=dbl)
-    
-    do k = 1, 2 * this%n_iter
-      call time_scheme_oceanice_sub(this, cf=1.5_dbl)
-      if ( k > this%n_iter ) this%flux_up = this%flux_up + this%qr_jm_fn(this%nd)
-    end do
-    
-    this%flux_up = this%flux_up / ( this%flux_up(1)%re / sqrt(4*pi) )
-
-    call vypis_oceanice_sub(this)
-
-  end subroutine iter_oceanice_sub
+  end subroutine init_oceanice_sub
 
   subroutine time_scheme_oceanice_sub(this, cf)
     class(T_oceanice), intent(inout) :: this
@@ -240,21 +141,6 @@ module OceanIceMod
     end if
 
   end subroutine time_scheme_oceanice_sub
-
-  subroutine vypis_oceanice_sub(this)
-    !Vypis Nu, Re, zachovania energie a hybnosti, vypis kompletnej diagnostiky oceanu.
-    class(T_oceanice), intent(inout) :: this
-
-    write(11,*) this%t, this%dt, nuss_fn(this), reynolds_fn(this), nonzon_reynolds_fn(this)
-    write(12,*) this%t, this%dt, laws_temp_fn(this), laws_mech_fn(this)
-   
-    call this%vypis_sub(8, 'data/data_ocean_temp' , 'temperature')
-    call this%vypis_sub(8, 'data/data_ocean_veloc', 'velocity'   )
-    call this%vypis_sub(8, 'data/data_ocean_flux' , 'flux'       )
-    
-    this%poc = this%poc + 1
-    
-  end subroutine vypis_oceanice_sub
 
   subroutine deallocate_oceanice_sub(this)
     !Cistenie po vypocte - destruktor pre T_oceanice.

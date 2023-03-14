@@ -12,9 +12,9 @@ program BielyKralik_oceanIce
     
     !Casova slucka
     do
-      !Iteruj oceanske prudenie
-      call ocean%iter_sub( t_bnd = icecr%sol%t_dn * icecr%D_ud, &
-                         & u_bnd = icecr%sol%u_dn * icecr%D_ud  )
+      !Nastav deformaciu oceanskej hranice a iteruj oceanske prudenie
+      call ocean%set_boundary_deformation(u_up = icecr%sol%u_dn * icecr%D_ud, t_up = icecr%sol%t_dn * icecr%D_ud)
+      call ocean%iter_sub()
       
       !Spocitaj tvar hranic
       call icecr%time_scheme_sub( ocean%flux_up )

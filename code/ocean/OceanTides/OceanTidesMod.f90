@@ -1,29 +1,22 @@
 module OceanTidesMod
   use OceanMod
-  use MatrixDefinitions
-  use NonLinearTerms
-  use BalanceEquations
-  use VolumeMeassures
   implicit none
+  private
 
   type, extends(T_ocean), public :: T_oceanTides
     complex(kind=dbl), allocatable, private :: nmech(:,:), v201(:), v203(:), v221(:), v223(:)
     real(kind=dbl)                          :: heating
-    integer                                 :: number_of_periods
+    integer                                 :: number_of_periods, k_of_period
 
     contains
 
-    procedure, public, pass  :: init_sub       => init_oceanTides_sub
-    procedure, public, pass  :: iter_sub       => iter_oceanTides_sub
-    procedure, public, pass  :: deallocate_sub => deallocate_oceanTides_sub
+    procedure, public, pass :: init_sub        => init_oceanTides_sub
+    procedure, public, pass :: iter_sub        => iter_oceanTides_sub
+    procedure, public, pass :: time_scheme_sub => time_scheme_oceanTides_sub
+    procedure, public, pass :: vypis_ocean_sub => vypis_oceanTides_sub
+    procedure, public, pass :: deallocate_sub  => deallocate_oceanTides_sub
 
   end type T_oceanTides
-
-  private :: init_oceanTides_sub
-  private :: iter_oceanTides_sub
-  private :: time_scheme_oceanTides_sub
-  private :: vypis_oceanTides_sub
-  private :: deallocate_oceanTides_sub
 
   contains
 
@@ -65,8 +58,6 @@ module OceanTidesMod
         end do
 
       deallocate( u201, u203, u221, u223 )
-
-    open(unit=1, file='data/output_ocean_heating', status='old', action='write')
     
   end subroutine init_oceanTides_sub
 
@@ -77,7 +68,7 @@ module OceanTidesMod
     this%heating = 0._dbl; this%number_of_periods = this%number_of_periods + 1
 
     do k = 1, this%n_iter
-      call time_scheme_oceanTides_sub(this, cf=1.5_dbl, k_per=k)
+      this%k_of_period = k ; call this%time_scheme_sub(cf=1.5_dbl)
       this%heating = this%heating + volume_heating_fn(this)
     end do
 
@@ -87,10 +78,9 @@ module OceanTidesMod
 
   end subroutine iter_oceanTides_sub
 
-  subroutine time_scheme_oceanTides_sub(this, cf, k_per)
+  subroutine time_scheme_oceanTides_sub(this, cf)
     class(T_oceanTides),  intent(inout) :: this
     real(kind=dbl),       intent(in)    :: cf
-    integer,              intent(in)    :: k_per
     integer                             :: i, jm_int
     complex(kind=dbl),    allocatable   :: rmech(:,:)
 
@@ -135,11 +125,11 @@ module OceanTidesMod
         this%sol%torr( 3*(i-1)+1 , jm_int ) = cmplx(0._dbl, 0._dbl, kind=dbl)
 
         if (jm_int == 4) then
-          this%sol%mech( 6*(i-1)+1 , jm_int ) = this%v201(k_per)
-          this%sol%mech( 6*(i-1)+2 , jm_int ) = this%v203(k_per)
+          this%sol%mech( 6*(i-1)+1 , jm_int ) = this%v201(this%k_of_period)
+          this%sol%mech( 6*(i-1)+2 , jm_int ) = this%v203(this%k_of_period)
         else if (jm_int == 6) then
-          this%sol%mech( 6*(i-1)+1 , jm_int ) = this%v221(k_per)
-          this%sol%mech( 6*(i-1)+2 , jm_int ) = this%v223(k_per)
+          this%sol%mech( 6*(i-1)+1 , jm_int ) = this%v221(this%k_of_period)
+          this%sol%mech( 6*(i-1)+2 , jm_int ) = this%v223(this%k_of_period)
         else
           this%sol%mech( 6*(i-1)+1 , jm_int ) = cmplx(0._dbl, 0._dbl, kind=dbl)
           this%sol%mech( 6*(i-1)+2 , jm_int ) = cmplx(0._dbl, 0._dbl, kind=dbl)
@@ -157,8 +147,7 @@ module OceanTidesMod
   subroutine vypis_oceanTides_sub(this)
     class(T_oceanTides), intent(inout) :: this
 
-    write(1,*) this%number_of_periods, stress_dim * this%heating / 1e6
-    write(*,*) this%number_of_periods, stress_dim * this%heating / 1e6
+    write(11,*) this%number_of_periods, stress_dim * this%heating / 1e6
     
   end subroutine vypis_oceanTides_sub
 

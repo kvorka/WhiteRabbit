@@ -9,6 +9,7 @@ module OutputMod
 
   public :: toGrid_sub
   public :: out_data_sub
+  public :: out_zondata_sub
   public :: out_spectra1_sub
   public :: out_spectra_sub
   public :: zonalVariation_fn
@@ -135,6 +136,27 @@ module OutputMod
     close(1)
   
   end subroutine out_data_sub
+
+  subroutine out_zondata_sub(opt, data_in)
+    character(len=*), intent(in) :: opt
+    real(kind=dbl),   intent(in) :: data_in(:,:)
+    integer                      :: i, j
+      
+    open(unit=1, file=opt, status='new', action='write')
+      
+    i = 1
+      write(1,*) -90, data_in(1,i)
+    
+    do i = 2, nth
+      write(1,*) i-91, (data_in(1,i)+data_in(1,i-1))/2
+    end do
+
+    i = nth
+      write(1,*) +90, data_in(1,i)
+      
+    close(1)
+
+  end subroutine out_zondata_sub
 
   subroutine out_spectra1_sub(opt, data_in)
     character(len=*),  intent(in) :: opt

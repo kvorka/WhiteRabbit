@@ -9,4 +9,7 @@ program OutputIce
   call harm_analysis_ice_sub('Shape')
   call harm_analysis_ice_sub('Topo')
 
+  call zonal_analysis_ice_sub('Shape')
+  call zonal_analysis_ice_sub('Topo')
+
 end program OutputIce

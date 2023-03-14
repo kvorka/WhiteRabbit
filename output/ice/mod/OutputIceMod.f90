@@ -4,11 +4,48 @@ module OutputIceMod
   implicit none
   
   public :: harm_analysis_ice_sub
+  public :: zonal_analysis_ice_sub
   public :: save_spectra_ice_sub
 
   private :: cnt_fn
  
   contains
+
+  subroutine zonal_analysis_ice_sub(opt)
+    character(len=*),   intent(in) :: opt
+    integer                        :: jm, jms, error, j, m
+    complex(kind=dbl), allocatable :: spectra_up(:), spectra_dn(:)
+    real(kind=dbl),    allocatable :: data_up(:,:), data_dn(:,:)
+    
+    jms = jmax_ice*(jmax_ice+1)/2+jmax_ice+1; allocate( spectra_up(jms), spectra_dn(jms) )
+    
+    open(unit=1, file=opt//'-dn.spec', status='old', action='read')
+    open(unit=2, file=opt//'-up.spec', status='old', action='read')
+      do
+        read(1,*,iostat=error) jm, spectra_dn(jm) ; if (error /= 0) exit
+        read(2,*) jm, spectra_up(jm)
+      end do
+    close(1)
+    close(2)
+
+    do j = 0, jmax_ice
+      do m = 1, j
+        jm = j*(j+1)/2+m+1
+
+        spectra_dn(jm) = cmplx(0._dbl, 0._dbl, kind=dbl)
+        spectra_up(jm) = cmplx(0._dbl, 0._dbl, kind=dbl)
+      end do
+    end do
+    
+    allocate( data_dn(2*nth,nth) ); data_dn = 0._dbl; call toGrid_sub(jmax_ice, spectra_dn, data_dn); deallocate(spectra_dn)
+      call out_zondata_sub(opt//'-zon-dn.dat', data_dn)
+    deallocate(data_dn)
+    
+    allocate( data_up(2*nth,nth) ); data_up = 0._dbl; call toGrid_sub(jmax_ice, spectra_up, data_up); deallocate(spectra_up)
+      call out_zondata_sub(opt//'-zon-up.dat', data_up)
+    deallocate(data_up)
+
+  end subroutine zonal_analysis_ice_sub
 
   subroutine harm_analysis_ice_sub(opt)
     character(len=*),   intent(in) :: opt

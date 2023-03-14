@@ -258,14 +258,14 @@ module IceCrustMod
         end do
         
         if (i == 1) then
-          field = field * ( this%rad_grid%r(1) / this%rad_grid%rr(:) ) ** (j-1)
+          field = field * ( this%rd / this%rad_grid%rr(:) ) ** (j-1)
         else if (i == this%nd) then
-          field = field * ( this%rad_grid%rr(:) / this%rad_grid%r(this%nd) ) ** (j+2)
+          field = field * ( this%rad_grid%rr(:) / this%ru ) ** (j+2)
         end if
 
-        associate( ri => this%rad_grid%r(i), rd => this%rad_grid%r(1), ru => this%rad_grid%r(this%nd) )
-          Vdelta_iceCrust_fn = this%gravity%V_bnd_fn( j, m, ri, ru      , this%rhoI           , this%sol%u_up(jm(j,m)) ) + &
-                             & this%gravity%V_bnd_fn( j, m, ri, rd      , this%rhoW-this%rhoI , this%sol%u_dn(jm(j,m)) ) + &
+        associate( ri => this%rad_grid%r(i) )
+          Vdelta_iceCrust_fn = this%gravity%V_bnd_fn( j, m, ri, this%ru , this%rhoI           , this%sol%u_up(jm(j,m)) ) + &
+                             & this%gravity%V_bnd_fn( j, m, ri, this%rd , this%rhoW-this%rhoI , this%sol%u_dn(jm(j,m)) ) + &
                              & this%gravity%V_bnd_fn( j, m, ri, this%rI2, this%rhoI2-this%rhoW, this%sol%u_I2(jm(j,m)) ) + &
                              & this%gravity%V_bnd_fn( j, m, ri, this%rC , this%rhoC-this%rhoI2, this%sol%u_C(jm(j,m))  ) + &
                              & this%gravity%V_rho_fn( j, m, ri, field, this%rad_grid)                                    + &
