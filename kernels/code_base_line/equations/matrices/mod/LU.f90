@@ -1,6 +1,6 @@
 module LU
   use Math
-  implicit none
+  implicit none; private
 
   public :: ludecomposition_sub
   public :: lusolution_sub

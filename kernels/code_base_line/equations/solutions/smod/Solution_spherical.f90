@@ -57,11 +57,13 @@ submodule(Solution) Solution_spherical
         velocity(3*(jm-1)  ) = this%torr(torr_ind ,jm)
         velocity(3*(jm-1)+1) = this%mech(sfer_ind2,jm)
       end do
+
     else if ( (.not. allocated(this%torr)) .and. allocated(this%mech) ) then
       do jm = 2, this%jms
         velocity(3*(jm-1)-1) = this%mech(sfer_ind1,jm)
         velocity(3*(jm-1)+1) = this%mech(sfer_ind2,jm)
       end do
+      
     else if ( allocated(this%torr) .and. (.not. allocated(this%mech)) ) then
       do jm = 2, this%jms
         velocity(3*(jm-1)) = this%torr(torr_ind ,jm)

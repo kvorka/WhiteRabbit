@@ -1,14 +1,12 @@
 module Matrices
   use Math
   use Matrix
-  implicit none
+  implicit none; private
   
   type, public :: T_matrices
-    
     class(T_matrix), allocatable :: temp(:), torr(:), mech(:)
-    
-    integer          :: nd, jmax
-    character(len=5) :: grid_type
+    integer                      :: nd, jmax
+    character(len=5)             :: grid_type
     
     contains
     
@@ -19,12 +17,6 @@ module Matrices
     procedure :: deallocate_sub => deallocate_matrices_sub
     
   end type T_matrices
-
-  private :: init_matrices_sub
-  private :: init_mtemp_sub
-  private :: init_mtorr_sub
-  private :: init_mmech_sub
-  private :: deallocate_matrices_sub
 
   contains
   

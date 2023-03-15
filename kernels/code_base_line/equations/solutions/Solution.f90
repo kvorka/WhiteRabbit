@@ -33,9 +33,6 @@ module Solution
     
   end type T_solution
 
-  private :: init_solution_sub
-  private :: deallocate_solution_sub
-
   interface
     module subroutine init_stemp_sub(this)
       class(T_solution), intent(inout) :: this

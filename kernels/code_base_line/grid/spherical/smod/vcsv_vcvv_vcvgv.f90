@@ -14,7 +14,7 @@ submodule (SphericalHarmonics) vcsv_vcvv_vcvgv
                                             &                                testField3, oemb, 19*step, 1, +1, fftw_flags )
     deallocate(testField3)
 
-    allocate(testField3_re(step,4,this%nFourier), testField3(step,4,this%nFourier/2+1))
+    allocate(testField3_re(4,step,this%nFourier), testField3(4,step,this%nFourier/2+1))
       this%fftw_04_back = fftw_plan_many_dft_r2c( 1, (/this%nFourier/), 4*step, testField3_re, iemb, 4*step, 1,            &
                                                 &                               testField3   , oemb, 4*step, 1, fftw_flags )
     deallocate(testField3_re, testField3)
@@ -126,7 +126,7 @@ submodule (SphericalHarmonics) vcsv_vcvv_vcvgv
     deallocate(cab, sum1, sum2, sum3)
     allocate( pmm(step), pmj(step), pmj1(step), pmj2(step), cosx(step), sinx(step), fftLege(step),             &
             & sumLegendreN(19,step,0:this%nFourier-1), sumLegendreS(19,step,0:this%nFourier-1),                &
-            & fft(step,4,0:this%nFourier-1), fftNC(step,4,0:this%nFourier/2), fftSC(step,4,0:this%nFourier/2), &
+            & fft(4,step,0:this%nFourier-1), fftNC(4,step,0:this%nFourier/2), fftSC(4,step,0:this%nFourier/2), &
             & cr(4,this%jms1) ) ; cr = cmplx(0._dbl, 0._dbl, kind=dbl)
 
       do i = 1, this%nLegendre, step
@@ -166,43 +166,43 @@ submodule (SphericalHarmonics) vcsv_vcvv_vcvgv
 
         call fftw_execute_dft(this%fftw_19_forw, sumLegendreN, sumLegendreN)
           do concurrent (i1 = 0:this%nFourier-1, i2 = 1:step)
-            fft(i2,1,i1) = sumLegendreN( 1,i2,i1)%re * sumLegendreN( 4,i2,i1)%re + &    
+            fft(1,i2,i1) = sumLegendreN( 1,i2,i1)%re * sumLegendreN( 4,i2,i1)%re + &    
                          & sumLegendreN( 2,i2,i1)%re * sumLegendreN( 5,i2,i1)%re + &    
                          & sumLegendreN( 3,i2,i1)%re * sumLegendreN( 6,i2,i1)%re
-            fft(i2,2,i1) = sumLegendreN( 4,i2,i1)%re * sumLegendreN( 7,i2,i1)%re + &
+            fft(2,i2,i1) = sumLegendreN( 4,i2,i1)%re * sumLegendreN( 7,i2,i1)%re + &
                          & sumLegendreN( 5,i2,i1)%re * sumLegendreN( 8,i2,i1)%re + &
                          & sumLegendreN( 6,i2,i1)%re * sumLegendreN( 9,i2,i1)%re + &
                          & sumLegendreN(16,i2,i1)%re * sumLegendreN(19,i2,i1)%re
-            fft(i2,3,i1) = sumLegendreN( 4,i2,i1)%re * sumLegendreN(10,i2,i1)%re + &
+            fft(3,i2,i1) = sumLegendreN( 4,i2,i1)%re * sumLegendreN(10,i2,i1)%re + &
                          & sumLegendreN( 5,i2,i1)%re * sumLegendreN(11,i2,i1)%re + &
                          & sumLegendreN( 6,i2,i1)%re * sumLegendreN(12,i2,i1)%re + &
                          & sumLegendreN(17,i2,i1)%re * sumLegendreN(19,i2,i1)%re
-            fft(i2,4,i1) = sumLegendreN( 4,i2,i1)%re * sumLegendreN(13,i2,i1)%re + &
+            fft(4,i2,i1) = sumLegendreN( 4,i2,i1)%re * sumLegendreN(13,i2,i1)%re + &
                          & sumLegendreN( 5,i2,i1)%re * sumLegendreN(14,i2,i1)%re + &
                          & sumLegendreN( 6,i2,i1)%re * sumLegendreN(15,i2,i1)%re + &
                          & sumLegendreN(18,i2,i1)%re * sumLegendreN(19,i2,i1)%re
           end do
-        call fftw_execute_dft_r2c(this%fftw_04_back, fft, fftNC)
+        call fftw_execute_dft_r2c(this%fftw_04_back2, fft, fftNC)
 
         call fftw_execute_dft(this%fftw_19_forw, sumLegendreS, sumLegendreS)
           do concurrent (i1 = 0:this%nFourier-1, i2 = 1:step)
-            fft(i2,1,i1) = sumLegendreS( 1,i2,i1)%re * sumLegendreS( 4,i2,i1)%re + &    
+            fft(1,i2,i1) = sumLegendreS( 1,i2,i1)%re * sumLegendreS( 4,i2,i1)%re + &    
                          & sumLegendreS( 2,i2,i1)%re * sumLegendreS( 5,i2,i1)%re + &    
                          & sumLegendreS( 3,i2,i1)%re * sumLegendreS( 6,i2,i1)%re
-            fft(i2,2,i1) = sumLegendreS( 4,i2,i1)%re * sumLegendreS( 7,i2,i1)%re + &
+            fft(2,i2,i1) = sumLegendreS( 4,i2,i1)%re * sumLegendreS( 7,i2,i1)%re + &
                          & sumLegendreS( 5,i2,i1)%re * sumLegendreS( 8,i2,i1)%re + &
                          & sumLegendreS( 6,i2,i1)%re * sumLegendreS( 9,i2,i1)%re + &
                          & sumLegendreS(16,i2,i1)%re * sumLegendreS(19,i2,i1)%re
-            fft(i2,3,i1) = sumLegendreS( 4,i2,i1)%re * sumLegendreS(10,i2,i1)%re + &
+            fft(3,i2,i1) = sumLegendreS( 4,i2,i1)%re * sumLegendreS(10,i2,i1)%re + &
                          & sumLegendreS( 5,i2,i1)%re * sumLegendreS(11,i2,i1)%re + &
                          & sumLegendreS( 6,i2,i1)%re * sumLegendreS(12,i2,i1)%re + &
                          & sumLegendreS(17,i2,i1)%re * sumLegendreS(19,i2,i1)%re
-            fft(i2,4,i1) = sumLegendreS( 4,i2,i1)%re * sumLegendreS(13,i2,i1)%re + &
+            fft(4,i2,i1) = sumLegendreS( 4,i2,i1)%re * sumLegendreS(13,i2,i1)%re + &
                          & sumLegendreS( 5,i2,i1)%re * sumLegendreS(14,i2,i1)%re + &
                          & sumLegendreS( 6,i2,i1)%re * sumLegendreS(15,i2,i1)%re + &
                          & sumLegendreS(18,i2,i1)%re * sumLegendreS(19,i2,i1)%re
           end do
-        call fftw_execute_dft_r2c(this%fftw_04_back, fft, fftSC)
+        call fftw_execute_dft_r2c(this%fftw_04_back2, fft, fftSC)
 
         pmm = 1._dbl; mj = 1
           do m = 0, this%jmax+1 
@@ -210,15 +210,17 @@ submodule (SphericalHarmonics) vcsv_vcvv_vcvgv
             pmj1 = 0._dbl
             pmj  = 1._dbl
 
-            do concurrent ( i1 = 1:4, i2 = 1:step )
-              fftNC(i2,i1,m) = fftLege(i2) * fftNC(i2,i1,m) * pmm(i2)
-              fftSC(i2,i1,m) = fftLege(i2) * fftSC(i2,i1,m) * pmm(i2)
+            do concurrent (i2 = 1:step, i1=1:4)
+              fftNC(i1,i2,m) = fftLege(i2) * fftNC(i1,i2,m) * pmm(i2)
+              fftSC(i1,i2,m) = fftLege(i2) * fftSC(i1,i2,m) * pmm(i2)
             end do
 
             do j = m, this%jmax+1
               jm_int = j*(j+1)/2 + m + 1
-                do i1 = 1, 4
-                  cr(i1,jm_int) = cr(i1,jm_int) + sum( pmj * ( fftNC(:,i1,m) + (-1)**(j+m) * fftSC(:,i1,m) ) )
+                do i2 = 1, step
+                  do i1 = 1, 4
+                    cr(i1,jm_int) = cr(i1,jm_int) + pmj(i2) * ( fftNC(i1,i2,m) + (-1)**(j+m) * fftSC(i1,i2,m) )
+                  end do
                 end do
 
               mj = mj+1

@@ -1,31 +1,23 @@
 module Matrix
   use Math
   use LU
-  implicit none
+  implicit none; private
   
   type, public :: T_matrix
-    
-    integer                     :: n, ns, nu               !dimenzia matice, rozmer pod/naddiagonaly
-    real(kind=dbl), allocatable :: M(:,:), U(:,:), L(:,:)  !povodna, horna a dolna trojuholnikova matica sustavy
-    integer,        allocatable :: I(:)                    !zaznam o pivotacii pri LU rozklade
+    integer                     :: n, ns, nu
+    real(kind=dbl), allocatable :: M(:,:), U(:,:), L(:,:)
+    integer,        allocatable :: I(:)
 
     contains
 
-    procedure :: init_sub       => initMatrix_sub
-    procedure :: fill_sub       => fillMatrix_sub
-    procedure :: luSolve_sub    => luSolutionMatrix_sub
-    procedure :: multipl_fn     => matrixMultiple_fn
-    procedure :: multipl2_fn    => matrixMultiple2_fn
-    procedure :: deallocate_sub => deallocate_sub
+    procedure, public, pass :: init_sub       => initMatrix_sub
+    procedure, public, pass :: fill_sub       => fillMatrix_sub
+    procedure, public, pass :: luSolve_sub    => luSolutionMatrix_sub
+    procedure, public, pass :: multipl_fn     => matrixMultiple_fn
+    procedure, public, pass :: multipl2_fn    => matrixMultiple2_fn
+    procedure, public, pass :: deallocate_sub => deallocateMatrix_sub
 
   end type T_matrix
-  
-  private :: initMatrix_sub
-  private :: fillMatrix_sub
-  private :: luSolutionMatrix_sub
-  private :: matrixMultiple_fn
-  private :: matrixMultiple2_fn
-  private :: deallocate_sub
 
   contains
   
@@ -76,11 +68,11 @@ module Matrix
 
   end function matrixMultiple2_fn
 
-  subroutine deallocate_sub(this)
+  subroutine deallocateMatrix_sub(this)
     class(T_matrix), intent(inout) :: this
 
     deallocate(this%M, this%U, this%L, this%I)
 
-  end subroutine deallocate_sub
+  end subroutine deallocateMatrix_sub
 
 end module Matrix
