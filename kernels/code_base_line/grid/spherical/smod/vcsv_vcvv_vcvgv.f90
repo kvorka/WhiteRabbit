@@ -182,7 +182,7 @@ submodule (SphericalHarmonics) vcsv_vcvv_vcvgv
                          & sumLegendreN( 6,i2,i1)%re * sumLegendreN(15,i2,i1)%re + &
                          & sumLegendreN(18,i2,i1)%re * sumLegendreN(19,i2,i1)%re
           end do
-        call fftw_execute_dft_r2c(this%fftw_04_back2, fft, fftNC)
+        call fftw_execute_dft_r2c(this%fftw_04_back, fft, fftNC)
 
         call fftw_execute_dft(this%fftw_19_forw, sumLegendreS, sumLegendreS)
           do concurrent (i1 = 0:this%nFourier-1, i2 = 1:step)
@@ -202,7 +202,7 @@ submodule (SphericalHarmonics) vcsv_vcvv_vcvgv
                          & sumLegendreS( 6,i2,i1)%re * sumLegendreS(15,i2,i1)%re + &
                          & sumLegendreS(18,i2,i1)%re * sumLegendreS(19,i2,i1)%re
           end do
-        call fftw_execute_dft_r2c(this%fftw_04_back2, fft, fftSC)
+        call fftw_execute_dft_r2c(this%fftw_04_back, fft, fftSC)
 
         pmm = 1._dbl; mj = 1
           do m = 0, this%jmax+1 
