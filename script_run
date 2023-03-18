@@ -1,5 +1,4 @@
 #!/bin/bash
-#testovanie pull
 compiler=gfortran-12
 optimization=Ofast
 
