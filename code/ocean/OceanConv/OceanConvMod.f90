@@ -25,11 +25,11 @@ module OceanConvMod
     do j=1,this%jmax; call this%mat%torr(j)%fill_sub( matica_torr_fn(this,j,+0.6_dbl), matica_torr_fn(this,j,-0.4_dbl) ); end do
     do j=1,this%jmax; call this%mat%mech(j)%fill_sub( matica_mech_fn(this,j,+0.6_dbl), matica_mech_fn(this,j,-0.4_dbl) ); end do
     
-    allocate( this%nmech(this%jmv,2:this%nd) ) ; this%nmech   = cmplx(0._dbl, 0._dbl, kind=dbl)
-    allocate( this%rmech(this%jmv,2:this%nd) ) ; this%rmech   = cmplx(0._dbl, 0._dbl, kind=dbl)
-    allocate( this%ntemp(this%jms,2:this%nd) ) ; this%ntemp   = cmplx(0._dbl, 0._dbl, kind=dbl)
-    allocate( this%rtemp(this%jms,2:this%nd) ) ; this%rtemp   = cmplx(0._dbl, 0._dbl, kind=dbl)
-    allocate( this%flux_up(this%jms)         ) ; this%flux_up = cmplx(0._dbl, 0._dbl, kind=dbl)
+    allocate( this%nmech(this%jmv,2:this%nd) ) ; this%nmech   = czero
+    allocate( this%rmech(this%jmv,2:this%nd) ) ; this%rmech   = czero
+    allocate( this%ntemp(this%jms,2:this%nd) ) ; this%ntemp   = czero
+    allocate( this%rtemp(this%jms,2:this%nd) ) ; this%rtemp   = czero
+    allocate( this%flux_up(this%jms)         ) ; this%flux_up = czero
     
     call this%init_state_sub(); call this%vypis_ocean_sub()
     
@@ -70,18 +70,20 @@ module OceanConvMod
     
     jm_int = 1
       i = 1
-        this%sol%temp( 1   , 1 ) = cmplx(sqrt(4*pi), 0._dbl, kind=dbl)
-        this%sol%temp( 2:3 , 1 ) = cmplx(0._dbl, 0._dbl, kind=dbl)
+        this%sol%temp( 1, 1 ) = cmplx(sqrt(4*pi), 0._dbl, kind=dbl)
       
-      do i = 2, this%nd
+      do i = 1, this%nd
         ir1 = 3*(i-1)+1
+        
+        if (i > 1) then
+          this%sol%temp( ir1, 1 ) = this%rtemp(1,i) + cf * this%ntemp(1,i)
+        end if
 
-        this%sol%temp( ir1           , 1 ) = this%rtemp(1,i) + cf * this%ntemp(1,i)
-        this%sol%temp( ir1+1 : ir1+2 , 1 ) = cmplx(0._dbl, 0._dbl, kind=dbl)
+        this%sol%temp( ir1+1 : ir1+2 , 1 ) = czero
       end do
       
       i = this%nd+1
-        this%sol%temp( 3*this%nd+1 , jm_int ) = cmplx(0._dbl, 0._dbl, kind=dbl)
+        this%sol%temp( 3*this%nd+1, 1 ) = czero
       
       call this%mat%temp(0)%luSolve_sub( this%sol%temp(:,1) )
       
@@ -91,29 +93,33 @@ module OceanConvMod
       jml0 = 3*(jm_int-1)
       
       i = 1
-        this%sol%temp( 1:3 , jm_int ) = cmplx(0._dbl, 0._dbl, kind=dbl)
-        this%sol%torr( 1:3 , jm_int ) = cmplx(0._dbl, 0._dbl, kind=dbl)
-        this%sol%mech( 1:6 , jm_int ) = cmplx(0._dbl, 0._dbl, kind=dbl)
+        this%sol%temp( 1 , jm_int ) = czero
+        this%sol%torr( 1 , jm_int ) = czero
+        this%sol%mech( 1 , jm_int ) = czero
+        this%sol%mech( 2 , jm_int ) = czero
         
-      do i = 2, this%nd
+      do i = 1, this%nd
         ir1 = 3*(i-1)+1
         ir2 = 6*(i-1)+1
         ir3 = 6*(i-1)+2
         
-        this%sol%temp( ir1 , jm_int ) = this%rtemp( jm_int, i ) + cf * this%ntemp( jm_int, i )
-        this%sol%torr( ir1 , jm_int ) = this%rmech( jml0  , i ) + cf * this%nmech( jml0  , i )
-        this%sol%mech( ir2 , jm_int ) = this%rmech( jml0-1, i ) + cf * this%nmech( jml0-1, i )
-        this%sol%mech( ir3 , jm_int ) = this%rmech( jml0+1, i ) + cf * this%nmech( jml0+1, i )
+        if (i > 1) then
+          this%sol%temp( ir1 , jm_int ) = this%rtemp( jm_int, i ) + cf * this%ntemp( jm_int, i )
+          this%sol%torr( ir1 , jm_int ) = this%rmech( jml0  , i ) + cf * this%nmech( jml0  , i )
+          this%sol%mech( ir2 , jm_int ) = this%rmech( jml0-1, i ) + cf * this%nmech( jml0-1, i )
+          this%sol%mech( ir3 , jm_int ) = this%rmech( jml0+1, i ) + cf * this%nmech( jml0+1, i )
+        end if
         
-        this%sol%temp( ir1+1 : ir1+2 , jm_int ) = cmplx(0._dbl, 0._dbl, kind=dbl)
-        this%sol%torr( ir1+1 : ir1+2 , jm_int ) = cmplx(0._dbl, 0._dbl, kind=dbl)
-        this%sol%mech( ir2+2 : ir2+5 , jm_int ) = cmplx(0._dbl, 0._dbl, kind=dbl)
+        this%sol%temp( ir1+1 : ir1+2 , jm_int ) = czero
+        this%sol%torr( ir1+1 : ir1+2 , jm_int ) = czero
+        this%sol%mech( ir2+2 : ir2+5 , jm_int ) = czero
       end do
       
       i = this%nd+1
-        this%sol%temp( 3*this%nd+1               , jm_int ) = cmplx(0._dbl, 0._dbl, kind=dbl)
-        this%sol%torr( 3*this%nd+1               , jm_int ) = cmplx(0._dbl, 0._dbl, kind=dbl)
-        this%sol%mech( 6*this%nd+1 : 6*this%nd+2 , jm_int ) = cmplx(0._dbl, 0._dbl, kind=dbl)
+        this%sol%temp( 3*this%nd+1 , jm_int ) = czero
+        this%sol%torr( 3*this%nd+1 , jm_int ) = czero
+        this%sol%mech( 6*this%nd+1 , jm_int ) = czero
+        this%sol%mech( 6*this%nd+2 , jm_int ) = czero
         
       call this%mat%temp(j)%luSolve_sub( this%sol%temp(:,jm_int) )
       call this%mat%torr(j)%luSolve_sub( this%sol%torr(:,jm_int) )
