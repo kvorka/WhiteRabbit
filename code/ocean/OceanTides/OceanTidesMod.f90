@@ -4,7 +4,7 @@ module OceanTidesMod
   private
 
   type, extends(T_ocean), public :: T_oceanTides
-    complex(kind=dbl), allocatable, private :: nmech(:,:), v201(:), v203(:), v221(:), v223(:)
+    complex(kind=dbl), allocatable, private :: v201(:), v203(:), v221(:), v223(:)
     real(kind=dbl)                          :: heating
     integer                                 :: number_of_periods, k_of_period
 
@@ -14,7 +14,6 @@ module OceanTidesMod
     procedure, public, pass :: iter_sub        => iter_oceanTides_sub
     procedure, public, pass :: time_scheme_sub => time_scheme_oceanTides_sub
     procedure, public, pass :: vypis_ocean_sub => vypis_oceanTides_sub
-    procedure, public, pass :: deallocate_sub  => deallocate_oceanTides_sub
 
   end type T_oceanTides
 
@@ -150,13 +149,5 @@ module OceanTidesMod
     write(11,*) this%number_of_periods, stress_dim * this%heating / 1e6
     
   end subroutine vypis_oceanTides_sub
-
-  subroutine deallocate_oceanTides_sub(this)
-    class(T_oceanTides), intent(inout) :: this
-
-    close(1); deallocate( this%nmech )
-    call this%deallocate_ocean_sub()
-
-  end subroutine deallocate_oceanTides_sub
 
 end module OceanTidesMod

@@ -9,7 +9,7 @@ code_tides="tides"
 code_oceanIce="iceOcean"
 
 #co sa ice pocitat
-code_type="ice"
+code_type="convection"
 
 #priprava priecinkov
 rm -f data/data_ice_shape/*.dat || true   #vymaz stare data tvaru

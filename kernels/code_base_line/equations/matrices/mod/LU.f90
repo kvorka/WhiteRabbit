@@ -9,70 +9,67 @@ module LU
 
   contains
 
-  subroutine ludecomposition_sub(n, ld, lu, a, al, indx)
+  subroutine ludecomposition_sub(n, ld, lu, Upper, Lower, Indx)
     integer,        intent(in)    :: n, ld, lu
-    real(kind=dbl), intent(inout) :: a(:,:), al(:,:)
-    integer,        intent(out)   :: indx(:)
-    integer                       :: i, k, l
-    real(kind=dbl)                :: dum
+    real(kind=dbl), intent(inout) :: Upper(:,:)
+    real(kind=dbl), intent(out)   :: Lower(:,:)
+    integer,        intent(out)   :: Indx(:)
+    integer                       :: i, j, k, ldu
     real(kind=dbl), allocatable   :: pom(:)
 
-    l = ld
-      do i = 1, ld
-        do k = (ld+2-i), ld+1+lu
-          a(k-l,i) = a(k,i)
-        end do
+    k = ld; ldu = ld+1+lu
     
-        l = l-1; a(ld+1+lu-l:ld+1+lu,i) = 0._dbl
-      end do
+    do i = 1, ld
+      Upper(ld+2-i-k:ldu-k,i) = Upper(ld+2-i:ldu,i)
+
+      k = k-1
+        Upper(ldu-k:ldu,i) = 0._dbl
+    end do
     
-    do k = 1, n
-      l = min(ld+k,n)
-        i = maxloc(abs(a(1,k:l)),1)+k-1; dum = a(1,i); indx(k) = i
+    allocate(pom(1:ldu))
+      do j = 1, n
+        k = min(ld+j,n); i = maxloc(abs(Upper(1,j:k)),1)+j-1; Indx(j) = i
       
-        if (i /= k) then
-          allocate(pom(ld+1+lu))
-            pom    = a(:,k)
-            a(:,k) = a(:,i)
-            a(:,i) = pom
-          deallocate(pom)
+        if (i /= j) then
+          pom        = Upper(:,j)
+          Upper(:,j) = Upper(:,i)
+          Upper(:,i) = pom
         end if
       
-      do i = k+1, l
-        dum = a(1,i)/a(1,k); al(i-k,k) = dum
-          a(1:ld+lu,i) = a(2:ld+1+lu,i) - dum*a(2:ld+1+lu,k)
-          a(ld+1+lu,i) = 0._dbl
+        do i = j+1, k
+          Lower(i-j,j)     = Upper(1,i) / Upper(1,j)
+          Upper(1:ldu-1,i) = Upper(2:ldu,i) - Lower(i-j,j) * Upper(2:ldu,j)
+          Upper(ldu,i) = 0._dbl
+        end do
       end do
-    end do
+    deallocate(pom)
 
   end subroutine ludecomposition_sub
 
-  subroutine lusolution_sub(n, ld, lu, a, al, indx, b)
+  subroutine lusolution_sub(n, ld, lu, Upper, Lower, Indx, b)
     integer,           intent(in)    :: n, ld, lu
-    real(kind=dbl),    intent(in)    :: a(:,:), al(:,:)
-    integer,           intent(in)    :: indx(:)
+    real(kind=dbl),    intent(in)    :: Upper(:,:), Lower(:,:)
+    integer,           intent(in)    :: Indx(:)
     complex(kind=dbl), intent(inout) :: b(:)
-    integer                          :: i, k, l
+    integer                          :: i, j, k, ldu
     complex(kind=dbl)                :: dum
 
-    l = ld
-      do k = 1, n
-        i = indx(k)
-          if (i /= k) then
-            dum  = b(k)
-            b(k) = b(i)
-            b(i) = dum
-          end if
-
-        if (l < n) l = l + 1
-          b(k+1:l) = b(k+1:l) - al(1:l-k,k)*b(k)
-      end do
-
-    l = 1
-      do i = n, 1, -1
-        b(i) = (b(i) - sum(a(2:l,i)*b(i+1:i+l-1)))/a(1,i)
-        if (l < (ld+1+lu)) l = l + 1
-      end do
+    ldu = ld + 1 + lu
+    
+    do j = 1, n
+      i = Indx(j)
+        if (i /= j) then
+          dum  = b(i)
+          b(i) = b(j)
+          b(j) = dum
+        end if
+        
+      k = min(n,ld+j) ; b(j+1:k) = b(j+1:k) - Lower(1:k-j,j) * b(j)
+    end do
+    
+    do i = n, 1, -1
+      k = min(ldu,n-i+1) ; b(i) = ( b(i) - sum( Upper(2:k,i)*b(i+1:i+k-1) ) ) / Upper(1,i)
+    end do
 
   end subroutine lusolution_sub
   

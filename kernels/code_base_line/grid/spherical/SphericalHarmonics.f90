@@ -124,6 +124,7 @@ module SphericalHarmonics
 
   private :: init_harmonics_sub
   private :: deallocate_harmonics_sub
+  private :: destroy_plan_sub
 
   contains
 
@@ -197,9 +198,26 @@ module SphericalHarmonics
 
   subroutine deallocate_harmonics_sub(this)
     class(T_lateralGrid), intent(inout) :: this
-    
+
+    call destroy_plan_sub(this%fftw_01_back)
+    call destroy_plan_sub(this%fftw_03_back)
+    call destroy_plan_sub(this%fftw_04_back)
+
+    call destroy_plan_sub(this%fftw_04_forw)
+    call destroy_plan_sub(this%fftw_06_forw)
+    call destroy_plan_sub(this%fftw_12_forw)
+    call destroy_plan_sub(this%fftw_16_forw)
+    call destroy_plan_sub(this%fftw_19_forw)
+
     deallocate(this%roots, this%amjrr, this%bmjrr, this%cmmrr, this%fftLege)
 
   end subroutine deallocate_harmonics_sub
+
+  subroutine destroy_plan_sub(plan)
+    type(C_ptr), intent(inout) :: plan
+
+    if ( c_associated(plan) ) call fftw_destroy_plan(plan)
+
+  end subroutine destroy_plan_sub
   
 end module SphericalHarmonics

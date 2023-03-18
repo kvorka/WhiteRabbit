@@ -4,14 +4,12 @@ module OceanIceMod
   private
 
   type, extends(T_ocean), public :: T_oceanice
-    real(kind=dbl),                 private :: ClRoc2
-    complex(kind=dbl), allocatable, private :: nmech(:,:), ntemp(:,:)
+    real(kind=dbl), private :: ClRoc2
 
     contains
 
     procedure, public, pass :: init_sub        => init_oceanice_sub
     procedure, public, pass :: time_scheme_sub => time_scheme_oceanice_sub
-    procedure, public, pass :: deallocate_sub  => deallocate_oceanice_sub
 
   end type T_oceanice
 
@@ -34,7 +32,8 @@ module OceanIceMod
       do j=1,this%jmax; call this%mat%torr(j)%fill_sub( matica_torr_fn(this,j,+0.6_dbl), matica_torr_fn(this,j,-0.4_dbl)  ); end do
       do j=1,this%jmax; call this%mat%mech(j)%fill_sub( matica_mech_fn(this,j,+0.6_dbl), matica_mech_fn(this,j,-0.4_dbl)  ); end do
 
-    allocate( this%nmech(this%jmv,2:this%nd), this%ntemp(this%jms,2:this%nd), this%flux_up(this%jms) )
+    allocate( this%nmech(this%jmv,2:this%nd), this%ntemp(this%jms,2:this%nd), this%flux_up(this%jms), &
+            & this%rmech(this%jmv,2:this%nd), this%rtemp(this%jms,2:this%nd)                          )
       this%nmech = cmplx(0._dbl, 0._dbl, kind=dbl); this%ntemp = cmplx(0._dbl, 0._dbl, kind=dbl)
       this%flux_up = cmplx(0._dbl, 0._dbl, kind=dbl)
     
@@ -48,12 +47,8 @@ module OceanIceMod
     integer                           :: i, jm_int, j, jm1, jm2, jmv1, jmv2
     real(kind=dbl)                   :: q
     complex(kind=dbl)                :: angularMomentum
-    complex(kind=dbl), allocatable   :: rtemp(:,:), rmech(:,:)
 
     this%t = this%t + this%dt
-
-    allocate( rmech(this%jmv,2:this%nd), rtemp(this%jms,2:this%nd) )
-      rmech = cmplx(0._dbl, 0._dbl, kind=dbl); rtemp = cmplx(0._dbl, 0._dbl, kind=dbl)
 
     !$omp parallel do private (j, jm1, jm2, jmv1, jmv2)
       do i = 2, this%nd
@@ -126,8 +121,6 @@ module OceanIceMod
     end do
     !$omp end parallel do
 
-    deallocate( rmech, rtemp )
-
     if (this%mechanic_bnd == 'frees') then
       associate( coeff => ((1/this%r_ud-1)**5) / (1/this%r_ud**5-1) )
         do jm_int = 2, 3
@@ -141,16 +134,5 @@ module OceanIceMod
     end if
 
   end subroutine time_scheme_oceanice_sub
-
-  subroutine deallocate_oceanice_sub(this)
-    !Cistenie po vypocte - destruktor pre T_oceanice.
-    class(T_oceanice), intent(inout) :: this
-
-    deallocate( this%nmech, this%ntemp, this%flux_up )
-    close(11); close(12)
-    call this%lat_grid%deallocate_fftw_vcsv_vcvv_vcvgv_sub()
-    call this%deallocate_ocean_sub()
-
-  end subroutine deallocate_oceanice_sub
 
 end module OceanIceMod

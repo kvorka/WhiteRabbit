@@ -9,16 +9,19 @@ module OceanMod
   implicit none
 
   type, extends(T_physicalObject), abstract, public :: T_ocean
+    complex(kind=dbl), allocatable :: nmech(:,:), rmech(:,:), ntemp(:,:), rtemp(:,:)
 
     contains
     
     procedure, pass :: init_ocean_sub
     procedure, pass :: set_boundary_deformation
-    procedure, pass :: deallocate_ocean_sub
+    procedure, pass :: global_rotation_sub
 
-    procedure,                                 pass :: vypis_ocean_sub => vypis_ocean_sub
-    procedure,                                 pass :: iter_sub        => iter_ocean_sub
-    procedure,                                 pass :: init_state_sub  => init_state_ocean_sub
+    procedure, pass :: vypis_ocean_sub => vypis_ocean_sub
+    procedure, pass :: iter_sub        => iter_ocean_sub
+    procedure, pass :: init_state_sub  => init_state_ocean_sub
+    procedure, pass :: deallocate_sub  => deallocate_ocean_sub
+
     procedure(time_scheme_abstract), deferred, pass :: time_scheme_sub
 
   end type T_ocean
@@ -69,6 +72,24 @@ module OceanMod
     this%sol%u_up(1:jmsmax) = u_up(1:jmsmax) / this%D_ud
 
   end subroutine set_boundary_deformation
+
+  subroutine global_rotation_sub(this)
+    class(T_ocean), intent(inout) :: this
+    integer                       :: i, m
+    real(kind=dbl)                :: coeff
+    complex(kind=dbl)             :: angularMomentum
+
+    coeff = ((1/this%r_ud-1)**5) / (1/this%r_ud**5-1)
+
+    do m = 0, 1
+      angularMomentum = 5 * this%rad_grid%intV_fn(this%rad_grid%rr * this%sol%velocity_i_fn(1,m,0)) * coeff
+        
+      do i = 1, this%nd+1
+        this%sol%torr(3*(i-1)+1, m+2) = this%sol%torr(3*(i-1)+1, m+2) - angularMomentum * this%rad_grid%rr(i)
+      end do
+    end do
+
+  end subroutine global_rotation_sub
 
   subroutine init_state_ocean_sub(this)
     class(T_ocean), intent(inout) :: this
@@ -157,7 +178,8 @@ module OceanMod
     this%flux_up = cmplx(0._dbl, 0._dbl, kind=dbl)
     
     do k = 1, 2 * this%n_iter
-      call this%time_scheme_sub(cf=1.5_dbl)
+      this%t = this%t + this%dt ; call this%time_scheme_sub(cf=1.5_dbl)
+      
       if ( k > this%n_iter ) this%flux_up = this%flux_up + this%qr_jm_fn(this%nd)
     end do
     
@@ -169,7 +191,15 @@ module OceanMod
 
   subroutine deallocate_ocean_sub(this)
     class(T_ocean), intent(inout) :: this
+
+    close(11); close(12)
     
+    if ( allocated(this%flux_up) ) deallocate( this%flux_up )
+    if ( allocated(this%ntemp)   ) deallocate( this%ntemp   )
+    if ( allocated(this%nmech)   ) deallocate( this%nmech   )
+    if ( allocated(this%rmech)   ) deallocate( this%rmech   )
+    if ( allocated(this%rtemp)   ) deallocate( this%rtemp   )
+
     call this%deallocate_objects_sub()
 
   end subroutine deallocate_ocean_sub
