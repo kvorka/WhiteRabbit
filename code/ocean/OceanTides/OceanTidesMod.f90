@@ -31,11 +31,12 @@ module OceanTidesMod
 
     call this%sol%init_storr_sub(); call this%sol%init_smech_sub()
     call this%mat%init_mtorr_sub(); call this%mat%init_mmech_sub()
-      do j=1,this%jmax; call this%mat%torr(j)%fill_sub( matica_torr_fn(this,j,+1._dbl), matica_torr_fn(this,j,0._dbl)  ); end do 
-      do j=1,this%jmax; call this%mat%mech(j)%fill_sub( matica_mech_fn(this,j,+1._dbl), matica_mech_fn(this,j,0._dbl)  ); end do
 
-    allocate( this%nmech(this%jmv,2:this%nd) )
-      this%nmech = cmplx(0._dbl, 0._dbl, kind=dbl)
+    do j=1,this%jmax; call this%mat%torr(j)%fill_sub( matica_torr_fn(this,j,+1._dbl), matica_torr_fn(this,j,0._dbl)  ); end do 
+    do j=1,this%jmax; call this%mat%mech(j)%fill_sub( matica_mech_fn(this,j,+1._dbl), matica_mech_fn(this,j,0._dbl)  ); end do
+
+    allocate( this%nmech(this%jmv,2:this%nd) ) ; this%nmech = cmplx(0._dbl, 0._dbl, kind=dbl)
+    allocate( this%rmech(this%jmv,2:this%nd) ) ; this%rmech = cmplx(0._dbl, 0._dbl, kind=dbl)
 
     allocate( this%v201(this%n_iter), this%v203(this%n_iter), this%v221(this%n_iter), this%v223(this%n_iter) )
       allocate( u201(this%n_iter), u203(this%n_iter), u221(this%n_iter), u223(this%n_iter) )
@@ -81,19 +82,16 @@ module OceanTidesMod
     class(T_oceanTides),  intent(inout) :: this
     real(kind=dbl),       intent(in)    :: cf
     integer                             :: i, jm_int
-    complex(kind=dbl),    allocatable   :: rmech(:,:)
-
-    allocate( rmech(this%jmv,2:this%nd) ); rmech = cmplx(0._dbl, 0._dbl, kind=dbl)
 
     !$omp parallel do private (jm_int)
     do i = 2, this%nd
       do jm_int = 2, this%jms
-        rmech(3*(jm_int-1)-1,i) = this%mat%mech( this%j_indx(jm_int) )%multipl_fn( 6*(i-1)+1, this%sol%mech(:,jm_int) )
-        rmech(3*(jm_int-1)  ,i) = this%mat%torr( this%j_indx(jm_int) )%multipl_fn( 3*(i-1)+1, this%sol%torr(:,jm_int) )
-        rmech(3*(jm_int-1)+1,i) = this%mat%mech( this%j_indx(jm_int) )%multipl_fn( 6*(i-1)+2, this%sol%mech(:,jm_int) )
+        this%rmech(3*(jm_int-1)-1,i) = this%mat%mech( this%j_indx(jm_int) )%multipl_fn( 6*(i-1)+1, this%sol%mech(:,jm_int) )
+        this%rmech(3*(jm_int-1)  ,i) = this%mat%torr( this%j_indx(jm_int) )%multipl_fn( 3*(i-1)+1, this%sol%torr(:,jm_int) )
+        this%rmech(3*(jm_int-1)+1,i) = this%mat%mech( this%j_indx(jm_int) )%multipl_fn( 6*(i-1)+2, this%sol%mech(:,jm_int) )
       end do
 
-      rmech(:,i) = rmech(:,i) + this%nmech(:,i) * (1-cf)
+      this%rmech(:,i) = this%rmech(:,i) + this%nmech(:,i) * (1-cf)
 
       if (.not. this%noharm) then
         this%nmech(:,i) = 2 * coriolis_fn(this,i) + vgradv_fn(this,i)
@@ -101,7 +99,7 @@ module OceanTidesMod
         this%nmech(:,i) = 2 * coriolis_fn(this,i)
       end if
 
-      rmech(:,i) = rmech(:,i) + this%nmech(:,i) * (  cf)
+      this%rmech(:,i) = this%rmech(:,i) + this%nmech(:,i) * (  cf)
     end do
     !$omp end parallel do
 
@@ -112,9 +110,9 @@ module OceanTidesMod
         this%sol%mech( 1:6 , jm_int ) = cmplx(0._dbl, 0._dbl, kind=dbl)
 
       do i = 2, this%nd
-        this%sol%torr( 3*(i-1)+1 , jm_int ) = rmech( 3*(jm_int-1)  , i )
-        this%sol%mech( 6*(i-1)+1 , jm_int ) = rmech( 3*(jm_int-1)-1, i )
-        this%sol%mech( 6*(i-1)+2 , jm_int ) = rmech( 3*(jm_int-1)+1, i )
+        this%sol%torr( 3*(i-1)+1 , jm_int ) = this%rmech( 3*(jm_int-1)  , i )
+        this%sol%mech( 6*(i-1)+1 , jm_int ) = this%rmech( 3*(jm_int-1)-1, i )
+        this%sol%mech( 6*(i-1)+2 , jm_int ) = this%rmech( 3*(jm_int-1)+1, i )
         
         this%sol%torr( 3*(i-1)+2 : 3*(i-1)+3 , jm_int ) = cmplx(0._dbl, 0._dbl, kind=dbl)
         this%sol%mech( 6*(i-1)+3 : 6*(i-1)+6 , jm_int ) = cmplx(0._dbl, 0._dbl, kind=dbl)
@@ -138,8 +136,6 @@ module OceanTidesMod
       call this%mat%mech( this%j_indx(jm_int) )%luSolve_sub( this%sol%mech(:,jm_int) )
     end do
     !$omp end parallel do
-
-    deallocate( rmech )
 
   end subroutine time_scheme_oceanTides_sub
 

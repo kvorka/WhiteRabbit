@@ -5,7 +5,6 @@ module LU
   public :: ludecomposition_sub
   public :: lusolution_sub
   public :: multipl1_fn
-  public :: multipl2_fn
 
   contains
 
@@ -81,24 +80,5 @@ module LU
     multipl1_fn = sum( a(max(1,ld+2-i):min(ld+1+lu,ld+1+n-i),i) * x(max(1,i-ld):min(i+lu,n)) )
 
   end function multipl1_fn
-  
-  pure function multipl2_fn(i, n, ld, lu, a, x) result(multipl)
-    integer,           intent(in) :: i, n, ld, lu
-    real(kind=dbl),    intent(in) :: a(:,:)
-    complex(kind=dbl), intent(in) :: x(:,:)
-    integer                       :: j, indx1, indx2, indm1, indm2
-    real(kind=dbl),   allocatable :: mat(:) 
-    complex(kind=dbl)             :: multipl(size(x,2))
-
-    indx1 = max(1,i-ld) ; indm1 = max(1,ld+2-i)
-    indx2 = min(i+lu,n) ; indm2 = min(ld+1+lu,ld+1+n-i)
-    
-    allocate( mat(indm2-indm1+1) ) ; mat = a(indm1:indm2,i)
-      do j = 1, size(x,2)
-        multipl(j) = sum( mat(:) * x(indx1:indx2,j) )
-      end do
-    deallocate( mat )
-
-  end function multipl2_fn
 
 end module LU

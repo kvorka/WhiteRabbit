@@ -14,7 +14,6 @@ module Matrix
     procedure, public, pass :: fill_sub       => fillMatrix_sub
     procedure, public, pass :: luSolve_sub    => luSolutionMatrix_sub
     procedure, public, pass :: multipl_fn     => matrixMultiple_fn
-    procedure, public, pass :: multipl2_fn    => matrixMultiple2_fn
     procedure, public, pass :: deallocate_sub => deallocateMatrix_sub
 
   end type T_matrix
@@ -57,16 +56,6 @@ module Matrix
     matrixMultiple_fn = multipl1_fn(i, this%n, this%ns, this%nu, this%M, vector)
 
   end function matrixMultiple_fn
-
-  pure function matrixMultiple2_fn(this, i, vector) result(multipl)
-    class(T_matrix),   intent(in) :: this
-    integer,           intent(in) :: i
-    complex(kind=dbl), intent(in) :: vector(:,:)
-    complex(kind=dbl)             :: multipl(size(vector,2))
-
-    multipl = multipl2_fn(i, this%n, this%ns, this%nu, this%M, vector)
-
-  end function matrixMultiple2_fn
 
   subroutine deallocateMatrix_sub(this)
     class(T_matrix), intent(inout) :: this

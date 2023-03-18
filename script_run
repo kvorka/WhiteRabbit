@@ -1,5 +1,5 @@
 #!/bin/bash
-compiler=gfortran-12
+compiler=gfortran-10
 optimization=Ofast
 
 #vyber z moznosti
@@ -12,19 +12,21 @@ code_oceanIce="iceOcean"
 code_type="convection"
 
 #priprava priecinkov
-rm -f data/data_ice_shape/*.dat || true   #vymaz stare data tvaru
-rm -f data/data_ice_topo/*.dat  || true   #vymaz stare data topografie
-rm -f data/data_ice_tides/*.dat || true   #vymaz stare data slapoveho zahrievania
-
-rm -f data/*.dat                  || true   #vymaz stare Nu a Re
-rm -f data/data_ocean_flux/*.dat  || true   #vymaz stare data toku
-rm -f data/data_ocean_veloc/*.dat || true   #vymaz stare data rychlosti
-rm -f data/data_ocean_temp/*.dat  || true   #vymaz stare data teploty
+rm -r -f data || true
+mkdir data
 
 #kompilacia zakladov programu
 ./code/scripts/compileBaseLine $compiler $optimization
 
 if [ "$code_type" = "$code_oceanIce" ]; then
+mkdir data/data_ice_topo
+mkdir data/data_ice_shape
+mkdir data/data_ice_tides
+
+mkdir data/data_ocean_temp
+mkdir data/data_ocean_veloc
+mkdir data/data_ocean_flux
+
 #kompilacia modelu oceana a ladovej kory
 $compiler -$optimization -march=native -fopenmp -c code/ocean/OceanIce/OceanIceMod.f90  #casova schema ocean
 
@@ -42,11 +44,19 @@ fi
 
 #kompilacia modelu oceanskej konvekcie
 if [ "$code_type" = "$code_convection" ]; then
+mkdir data/data_ocean_temp
+mkdir data/data_ocean_veloc
+mkdir data/data_ocean_flux
+
 $compiler -$optimization -march=native -fopenmp -c code/ocean/OceanConv/OceanConvMod.f90                             #casova schema
 $compiler -$optimization -march=native -fopenmp code/codes/BielyKralik_oceanConv.f90 *.o -o Test_convection -lfftw3  #vypocet
 fi
 
 if [ "$code_type" = "$code_ice" ]; then
+mkdir data/data_ice_topo
+mkdir data/data_ice_shape
+mkdir data/data_ice_tides
+
 #kompilacia modelu ladovej kory
 $compiler -$optimization -march=native -c code/ice/tides/IceTidesMod.f90           #casova schema slapy
 $compiler -$optimization -march=native -fopenmp -c code/ice/crust/IceCrustMod.f90  #casova schema ladova kora
