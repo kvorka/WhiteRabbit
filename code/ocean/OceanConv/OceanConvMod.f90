@@ -7,7 +7,6 @@ module OceanConvMod
     
     procedure, public, pass :: init_sub        => init_oceanConv_sub
     procedure, public, pass :: time_scheme_sub => time_scheme_oceanConv_sub
-  
   end type T_oceanConv
   
   contains
@@ -36,15 +35,9 @@ module OceanConvMod
     class(T_oceanConv), intent(inout) :: this
     real(kind=dbl),     intent(in)    :: cf
     integer                           :: i, ir1, ir2, j, jm_int, jml0
-
-    j = 0
-      do i = 2, this%nd
-        ir1 = 3*(i-1)+1
-          this%rtemp(i,1) = (1-cf) * this%ntemp(i,1) + this%mat%temp(0)%multipl_fn(ir1,this%sol%temp(:,1))
-      end do
     
     !$omp parallel do private (ir1,ir2,j,jml0) collapse(2)
-    do jm_int = 2, this%jms
+    do jm_int = 1, this%jms
       do i = 2, this%nd
         j    = this%j_indx(jm_int)
         jml0 = 3*(jm_int-1)
@@ -52,10 +45,14 @@ module OceanConvMod
         ir1 = 3*(i-1)+1
         ir2 = 6*(i-1)+1
 
-        this%rtemp(i,jm_int) = (1-cf) * this%ntemp(i,jm_int) + this%mat%temp(j)%multipl_fn(ir1  ,this%sol%temp(:,jm_int))
-        this%rmech(i,jml0-1) = (1-cf) * this%nmech(i,jml0-1) + this%mat%mech(j)%multipl_fn(ir2  ,this%sol%mech(:,jm_int))
-        this%rmech(i,jml0  ) = (1-cf) * this%nmech(i,jml0  ) + this%mat%torr(j)%multipl_fn(ir1  ,this%sol%torr(:,jm_int))
-        this%rmech(i,jml0+1) = (1-cf) * this%nmech(i,jml0+1) + this%mat%mech(j)%multipl_fn(ir2+1,this%sol%mech(:,jm_int))
+        if (j == 0) then
+          this%rtemp(i,1) = (1-cf) * this%ntemp(i,1) + this%mat%temp(0)%multipl_fn(ir1,this%sol%temp(:,1))
+        else
+          this%rtemp(i,jm_int) = (1-cf) * this%ntemp(i,jm_int) + this%mat%temp(j)%multipl_fn(ir1  ,this%sol%temp(:,jm_int))
+          this%rmech(i,jml0-1) = (1-cf) * this%nmech(i,jml0-1) + this%mat%mech(j)%multipl_fn(ir2  ,this%sol%mech(:,jm_int))
+          this%rmech(i,jml0  ) = (1-cf) * this%nmech(i,jml0  ) + this%mat%torr(j)%multipl_fn(ir1  ,this%sol%torr(:,jm_int))
+          this%rmech(i,jml0+1) = (1-cf) * this%nmech(i,jml0+1) + this%mat%mech(j)%multipl_fn(ir2+1,this%sol%mech(:,jm_int))
+        end if
       end do
     end do
     !$omp end parallel do
@@ -97,19 +94,17 @@ module OceanConvMod
         this%sol%torr( 1 , jm_int ) = czero
         this%sol%mech( 1 , jm_int ) = czero
         this%sol%mech( 2 , jm_int ) = czero
-
-        this%sol%temp( 2:3 , jm_int ) = czero
-        this%sol%torr( 2:3 , jm_int ) = czero
-        this%sol%mech( 3:6 , jm_int ) = czero
         
       do i = 2, this%nd
         ir1 = 3*(i-1)+1
         ir2 = 6*(i-1)+1
-        
-        this%sol%temp( ir1   , jm_int ) = this%rtemp( i, jm_int )
-        this%sol%torr( ir1   , jm_int ) = this%rmech( i, jml0   )
-        this%sol%mech( ir2   , jm_int ) = this%rmech( i, jml0-1 )
-        this%sol%mech( ir2+1 , jm_int ) = this%rmech( i, jml0+1 )
+
+        if (i > 1) then
+          this%sol%temp( ir1   , jm_int ) = this%rtemp( i, jm_int )
+          this%sol%torr( ir1   , jm_int ) = this%rmech( i, jml0   )
+          this%sol%mech( ir2   , jm_int ) = this%rmech( i, jml0-1 )
+          this%sol%mech( ir2+1 , jm_int ) = this%rmech( i, jml0+1 )
+        end if
         
         this%sol%temp( ir1+1 : ir1+2 , jm_int ) = czero
         this%sol%torr( ir1+1 : ir1+2 , jm_int ) = czero
