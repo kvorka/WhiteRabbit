@@ -14,24 +14,21 @@ module OceanConvMod
   
   subroutine init_oceanConv_sub(this)
     class(T_oceanConv), intent(inout) :: this
-    integer                           :: j
     
-    call this%init_ocean_sub(); call this%lat_grid%init_vcsv_vcvv_vcvgv_sub()
+    call this%init_ocean_sub()
+      call this%lat_grid%init_vcsv_vcvv_vcvgv_sub()
     
-    call this%sol%init_stemp_sub(); call this%sol%init_storr_sub(); call this%sol%init_smech_sub()
-    call this%mat%init_mtemp_sub(); call this%mat%init_mtorr_sub(); call this%mat%init_mmech_sub()
+    call this%init_eq_temp_sub()
+      allocate( this%ntemp(2:this%nd,this%jms) ) ; this%ntemp   = czero
+      allocate( this%rtemp(2:this%nd,this%jms) ) ; this%rtemp   = czero
+      allocate( this%flux_up(this%jms)         ) ; this%flux_up = czero
 
-    do j=0,this%jmax; call this%mat%temp(j)%fill_sub( matica_temp_fn(this,j,+0.6_dbl), matica_temp_fn(this,j,-0.4_dbl) ); end do
-    do j=1,this%jmax; call this%mat%torr(j)%fill_sub( matica_torr_fn(this,j,+0.6_dbl), matica_torr_fn(this,j,-0.4_dbl) ); end do
-    do j=1,this%jmax; call this%mat%mech(j)%fill_sub( matica_mech_fn(this,j,+0.6_dbl), matica_mech_fn(this,j,-0.4_dbl) ); end do
+    call this%init_eq_torr_sub()
+    call this%init_eq_mech_sub()
+      allocate( this%nmech(2:this%nd,this%jmv) ) ; this%nmech   = czero
+      allocate( this%rmech(2:this%nd,this%jmv) ) ; this%rmech   = czero
     
-    allocate( this%nmech(2:this%nd,this%jmv) ) ; this%nmech   = czero
-    allocate( this%rmech(2:this%nd,this%jmv) ) ; this%rmech   = czero
-    allocate( this%ntemp(2:this%nd,this%jms) ) ; this%ntemp   = czero
-    allocate( this%rtemp(2:this%nd,this%jms) ) ; this%rtemp   = czero
-    allocate( this%flux_up(this%jms)         ) ; this%flux_up = czero
-    
-    call this%init_state_sub(); call this%vypis_ocean_sub()
+    call this%init_state_sub()
     
   end subroutine init_oceanConv_sub
   
