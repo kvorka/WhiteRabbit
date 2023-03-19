@@ -95,7 +95,7 @@ module OceanConvMod
         this%sol%mech( 1 , jm_int ) = czero
         this%sol%mech( 2 , jm_int ) = czero
         
-      do i = 2, this%nd
+      do i = 1, this%nd
         ir1 = 3*(i-1)+1
         ir2 = 6*(i-1)+1
 
