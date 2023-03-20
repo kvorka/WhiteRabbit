@@ -28,7 +28,7 @@ mkdir data/data_ocean_veloc
 mkdir data/data_ocean_flux
 
 #kompilacia modelu oceana a ladovej kory
-$compiler -$optimization -march=native -fopenmp -c code/ocean/OceanIce/OceanIceMod.f90  #casova schema ocean
+$compiler -$optimization -march=native -fopenmp -c code/ocean/mods/OceanIceMod.f90  #casova schema ocean
 
 $compiler -$optimization -march=native -c code/ice/tides/IceTidesMod.f90           #casova schema slapy
 $compiler -$optimization -march=native -fopenmp -c code/ice/crust/IceCrustMod.f90  #casova schema ladova kora
@@ -38,7 +38,7 @@ fi
 
 if [ "$code_type" = "$code_tides" ]; then
 #kompilacia modelu oceanskych slapov
-$compiler -$optimization -march=native -fopenmp -c code/ocean/OceanTides/OceanTidesMod.f90                       #casova schema
+$compiler -$optimization -march=native -fopenmp -c code/ocean/mods/OceanTidesMod.f90                       #casova schema
 $compiler -$optimization -march=native -fopenmp code/codes/BielyKralik_tidesOcean.f90 *.o -o Test_tides -lfftw3  #vypocet
 fi
 
@@ -48,7 +48,7 @@ mkdir data/data_ocean_temp
 mkdir data/data_ocean_veloc
 mkdir data/data_ocean_flux
 
-$compiler -$optimization -march=native -fopenmp -c code/ocean/OceanConv/OceanConvMod.f90                             #casova schema
+$compiler -$optimization -march=native -fopenmp -c code/ocean/mods/OceanConvMod.f90                             #casova schema
 $compiler -$optimization -march=native -fopenmp code/codes/BielyKralik_oceanConv.f90 *.o -o Test_convection -lfftw3  #vypocet
 fi
 

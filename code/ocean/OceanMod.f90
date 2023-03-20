@@ -18,6 +18,7 @@ module OceanMod
     procedure, pass :: init_eq_temp_sub
     procedure, pass :: init_eq_mech_sub
     procedure, pass :: init_eq_torr_sub
+    procedure, pass :: init_bnd_deformation_sub
     procedure, pass :: global_rotation_sub
 
     procedure, pass :: vypis_ocean_sub => vypis_ocean_sub
@@ -102,6 +103,13 @@ module OceanMod
     end do
 
   end subroutine init_eq_mech_sub
+
+  subroutine init_bnd_deformation_sub(this)
+    class(T_ocean), intent(inout) :: this
+    
+    call this%sol%init_layer_u_sub()
+    
+  end subroutine init_bnd_deformation_sub
 
   subroutine set_boundary_deformation(this, u_up, t_up)
     class(T_ocean), intent(inout) :: this
