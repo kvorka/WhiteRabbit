@@ -62,5 +62,8 @@ $compiler -$optimization -march=native -c code/ocean/OceanConstants.f90     #kon
 $compiler -$optimization -march=native -c code/ice/IceConstants.f90         #konstanty riadiace vypocet v ladovej kore
 
 #kompilacia vseobecnych struktur
-$compiler -$optimization -march=native -c code/ocean/OceanMod.f90   #vseobecny objekt pre ocean
+$compiler -$optimization -march=native -c code/ocean/OceanMod.f90                    #vseobecny objekt pre ocean
+$compiler -$optimization -march=native -c code/ocean/smod/OceanEquations.f90         #inicializacia rovnic
+$compiler -$optimization -march=native -c code/ocean/smod/OceanExternalRoutines.f90  #numericke stabilizacie a init_state
+
 $compiler -$optimization -march=native -c code/ice/IceMod.f90       #vseobecny objekt pre ladovu koru

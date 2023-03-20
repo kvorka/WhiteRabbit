@@ -1,5 +1,5 @@
 #!/bin/bash
-compiler=gfortran-10
+compiler=gfortran-12
 optimization=Ofast
 
 #vyber z moznosti
