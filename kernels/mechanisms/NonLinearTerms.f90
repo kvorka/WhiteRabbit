@@ -67,27 +67,36 @@ module NonLinearTerms
   
   end function coriolis_fn
   
-  subroutine fullnl_sub(this, i, nlscal, nlvect)
+  subroutine fullnl_sub(this, i, ntemp, nsph1, ntorr, nsph2)
     class(T_physicalObject), intent(in)  :: this
     integer,                 intent(in)  :: i
-    complex(kind=dbl),       intent(out) :: nlscal(:), nlvect(:)
-    complex(kind=dbl),       allocatable :: dv(:), v(:), q(:)
-  
-    associate( rr => this%rad_grid%rr ) ; allocate( dv(this%jmv), v(this%jmv), q(this%jmv) )
+    complex(kind=dbl),       intent(out) :: ntemp(:), nsph1(:), ntorr(:), nsph2(:)
+    integer                              :: ijm
+    complex(kind=dbl),       allocatable :: dv(:), v(:), q(:), nlvect(:)
+    
+    associate( rr => this%rad_grid%rr )
+      allocate( dv(this%jmv), v(this%jmv), q(this%jmv) )
+        v  = this%sol%velocity_jml_fn(i)
+        q  = this%rad_grid%cc(i,-1) * this%sol%flux_jml_fn(i-1) / this%lambda_fn(i-1) + &
+           & this%rad_grid%cc(i,+1) * this%sol%flux_jml_fn(i  ) / this%lambda_fn(i)
+        dv = ( (rr(i+1)-rr(i))/(rr(i-1)-rr(i)) * ( this%sol%velocity_jml_fn(i-1) - v ) - &
+           &   (rr(i-1)-rr(i))/(rr(i+1)-rr(i)) * ( this%sol%velocity_jml_fn(i+1) - v )   ) / (rr(i+1)-rr(i-1))
 
-      v  = this%sol%velocity_jml_fn(i)
-
-      q  = this%rad_grid%cc(i,-1) * this%sol%flux_jml_fn(i-1) / this%lambda_fn(i-1) + &
-         & this%rad_grid%cc(i,+1) * this%sol%flux_jml_fn(i  ) / this%lambda_fn(i)
-
-      dv = ( (rr(i+1)-rr(i))/(rr(i-1)-rr(i)) * ( this%sol%velocity_jml_fn(i-1) - v ) - &
-           & (rr(i-1)-rr(i))/(rr(i+1)-rr(i)) * ( this%sol%velocity_jml_fn(i+1) - v )   ) / (rr(i+1)-rr(i-1))
-
-      call this%lat_grid%vcsv_vcvv_vcvgv_sub(rr(i), q, dv, v, nlscal, nlvect)
-  
-    deallocate(dv, v, q) ; end associate
+      allocate( nlvect(this%jmv) )
+        call this%lat_grid%vcsv_vcvv_vcvgv_sub(rr(i), q, dv, v, ntemp, nlvect)
+      
+      deallocate(dv, v, q)
+    end associate
 
     nlvect = nlvect / this%Pr - this%Ra * erT_fn(this,i) + coriolis_fn(this,i) * 2/this%Ek
+
+    do ijm = 2, this%jms
+      nsph1(ijm) = nlvect(3*(ijm-1)-1)
+      ntorr(ijm) = nlvect(3*(ijm-1)  )
+      nsph2(ijm) = nlvect(3*(ijm-1)+1)
+    end do
+      
+    deallocate( nlvect )
     
   end subroutine fullnl_sub
 
