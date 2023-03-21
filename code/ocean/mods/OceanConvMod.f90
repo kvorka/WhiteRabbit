@@ -34,92 +34,93 @@ module OceanConvMod
   subroutine time_scheme_oceanConv_sub(this, cf)
     class(T_oceanConv), intent(inout) :: this
     real(kind=dbl),     intent(in)    :: cf
-    integer                           :: i, ir1, ir2, j, jm_int, jml0
-    
-    !$omp parallel do private (ir1,ir2,j,jml0) collapse(2)
-    do jm_int = 1, this%jms
-      do i = 2, this%nd
-        j    = this%j_indx(jm_int)
-        jml0 = 3*(jm_int-1)
-        
-        ir1 = 3*(i-1)+1
-        ir2 = 6*(i-1)+1
+    integer                           :: ir, ir1, ir2, ij, ijm, ijml
 
-        if (j == 0) then
-          this%rtemp(i,1) = (1-cf) * this%ntemp(i,1) + this%mat%temp(0)%multipl_fn(ir1,this%sol%temp(:,1))
-        else
-          this%rtemp(i,jm_int) = (1-cf) * this%ntemp(i,jm_int) + this%mat%temp(j)%multipl_fn(ir1  ,this%sol%temp(:,jm_int))
-          this%rmech(i,jml0-1) = (1-cf) * this%nmech(i,jml0-1) + this%mat%mech(j)%multipl_fn(ir2  ,this%sol%mech(:,jm_int))
-          this%rmech(i,jml0  ) = (1-cf) * this%nmech(i,jml0  ) + this%mat%torr(j)%multipl_fn(ir1  ,this%sol%torr(:,jm_int))
-          this%rmech(i,jml0+1) = (1-cf) * this%nmech(i,jml0+1) + this%mat%mech(j)%multipl_fn(ir2+1,this%sol%mech(:,jm_int))
-        end if
+    ij = 0
+      do ir = 2, this%nd
+        this%rtemp(ir,1) = (1-cf) * this%ntemp(ir,1) + this%mat%temp(0)%multipl_fn(3*(ir-1)+1,this%sol%temp(:,1))
+      end do
+    
+    !$omp parallel do private (ir1,ir2,ij,ijml) collapse(2)
+    do ijm = 2, this%jms
+      do ir = 2, this%nd
+        ij   = this%j_indx(ijm)
+        ijml = 3*(ijm-1)
+        
+        ir1 = 3*(ir-1)+1
+        ir2 = 6*(ir-1)+1
+
+        this%rtemp(ir,ijm   ) = (1-cf) * this%ntemp(ir,ijm   ) + this%mat%temp(ij)%multipl_fn(ir1  ,this%sol%temp(:,ijm))
+        this%rmech(ir,ijml-1) = (1-cf) * this%nmech(ir,ijml-1) + this%mat%mech(ij)%multipl_fn(ir2  ,this%sol%mech(:,ijm))
+        this%rmech(ir,ijml  ) = (1-cf) * this%nmech(ir,ijml  ) + this%mat%torr(ij)%multipl_fn(ir1  ,this%sol%torr(:,ijm))
+        this%rmech(ir,ijml+1) = (1-cf) * this%nmech(ir,ijml+1) + this%mat%mech(ij)%multipl_fn(ir2+1,this%sol%mech(:,ijm))
       end do
     end do
     !$omp end parallel do
 
     !$omp parallel do
-    do i = 2, this%nd
-      call fullnl_sub(this, i, this%ntemp(i,:), this%nmech(i,:))
+    do ir = 2, this%nd
+      call fullnl_sub(this, ir, this%ntemp(ir,:), this%nmech(ir,:))
     end do
     !$omp end parallel do
     
-    !$omp parallel workshare
-    this%rtemp = this%rtemp + cf * this%ntemp
-    this%rmech = this%rmech + cf * this%nmech
-    !$omp end parallel workshare
-    
-    j = 0
-      i = 1
-        this%sol%temp( 1  , 1 ) = cmplx(sqrt(4*pi), 0._dbl, kind=dbl)
-        this%sol%temp( 2:3, 1 ) = czero
+    ij = 0
+      ir = 1
+        this%sol%temp(1,1) = cmplx(sqrt(4*pi), 0._dbl, kind=dbl)
+        this%sol%temp(2,1) = czero
+        this%sol%temp(3,1) = czero
       
-      do i = 2, this%nd
-        ir1 = 3*(i-1)+1
-          this%sol%temp( ir1         , 1 ) = this%rtemp(i,1)
-          this%sol%temp( ir1+1:ir1+2 , 1 ) = czero
+      do ir = 2, this%nd
+        ir1 = 3*(ir-1)+1
+          
+        this%sol%temp(ir1  ,1) = this%rtemp(ir,1) + cf * this%ntemp(ir,1)
+        this%sol%temp(ir1+1,1) = czero
+        this%sol%temp(ir1+2,1) = czero
       end do
       
-      i = this%nd+1
-        this%sol%temp( 3*this%nd+1, 1 ) = czero
+      ir = this%nd+1
+        this%sol%temp(3*this%nd+1,1) = czero
       
       call this%mat%temp(0)%luSolve_sub( this%sol%temp(:,1) )
       
-    !$omp parallel do private (i,ir1,ir2,j,jml0)
-    do jm_int = 2, this%jms
-      j    = this%j_indx(jm_int)
-      jml0 = 3*(jm_int-1)
+    !$omp parallel do private (ir,ir1,ir2,ij,ijml)
+    do ijm = 2, this%jms
+      ij   = this%j_indx(ijm)
+      ijml = 3*(ijm-1)
       
-      i = 1
-        this%sol%temp( 1 , jm_int ) = czero
-        this%sol%torr( 1 , jm_int ) = czero
-        this%sol%mech( 1 , jm_int ) = czero
-        this%sol%mech( 2 , jm_int ) = czero
-        
-      do i = 1, this%nd
-        ir1 = 3*(i-1)+1
-        ir2 = 6*(i-1)+1
+      ir = 1
+        this%sol%temp(1,ijm) = czero
+        this%sol%torr(1,ijm) = czero
+        this%sol%mech(1,ijm) = czero
+        this%sol%mech(2,ijm) = czero
 
-        if (i > 1) then
-          this%sol%temp( ir1   , jm_int ) = this%rtemp( i, jm_int )
-          this%sol%torr( ir1   , jm_int ) = this%rmech( i, jml0   )
-          this%sol%mech( ir2   , jm_int ) = this%rmech( i, jml0-1 )
-          this%sol%mech( ir2+1 , jm_int ) = this%rmech( i, jml0+1 )
-        end if
+        this%sol%temp(2:3,ijm) = czero
+        this%sol%torr(2:3,ijm) = czero
+        this%sol%mech(3:6,ijm) = czero
         
-        this%sol%temp( ir1+1 : ir1+2 , jm_int ) = czero
-        this%sol%torr( ir1+1 : ir1+2 , jm_int ) = czero
-        this%sol%mech( ir2+2 : ir2+5 , jm_int ) = czero
+      do ir = 2, this%nd
+        ir1 = 3*(ir-1)+1
+        ir2 = 6*(ir-1)+1
+
+        this%sol%temp(ir1  ,ijm) = this%rtemp(ir,ijm   ) + cf * this%ntemp(ir,ijm   )
+        this%sol%torr(ir1  ,ijm) = this%rmech(ir,ijml  ) + cf * this%nmech(ir,ijml  )
+        this%sol%mech(ir2  ,ijm) = this%rmech(ir,ijml-1) + cf * this%nmech(ir,ijml-1)
+        this%sol%mech(ir2+1,ijm) = this%rmech(ir,ijml+1) + cf * this%nmech(ir,ijml+1)
+        
+        this%sol%temp(ir1+1:ir1+2,ijm) = czero
+        this%sol%torr(ir1+1:ir1+2,ijm) = czero
+        this%sol%mech(ir2+2:ir2+5,ijm) = czero
       end do
       
-      i = this%nd+1
-        this%sol%temp( 3*this%nd+1 , jm_int ) = czero
-        this%sol%torr( 3*this%nd+1 , jm_int ) = czero
-        this%sol%mech( 6*this%nd+1 , jm_int ) = czero
-        this%sol%mech( 6*this%nd+2 , jm_int ) = czero
+      ir = this%nd+1
+        this%sol%temp(3*this%nd+1,ijm) = czero
+        this%sol%torr(3*this%nd+1,ijm) = czero
+        this%sol%mech(6*this%nd+1,ijm) = czero
+        this%sol%mech(6*this%nd+2,ijm) = czero
         
-      call this%mat%temp(j)%luSolve_sub( this%sol%temp(:,jm_int) )
-      call this%mat%torr(j)%luSolve_sub( this%sol%torr(:,jm_int) )
-      call this%mat%mech(j)%luSolve_sub( this%sol%mech(:,jm_int) )
+      call this%mat%temp(ij)%luSolve_sub( this%sol%temp(:,ijm) )
+      call this%mat%torr(ij)%luSolve_sub( this%sol%torr(:,ijm) )
+      call this%mat%mech(ij)%luSolve_sub( this%sol%mech(:,ijm) )
     end do
     !$omp end parallel do
     
