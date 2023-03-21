@@ -9,7 +9,8 @@ module OceanMod
   implicit none
 
   type, extends(T_physicalObject), abstract, public :: T_ocean
-    complex(kind=dbl), allocatable :: nmech(:,:), rmech(:,:), ntemp(:,:), rtemp(:,:)
+    complex(kind=dbl), allocatable :: rsph1(:,:), rsph2(:,:), rtorr(:,:), rtemp(:,:) 
+    complex(kind=dbl), allocatable :: nsph1(:,:), nsph2(:,:), ntorr(:,:), ntemp(:,:)
 
     contains
     
@@ -41,16 +42,19 @@ module OceanMod
   end interface
   
   interface
-    module subroutine init_eq_temp_sub(this)
+    module subroutine init_eq_temp_sub(this,rhs,nl)
       class(T_ocean), intent(inout) :: this
+      logical,        intent(in)    :: rhs, nl
     end subroutine init_eq_temp_sub
 
-    module subroutine init_eq_torr_sub(this)
+    module subroutine init_eq_torr_sub(this,rhs,nl)
       class(T_ocean), intent(inout) :: this
+      logical,        intent(in)    :: rhs, nl
     end subroutine init_eq_torr_sub
 
-    module subroutine init_eq_mech_sub(this)
+    module subroutine init_eq_mech_sub(this,rhs,nl)
       class(T_ocean), intent(inout) :: this
+      logical,        intent(in)    :: rhs, nl
     end subroutine init_eq_mech_sub
 
     module subroutine init_bnd_deformation_sub(this)
@@ -141,10 +145,16 @@ module OceanMod
     close(11); close(12)
     
     if ( allocated(this%flux_up) ) deallocate( this%flux_up )
-    if ( allocated(this%ntemp)   ) deallocate( this%ntemp   )
-    if ( allocated(this%nmech)   ) deallocate( this%nmech   )
-    if ( allocated(this%rmech)   ) deallocate( this%rmech   )
-    if ( allocated(this%rtemp)   ) deallocate( this%rtemp   )
+
+    if ( allocated(this%ntemp) ) deallocate( this%ntemp )
+    if ( allocated(this%ntorr) ) deallocate( this%ntorr )
+    if ( allocated(this%nsph1) ) deallocate( this%nsph1 )
+    if ( allocated(this%nsph2) ) deallocate( this%nsph2 )
+
+    if ( allocated(this%rtemp) ) deallocate( this%rtemp )
+    if ( allocated(this%rtorr) ) deallocate( this%rtorr )
+    if ( allocated(this%rsph1) ) deallocate( this%rsph1 )
+    if ( allocated(this%rsph2) ) deallocate( this%rsph2 )
 
     call this%deallocate_objects_sub()
 

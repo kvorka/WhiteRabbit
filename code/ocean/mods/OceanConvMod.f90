@@ -3,8 +3,6 @@ module OceanConvMod
   implicit none
   
   type, extends(T_ocean), public :: T_oceanConv
-    complex(kind=dbl), allocatable, private :: rsph1(:,:), rsph2(:,:), rtorr(:,:), nsph1(:,:), nsph2(:,:), ntorr(:,:)
-
     contains
     
     procedure, public, pass :: init_sub        => init_oceanConv_sub
@@ -18,21 +16,9 @@ module OceanConvMod
     
     call this%init_ocean_sub() ; call this%lat_grid%init_vcsv_vcvv_vcvgv_sub()
     
-    call this%init_eq_temp_sub()
-    call this%init_eq_torr_sub()
-    call this%init_eq_mech_sub()
-    
-    allocate( this%flux_up(this%jms) ) ; this%flux_up = czero
-
-    allocate( this%ntemp(this%jms,2:this%nd) ) ; this%ntemp = czero
-    allocate( this%nsph1(this%jms,2:this%nd) ) ; this%nsph1 = czero
-    allocate( this%ntorr(this%jms,2:this%nd) ) ; this%ntorr = czero
-    allocate( this%nsph2(this%jms,2:this%nd) ) ; this%nsph2 = czero
-
-    allocate( this%rtemp(2:this%nd,this%jms) ) ; this%rtemp = czero
-    allocate( this%rsph1(2:this%nd,this%jms) ) ; this%rsph1 = czero
-    allocate( this%rtorr(2:this%nd,this%jms) ) ; this%rtorr = czero
-    allocate( this%rsph2(2:this%nd,this%jms) ) ; this%rsph2 = czero
+    call this%init_eq_temp_sub(rhs=.true., nl=.true.)
+    call this%init_eq_torr_sub(rhs=.true., nl=.true.)
+    call this%init_eq_mech_sub(rhs=.true., nl=.true.)
     
     call this%init_state_sub()
     
