@@ -1,5 +1,5 @@
 #!/bin/bash
-compiler=gfortran-12
+compiler=gfortran-10
 optimization=Ofast
 
 #vyber z moznosti
@@ -7,9 +7,10 @@ code_ice="ice"
 code_convection="convection"
 code_tides="tides"
 code_oceanIce="iceOcean"
+code_test="speed"
 
 #co sa ice pocitat
-code_type="convection"
+code_type="speed"
 
 #priprava priecinkov
 rm -r -f data || true
@@ -40,6 +41,16 @@ if [ "$code_type" = "$code_tides" ]; then
 #kompilacia modelu oceanskych slapov
 $compiler -$optimization -march=native -fopenmp -c code/ocean/mods/OceanTidesMod.f90                       #casova schema
 $compiler -$optimization -march=native -fopenmp code/codes/BielyKralik_tidesOcean.f90 *.o -o Test_tides -lfftw3  #vypocet
+fi
+
+#kompilacia rychlostneho testu
+if [ "$code_type" = "$code_test" ]; then
+mkdir data/data_ocean_temp
+mkdir data/data_ocean_veloc
+mkdir data/data_ocean_flux
+
+$compiler -$optimization -march=native -fopenmp -c code/ocean/mods/OceanConvMod.f90                             #casova schema
+$compiler -$optimization -march=native -fopenmp code/codes/BielyKralik_oceanConv.f90 *.o -o Test_speed -lfftw3  #vypocet
 fi
 
 #kompilacia modelu oceanskej konvekcie

@@ -21,14 +21,15 @@ module OceanConvMod
     call this%init_eq_temp_sub()
     call this%init_eq_torr_sub()
     call this%init_eq_mech_sub()
+    
+    allocate( this%flux_up(this%jms) ) ; this%flux_up = czero
 
-    allocate( this%ntemp(2:this%nd,this%jms) ) ; this%ntemp   = czero
-    allocate( this%rtemp(2:this%nd,this%jms) ) ; this%rtemp   = czero
-    allocate( this%flux_up(this%jms)         ) ; this%flux_up = czero
+    allocate( this%ntemp(this%jms,2:this%nd) ) ; this%ntemp = czero
+    allocate( this%nsph1(this%jms,2:this%nd) ) ; this%nsph1 = czero
+    allocate( this%ntorr(this%jms,2:this%nd) ) ; this%ntorr = czero
+    allocate( this%nsph2(this%jms,2:this%nd) ) ; this%nsph2 = czero
 
-    allocate( this%nsph1(2:this%nd,this%jms) ) ; this%nsph1 = czero
-    allocate( this%ntorr(2:this%nd,this%jms) ) ; this%ntorr = czero
-    allocate( this%nsph2(2:this%nd,this%jms) ) ; this%nsph2 = czero
+    allocate( this%rtemp(2:this%nd,this%jms) ) ; this%rtemp = czero
     allocate( this%rsph1(2:this%nd,this%jms) ) ; this%rsph1 = czero
     allocate( this%rtorr(2:this%nd,this%jms) ) ; this%rtorr = czero
     allocate( this%rsph2(2:this%nd,this%jms) ) ; this%rsph2 = czero
@@ -44,7 +45,7 @@ module OceanConvMod
 
     ij = 0
       do ir = 2, this%nd
-        this%rtemp(ir,1) = (1-cf) * this%ntemp(ir,1) + this%mat%temp(0)%multipl_fn(3*(ir-1)+1,this%sol%temp(:,1))
+        this%rtemp(ir,1) = (1-cf) * this%ntemp(1,ir) + this%mat%temp(0)%multipl_fn(3*(ir-1)+1,this%sol%temp(:,1))
       end do
     
     !$omp parallel do private (ir1,ir2,ij) collapse(2)
@@ -55,17 +56,17 @@ module OceanConvMod
         ir1 = 3*(ir-1)+1
         ir2 = 6*(ir-1)+1
 
-        this%rtemp(ir,ijm) = (1-cf) * this%ntemp(ir,ijm) + this%mat%temp(ij)%multipl_fn(ir1  ,this%sol%temp(:,ijm))
-        this%rtorr(ir,ijm) = (1-cf) * this%ntorr(ir,ijm) + this%mat%torr(ij)%multipl_fn(ir1  ,this%sol%torr(:,ijm))
-        this%rsph1(ir,ijm) = (1-cf) * this%nsph1(ir,ijm) + this%mat%mech(ij)%multipl_fn(ir2  ,this%sol%mech(:,ijm))
-        this%rsph2(ir,ijm) = (1-cf) * this%nsph2(ir,ijm) + this%mat%mech(ij)%multipl_fn(ir2+1,this%sol%mech(:,ijm))
+        this%rtemp(ir,ijm) = (1-cf) * this%ntemp(ijm,ir) + this%mat%temp(ij)%multipl_fn(ir1  ,this%sol%temp(:,ijm))
+        this%rtorr(ir,ijm) = (1-cf) * this%ntorr(ijm,ir) + this%mat%torr(ij)%multipl_fn(ir1  ,this%sol%torr(:,ijm))
+        this%rsph1(ir,ijm) = (1-cf) * this%nsph1(ijm,ir) + this%mat%mech(ij)%multipl_fn(ir2  ,this%sol%mech(:,ijm))
+        this%rsph2(ir,ijm) = (1-cf) * this%nsph2(ijm,ir) + this%mat%mech(ij)%multipl_fn(ir2+1,this%sol%mech(:,ijm))
       end do
     end do
     !$omp end parallel do
 
     !$omp parallel do
     do ir = 2, this%nd
-      call fullnl_sub(this, ir, this%ntemp(ir,:), this%nsph1(ir,:), this%ntorr(ir,:), this%nsph2(ir,:))
+      call fullnl_sub(this, ir, this%ntemp(:,ir), this%nsph1(:,ir), this%ntorr(:,ir), this%nsph2(:,ir))
     end do
     !$omp end parallel do
     
@@ -78,7 +79,7 @@ module OceanConvMod
       do ir = 2, this%nd
         ir1 = 3*(ir-1)+1
           
-        this%sol%temp(ir1  ,1) = this%rtemp(ir,1) + cf * this%ntemp(ir,1)
+        this%sol%temp(ir1  ,1) = this%rtemp(ir,1) + cf * this%ntemp(1,ir)
         this%sol%temp(ir1+1,1) = czero
         this%sol%temp(ir1+2,1) = czero
       end do
@@ -104,10 +105,10 @@ module OceanConvMod
         ir1 = 3*(ir-1)+1
         ir2 = 6*(ir-1)+1
 
-        this%sol%temp(ir1  ,ijm) = this%rtemp(ir,ijm) + cf * this%ntemp(ir,ijm)
-        this%sol%torr(ir1  ,ijm) = this%rtorr(ir,ijm) + cf * this%ntorr(ir,ijm)
-        this%sol%mech(ir2  ,ijm) = this%rsph1(ir,ijm) + cf * this%nsph1(ir,ijm)
-        this%sol%mech(ir2+1,ijm) = this%rsph2(ir,ijm) + cf * this%nsph2(ir,ijm)
+        this%sol%temp(ir1  ,ijm) = this%rtemp(ir,ijm) + cf * this%ntemp(ijm,ir)
+        this%sol%torr(ir1  ,ijm) = this%rtorr(ir,ijm) + cf * this%ntorr(ijm,ir)
+        this%sol%mech(ir2  ,ijm) = this%rsph1(ir,ijm) + cf * this%nsph1(ijm,ir)
+        this%sol%mech(ir2+1,ijm) = this%rsph2(ir,ijm) + cf * this%nsph2(ijm,ir)
         
         this%sol%temp(ir1+1:ir1+2,ijm) = czero
         this%sol%torr(ir1+1:ir1+2,ijm) = czero

@@ -58,12 +58,14 @@ module NonLinearTerms
   
   end function erT_fn
   
-  function coriolis_fn(this, i) result(coriolis)
-    class(T_physicalObject),    intent(in) :: this
-    integer,                    intent(in) :: i         !priestorova diskretizacia
-    complex(kind=dbl), dimension(this%jmv) :: coriolis  !Coriolisova sila
+  function coriolis_fn(this, i, v) result(coriolis)
+    class(T_physicalObject),     intent(in) :: this
+    integer,           optional, intent(in) :: i                   !priestorova diskretizacia
+    complex(kind=dbl), optional, intent(in) :: v(:)
+    complex(kind=dbl)                       :: coriolis(this%jmv)  !Coriolisova sila
     
-    coriolis = ezvv_fn( this%jmax, this%sol%velocity_jml_fn(i) )
+    if (present(i)) coriolis = ezvv_fn( this%jmax, this%sol%velocity_jml_fn(i) )
+    if (present(v)) coriolis = ezvv_fn( this%jmax, v )
   
   end function coriolis_fn
   
@@ -85,10 +87,12 @@ module NonLinearTerms
       allocate( nlvect(this%jmv) )
         call this%lat_grid%vcsv_vcvv_vcvgv_sub(rr(i), q, dv, v, ntemp, nlvect)
       
-      deallocate(dv, v, q)
+      deallocate(dv, q)
     end associate
 
-    nlvect = nlvect / this%Pr - this%Ra * erT_fn(this,i) + coriolis_fn(this,i) * 2/this%Ek
+    nlvect = nlvect / this%Pr - this%Ra * erT_fn(this,i) + coriolis_fn(this=this, v=v) * 2/this%Ek
+
+    deallocate(v)
 
     do ijm = 2, this%jms
       nsph1(ijm) = nlvect(3*(ijm-1)-1)
