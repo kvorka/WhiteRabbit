@@ -5,19 +5,19 @@ submodule (SphericalHarmonics) vcsv_vcvv_vcvgv
 
   subroutine init_vcsv_vcvv_vcvgv_sub(this)
     class(T_lateralGrid), intent(inout) :: this
-    integer,              allocatable   :: iemb(:), oemb(:)
-    real(kind=dbl),       allocatable   :: testField_re(:,:), testField3_re(:,:,:)
-    complex(kind=dbl),    allocatable   :: testField(:,:), testField3(:,:,:)
+    integer,              pointer       :: in(:), ip(:) => null()
+    real(kind=dbl),       allocatable   :: field_re(:,:,:)
+    complex(kind=dbl),    allocatable   :: field(:,:,:)
 
-    allocate(testField3(19,step,this%nFourier))
-      this%fftw_19_forw = fftw_plan_many_dft( 1, (/this%nFourier/), 19*step, testField3, iemb, 19*step, 1,                &
-                                            &                                testField3, oemb, 19*step, 1, +1, fftw_flags )
-    deallocate(testField3)
+    in = [this%nFourier]
 
-    allocate(testField3_re(4,step,this%nFourier), testField3(4,step,this%nFourier/2+1))
-      this%fftw_04_back = fftw_plan_many_dft_r2c( 1, (/this%nFourier/), 4*step, testField3_re, iemb, 4*step, 1,            &
-                                                &                               testField3   , oemb, 4*step, 1, fftw_flags )
-    deallocate(testField3_re, testField3)
+    allocate(field(19,step,this%nFourier))
+      this%fftw_19_forw = fftw_plan_many_dft( 1, in, 19*step, field, ip, 19*step, 1, field, ip, 19*step, 1, +1, fftw_flags )
+    deallocate(field)
+
+    allocate(field_re(4,step,this%nFourier), field(4,step,this%nFourier/2+1))
+      this%fftw_04_back = fftw_plan_many_dft_r2c( 1, in, 4*step, field_re, ip, 4*step, 1, field, ip, 4*step, 1, fftw_flags )
+    deallocate(field_re, field)
 
     write(*,*) 'vcsv_vcvv_vcvgv initialized'
 
@@ -33,7 +33,7 @@ submodule (SphericalHarmonics) vcsv_vcvv_vcvgv
     complex(kind=dbl),  allocatable   :: sum1(:), sum2(:), sum3(:), cab(:,:), cc(:,:), cr(:,:)
     complex(kind=dbl),  allocatable   :: sumLegendreN(:,:,:), sumLegendreS(:,:,:), fftNC(:,:,:), fftSC(:,:,:)
 
-    allocate(cab(6,this%jmv1), sum1(2), sum2(2), sum3(2), gc(2)) ; cab = cmplx(0._dbl, 0._dbl, kind=dbl)
+    allocate(cab(6,this%jmv1), sum1(2), sum2(2), sum3(2), gc(2)) ; cab = czero
 
       do jml_int = 1, this%jmv
         cab(1,jml_int) = q(jml_int)
@@ -46,9 +46,7 @@ submodule (SphericalHarmonics) vcsv_vcvv_vcvgv
         gc(2) = sqrt(j*(j       )*(j+1._dbl)/(2*j+1._dbl))
 
         do m = 0, j
-          sum1 = cmplx(0._dbl, 0._dbl, kind=dbl)
-          sum2 = cmplx(0._dbl, 0._dbl, kind=dbl)
-          sum3 = cmplx(0._dbl, 0._dbl, kind=dbl)
+          sum1 = czero ; sum2 = czero ; sum3 = czero
 
           if (m == 0) then
             do l = abs(j-1), min(this%jmax, j+1)
@@ -65,9 +63,9 @@ submodule (SphericalHarmonics) vcsv_vcvv_vcvgv
           end if
 
           jml_int = 3*(j*(j+1)/2+m)+abs(j-1)-j
-            cab(3,jml_int) =        sum1(1) - sum2(1)
-            cab(4,jml_int) = cunit*(sum1(1) + sum2(1))
-            cab(5,jml_int) =        sum3(1)
+            cab(3,jml_int) =           sum1(1) - sum2(1)
+            cab(4,jml_int) = cunit * ( sum1(1) + sum2(1) )
+            cab(5,jml_int) =           sum3(1)
 
           jml_int = 3*(j*(j+1)/2+m)+(j+1)-j
             cab(3,jml_int) =        sum1(2) - sum2(2)
@@ -79,14 +77,12 @@ submodule (SphericalHarmonics) vcsv_vcvv_vcvgv
       cab(3:5,:) = cab(3:5,:) / ri
 
     deallocate(sum1, sum2, sum3, gc)
-    allocate(cc(19, this%jms2), sum1(6), sum2(6), sum3(6)) ; cc = cmplx(0._dbl, 0._dbl, kind=dbl)
+    allocate(cc(19, this%jms2), sum1(6), sum2(6), sum3(6)) ; cc = czero
     
     mj = 0
       do m = 0, this%maxj
         do j = m, this%maxj
-          sum1 = cmplx(0._dbl, 0._dbl, kind=dbl)
-          sum2 = cmplx(0._dbl, 0._dbl, kind=dbl)
-          sum3 = cmplx(0._dbl, 0._dbl, kind=dbl)
+          sum1 = czero ; sum2 = czero ; sum3 = czero
 
           if (m == 0) then
             do l = abs(j-1), min(this%jmax+1, j+1)
@@ -127,15 +123,14 @@ submodule (SphericalHarmonics) vcsv_vcvv_vcvgv
     allocate( pmm(step), pmj(step), pmj1(step), pmj2(step), cosx(step), sinx(step), fftLege(step),             &
             & sumLegendreN(19,step,0:this%nFourier-1), sumLegendreS(19,step,0:this%nFourier-1),                &
             & fft(4,step,0:this%nFourier-1), fftNC(4,step,0:this%nFourier/2), fftSC(4,step,0:this%nFourier/2), &
-            & cr(4,this%jms1) ) ; cr = cmplx(0._dbl, 0._dbl, kind=dbl)
+            & cr(4,this%jms1) ) ; cr = czero
 
       do i = 1, this%nLegendre, step
         cosx    = this%roots(i:i+step-1)
         sinx    = sqrt(1 - cosx**2)
         fftLege = this%fftLege(i:i+step-1)
 
-        sumLegendreN = cmplx(0._dbl, 0._dbl, kind=dbl)
-        sumLegendreS = cmplx(0._dbl, 0._dbl, kind=dbl)
+        sumLegendreN = czero ; sumLegendreS = czero
         
         pmm = 1._dbl; mj = 0
           do m = 0, this%maxj

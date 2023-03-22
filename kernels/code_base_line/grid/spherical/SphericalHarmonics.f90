@@ -133,9 +133,6 @@ module SphericalHarmonics
     integer,              intent(in)    :: jmax
     integer                             :: i, k, j, m, n, ncnt
     real(kind=dbl)                      :: xincr, x, y, fx, fy
-    integer,           allocatable      :: iemb(:), oemb(:)
-    real(kind=dbl),    allocatable      :: testField_re(:,:), testField3_re(:,:,:)
-    complex(kind=dbl), allocatable      :: testField(:,:), testField3(:,:,:)
 
     this%jmax = jmax
     this%jms  =     ( jmax   *(jmax+1)/2 +  jmax   ) + 1
