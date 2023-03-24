@@ -9,7 +9,7 @@ submodule (SphericalHarmonics) vcsv_vcvv_vcvgv
     real(kind=dbl),       allocatable   :: field_re(:,:,:)
     complex(kind=dbl),    allocatable   :: field(:,:,:)
 
-    in = [this%nFourier]
+    allocate(in(1)) ; in = [this%nFourier]
 
     allocate(field(19,step,this%nFourier))
       this%fftw_19_forw = fftw_plan_many_dft( 1, in, 19*step, field, ip, 19*step, 1, field, ip, 19*step, 1, +1, fftw_flags )
@@ -205,7 +205,7 @@ submodule (SphericalHarmonics) vcsv_vcvv_vcvgv
             pmj1 = 0._dbl
             pmj  = 1._dbl
 
-            do concurrent (i2 = 1:step, i1=1:4)
+            do concurrent (i2=1:step, i1=1:4)
               fftNC(i1,i2,m) = fftLege(i2) * fftNC(i1,i2,m) * pmm(i2)
               fftSC(i1,i2,m) = fftLege(i2) * fftSC(i1,i2,m) * pmm(i2)
             end do
@@ -252,6 +252,19 @@ submodule (SphericalHarmonics) vcsv_vcvv_vcvgv
       end do
 
     deallocate(cr)
+
+    do j = 0, this%jmax
+      jm_int = j*(j+1)/2+1
+        cjm(jm_int)%im = 0._dbl
+      
+      do l = abs(j-1), j+1
+        if (j == l) then
+          cjml(3*(jm_int-1))%re = 0._dbl
+        else
+          cjml(3*(jm_int-1)+l-j)%im = 0._dbl
+        end if
+      end do
+    end do
 
   end subroutine vcsv_vcvv_vcvgv_sub
 
