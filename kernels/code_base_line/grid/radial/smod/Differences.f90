@@ -243,4 +243,22 @@ submodule(RadialGrid) Differences
 
   end function cc
 
+  pure real(kind=dbl) function drr(this, i, p)
+    class(T_radialGrid), intent(in) :: this
+    integer,             intent(in) :: i, p
+    
+    select case (p)
+      case (-1)
+        drr = +(this%rr(i+1)-this%rr(i)) / (this%rr(i-1)-this%rr(i)) / (this%rr(i+1)-this%rr(i-1))
+
+      case (0)
+        drr = (this%rr(i-1)-this%rr(i)) / (this%rr(i+1)-this%rr(i)) / (this%rr(i+1)-this%rr(i-1)) - &
+            & (this%rr(i+1)-this%rr(i)) / (this%rr(i-1)-this%rr(i)) / (this%rr(i+1)-this%rr(i-1))
+
+      case (+1)
+        drr = -(this%rr(i-1)-this%rr(i)) / (this%rr(i+1)-this%rr(i)) / (this%rr(i+1)-this%rr(i-1))
+    end select
+    
+  end function drr
+
 end submodule Differences

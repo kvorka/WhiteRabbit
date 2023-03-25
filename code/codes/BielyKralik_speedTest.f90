@@ -11,7 +11,7 @@ program BielyKralik_speedTest
   
   !Casova slucka
   start = omp_get_wtime()
-    call ocean%iter_sub()
+    call ocean%speed_sub()
   end = omp_get_wtime()
 
   write(*,*) (end-start) / ocean%n_iter

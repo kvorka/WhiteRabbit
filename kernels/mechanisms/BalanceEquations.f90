@@ -1,5 +1,4 @@
 module BalanceEquations
-  use Math
   use PhysicalObject
   use NonLinearTerms
   implicit none
@@ -20,13 +19,10 @@ module BalanceEquations
     class(T_physicalObject), intent(in) :: this
     
     select case( this%mechanic_bnd )
-    
-    case( 'shape' )
-      laws_mech_fn = bound_power_fn(this) / ( heating_power_fn(this) - buoyancy_power_fn(this) )
-      
-    case default  
-      laws_mech_fn = buoyancy_power_fn(this) / heating_power_fn(this)
-    
+      case( 'shape' )
+        laws_mech_fn = bound_power_fn(this) / ( heating_power_fn(this) - buoyancy_power_fn(this) )
+      case default  
+        laws_mech_fn = buoyancy_power_fn(this) / heating_power_fn(this)
     end select
     
   end function laws_mech_fn
@@ -37,10 +33,8 @@ module BalanceEquations
     select case( this%thermal_bnd )
       case( 'phase' )
         laws_temp_fn = advected_heat_fn(this) / bound_flux_fn(this)
-      
       case default  
         laws_temp_fn = real(this%sol%flux_fn(this%nd,0,0,1), kind=dbl) / real(this%sol%flux_fn(1,0,0,1), kind=dbl) / (this%r_ud**2)
-    
     end select
     
   end function laws_temp_fn

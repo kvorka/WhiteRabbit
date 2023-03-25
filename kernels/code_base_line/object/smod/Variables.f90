@@ -44,4 +44,26 @@ submodule(PhysicalObject) Variables
     
   end function vr_jm_fn
 
+  pure function dv_dr_rrjml_fn(this, i, v) result(dv)
+    class(T_physicalObject), intent(in) :: this
+    integer,                 intent(in) :: i
+    complex(kind=dbl),       intent(in) :: v(:)
+    complex(kind=dbl)                   :: dv(this%jmv)
+    
+    dv = this%rad_grid%drr(i,-1) * this%sol%velocity_jml_fn(i-1) + &
+       & this%rad_grid%drr(i, 0) * v                             + &
+       & this%rad_grid%drr(i,+1) * this%sol%velocity_jml_fn(i+1)
+    
+  end function dv_dr_rrjml_fn
+
+  pure function mgradT_rrjml_fn(this, i) result(gradT)
+    class(T_physicalObject), intent(in) :: this
+    integer,                 intent(in) :: i
+    complex(kind=dbl)                   :: gradT(this%jmv)
+
+    gradT = this%rad_grid%cc(i,-1) * this%sol%flux_jml_fn(i-1) / this%lambda_fn(i-1) + &
+          & this%rad_grid%cc(i,+1) * this%sol%flux_jml_fn(i  ) / this%lambda_fn(i)
+
+  end function mgradT_rrjml_fn
+
 end submodule Variables

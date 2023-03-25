@@ -1,5 +1,4 @@
 module NonLinearTerms
-  use Math
   use PhysicalObject
   implicit none
   
@@ -12,47 +11,32 @@ module NonLinearTerms
   contains
   
   function vgradT_fn(this, i) result(vgradT)
-    class(T_physicalObject),    intent(in) :: this
-    integer,                    intent(in) :: i
-    complex(kind=dbl), dimension(this%jms) :: vgradT
+    class(T_physicalObject), intent(in) :: this
+    integer,                 intent(in) :: i
+    complex(kind=dbl)                   :: vgradT(this%jms)
     
-    vgradT = -this%lat_grid%vcvv_fn( this%sol%velocity_jml_fn(i),                                               &
-                                   & this%rad_grid%cc(i,-1) * this%sol%flux_jml_fn(i-1) / this%lambda_fn(i-1) + &
-                                   & this%rad_grid%cc(i,+1) * this%sol%flux_jml_fn(i  ) / this%lambda_fn(i)     )
+    vgradT = -this%lat_grid%vcvv_fn( this%sol%velocity_jml_fn(i), this%mgradT_rrjml_fn(i) )
   
   end function vgradT_fn
    
   function vgradv_fn(this, i) result(vgradv)
-    class(T_physicalObject),          intent(in) :: this
-    integer,                          intent(in) :: i       !priestorova diskretizacia
-    complex(kind=dbl), dimension(this%jmv)       :: vgradv  !v \cdot grad(v)
-    complex(kind=dbl), dimension(:), allocatable :: dv, v   !radialna derivacia rychlosti, rychlost
+    class(T_physicalObject), intent(in) :: this
+    integer,                 intent(in) :: i
+    complex(kind=dbl)                   :: vgradv(this%jmv)
+    complex(kind=dbl),      allocatable :: v(:)
   
-    associate( jmax     => this%jmax,       &
-             & jmv      => this%jmv,        &
-             & sol      => this%sol,        &
-             & lat_grid => this%lat_grid,   &
-             & r        => this%rad_grid%r, &
-             & rr       => this%rad_grid%rr )
-  
-    allocate( dv(jmv), v(jmv) )
-      v  = sol%velocity_jml_fn(i)
-  
-      dv = ( (rr(i+1)-rr(i))/(rr(i-1)-rr(i)) * ( sol%velocity_jml_fn(i-1)-sol%velocity_jml_fn(i) ) - &
-           & (rr(i-1)-rr(i))/(rr(i+1)-rr(i)) * ( sol%velocity_jml_fn(i+1)-sol%velocity_jml_fn(i) )   ) / (rr(i+1)-rr(i-1))
+    allocate( v(this%jmv) ) ; v = this%sol%velocity_jml_fn(i)
       
-      vgradv = lat_grid%vcsv_fn(ervs_fn(jmax, v), dv) + lat_grid%vcvgv_fn(v, v) / rr(i)
+      vgradv = this%lat_grid%vcsv_vcvgv_fn(this%rad_grid%rr(i), this%dv_dr_rrjml_fn(i,v), v)
   
-    deallocate(dv, v)
-    
-    end associate
+    deallocate(v)
   
   end function vgradv_fn
   
   function erT_fn(this, i) result(erT)
-    class(T_physicalObject),    intent(in) :: this
-    integer,                    intent(in) :: i      !priestorova diskretizacia
-    complex(kind=dbl), dimension(this%jmv) :: erT    !er*T
+    class(T_physicalObject), intent(in) :: this
+    integer,                 intent(in) :: i
+    complex(kind=dbl)                   :: erT(this%jmv)
     
     erT = ersv_fn( this%jmax, this%alpha_fn(i) * this%gravity%g_fn(this%rad_grid%rr(i)) * this%sol%temp_jm_fn(i) )
   
@@ -73,34 +57,34 @@ module NonLinearTerms
     class(T_physicalObject), intent(in)  :: this
     integer,                 intent(in)  :: i
     complex(kind=dbl),       intent(out) :: ntemp(:), nsph1(:), ntorr(:), nsph2(:)
-    integer                              :: ijm
-    complex(kind=dbl),       allocatable :: dv(:), v(:), q(:), nlvect(:)
+    integer                              :: ijm, ijml
+    complex(kind=dbl),       allocatable :: v(:), nlm(:), dv(:), dT(:)
+
+    allocate( v(this%jmv), dv(this%jmv), dT(this%jmv) )
     
-    associate( rr => this%rad_grid%rr )
-      allocate( dv(this%jmv), v(this%jmv), q(this%jmv) )
-        v  = this%sol%velocity_jml_fn(i)
-        q  = this%rad_grid%cc(i,-1) * this%sol%flux_jml_fn(i-1) / this%lambda_fn(i-1) + &
-           & this%rad_grid%cc(i,+1) * this%sol%flux_jml_fn(i  ) / this%lambda_fn(i)
-        dv = ( (rr(i+1)-rr(i))/(rr(i-1)-rr(i)) * ( this%sol%velocity_jml_fn(i-1) - v ) - &
-           &   (rr(i-1)-rr(i))/(rr(i+1)-rr(i)) * ( this%sol%velocity_jml_fn(i+1) - v )   ) / (rr(i+1)-rr(i-1))
-
-      allocate( nlvect(this%jmv) )
-        call this%lat_grid%vcsv_vcvv_vcvgv_sub(rr(i), q, dv, v, ntemp, nlvect)
+      v  = this%sol%velocity_jml_fn(i)
+      dv = this%dv_dr_rrjml_fn(i,v)
+      dT = this%mgradT_rrjml_fn(i)
+    
+    allocate( nlm(this%jmv) )
       
-      deallocate(dv, q)
-    end associate
+      call this%lat_grid%vcsv_vcvv_vcvgv_sub(this%rad_grid%rr(i), dT, dv, v, ntemp, nlm)
 
-    nlvect = nlvect / this%Pr - this%Ra * erT_fn(this,i) + coriolis_fn(this=this, v=v) * 2/this%Ek
+    deallocate( dv, dT )
 
-    deallocate(v)
-
-    do ijm = 2, this%jms
-      nsph1(ijm) = nlvect(3*(ijm-1)-1)
-      ntorr(ijm) = nlvect(3*(ijm-1)  )
-      nsph2(ijm) = nlvect(3*(ijm-1)+1)
-    end do
+      nlm = nlm / this%Pr - this%Ra * erT_fn(this,i) + coriolis_fn(this=this, v=v) * 2 / this%Ek
+    
+    deallocate( v )
       
-    deallocate( nlvect )
+      do ijm = 2, this%jms
+        ijml = 3*(ijm-1)-1
+
+        nsph1(ijm) = nlm(ijml  )
+        ntorr(ijm) = nlm(ijml+1)
+        nsph2(ijm) = nlm(ijml+2)
+      end do
+      
+    deallocate( nlm )
     
   end subroutine fullnl_sub
 

@@ -42,6 +42,8 @@ module PhysicalObject
     procedure :: qr_jm_fn
     procedure :: vr_fn
     procedure :: vr_jm_fn
+    procedure :: dv_dr_rrjml_fn
+    procedure :: mgradT_rrjml_fn
     procedure :: vypis_sub
     
   end type T_physicalObject
@@ -93,6 +95,19 @@ module PhysicalObject
       integer,                 intent(in) :: i
       complex(kind=dbl)                   :: vr(this%jms)
     end function vr_jm_fn
+
+    module pure function dv_dr_rrjml_fn(this, i, v) result(dv)
+      class(T_physicalObject), intent(in) :: this
+      integer,                 intent(in) :: i
+      complex(kind=dbl),       intent(in) :: v(:)
+      complex(kind=dbl)                   :: dv(this%jmv)
+    end function dv_dr_rrjml_fn
+
+    module pure function mgradT_rrjml_fn(this, i) result(gradT)
+      class(T_physicalObject), intent(in) :: this
+      integer,                 intent(in) :: i
+      complex(kind=dbl)                   :: gradT(this%jmv)
+    end function mgradT_rrjml_fn
   end interface
 
   contains

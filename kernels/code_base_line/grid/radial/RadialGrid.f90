@@ -16,6 +16,7 @@ module RadialGrid
     procedure, pass :: dd
     procedure, pass :: c 
     procedure, pass :: cc
+    procedure, pass :: drr
     procedure, pass :: interpolation_fn            
     procedure, pass :: volumetric_integral_real_fn 
     procedure, pass :: volumetric_integral_cmplx_fn
@@ -47,6 +48,11 @@ module RadialGrid
       class(T_radialGrid), intent(in) :: this
       integer,             intent(in) :: i, p
     end function cc
+
+    module pure real(kind=dbl) function drr(this, i, p)
+      class(T_radialGrid), intent(in) :: this
+      integer,             intent(in) :: i, p
+    end function drr
   end interface
   
   interface

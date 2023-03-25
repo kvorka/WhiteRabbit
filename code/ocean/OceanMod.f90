@@ -15,6 +15,7 @@ module OceanMod
     contains
     
     procedure, pass :: init_ocean_sub
+    procedure, pass :: speed_sub
 
     procedure, pass :: set_boundary_deformation_sub
     procedure, pass :: global_rotation_sub
@@ -124,6 +125,17 @@ module OceanMod
     call this%vypis_ocean_sub()
 
   end subroutine iter_ocean_sub
+
+  subroutine speed_sub(this)
+    class(T_ocean), intent(inout) :: this
+    integer                       :: k
+    
+    do k = 1, this%n_iter
+      this%t = this%t + this%dt
+        call this%time_scheme_sub(cf=1.5_dbl)
+    end do
+    
+  end subroutine speed_sub
 
   subroutine vypis_ocean_sub(this)
     class(T_ocean), intent(inout) :: this
