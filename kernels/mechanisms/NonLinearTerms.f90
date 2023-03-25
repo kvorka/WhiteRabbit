@@ -5,8 +5,6 @@ module NonLinearTerms
   public :: vgradT_fn
   public :: vgradv_fn
   public :: fullnl_sub
-  public :: erT_fn
-  public :: coriolis_fn
   
   contains
   
@@ -14,44 +12,34 @@ module NonLinearTerms
     class(T_physicalObject), intent(in) :: this
     integer,                 intent(in) :: i
     complex(kind=dbl)                   :: vgradT(this%jms)
+    complex(kind=dbl),      allocatable :: v(:), mgradT(:)
     
-    vgradT = -this%lat_grid%vcvv_fn( this%sol%velocity_jml_fn(i), this%mgradT_rrjml_fn(i) )
+    allocate( v(this%jmv), mgradT(this%jmv) )
+
+      v = this%sol%velocity_jml_fn(i) ; mgradT = this%mgradT_rrjml_fn(i)
+
+      vgradT = -this%lat_grid%vcvv_fn( v, mgradT )
   
+    deallocate( v, mgradT )
+
   end function vgradT_fn
    
   function vgradv_fn(this, i) result(vgradv)
     class(T_physicalObject), intent(in) :: this
     integer,                 intent(in) :: i
     complex(kind=dbl)                   :: vgradv(this%jmv)
-    complex(kind=dbl),      allocatable :: v(:)
+    complex(kind=dbl),      allocatable :: v(:), dv(:)
   
-    allocate( v(this%jmv) ) ; v = this%sol%velocity_jml_fn(i)
+    allocate( v(this%jmv), dv(this%jmv) )
       
-      vgradv = this%lat_grid%vcsv_vcvgv_fn(this%rad_grid%rr(i), this%dv_dr_rrjml_fn(i,v), v)
+      v  = this%sol%velocity_jml_fn(i)
+      dv = this%dv_dr_rrjml_fn(i,v)
+      
+      vgradv = this%lat_grid%vcsv_vcvgv_fn(this%rad_grid%rr(i), dv, v)
   
-    deallocate(v)
+    deallocate( v, dv )
   
   end function vgradv_fn
-  
-  function erT_fn(this, i) result(erT)
-    class(T_physicalObject), intent(in) :: this
-    integer,                 intent(in) :: i
-    complex(kind=dbl)                   :: erT(this%jmv)
-    
-    erT = ersv_fn( this%jmax, this%alpha_fn(i) * this%gravity%g_fn(this%rad_grid%rr(i)) * this%sol%temp_jm_fn(i) )
-  
-  end function erT_fn
-  
-  function coriolis_fn(this, i, v) result(coriolis)
-    class(T_physicalObject),     intent(in) :: this
-    integer,           optional, intent(in) :: i                   !priestorova diskretizacia
-    complex(kind=dbl), optional, intent(in) :: v(:)
-    complex(kind=dbl)                       :: coriolis(this%jmv)  !Coriolisova sila
-    
-    if (present(i)) coriolis = ezvv_fn( this%jmax, this%sol%velocity_jml_fn(i) )
-    if (present(v)) coriolis = ezvv_fn( this%jmax, v )
-  
-  end function coriolis_fn
   
   subroutine fullnl_sub(this, i, ntemp, nsph1, ntorr, nsph2)
     class(T_physicalObject), intent(in)  :: this
@@ -72,7 +60,7 @@ module NonLinearTerms
 
     deallocate( dv, dT )
 
-      nlm = nlm / this%Pr - this%Ra * erT_fn(this,i) + coriolis_fn(this=this, v=v) * 2 / this%Ek
+      nlm = nlm / this%Pr - this%buoy_rr_jml_fn(i) + this%coriolis_rr_jml_fn(v=v)
     
     deallocate( v )
       

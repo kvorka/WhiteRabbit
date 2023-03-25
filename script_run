@@ -1,5 +1,5 @@
 #!/bin/bash
-compiler=gfortran-12
+compiler=gfortran-10
 optimization=Ofast
 
 #vyber z moznosti
@@ -10,7 +10,7 @@ code_oceanIce="iceOcean"
 code_test="speed"
 
 #co sa ice pocitat
-code_type="convection"
+code_type="iceOcean"
 
 #priprava priecinkov
 rm -r -f data || true

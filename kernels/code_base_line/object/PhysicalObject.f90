@@ -1,5 +1,4 @@
 module PhysicalObject
-  use Math
   use Spherical_func
   use SphericalHarmonics
   use RadialGrid
@@ -32,19 +31,23 @@ module PhysicalObject
     contains
     
     procedure :: init_objects_sub       => init_objects_sub
+    procedure :: vypis_sub
     procedure :: deallocate_objects_sub => deallocate_objects_sub
 
     procedure :: lambda_fn
     procedure :: cp_fn
     procedure :: visc_fn
     procedure :: alpha_fn
+
     procedure :: htide_fn
     procedure :: qr_jm_fn
     procedure :: vr_fn
     procedure :: vr_jm_fn
     procedure :: dv_dr_rrjml_fn
     procedure :: mgradT_rrjml_fn
-    procedure :: vypis_sub
+
+    procedure :: buoy_rr_jml_fn
+    procedure :: coriolis_rr_jml_fn
     
   end type T_physicalObject
   
@@ -108,6 +111,21 @@ module PhysicalObject
       integer,                 intent(in) :: i
       complex(kind=dbl)                   :: gradT(this%jmv)
     end function mgradT_rrjml_fn
+  end interface
+
+  interface
+    module pure function buoy_rr_jml_fn(this, i) result(gdrho)
+      class(T_physicalObject), intent(in) :: this
+      integer,                 intent(in) :: i
+      complex(kind=dbl)                   :: gdrho(this%jmv)
+    end function buoy_rr_jml_fn
+
+    module pure function coriolis_rr_jml_fn(this, i, v) result(coriolis)
+      class(T_physicalObject),     intent(in) :: this
+      integer,           optional, intent(in) :: i
+      complex(kind=dbl), optional, intent(in) :: v(:)
+      complex(kind=dbl)                       :: coriolis(this%jmv)
+    end function coriolis_rr_jml_fn
   end interface
 
   contains

@@ -1,7 +1,6 @@
 module Matrix
-  use Math
   use LU
-  implicit none; private
+  implicit none
   
   type, public :: T_matrix
     integer                     :: n, ns, nu

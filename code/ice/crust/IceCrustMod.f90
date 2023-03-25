@@ -111,7 +111,7 @@ module IceCrustMod
     !$omp end parallel do
       
     allocate( Temp(this%nd+1), rhs00(2:this%nd) )
-      do i = 2, nd
+      do i = 2, this%nd
         rhs00(i) = this%sol%temp(3*(i-1)+1,jm_int) / this%dt + this%ntemp(1,i)
       end do
 

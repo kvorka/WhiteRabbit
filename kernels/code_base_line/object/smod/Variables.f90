@@ -65,5 +65,5 @@ submodule(PhysicalObject) Variables
           & this%rad_grid%cc(i,+1) * this%sol%flux_jml_fn(i  ) / this%lambda_fn(i)
 
   end function mgradT_rrjml_fn
-
+  
 end submodule Variables

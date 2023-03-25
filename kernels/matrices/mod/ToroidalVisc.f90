@@ -1,5 +1,4 @@
 module ToroidalVisc
-  use Math
   use PhysicalObject
   implicit none
   

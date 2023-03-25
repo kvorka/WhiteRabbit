@@ -44,6 +44,7 @@ $compiler -$optimization -march=native -c kernels/code_base_line/object/Physical
 
 $compiler -$optimization -march=native -c kernels/code_base_line/object/smod/Parameters.f90
 $compiler -$optimization -march=native -c kernels/code_base_line/object/smod/Variables.f90
+$compiler -$optimization -march=native -c kernels/code_base_line/object/smod/Forces.f90
 
 #kompilacia fyzikalnych mechanizmov pre PhysicalObject
 $compiler -$optimization -march=native -c kernels/mechanisms/NonLinearTerms.f90    #nelinearne cleny

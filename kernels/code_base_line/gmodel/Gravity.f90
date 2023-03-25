@@ -1,5 +1,4 @@
 module Gravity
-  use Math
   use RadialGrid
   implicit none
   

@@ -1,5 +1,4 @@
 module BalanceEquations
-  use PhysicalObject
   use NonLinearTerms
   implicit none
   
@@ -40,20 +39,14 @@ module BalanceEquations
   end function laws_temp_fn
   
   real(kind=dbl) function laws_force_fn(this, j, m)
-    class(T_physicalObject),          intent(in) :: this
-    integer,                          intent(in) :: j, m
-    integer                                      :: i
-    complex(kind=dbl)                            :: press_topo_d, press_topo_u, press_buoy
-    complex(kind=dbl), dimension(:), allocatable :: drho
+    class(T_physicalObject), intent(in) :: this
+    integer,                 intent(in) :: j, m
+    integer                             :: i
+    complex(kind=dbl)                   :: press_topo_d, press_topo_u, press_buoy
+    complex(kind=dbl),      allocatable :: drho(:)
     
-    
-    associate( rd => this%rad_grid%r(1),                          &
-             & ru => this%rad_grid%r(this%nd),                    &
-             & gd => this%gravity%g_fn(this%rad_grid%r(1)),       &
-             & gu => this%gravity%g_fn(this%rad_grid%r(this%nd))  )
-    
-    press_topo_u = this%Rau * ru**2 * gu * this%sol%t_up(jm(j,m))
-    press_topo_d = this%Rad * rd**2 * gd * this%sol%t_dn(jm(j,m))
+    press_topo_u = this%Rau * this%ru**2 * this%gravity%g_fn(this%ru) * this%sol%t_up(jm(j,m))
+    press_topo_d = this%Rad * this%rd**2 * this%gravity%g_fn(this%rd) * this%sol%t_dn(jm(j,m))
     
     allocate( drho(this%nd+1) )
       do i = 1, this%nd+1
@@ -63,25 +56,23 @@ module BalanceEquations
       press_buoy = this%rad_grid%intV_fn( drho )
     deallocate( drho )
     
-    end associate
-    
     laws_force_fn = real( press_topo_u / ( press_topo_d + press_buoy ), kind=dbl )
     
   end function laws_force_fn
   
   
   real(kind=dbl) function buoyancy_power_fn(this)
-    class(T_physicalObject),       intent(in) :: this
-    integer                                   :: i
-    real(kind=dbl), dimension(:), allocatable :: power_i
+    class(T_physicalObject), intent(in) :: this
+    integer                             :: i
+    real(kind=dbl),         allocatable :: power_i(:)
     
     allocate( power_i(this%nd+1) )
     
       do i = 1, this%nd+1
-        power_i(i) = dotproduct_fn( this%jmax, erT_fn(this,i), this%sol%velocity_jml_fn(i) )
+        power_i(i) = dotproduct_fn( this%jmax, this%buoy_rr_jml_fn(i), this%sol%velocity_jml_fn(i) )
       end do
       
-      buoyancy_power_fn = this%Ra * this%rad_grid%intV_fn( power_i )
+      buoyancy_power_fn = this%rad_grid%intV_fn( power_i )
     
     deallocate( power_i )
 

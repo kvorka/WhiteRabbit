@@ -1,5 +1,4 @@
 module SpheroidalVisc
-  use Math
   use PhysicalObject
   implicit none
   

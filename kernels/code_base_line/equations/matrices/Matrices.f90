@@ -1,7 +1,6 @@
 module Matrices
-  use Math
   use Matrix
-  implicit none; private
+  implicit none
   
   type, public :: T_matrices
     class(T_matrix), allocatable :: temp(:), torr(:), mech(:)
