@@ -16,7 +16,7 @@ END
 
 ps2pdf fig.ps fig.pdf
 pdfcrop fig.pdf $5
-rm -f geoid* fig* g.cpt $1 $2 $3 $4
+rm -f geoid* fig* g.cpt #$1 $2 $3 $4
 }
 
 plot i_Shape_dn_max i_Shape_dn_min i_Shape_dn_cnt Shape-dn.dat Shape-dn.pdf

@@ -3,13 +3,15 @@ program OutputIce
   use OutputIceMod
   implicit none
 
-  call save_spectra_ice_sub(path_ice_shape, 'Shape')
-  call save_spectra_ice_sub(path_ice_topo , 'Topo' )
+  !call save_spectra_ice_sub(path_ice_shape, 'Shape')
+  !call save_spectra_ice_sub(path_ice_topo , 'Topo' )
   
-  call harm_analysis_ice_sub('Shape')
-  call harm_analysis_ice_sub('Topo')
+  !call harm_analysis_ice_sub('Shape')
+  !call harm_analysis_ice_sub('Topo')
 
-  call zonal_analysis_ice_sub('Shape')
-  call zonal_analysis_ice_sub('Topo')
+  !call zonal_analysis_ice_sub('Shape')
+  !call zonal_analysis_ice_sub('Topo')
+
+  call experimental_data_output_sub('Topo', 'zon')
 
 end program OutputIce

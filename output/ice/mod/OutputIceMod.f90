@@ -7,9 +7,55 @@ module OutputIceMod
   public :: zonal_analysis_ice_sub
   public :: save_spectra_ice_sub
 
+  public :: experimental_data_output_sub
+
   private :: cnt_fn
  
   contains
+
+  subroutine experimental_data_output_sub(opt, mode)
+    character(len=*),   intent(in) :: opt, mode
+    integer                        :: j, m, jm, jms, error
+    real(kind=dbl)                 :: a, b
+    complex(kind=dbl), allocatable :: spectra_up(:), spectra_dn(:)
+    real(kind=dbl),    allocatable :: data_up(:,:), data_dn(:,:)
+    
+    jms = 8*(8+1)/2+8+1; allocate( spectra_up(jms) )
+    
+    open(unit=1, file='output/experimental_data/topo.cmplx', status='old', action='read')
+      do
+        read(1,*,iostat=error) j, m, spectra_up(j*(j+1)/2+m+1) ; if (error /= 0) exit
+      end do
+    close(1)
+
+    spectra_up(1) = cmplx(0._dbl, 0._dbl, kind=dbl)
+
+    if (mode == 'zon') then
+      do j = 1, 8
+        do m = 0, j
+          if (j > 5) then
+            spectra_up(j*(j+1)/2+m+1) = cmplx(0._dbl, 0._dbl, kind=dbl)
+          else if (mod(j,2) /= 0) then
+            spectra_up(j*(j+1)/2+m+1) = cmplx(0._dbl, 0._dbl, kind=dbl)
+          else if (m /= 0) then
+            if (j /= 2) then
+              spectra_up(j*(j+1)/2+m+1) = cmplx(0._dbl, 0._dbl, kind=dbl)
+            else if (m /= 2) then
+              spectra_up(j*(j+1)/2+m+1) = cmplx(0._dbl, 0._dbl, kind=dbl)
+            end if
+          end if
+        end do
+      end do
+    end if
+    
+    allocate( data_up(2*nth,nth) ); data_up = 0._dbl; call toGrid_sub(8, spectra_up, data_up); deallocate(spectra_up)
+      call out_data_sub(opt//'-up.dat', data_up)
+        open(unit=8, file='i_'//opt//'_up_max', status='new', action='write'); write(8,*) ceiling(maxval(data_up)); close(8)
+        open(unit=8, file='i_'//opt//'_up_min', status='new', action='write'); write(8,*) floor(minval(data_up))  ; close(8)
+        open(unit=8, file='i_'//opt//'_up_cnt', status='new', action='write'); write(8,*) cnt_fn(data_up)         ; close(8)
+    deallocate(data_up)
+
+  end subroutine experimental_data_output_sub
 
   subroutine zonal_analysis_ice_sub(opt)
     character(len=*),   intent(in) :: opt
