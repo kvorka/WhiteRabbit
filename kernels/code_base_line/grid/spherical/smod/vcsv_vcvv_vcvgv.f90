@@ -5,19 +5,18 @@ submodule (SphericalHarmonics) vcsv_vcvv_vcvgv
 
   subroutine init_vcsv_vcvv_vcvgv_sub(this)
     class(T_lateralGrid), intent(inout) :: this
-    integer,              pointer       :: in(:), ip(:) => null()
-    real(kind=dbl),       allocatable   :: field_re(:,:,:)
+    integer,              pointer       :: ip(:) => null()
     complex(kind=dbl),    allocatable   :: field(:,:,:)
 
-    allocate(in(1)) ; in = [this%nFourier]
-
-    allocate(field(19,step,this%nFourier))
-      this%fftw_19_forw = fftw_plan_many_dft( 1, in, 19*step, field, ip, 19*step, 1, field, ip, 19*step, 1, +1, fftw_flags )
+    allocate(field(38,step,this%nFourier))
+      this%fftw_38_forw = fftw_plan_many_dft( 1, [this%nFourier], 38*step, field, ip, 38*step, 1,                &
+                                            &                              field, ip, 38*step, 1, +1, fftw_flags )
     deallocate(field)
 
-    allocate(field_re(4,step,this%nFourier), field(4,step,this%nFourier/2+1))
-      this%fftw_04_back = fftw_plan_many_dft_r2c( 1, in, 4*step, field_re, ip, 4*step, 1, field, ip, 4*step, 1, fftw_flags )
-    deallocate(field_re, field)
+    allocate(field(8,step,this%nFourier/2))
+      this%fftw_08_back = fftw_plan_many_dft( 1, [this%nFourier]/2, 8*step, field, ip, 8*step, 1,                &
+                                            &                               field, ip, 8*step, 1, -1, fftw_flags )
+    deallocate(field)
 
     write(*,*) 'vcsv_vcvv_vcvgv initialized'
 
@@ -28,12 +27,13 @@ submodule (SphericalHarmonics) vcsv_vcvv_vcvgv
     real(kind=dbl),       intent(in)  :: ri
     complex(kind=dbl),    intent(in)  :: dv_r(:), q(:), v(:)
     complex(kind=dbl),    intent(out) :: cjm(:), cjml(:)
-    integer                           :: i, j, m, l, jm_int, lm, jml_int, i1, i2, mj
-    real(kind=dbl),     allocatable   :: gc(:), pmm(:), pmj(:), pmj1(:), pmj2(:), cosx(:), sinx(:), fftLege(:), fft(:,:,:)
-    complex(kind=dbl),  allocatable   :: sum1(:), sum2(:), sum3(:), cab(:,:), cc(:,:), cr(:,:)
-    complex(kind=dbl),  allocatable   :: sumLegendreN(:,:,:), sumLegendreS(:,:,:), fftNC(:,:,:), fftSC(:,:,:)
+    integer                           :: i, j, m, l, jm_int, lm, jml_int, i1, i2, mj, s, iL, lm1, lm2
+    complex(kind=dbl)                 :: mult, jexp
+    real(kind=dbl),       allocatable :: gc(:), pmm(:), pmj(:), pmj1(:), pmj2(:), cosx(:), sinx(:), fftLege(:)
+    complex(kind=dbl),    allocatable :: sum1(:), sum2(:), sum3(:), cab(:,:), cc(:,:), cr(:,:), symL(:,:), asymL(:,:)
+    complex(kind=dbl),    allocatable :: sumLegendre(:,:,:), fftC(:,:), fft(:,:,:)
 
-    allocate(cab(6,this%jmv1), sum1(2), sum2(2), sum3(2), gc(2)) ; cab = czero
+    allocate(cab(6,this%jmv1), sum1(2), sum2(2), sum3(2), gc(2)) ; cab = cmplx(0._dbl, 0._dbl, kind=dbl)
 
       do jml_int = 1, this%jmv
         cab(1,jml_int) = q(jml_int)
@@ -46,7 +46,9 @@ submodule (SphericalHarmonics) vcsv_vcvv_vcvgv
         gc(2) = sqrt(j*(j       )*(j+1._dbl)/(2*j+1._dbl))
 
         do m = 0, j
-          sum1 = czero ; sum2 = czero ; sum3 = czero
+          sum1 = cmplx(0._dbl, 0._dbl, kind=dbl)
+          sum2 = cmplx(0._dbl, 0._dbl, kind=dbl)
+          sum3 = cmplx(0._dbl, 0._dbl, kind=dbl)
 
           if (m == 0) then
             do l = abs(j-1), min(this%jmax, j+1)
@@ -63,9 +65,9 @@ submodule (SphericalHarmonics) vcsv_vcvv_vcvgv
           end if
 
           jml_int = 3*(j*(j+1)/2+m)+abs(j-1)-j
-            cab(3,jml_int) =           sum1(1) - sum2(1)
-            cab(4,jml_int) = cunit * ( sum1(1) + sum2(1) )
-            cab(5,jml_int) =           sum3(1)
+            cab(3,jml_int) =        sum1(1) - sum2(1)
+            cab(4,jml_int) = cunit*(sum1(1) + sum2(1))
+            cab(5,jml_int) =        sum3(1)
 
           jml_int = 3*(j*(j+1)/2+m)+(j+1)-j
             cab(3,jml_int) =        sum1(2) - sum2(2)
@@ -77,12 +79,14 @@ submodule (SphericalHarmonics) vcsv_vcvv_vcvgv
       cab(3:5,:) = cab(3:5,:) / ri
 
     deallocate(sum1, sum2, sum3, gc)
-    allocate(cc(19, this%jms2), sum1(6), sum2(6), sum3(6)) ; cc = czero
+    allocate(cc(19, this%jms2), sum1(6), sum2(6), sum3(6)) ; cc = cmplx(0._dbl, 0._dbl, kind=dbl)
     
     mj = 0
       do m = 0, this%maxj
         do j = m, this%maxj
-          sum1 = czero ; sum2 = czero ; sum3 = czero
+          sum1 = cmplx(0._dbl, 0._dbl, kind=dbl)
+          sum2 = cmplx(0._dbl, 0._dbl, kind=dbl)
+          sum3 = cmplx(0._dbl, 0._dbl, kind=dbl)
 
           if (m == 0) then
             do l = abs(j-1), min(this%jmax+1, j+1)
@@ -120,31 +124,39 @@ submodule (SphericalHarmonics) vcsv_vcvv_vcvgv
       cc(:,1:this%maxj+1) = cc(:,1:this%maxj+1) / 2 ; cc(6,:) = 2 * cc(6,:) ; cc(19,:) = 2 * cc(19,:)
 
     deallocate(cab, sum1, sum2, sum3)
-    allocate( pmm(step), pmj(step), pmj1(step), pmj2(step), cosx(step), sinx(step), fftLege(step),             &
-            & sumLegendreN(19,step,0:this%nFourier-1), sumLegendreS(19,step,0:this%nFourier-1),                &
-            & fft(4,step,0:this%nFourier-1), fftNC(4,step,0:this%nFourier/2), fftSC(4,step,0:this%nFourier/2), &
-            & cr(4,this%jms1) ) ; cr = czero
+    allocate( pmm(step), pmj(step), pmj1(step), pmj2(step), cosx(step), sinx(step), fftLege(step), symL(19,step), asymL(19,step), &
+            & sumLegendre(38,step,0:this%nFourier-1), fft(8,step,0:this%nFourier/2-1), fftC(8,step), cr(4,this%jms1)              )
+      
+      cr = cmplx(0._dbl, 0._dbl, kind=dbl)
 
       do i = 1, this%nLegendre, step
         cosx    = this%roots(i:i+step-1)
         sinx    = sqrt(1 - cosx**2)
         fftLege = this%fftLege(i:i+step-1)
-
-        sumLegendreN = czero ; sumLegendreS = czero
         
-        pmm = 1._dbl; mj = 0
+        pmm = 1._dbl; mj = 0; sumLegendre = cmplx(0._dbl, 0._dbl, kind=dbl)
           do m = 0, this%maxj
             pmj2 = 0._dbl
             pmj1 = 0._dbl
             pmj  = 1._dbl
 
-            do j = m, this%maxj
-              mj = mj+1
+            symL  = cmplx(0._dbl, 0._dbl, kind=dbl)
+            asymL = cmplx(0._dbl, 0._dbl, kind=dbl)
 
-              do concurrent ( i2=1:step, i1=1:19 )
-                sumLegendreN(i1,i2,m) = sumLegendreN(i1,i2,m) + cc(i1,mj) * pmj(i2)
-                sumLegendreS(i1,i2,m) = sumLegendreS(i1,i2,m) + cc(i1,mj) * pmj(i2) * (-1)**(j+m)
-              end do
+            s = -1
+
+            do j = m, this%maxj
+              mj = mj+1 ; s = -s
+
+              if (s == 1) then
+                do concurrent ( i2=1:step, i1=1:19 )
+                  symL(i1,i2) = symL(i1,i2) + cc(i1,mj) * pmj(i2)
+                end do
+              else
+                do concurrent ( i2=1:step, i1=1:19 )
+                  asymL(i1,i2) = asymL(i1,i2) + cc(i1,mj) * pmj(i2)
+                end do
+              end if
 
               pmj2 = pmj1
               pmj1 = pmj
@@ -152,71 +164,109 @@ submodule (SphericalHarmonics) vcsv_vcvv_vcvgv
             end do
 
             do concurrent ( i2=1:step, i1=1:19 )
-              sumLegendreN(i1,i2,m) = sumLegendreN(i1,i2,m) * pmm(i2)
-              sumLegendreS(i1,i2,m) = sumLegendreS(i1,i2,m) * pmm(i2)
+              sumLegendre(i1   ,i2,m) = (symL(i1,i2)+asymL(i1,i2)) * pmm(i2)
+              sumLegendre(i1+19,i2,m) = (symL(i1,i2)-asymL(i1,i2)) * pmm(i2)
             end do
 
             pmm = -this%cmmrr(m) * sinx * pmm; if (maxval(abs(pmm)) < 1.0d-55) exit
           end do
 
-        call fftw_execute_dft(this%fftw_19_forw, sumLegendreN, sumLegendreN)
-          do concurrent (i1 = 0:this%nFourier-1, i2 = 1:step)
-            fft(1,i2,i1) = sumLegendreN( 1,i2,i1)%re * sumLegendreN( 4,i2,i1)%re + &    
-                         & sumLegendreN( 2,i2,i1)%re * sumLegendreN( 5,i2,i1)%re + &    
-                         & sumLegendreN( 3,i2,i1)%re * sumLegendreN( 6,i2,i1)%re
-            fft(2,i2,i1) = sumLegendreN( 4,i2,i1)%re * sumLegendreN( 7,i2,i1)%re + &
-                         & sumLegendreN( 5,i2,i1)%re * sumLegendreN( 8,i2,i1)%re + &
-                         & sumLegendreN( 6,i2,i1)%re * sumLegendreN( 9,i2,i1)%re + &
-                         & sumLegendreN(16,i2,i1)%re * sumLegendreN(19,i2,i1)%re
-            fft(3,i2,i1) = sumLegendreN( 4,i2,i1)%re * sumLegendreN(10,i2,i1)%re + &
-                         & sumLegendreN( 5,i2,i1)%re * sumLegendreN(11,i2,i1)%re + &
-                         & sumLegendreN( 6,i2,i1)%re * sumLegendreN(12,i2,i1)%re + &
-                         & sumLegendreN(17,i2,i1)%re * sumLegendreN(19,i2,i1)%re
-            fft(4,i2,i1) = sumLegendreN( 4,i2,i1)%re * sumLegendreN(13,i2,i1)%re + &
-                         & sumLegendreN( 5,i2,i1)%re * sumLegendreN(14,i2,i1)%re + &
-                         & sumLegendreN( 6,i2,i1)%re * sumLegendreN(15,i2,i1)%re + &
-                         & sumLegendreN(18,i2,i1)%re * sumLegendreN(19,i2,i1)%re
-          end do
-        call fftw_execute_dft_r2c(this%fftw_04_back, fft, fftNC) ; fftNC(:,:,0)%im = 0._dbl
+        call fftw_execute_dft(this%fftw_38_forw, sumLegendre, sumLegendre)
+        do i1 = 0, this%nFourier/2-1
+          do i2 = 1, step
+            iL = 2*i1
 
-        call fftw_execute_dft(this%fftw_19_forw, sumLegendreS, sumLegendreS)
-          do concurrent (i1 = 0:this%nFourier-1, i2 = 1:step)
-            fft(1,i2,i1) = sumLegendreS( 1,i2,i1)%re * sumLegendreS( 4,i2,i1)%re + &    
-                         & sumLegendreS( 2,i2,i1)%re * sumLegendreS( 5,i2,i1)%re + &    
-                         & sumLegendreS( 3,i2,i1)%re * sumLegendreS( 6,i2,i1)%re
-            fft(2,i2,i1) = sumLegendreS( 4,i2,i1)%re * sumLegendreS( 7,i2,i1)%re + &
-                         & sumLegendreS( 5,i2,i1)%re * sumLegendreS( 8,i2,i1)%re + &
-                         & sumLegendreS( 6,i2,i1)%re * sumLegendreS( 9,i2,i1)%re + &
-                         & sumLegendreS(16,i2,i1)%re * sumLegendreS(19,i2,i1)%re
-            fft(3,i2,i1) = sumLegendreS( 4,i2,i1)%re * sumLegendreS(10,i2,i1)%re + &
-                         & sumLegendreS( 5,i2,i1)%re * sumLegendreS(11,i2,i1)%re + &
-                         & sumLegendreS( 6,i2,i1)%re * sumLegendreS(12,i2,i1)%re + &
-                         & sumLegendreS(17,i2,i1)%re * sumLegendreS(19,i2,i1)%re
-            fft(4,i2,i1) = sumLegendreS( 4,i2,i1)%re * sumLegendreS(13,i2,i1)%re + &
-                         & sumLegendreS( 5,i2,i1)%re * sumLegendreS(14,i2,i1)%re + &
-                         & sumLegendreS( 6,i2,i1)%re * sumLegendreS(15,i2,i1)%re + &
-                         & sumLegendreS(18,i2,i1)%re * sumLegendreS(19,i2,i1)%re
+            fft(1,i2,i1)%re = sumLegendre( 1,i2,iL)%re * sumLegendre( 4,i2,iL)%re + &    
+                            & sumLegendre( 2,i2,iL)%re * sumLegendre( 5,i2,iL)%re + &    
+                            & sumLegendre( 3,i2,iL)%re * sumLegendre( 6,i2,iL)%re
+            fft(2,i2,i1)%re = sumLegendre( 4,i2,iL)%re * sumLegendre( 7,i2,iL)%re + &
+                            & sumLegendre( 5,i2,iL)%re * sumLegendre( 8,i2,iL)%re + &
+                            & sumLegendre( 6,i2,iL)%re * sumLegendre( 9,i2,iL)%re + &
+                            & sumLegendre(16,i2,iL)%re * sumLegendre(19,i2,iL)%re
+            fft(3,i2,i1)%re = sumLegendre( 4,i2,iL)%re * sumLegendre(10,i2,iL)%re + &
+                            & sumLegendre( 5,i2,iL)%re * sumLegendre(11,i2,iL)%re + &
+                            & sumLegendre( 6,i2,iL)%re * sumLegendre(12,i2,iL)%re + &
+                            & sumLegendre(17,i2,iL)%re * sumLegendre(19,i2,iL)%re
+            fft(4,i2,i1)%re = sumLegendre( 4,i2,iL)%re * sumLegendre(13,i2,iL)%re + &
+                            & sumLegendre( 5,i2,iL)%re * sumLegendre(14,i2,iL)%re + &
+                            & sumLegendre( 6,i2,iL)%re * sumLegendre(15,i2,iL)%re + &
+                            & sumLegendre(18,i2,iL)%re * sumLegendre(19,i2,iL)%re
+            fft(5,i2,i1)%re = sumLegendre(20,i2,iL)%re * sumLegendre(23,i2,iL)%re + &    
+                            & sumLegendre(21,i2,iL)%re * sumLegendre(24,i2,iL)%re + &    
+                            & sumLegendre(22,i2,iL)%re * sumLegendre(25,i2,iL)%re
+            fft(6,i2,i1)%re = sumLegendre(23,i2,iL)%re * sumLegendre(26,i2,iL)%re + &
+                            & sumLegendre(24,i2,iL)%re * sumLegendre(27,i2,iL)%re + &
+                            & sumLegendre(25,i2,iL)%re * sumLegendre(28,i2,iL)%re + &
+                            & sumLegendre(35,i2,iL)%re * sumLegendre(38,i2,iL)%re
+            fft(7,i2,i1)%re = sumLegendre(23,i2,iL)%re * sumLegendre(29,i2,iL)%re + &
+                            & sumLegendre(24,i2,iL)%re * sumLegendre(30,i2,iL)%re + &
+                            & sumLegendre(25,i2,iL)%re * sumLegendre(31,i2,iL)%re + &
+                            & sumLegendre(36,i2,iL)%re * sumLegendre(38,i2,iL)%re
+            fft(8,i2,i1)%re = sumLegendre(23,i2,iL)%re * sumLegendre(32,i2,iL)%re + &
+                            & sumLegendre(24,i2,iL)%re * sumLegendre(33,i2,iL)%re + &
+                            & sumLegendre(25,i2,iL)%re * sumLegendre(34,i2,iL)%re + &
+                            & sumLegendre(37,i2,iL)%re * sumLegendre(38,i2,iL)%re
+            
+            iL = iL+1
+            
+            fft(1,i2,i1)%im = sumLegendre( 1,i2,iL)%re * sumLegendre( 4,i2,iL)%re + &    
+                            & sumLegendre( 2,i2,iL)%re * sumLegendre( 5,i2,iL)%re + &    
+                            & sumLegendre( 3,i2,iL)%re * sumLegendre( 6,i2,iL)%re
+            fft(2,i2,i1)%im = sumLegendre( 4,i2,iL)%re * sumLegendre( 7,i2,iL)%re + &
+                            & sumLegendre( 5,i2,iL)%re * sumLegendre( 8,i2,iL)%re + &
+                            & sumLegendre( 6,i2,iL)%re * sumLegendre( 9,i2,iL)%re + &
+                            & sumLegendre(16,i2,iL)%re * sumLegendre(19,i2,iL)%re
+            fft(3,i2,i1)%im = sumLegendre( 4,i2,iL)%re * sumLegendre(10,i2,iL)%re + &
+                            & sumLegendre( 5,i2,iL)%re * sumLegendre(11,i2,iL)%re + &
+                            & sumLegendre( 6,i2,iL)%re * sumLegendre(12,i2,iL)%re + &
+                            & sumLegendre(17,i2,iL)%re * sumLegendre(19,i2,iL)%re
+            fft(4,i2,i1)%im = sumLegendre( 4,i2,iL)%re * sumLegendre(13,i2,iL)%re + &
+                            & sumLegendre( 5,i2,iL)%re * sumLegendre(14,i2,iL)%re + &
+                            & sumLegendre( 6,i2,iL)%re * sumLegendre(15,i2,iL)%re + &
+                            & sumLegendre(18,i2,iL)%re * sumLegendre(19,i2,iL)%re
+            fft(5,i2,i1)%im = sumLegendre(20,i2,iL)%re * sumLegendre(23,i2,iL)%re + &    
+                            & sumLegendre(21,i2,iL)%re * sumLegendre(24,i2,iL)%re + &    
+                            & sumLegendre(22,i2,iL)%re * sumLegendre(25,i2,iL)%re
+            fft(6,i2,i1)%im = sumLegendre(23,i2,iL)%re * sumLegendre(26,i2,iL)%re + &
+                            & sumLegendre(24,i2,iL)%re * sumLegendre(27,i2,iL)%re + &
+                            & sumLegendre(25,i2,iL)%re * sumLegendre(28,i2,iL)%re + &
+                            & sumLegendre(35,i2,iL)%re * sumLegendre(38,i2,iL)%re
+            fft(7,i2,i1)%im = sumLegendre(23,i2,iL)%re * sumLegendre(29,i2,iL)%re + &
+                            & sumLegendre(24,i2,iL)%re * sumLegendre(30,i2,iL)%re + &
+                            & sumLegendre(25,i2,iL)%re * sumLegendre(31,i2,iL)%re + &
+                            & sumLegendre(36,i2,iL)%re * sumLegendre(38,i2,iL)%re
+            fft(8,i2,i1)%im = sumLegendre(23,i2,iL)%re * sumLegendre(32,i2,iL)%re + &
+                            & sumLegendre(24,i2,iL)%re * sumLegendre(33,i2,iL)%re + &
+                            & sumLegendre(25,i2,iL)%re * sumLegendre(34,i2,iL)%re + &
+                            & sumLegendre(37,i2,iL)%re * sumLegendre(38,i2,iL)%re
           end do
-        call fftw_execute_dft_r2c(this%fftw_04_back, fft, fftSC) ; fftSC(:,:,0)%im = 0._dbl
+        end do
+        call fftw_execute_dft(this%fftw_08_back, fft, fft); fft(:,:,0)%im = 0._dbl
 
-        pmm = 1._dbl; mj = 1
+        pmm = 1._dbl; mj = 1; mult = exp(-2 * pi * cunit / this%nFourier)
           do m = 0, this%jmax+1 
             pmj2 = 0._dbl
             pmj1 = 0._dbl
             pmj  = 1._dbl
 
-            do concurrent (i2=1:step, i1=1:4)
-              fftNC(i1,i2,m) = fftLege(i2) * fftNC(i1,i2,m) * pmm(i2)
-              fftSC(i1,i2,m) = fftLege(i2) * fftSC(i1,i2,m) * pmm(i2)
+            if (m == 0) then
+              jexp = cunit
+                fftC = ( (1-cunit) * fft(:,:,0) + (1+cunit) * conjg(fft(:,:,0)) ) / 2
+            else
+              jexp = mult * jexp
+                fftC = ( (1-jexp) * fft(:,:,m) + (1+jexp) * conjg(fft(:,:,this%nFourier/2-m)) ) / 2
+            end if
+
+            do concurrent (i2=1:step, i1=1:8)
+              fftC(i1,i2) = fftLege(i2) * fftC(i1,i2) * pmm(i2)
             end do
 
             do j = m, this%jmax+1
-              jm_int = j*(j+1)/2 + m + 1
-                do i2 = 1, step
-                  do i1 = 1, 4
-                    cr(i1,jm_int) = cr(i1,jm_int) + pmj(i2) * ( fftNC(i1,i2,m) + (-1)**(j+m) * fftSC(i1,i2,m) )
-                  end do
+              do i2 = 1, step
+                do i1 = 1, 4
+                  cr(i1,mj) = cr(i1,mj) + pmj(i2) * ( fftC(i1,i2) + (-1)**(j+m) * fftC(i1+4,i2) )
                 end do
+              end do
 
               mj = mj+1
                 pmj2 = pmj1
@@ -230,22 +280,26 @@ submodule (SphericalHarmonics) vcsv_vcvv_vcvgv
 
       cr = cr / 4 / this%nLegendre**2 / this%nFourier / sqrt(pi)
 
-    deallocate( cc, fft, fftNC, fftSC, sumLegendreN, sumLegendreS, pmm, pmj, pmj1, pmj2, cosx, sinx, fftLege )
+    deallocate( cc, fft, fftC, sumLegendre, pmm, pmj, pmj1, pmj2, cosx, sinx, fftLege, symL, asymL )
     
       do j = 0, this%jmax
         do m = 0, j
-          cjm(j*(j+1)/2+m+1) = cr(1,j*(j+1)/2+m+1)
+          cjm(j*(j+1)/2+m+1) = cr(1,m*(this%maxj)-m*(m+1)/2+j+1)
 
           do l = abs(j-1), j+1
-            lm = l*(l+1)/2+m+1; jml_int = 3*(j*(j+1)/2+m)+l-j
+            jml_int = 3*(j*(j+1)/2+m)+l-j
+            lm  = m*(this%maxj)-m*(m+1)/2+l+1
+            lm1 = (m-1)*(this%maxj)-(m-1)*(m  )/2+l+1
+            lm2 = (m+1)*(this%maxj)-(m+1)*(m+2)/2+l+1
+
             if ( m == 0 ) then
-              cjml(jml_int) = (        cr(2,lm+1) - cunit*cr(3,lm+1)   ) * cleb1_fn(l,m+1,1,-1,j,m) / 2 + &
-                            & (        cr(4,lm  )                      ) * cleb1_fn(l,m+0,1, 0,j,m)     + &
-                            & ( conjg( cr(2,lm+1) - cunit*cr(3,lm+1) ) ) * cleb1_fn(l,m-1,1,+1,j,m) / 2
+              cjml(jml_int) = (        cr(2,lm2) - cunit*cr(3,lm2)   ) * cleb1_fn(l,m+1,1,-1,j,m) / 2 + &
+                            & (        cr(4,lm )                     ) * cleb1_fn(l,m+0,1, 0,j,m)     + &
+                            & ( conjg( cr(2,lm2) - cunit*cr(3,lm2) ) ) * cleb1_fn(l,m-1,1,+1,j,m) / 2
             else
-              cjml(jml_int) = ( cr(2,lm+1) - cunit*cr(3,lm+1) ) * cleb1_fn(l,m+1,1,-1,j,m) / 2 + &
-                            & ( cr(4,lm  )                    ) * cleb1_fn(l,m+0,1, 0,j,m)     - &
-                            & ( cr(2,lm-1) + cunit*cr(3,lm-1) ) * cleb1_fn(l,m-1,1,+1,j,m) / 2
+              cjml(jml_int) = ( cr(2,lm2) - cunit*cr(3,lm2) ) * cleb1_fn(l,m+1,1,-1,j,m) / 2 + &
+                            & ( cr(4,lm )                   ) * cleb1_fn(l,m+0,1, 0,j,m)     - &
+                            & ( cr(2,lm1) + cunit*cr(3,lm1) ) * cleb1_fn(l,m-1,1,+1,j,m) / 2
             end if
           end do
         end do
@@ -271,8 +325,8 @@ submodule (SphericalHarmonics) vcsv_vcvv_vcvgv
   subroutine deallocate_fftw_vcsv_vcvv_vcvgv_sub(this)
     class(T_lateralGrid), intent(inout) :: this
 
-    call fftw_destroy_plan( this%fftw_19_forw )
-    call fftw_destroy_plan( this%fftw_04_back )
+    call fftw_destroy_plan( this%fftw_38_forw )
+    call fftw_destroy_plan( this%fftw_08_back )
 
   end subroutine deallocate_fftw_vcsv_vcvv_vcvgv_sub
 

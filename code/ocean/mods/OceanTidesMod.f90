@@ -1,7 +1,6 @@
 module OceanTidesMod
   use OceanMod
   implicit none
-  private
 
   type, extends(T_ocean), public :: T_oceanTides
     complex(kind=dbl), allocatable, private :: v201(:), v203(:), v221(:), v223(:)

@@ -4,14 +4,14 @@ module SphericalHarmonics
   implicit none
   include '/usr/include/fftw3.f03'
 
-  integer, parameter :: fftw_flags = FFTW_DESTROY_INPUT + FFTW_EXHAUSTIVE
+  integer, parameter :: fftw_flags = FFTW_EXHAUSTIVE
   integer, parameter :: step       = 8
 
   type, public :: T_lateralGrid
     integer,                     private :: jmax, jms, jms1, jms2, jmv, jmv1, maxj, nLegendre, nFourier
     real(kind=dbl), allocatable, private :: roots(:), fftLege(:), amjrr(:), bmjrr(:), cmmrr(:)
-    type(C_ptr),                 private :: fftw_01_back, fftw_03_back, fftw_04_back
-    type(C_ptr),                 private :: fftw_04_forw, fftw_06_forw, fftw_12_forw, fftw_16_forw, fftw_19_forw
+    type(C_ptr),                 private :: fftw_01_back, fftw_03_back, fftw_08_back
+    type(C_ptr),                 private :: fftw_04_forw, fftw_06_forw, fftw_12_forw, fftw_16_forw, fftw_38_forw
   
     contains
   
@@ -198,13 +198,13 @@ module SphericalHarmonics
 
     call destroy_plan_sub(this%fftw_01_back)
     call destroy_plan_sub(this%fftw_03_back)
-    call destroy_plan_sub(this%fftw_04_back)
+    call destroy_plan_sub(this%fftw_08_back)
 
     call destroy_plan_sub(this%fftw_04_forw)
     call destroy_plan_sub(this%fftw_06_forw)
     call destroy_plan_sub(this%fftw_12_forw)
     call destroy_plan_sub(this%fftw_16_forw)
-    call destroy_plan_sub(this%fftw_19_forw)
+    call destroy_plan_sub(this%fftw_38_forw)
 
     deallocate(this%roots, this%amjrr, this%bmjrr, this%cmmrr, this%fftLege)
 
