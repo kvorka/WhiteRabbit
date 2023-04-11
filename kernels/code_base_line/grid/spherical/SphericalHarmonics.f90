@@ -4,7 +4,7 @@ module SphericalHarmonics
   implicit none
   include '/usr/include/fftw3.f03'
 
-  integer, parameter :: fftw_flags = FFTW_EXHAUSTIVE
+  integer, parameter :: fftw_flags = FFTW_EXHAUSTIVE + FFTW_UNALIGNED
   integer, parameter :: step       = 8
 
   type, public :: T_lateralGrid

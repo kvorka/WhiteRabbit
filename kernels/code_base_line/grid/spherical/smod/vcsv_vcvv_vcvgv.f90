@@ -28,10 +28,11 @@ submodule (SphericalHarmonics) vcsv_vcvv_vcvgv
     complex(kind=dbl),    intent(in)  :: dv_r(:), q(:), v(:)
     complex(kind=dbl),    intent(out) :: cjm(:), cjml(:)
     integer                           :: i, j, m, l, jm_int, lm, jml_int, i1, i2, mj, s, iL, lm1, lm2
+    real(kind=dbl)                    :: cmm
     complex(kind=dbl)                 :: mult, jexp
     real(kind=dbl),       allocatable :: gc(:), pmm(:), pmj(:), pmj1(:), pmj2(:), cosx(:), sinx(:), fftLege(:)
     complex(kind=dbl),    allocatable :: sum1(:), sum2(:), sum3(:), cab(:,:), cc(:,:), cr(:,:), symL(:,:), asymL(:,:)
-    complex(kind=dbl),    allocatable :: sumLegendre(:,:,:), fftC(:,:), fft(:,:,:)
+    complex(kind=dbl),    allocatable :: sumLegendreN(:,:,:), sumLegendreS(:,:,:), fftC(:,:), fft(:,:,:)
 
     allocate(cab(6,this%jmv1), sum1(2), sum2(2), sum3(2), gc(2)) ; cab = cmplx(0._dbl, 0._dbl, kind=dbl)
 
@@ -124,8 +125,9 @@ submodule (SphericalHarmonics) vcsv_vcvv_vcvgv
       cc(:,1:this%maxj+1) = cc(:,1:this%maxj+1) / 2 ; cc(6,:) = 2 * cc(6,:) ; cc(19,:) = 2 * cc(19,:)
 
     deallocate(cab, sum1, sum2, sum3)
-    allocate( pmm(step), pmj(step), pmj1(step), pmj2(step), cosx(step), sinx(step), fftLege(step), symL(19,step), asymL(19,step), &
-            & sumLegendre(38,step,0:this%nFourier-1), fft(8,step,0:this%nFourier/2-1), fftC(8,step), cr(4,this%jms1)              )
+    allocate( pmm(step), pmj(step), pmj1(step), pmj2(step), cosx(step), sinx(step), fftLege(step),                             &
+            & symL(19,step), asymL(19,step), sumLegendreN(19,step,0:this%nFourier-1), sumLegendreS(19,step,0:this%nFourier-1), &                                 
+            & fft(8,step,0:this%nFourier/2-1), fftC(8,step), cr(4,this%jms1)                                                   )
       
       cr = cmplx(0._dbl, 0._dbl, kind=dbl)
 
@@ -134,153 +136,250 @@ submodule (SphericalHarmonics) vcsv_vcvv_vcvgv
         sinx    = sqrt(1 - cosx**2)
         fftLege = this%fftLege(i:i+step-1)
         
-        pmm = 1._dbl; mj = 0; sumLegendre = cmplx(0._dbl, 0._dbl, kind=dbl)
-          do m = 0, this%maxj
-            pmj2 = 0._dbl
-            pmj1 = 0._dbl
-            pmj  = 1._dbl
+        pmm = 1._dbl
+        mj  = 0
 
-            symL  = cmplx(0._dbl, 0._dbl, kind=dbl)
-            asymL = cmplx(0._dbl, 0._dbl, kind=dbl)
+        sumLegendreN = cmplx(0._dbl, 0._dbl, kind=dbl)
+        sumLegendreS = cmplx(0._dbl, 0._dbl, kind=dbl)
 
-            s = -1
-
-            do j = m, this%maxj
-              mj = mj+1 ; s = -s
-
-              if (s == 1) then
-                do concurrent ( i2=1:step, i1=1:19 )
-                  symL(i1,i2) = symL(i1,i2) + cc(i1,mj) * pmj(i2)
-                end do
-              else
-                do concurrent ( i2=1:step, i1=1:19 )
-                  asymL(i1,i2) = asymL(i1,i2) + cc(i1,mj) * pmj(i2)
-                end do
-              end if
-
-              pmj2 = pmj1
-              pmj1 = pmj
-              pmj  = this%amjrr(mj+1) * cosx * pmj1 - this%bmjrr(mj+1) * pmj2
-            end do
-
+        m = 0
+          pmj2 = 0._dbl
+          pmj1 = 0._dbl
+          pmj  = 1._dbl
+          
+          symL  = cmplx(0._dbl, 0._dbl, kind=dbl)
+          asymL = cmplx(0._dbl, 0._dbl, kind=dbl)
+          
+          j = m
+            s = +1 ; mj = mj+1 
+            
             do concurrent ( i2=1:step, i1=1:19 )
-              sumLegendre(i1   ,i2,m) = (symL(i1,i2)+asymL(i1,i2)) * pmm(i2)
-              sumLegendre(i1+19,i2,m) = (symL(i1,i2)-asymL(i1,i2)) * pmm(i2)
+              symL(i1,i2) = symL(i1,i2) + cc(i1,mj)
             end do
+            
+          do j = m+1, this%maxj
+            s = -s ; mj = mj+1
 
-            pmm = -this%cmmrr(m) * sinx * pmm; if (maxval(abs(pmm)) < 1.0d-55) exit
+            pmj2 = pmj1
+            pmj1 = pmj
+            pmj  = this%amjrr(mj) * cosx * pmj1 - this%bmjrr(mj) * pmj2
+            
+            if (s == 1) then
+              do concurrent ( i2=1:step, i1=1:19 )
+                symL(i1,i2) = symL(i1,i2) + cc(i1,mj) * pmj(i2)
+              end do
+            else
+              do concurrent ( i2=1:step, i1=1:19 )
+                asymL(i1,i2) = asymL(i1,i2) + cc(i1,mj) * pmj(i2)
+              end do
+            end if
           end do
+          
+          do concurrent ( i2=1:step, i1=1:19 )
+            sumLegendreN(i1,i2,0)%re = symL(i1,i2)%re+asymL(i1,i2)%re ; sumLegendreN(i1,i2,0)%im = 0._dbl
+            sumLegendreS(i1,i2,0)%re = symL(i1,i2)%re-asymL(i1,i2)%re ; sumLegendreS(i1,i2,0)%im = 0._dbl
+          end do
+          
+        do m = 1, this%maxj
+          cmm = -sqrt( ( 2*m+1 ) / ( 2._dbl*m ) )
+          pmm = cmm * sinx * pmm
+          if (maxval(abs(pmm)) < 1.0d-55) exit
+          
+          pmj2 = 0._dbl
+          pmj1 = 0._dbl
+          pmj  = 1._dbl
+          
+          symL  = cmplx(0._dbl, 0._dbl, kind=dbl)
+          asymL = cmplx(0._dbl, 0._dbl, kind=dbl)
 
-        call fftw_execute_dft(this%fftw_38_forw, sumLegendre, sumLegendre)
-        do i1 = 0, this%nFourier/2-1
-          do i2 = 1, step
-            iL = 2*i1
+          j = m
+          s = +1 ; mj = mj+1
+            
+            do concurrent ( i2=1:step, i1=1:19 )
+              symL(i1,i2) = symL(i1,i2) + cc(i1,mj)
+            end do
+          
+          do j = m+1, this%maxj
+            s = -s ; mj = mj+1
 
-            fft(1,i2,i1)%re = sumLegendre( 1,i2,iL)%re * sumLegendre( 4,i2,iL)%re + &    
-                            & sumLegendre( 2,i2,iL)%re * sumLegendre( 5,i2,iL)%re + &    
-                            & sumLegendre( 3,i2,iL)%re * sumLegendre( 6,i2,iL)%re
-            fft(2,i2,i1)%re = sumLegendre( 4,i2,iL)%re * sumLegendre( 7,i2,iL)%re + &
-                            & sumLegendre( 5,i2,iL)%re * sumLegendre( 8,i2,iL)%re + &
-                            & sumLegendre( 6,i2,iL)%re * sumLegendre( 9,i2,iL)%re + &
-                            & sumLegendre(16,i2,iL)%re * sumLegendre(19,i2,iL)%re
-            fft(3,i2,i1)%re = sumLegendre( 4,i2,iL)%re * sumLegendre(10,i2,iL)%re + &
-                            & sumLegendre( 5,i2,iL)%re * sumLegendre(11,i2,iL)%re + &
-                            & sumLegendre( 6,i2,iL)%re * sumLegendre(12,i2,iL)%re + &
-                            & sumLegendre(17,i2,iL)%re * sumLegendre(19,i2,iL)%re
-            fft(4,i2,i1)%re = sumLegendre( 4,i2,iL)%re * sumLegendre(13,i2,iL)%re + &
-                            & sumLegendre( 5,i2,iL)%re * sumLegendre(14,i2,iL)%re + &
-                            & sumLegendre( 6,i2,iL)%re * sumLegendre(15,i2,iL)%re + &
-                            & sumLegendre(18,i2,iL)%re * sumLegendre(19,i2,iL)%re
-            fft(5,i2,i1)%re = sumLegendre(20,i2,iL)%re * sumLegendre(23,i2,iL)%re + &    
-                            & sumLegendre(21,i2,iL)%re * sumLegendre(24,i2,iL)%re + &    
-                            & sumLegendre(22,i2,iL)%re * sumLegendre(25,i2,iL)%re
-            fft(6,i2,i1)%re = sumLegendre(23,i2,iL)%re * sumLegendre(26,i2,iL)%re + &
-                            & sumLegendre(24,i2,iL)%re * sumLegendre(27,i2,iL)%re + &
-                            & sumLegendre(25,i2,iL)%re * sumLegendre(28,i2,iL)%re + &
-                            & sumLegendre(35,i2,iL)%re * sumLegendre(38,i2,iL)%re
-            fft(7,i2,i1)%re = sumLegendre(23,i2,iL)%re * sumLegendre(29,i2,iL)%re + &
-                            & sumLegendre(24,i2,iL)%re * sumLegendre(30,i2,iL)%re + &
-                            & sumLegendre(25,i2,iL)%re * sumLegendre(31,i2,iL)%re + &
-                            & sumLegendre(36,i2,iL)%re * sumLegendre(38,i2,iL)%re
-            fft(8,i2,i1)%re = sumLegendre(23,i2,iL)%re * sumLegendre(32,i2,iL)%re + &
-                            & sumLegendre(24,i2,iL)%re * sumLegendre(33,i2,iL)%re + &
-                            & sumLegendre(25,i2,iL)%re * sumLegendre(34,i2,iL)%re + &
-                            & sumLegendre(37,i2,iL)%re * sumLegendre(38,i2,iL)%re
+            pmj2 = pmj1
+            pmj1 = pmj
+            pmj  = this%amjrr(mj) * cosx * pmj1 - this%bmjrr(mj) * pmj2
             
-            iL = iL+1
-            
-            fft(1,i2,i1)%im = sumLegendre( 1,i2,iL)%re * sumLegendre( 4,i2,iL)%re + &    
-                            & sumLegendre( 2,i2,iL)%re * sumLegendre( 5,i2,iL)%re + &    
-                            & sumLegendre( 3,i2,iL)%re * sumLegendre( 6,i2,iL)%re
-            fft(2,i2,i1)%im = sumLegendre( 4,i2,iL)%re * sumLegendre( 7,i2,iL)%re + &
-                            & sumLegendre( 5,i2,iL)%re * sumLegendre( 8,i2,iL)%re + &
-                            & sumLegendre( 6,i2,iL)%re * sumLegendre( 9,i2,iL)%re + &
-                            & sumLegendre(16,i2,iL)%re * sumLegendre(19,i2,iL)%re
-            fft(3,i2,i1)%im = sumLegendre( 4,i2,iL)%re * sumLegendre(10,i2,iL)%re + &
-                            & sumLegendre( 5,i2,iL)%re * sumLegendre(11,i2,iL)%re + &
-                            & sumLegendre( 6,i2,iL)%re * sumLegendre(12,i2,iL)%re + &
-                            & sumLegendre(17,i2,iL)%re * sumLegendre(19,i2,iL)%re
-            fft(4,i2,i1)%im = sumLegendre( 4,i2,iL)%re * sumLegendre(13,i2,iL)%re + &
-                            & sumLegendre( 5,i2,iL)%re * sumLegendre(14,i2,iL)%re + &
-                            & sumLegendre( 6,i2,iL)%re * sumLegendre(15,i2,iL)%re + &
-                            & sumLegendre(18,i2,iL)%re * sumLegendre(19,i2,iL)%re
-            fft(5,i2,i1)%im = sumLegendre(20,i2,iL)%re * sumLegendre(23,i2,iL)%re + &    
-                            & sumLegendre(21,i2,iL)%re * sumLegendre(24,i2,iL)%re + &    
-                            & sumLegendre(22,i2,iL)%re * sumLegendre(25,i2,iL)%re
-            fft(6,i2,i1)%im = sumLegendre(23,i2,iL)%re * sumLegendre(26,i2,iL)%re + &
-                            & sumLegendre(24,i2,iL)%re * sumLegendre(27,i2,iL)%re + &
-                            & sumLegendre(25,i2,iL)%re * sumLegendre(28,i2,iL)%re + &
-                            & sumLegendre(35,i2,iL)%re * sumLegendre(38,i2,iL)%re
-            fft(7,i2,i1)%im = sumLegendre(23,i2,iL)%re * sumLegendre(29,i2,iL)%re + &
-                            & sumLegendre(24,i2,iL)%re * sumLegendre(30,i2,iL)%re + &
-                            & sumLegendre(25,i2,iL)%re * sumLegendre(31,i2,iL)%re + &
-                            & sumLegendre(36,i2,iL)%re * sumLegendre(38,i2,iL)%re
-            fft(8,i2,i1)%im = sumLegendre(23,i2,iL)%re * sumLegendre(32,i2,iL)%re + &
-                            & sumLegendre(24,i2,iL)%re * sumLegendre(33,i2,iL)%re + &
-                            & sumLegendre(25,i2,iL)%re * sumLegendre(34,i2,iL)%re + &
-                            & sumLegendre(37,i2,iL)%re * sumLegendre(38,i2,iL)%re
+            if (s == 1) then
+              do concurrent ( i2=1:step, i1=1:19 )
+                symL(i1,i2) = symL(i1,i2) + cc(i1,mj) * pmj(i2)
+              end do
+            else
+              do concurrent ( i2=1:step, i1=1:19 )
+                asymL(i1,i2) = asymL(i1,i2) + cc(i1,mj) * pmj(i2)
+              end do
+            end if
+          end do
+          
+          do concurrent ( i2=1:step, i1=1:19 )
+            sumLegendreN(i1,i2,m) = (symL(i1,i2)+asymL(i1,i2)) * pmm(i2)
+            sumLegendreS(i1,i2,m) = (symL(i1,i2)-asymL(i1,i2)) * pmm(i2)
           end do
         end do
-        call fftw_execute_dft(this%fftw_08_back, fft, fft); fft(:,:,0)%im = 0._dbl
 
-        pmm = 1._dbl; mj = 1; mult = exp(-2 * pi * cunit / this%nFourier)
-          do m = 0, this%jmax+1 
-            pmj2 = 0._dbl
-            pmj1 = 0._dbl
-            pmj  = 1._dbl
-
-            if (m == 0) then
-              jexp = cunit
-                fftC = ( (1-cunit) * fft(:,:,0) + (1+cunit) * conjg(fft(:,:,0)) ) / 2
-            else
-              jexp = mult * jexp
-                fftC = ( (1-jexp) * fft(:,:,m) + (1+jexp) * conjg(fft(:,:,this%nFourier/2-m)) ) / 2
-            end if
-
-            do concurrent (i2=1:step, i1=1:8)
-              fftC(i1,i2) = fftLege(i2) * fftC(i1,i2) * pmm(i2)
-            end do
-
-            do j = m, this%jmax+1
-              do i2 = 1, step
-                do i1 = 1, 4
-                  cr(i1,mj) = cr(i1,mj) + pmj(i2) * ( fftC(i1,i2) + (-1)**(j+m) * fftC(i1+4,i2) )
-                end do
-              end do
-
-              mj = mj+1
-                pmj2 = pmj1
-                pmj1 = pmj
-                pmj  = this%amjrr(mj+m) * cosx * pmj1 - this%bmjrr(mj+m) * pmj2
-            end do
-            
-            pmm = -this%cmmrr(m) * sinx * pmm; if (maxval(abs(pmm)) < 1.0d-55) exit
+        call fftw_execute_dft(this%fftw_19_forw, sumLegendreN, sumLegendreN)
+        call fftw_execute_dft(this%fftw_19_forw, sumLegendreS, sumLegendreS)
+        
+        do concurrent (i1=0:this%nFourier/2-1, i2=1:step)
+          fft(1,i2,i1)%re = sumLegendreN( 1,i2,2*i1  )%re * sumLegendreN( 4,i2,2*i1  )%re + &    
+                          & sumLegendreN( 2,i2,2*i1  )%re * sumLegendreN( 5,i2,2*i1  )%re + &    
+                          & sumLegendreN( 3,i2,2*i1  )%re * sumLegendreN( 6,i2,2*i1  )%re
+          fft(3,i2,i1)%re = sumLegendreN( 4,i2,2*i1  )%re * sumLegendreN( 7,i2,2*i1  )%re + &
+                          & sumLegendreN( 5,i2,2*i1  )%re * sumLegendreN( 8,i2,2*i1  )%re + &
+                          & sumLegendreN( 6,i2,2*i1  )%re * sumLegendreN( 9,i2,2*i1  )%re + &
+                          & sumLegendreN(16,i2,2*i1  )%re * sumLegendreN(19,i2,2*i1  )%re
+          fft(5,i2,i1)%re = sumLegendreN( 4,i2,2*i1  )%re * sumLegendreN(10,i2,2*i1  )%re + &
+                          & sumLegendreN( 5,i2,2*i1  )%re * sumLegendreN(11,i2,2*i1  )%re + &
+                          & sumLegendreN( 6,i2,2*i1  )%re * sumLegendreN(12,i2,2*i1  )%re + &
+                          & sumLegendreN(17,i2,2*i1  )%re * sumLegendreN(19,i2,2*i1  )%re
+          fft(7,i2,i1)%re = sumLegendreN( 4,i2,2*i1  )%re * sumLegendreN(13,i2,2*i1  )%re + &
+                          & sumLegendreN( 5,i2,2*i1  )%re * sumLegendreN(14,i2,2*i1  )%re + &
+                          & sumLegendreN( 6,i2,2*i1  )%re * sumLegendreN(15,i2,2*i1  )%re + &
+                          & sumLegendreN(18,i2,2*i1  )%re * sumLegendreN(19,i2,2*i1  )%re
+          
+          fft(1,i2,i1)%im = sumLegendreN( 1,i2,2*i1+1)%re * sumLegendreN( 4,i2,2*i1+1)%re + &    
+                          & sumLegendreN( 2,i2,2*i1+1)%re * sumLegendreN( 5,i2,2*i1+1)%re + &    
+                          & sumLegendreN( 3,i2,2*i1+1)%re * sumLegendreN( 6,i2,2*i1+1)%re
+          fft(3,i2,i1)%im = sumLegendreN( 4,i2,2*i1+1)%re * sumLegendreN( 7,i2,2*i1+1)%re + &
+                          & sumLegendreN( 5,i2,2*i1+1)%re * sumLegendreN( 8,i2,2*i1+1)%re + &
+                          & sumLegendreN( 6,i2,2*i1+1)%re * sumLegendreN( 9,i2,2*i1+1)%re + &
+                          & sumLegendreN(16,i2,2*i1+1)%re * sumLegendreN(19,i2,2*i1+1)%re
+          fft(5,i2,i1)%im = sumLegendreN( 4,i2,2*i1+1)%re * sumLegendreN(10,i2,2*i1+1)%re + &
+                          & sumLegendreN( 5,i2,2*i1+1)%re * sumLegendreN(11,i2,2*i1+1)%re + &
+                          & sumLegendreN( 6,i2,2*i1+1)%re * sumLegendreN(12,i2,2*i1+1)%re + &
+                          & sumLegendreN(17,i2,2*i1+1)%re * sumLegendreN(19,i2,2*i1+1)%re
+          fft(7,i2,i1)%im = sumLegendreN( 4,i2,2*i1+1)%re * sumLegendreN(13,i2,2*i1+1)%re + &
+                          & sumLegendreN( 5,i2,2*i1+1)%re * sumLegendreN(14,i2,2*i1+1)%re + &
+                          & sumLegendreN( 6,i2,2*i1+1)%re * sumLegendreN(15,i2,2*i1+1)%re + &
+                          & sumLegendreN(18,i2,2*i1+1)%re * sumLegendreN(19,i2,2*i1+1)%re
+          
+          fft(2,i2,i1)%re = sumLegendreS( 1,i2,2*i1  )%re * sumLegendreS( 4,i2,2*i1  )%re + &    
+                          & sumLegendreS( 2,i2,2*i1  )%re * sumLegendreS( 5,i2,2*i1  )%re + &    
+                          & sumLegendreS( 3,i2,2*i1  )%re * sumLegendreS( 6,i2,2*i1  )%re
+          fft(4,i2,i1)%re = sumLegendreS( 4,i2,2*i1  )%re * sumLegendreS( 7,i2,2*i1  )%re + &
+                          & sumLegendreS( 5,i2,2*i1  )%re * sumLegendreS( 8,i2,2*i1  )%re + &
+                          & sumLegendreS( 6,i2,2*i1  )%re * sumLegendreS( 9,i2,2*i1  )%re + &
+                          & sumLegendreS(16,i2,2*i1  )%re * sumLegendreS(19,i2,2*i1  )%re
+          fft(6,i2,i1)%re = sumLegendreS( 4,i2,2*i1  )%re * sumLegendreS(10,i2,2*i1  )%re + &
+                          & sumLegendreS( 5,i2,2*i1  )%re * sumLegendreS(11,i2,2*i1  )%re + &
+                          & sumLegendreS( 6,i2,2*i1  )%re * sumLegendreS(12,i2,2*i1  )%re + &
+                          & sumLegendreS(17,i2,2*i1  )%re * sumLegendreS(19,i2,2*i1  )%re
+          fft(8,i2,i1)%re = sumLegendreS( 4,i2,2*i1  )%re * sumLegendreS(13,i2,2*i1  )%re + &
+                          & sumLegendreS( 5,i2,2*i1  )%re * sumLegendreS(14,i2,2*i1  )%re + &
+                          & sumLegendreS( 6,i2,2*i1  )%re * sumLegendreS(15,i2,2*i1  )%re + &
+                          & sumLegendreS(18,i2,2*i1  )%re * sumLegendreS(19,i2,2*i1  )%re
+          
+          fft(2,i2,i1)%im = sumLegendreS( 1,i2,2*i1+1)%re * sumLegendreS( 4,i2,2*i1+1)%re + &    
+                          & sumLegendreS( 2,i2,2*i1+1)%re * sumLegendreS( 5,i2,2*i1+1)%re + &    
+                          & sumLegendreS( 3,i2,2*i1+1)%re * sumLegendreS( 6,i2,2*i1+1)%re
+          fft(4,i2,i1)%im = sumLegendreS( 4,i2,2*i1+1)%re * sumLegendreS( 7,i2,2*i1+1)%re + &
+                          & sumLegendreS( 5,i2,2*i1+1)%re * sumLegendreS( 8,i2,2*i1+1)%re + &
+                          & sumLegendreS( 6,i2,2*i1+1)%re * sumLegendreS( 9,i2,2*i1+1)%re + &
+                          & sumLegendreS(16,i2,2*i1+1)%re * sumLegendreS(19,i2,2*i1+1)%re
+          fft(6,i2,i1)%im = sumLegendreS( 4,i2,2*i1+1)%re * sumLegendreS(10,i2,2*i1+1)%re + &
+                          & sumLegendreS( 5,i2,2*i1+1)%re * sumLegendreS(11,i2,2*i1+1)%re + &
+                          & sumLegendreS( 6,i2,2*i1+1)%re * sumLegendreS(12,i2,2*i1+1)%re + &
+                          & sumLegendreS(17,i2,2*i1+1)%re * sumLegendreS(19,i2,2*i1+1)%re
+          fft(8,i2,i1)%im = sumLegendreS( 4,i2,2*i1+1)%re * sumLegendreS(13,i2,2*i1+1)%re + &
+                          & sumLegendreS( 5,i2,2*i1+1)%re * sumLegendreS(14,i2,2*i1+1)%re + &
+                          & sumLegendreS( 6,i2,2*i1+1)%re * sumLegendreS(15,i2,2*i1+1)%re + &
+                          & sumLegendreS(18,i2,2*i1+1)%re * sumLegendreS(19,i2,2*i1+1)%re
+        end do
+        call fftw_execute_dft(this%fftw_08_back, fft, fft)
+        
+        pmm  = 1._dbl
+        mj   = 0
+        mult = exp(-2 * pi * cunit / this%nFourier)
+        
+        m = 0
+          pmj2 = 0._dbl
+          pmj1 = 0._dbl
+          pmj  = 1._dbl
+          
+          jexp = cunit
+            fftC = ( (1-cunit) * fft(:,:,0) + (1+cunit) * conjg(fft(:,:,0)) ) / 2 ; fftC%im = 0._dbl
+          
+          do concurrent (i2=1:step, i1=1:8)
+            fftC(i1,i2) = fftLege(i2) * fftC(i1,i2)
           end do
+          
+          j = m
+            s = +1 ; mj = mj+1
+
+            do i2 = 1, step
+              cr(1,mj) = cr(1,mj) + ( fftC(1,i2) + fftC(2,i2) )
+              cr(2,mj) = cr(2,mj) + ( fftC(3,i2) + fftC(4,i2) )
+              cr(3,mj) = cr(3,mj) + ( fftC(5,i2) + fftC(6,i2) )
+              cr(4,mj) = cr(4,mj) + ( fftC(7,i2) + fftC(8,i2) )
+            end do
+          
+          do j = m+1, this%jmax+1
+            s = -s ; mj = mj+1
+            
+            pmj2 = pmj1
+            pmj1 = pmj
+            pmj  = this%amjrr(mj+m) * cosx * pmj1 - this%bmjrr(mj+m) * pmj2
+            
+            do i2 = 1, step
+              cr(1,mj) = cr(1,mj) + pmj(i2) * ( fftC(1,i2) + s * fftC(2,i2) )
+              cr(2,mj) = cr(2,mj) + pmj(i2) * ( fftC(3,i2) + s * fftC(4,i2) )
+              cr(3,mj) = cr(3,mj) + pmj(i2) * ( fftC(5,i2) + s * fftC(6,i2) )
+              cr(4,mj) = cr(4,mj) + pmj(i2) * ( fftC(7,i2) + s * fftC(8,i2) )
+            end do
+          end do
+        
+        do m = 1, this%jmax+1
+          cmm = -sqrt( ( 2*m+1 ) / ( 2._dbl*m ) )
+          pmm = cmm * sinx * pmm
+          if (maxval(abs(pmm)) < 1.0d-55) exit
+          
+          pmj2 = 0._dbl
+          pmj1 = 0._dbl
+          pmj  = 1._dbl
+          
+          jexp = mult * jexp
+            fftC = ( (1-jexp) * fft(:,:,m) + (1+jexp) * conjg(fft(:,:,this%nFourier/2-m)) ) / 2
+          
+          do concurrent (i2=1:step, i1=1:8)
+            fftC(i1,i2) = fftLege(i2) * fftC(i1,i2) * pmm(i2)
+          end do
+          
+          j = m
+            s = +1 ; mj = mj+1
+            
+            do i2 = 1, step
+              cr(1,mj) = cr(1,mj) + ( fftC(1,i2) + fftC(2,i2) )
+              cr(2,mj) = cr(2,mj) + ( fftC(3,i2) + fftC(4,i2) )
+              cr(3,mj) = cr(3,mj) + ( fftC(5,i2) + fftC(6,i2) )
+              cr(4,mj) = cr(4,mj) + ( fftC(7,i2) + fftC(8,i2) )
+            end do
+          
+          do j = m+1, this%jmax+1
+            s = -s ; mj = mj+1
+            
+            pmj2 = pmj1
+            pmj1 = pmj
+            pmj  = this%amjrr(mj+m) * cosx * pmj1 - this%bmjrr(mj+m) * pmj2
+            
+            do i2 = 1, step
+              cr(1,mj) = cr(1,mj) + pmj(i2) * ( fftC(1,i2) + s * fftC(2,i2) )
+              cr(2,mj) = cr(2,mj) + pmj(i2) * ( fftC(3,i2) + s * fftC(4,i2) )
+              cr(3,mj) = cr(3,mj) + pmj(i2) * ( fftC(5,i2) + s * fftC(6,i2) )
+              cr(4,mj) = cr(4,mj) + pmj(i2) * ( fftC(7,i2) + s * fftC(8,i2) )
+            end do
+          end do
+        end do
       end do
 
       cr = cr / 4 / this%nLegendre**2 / this%nFourier / sqrt(pi)
 
-    deallocate( cc, fft, fftC, sumLegendre, pmm, pmj, pmj1, pmj2, cosx, sinx, fftLege, symL, asymL )
+    deallocate( cc, fft, fftC, sumLegendreN, sumLegendreS, pmm, pmj, pmj1, pmj2, cosx, sinx, fftLege, symL, asymL )
     
       do j = 0, this%jmax
         do m = 0, j
