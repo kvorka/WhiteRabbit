@@ -8,9 +8,9 @@ submodule (SphericalHarmonics) vcsv_vcvv_vcvgv
     integer,              pointer       :: ip(:) => null()
     complex(kind=dbl),    allocatable   :: field(:,:,:)
 
-    allocate(field(38,step,this%nFourier))
-      this%fftw_38_forw = fftw_plan_many_dft( 1, [this%nFourier], 38*step, field, ip, 38*step, 1,                &
-                                            &                              field, ip, 38*step, 1, +1, fftw_flags )
+    allocate(field(19,step,this%nFourier))
+      this%fftw_19_forw = fftw_plan_many_dft( 1, [this%nFourier], 19*step, field, ip, 19*step, 1,                &
+                                            &                              field, ip, 19*step, 1, +1, fftw_flags )
     deallocate(field)
 
     allocate(field(8,step,this%nFourier/2))
@@ -424,7 +424,7 @@ submodule (SphericalHarmonics) vcsv_vcvv_vcvgv
   subroutine deallocate_fftw_vcsv_vcvv_vcvgv_sub(this)
     class(T_lateralGrid), intent(inout) :: this
 
-    call fftw_destroy_plan( this%fftw_38_forw )
+    call fftw_destroy_plan( this%fftw_19_forw )
     call fftw_destroy_plan( this%fftw_08_back )
 
   end subroutine deallocate_fftw_vcsv_vcvv_vcvgv_sub
