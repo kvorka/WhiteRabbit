@@ -204,7 +204,7 @@ module SphericalHarmonics
     call destroy_plan_sub(this%fftw_06_forw)
     call destroy_plan_sub(this%fftw_12_forw)
     call destroy_plan_sub(this%fftw_16_forw)
-    call destroy_plan_sub(this%fftw_38_forw)
+    call destroy_plan_sub(this%fftw_19_forw)
 
     deallocate(this%roots, this%amjrr, this%bmjrr, this%cmmrr, this%fftLege)
 
