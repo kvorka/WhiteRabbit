@@ -1,6 +1,6 @@
 module Math
   use iso_fortran_env, only: real64
-  implicit none; private
+  implicit none
   
   integer,           parameter, public :: dbl = real64
   real(kind=dbl),    parameter, public :: pi  = acos(-1._dbl)

@@ -5,7 +5,7 @@ optimization=$2
 
 #double, pi, cunit a specialne funkcie (Legendreove polynomy, C.-G. coeffs)
 $compiler -$optimization -march=native -c kernels/code_base_line/math/Math.f90
-$compiler -$optimization -march=native -c kernels/code_base_line/grid/spherical/mod/Clebsch_Legendre.f90
+$compiler -$optimization -march=native -c kernels/code_base_line/math/Clebsch_Legendre.f90
 
 #kompilacia radialneho gridu
 $compiler -$optimization -march=native -c kernels/code_base_line/grid/radial/RadialGrid.f90

@@ -4,13 +4,13 @@ module SphericalHarmonics
   implicit none
   include '/usr/include/fftw3.f03'
 
-  integer, parameter :: fftw_flags = FFTW_EXHAUSTIVE + FFTW_UNALIGNED
+  integer, parameter :: fftw_flags = FFTW_EXHAUSTIVE + FFTW_UNALIGNED + FFTW_DESTROY_INPUT
   integer, parameter :: step       = 8
 
   type, public :: T_lateralGrid
     integer,                     private :: jmax, jms, jms1, jms2, jmv, jmv1, maxj, nLegendre, nFourier
     real(kind=dbl), allocatable, private :: roots(:), fftLege(:), amjrr(:), bmjrr(:), cmmrr(:)
-    type(C_ptr),                 private :: fftw_01_back, fftw_03_back, fftw_08_back
+    type(C_ptr),                 private :: fftw_01_back, fftw_03_back, fftw_08_back, fftw_19_c2r, fftw_08_r2c
     type(C_ptr),                 private :: fftw_04_forw, fftw_06_forw, fftw_12_forw, fftw_16_forw, fftw_19_forw
   
     contains
