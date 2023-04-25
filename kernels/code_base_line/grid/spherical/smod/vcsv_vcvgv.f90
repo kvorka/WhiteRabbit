@@ -168,7 +168,7 @@ submodule (SphericalHarmonics) vcsv_vcvgv
 
             pmj2 = pmj1
             pmj1 = pmj
-            pmj  = this%amjrr(mj) * cosx * pmj1 - this%bmjrr(mj) * pmj2
+            pmj  = ( cosx * pmj1 - this%ish(mj-1) * pmj2) / this%ish(mj)
 
             do concurrent (i2=1:step, i1=1:16)
               sumLegendreN(i1,i2,m) = sumLegendreN(i1,i2,m) + cc(i1,mj) * pmj(i2)
@@ -203,7 +203,7 @@ submodule (SphericalHarmonics) vcsv_vcvgv
 
             pmj2 = pmj1
             pmj1 = pmj
-            pmj  = this%amjrr(mj) * cosx * pmj1 - this%bmjrr(mj) * pmj2
+            pmj  = ( cosx * pmj1 - this%ish(mj-1) * pmj2) / this%ish(mj)
             
             do concurrent (i2=1:step, i1=1:16)
               sumLegendreN(i1,i2,m) = sumLegendreN(i1,i2,m) + cc(i1,mj) * pmj(i2)
@@ -280,7 +280,7 @@ submodule (SphericalHarmonics) vcsv_vcvgv
             
             pmj2 = pmj1
             pmj1 = pmj
-            pmj  = this%amjrr(mj+m) * cosx * pmj1 - this%bmjrr(mj+m) * pmj2
+            pmj  = ( cosx * pmj1 - this%ish(mj+m-1) * pmj2) / this%ish(mj+m)
             
             do concurrent(i2=1:step, i1=1:3)
               cr(i1,mj) = cr(i1,mj) + pmj(i2) * ( fftNC(i1,i2,m) + s * fftSC(i1,i2,m) )
@@ -313,7 +313,7 @@ submodule (SphericalHarmonics) vcsv_vcvgv
             
             pmj2 = pmj1
             pmj1 = pmj
-            pmj  = this%amjrr(mj+m) * cosx * pmj1 - this%bmjrr(mj+m) * pmj2
+            pmj  = ( cosx * pmj1 - this%ish(mj+m-1) * pmj2) / this%ish(mj+m)
             
             do concurrent(i2=1:step, i1=1:3)
               cr(i1,mj) = cr(i1,mj) + pmj(i2) * ( fftNC(i1,i2,m) + s * fftSC(i1,i2,m) )

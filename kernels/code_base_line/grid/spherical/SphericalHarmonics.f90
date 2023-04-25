@@ -9,7 +9,7 @@ module SphericalHarmonics
 
   type, public :: T_lateralGrid
     integer,                     private :: jmax, jms, jms1, jms2, jmv, jmv1, maxj, nLegendre, nFourier
-    real(kind=dbl), allocatable, private :: roots(:), fftLege(:), amjrr(:), bmjrr(:)
+    real(kind=dbl), allocatable, private :: roots(:), fftLege(:), ish(:)
     type(C_ptr),                 private :: fftw_06_c2r, fftw_01_r2c
     type(C_ptr),                 private :: fftw_16_c2r, fftw_03_r2c
     type(C_ptr),                 private :: fftw_19_c2r, fftw_04_r2c
@@ -106,7 +106,7 @@ module SphericalHarmonics
     this%nFourier  = 3*(this%maxj+1)
     this%nLegendre = (((3*(this%maxj+1)/2+1)/2+1+step)/step)*step
 
-    allocate( this%amjrr(this%jms2), this%bmjrr(this%jms2), this%roots(this%nLegendre), this%fftLege(this%nLegendre) )
+    allocate( this%ish(this%jms2), this%roots(this%nLegendre), this%fftLege(this%nLegendre) )
 
     n = this%nLegendre
       do
@@ -140,8 +140,7 @@ module SphericalHarmonics
 
     do m = 0, this%maxj
       do j = m+1, this%maxj
-        this%amjrr(m*(this%maxj+1)-m*(m+1)/2+j+1) = sqrt((2*j-1._dbl)*(2*j+1._dbl)                          /(        (j-m)*(j+m)))
-        this%bmjrr(m*(this%maxj+1)-m*(m+1)/2+j+1) = sqrt(             (2*j+1._dbl)*(j-m-1._dbl)*(j+m-1._dbl)/((2*j-3)*(j-m)*(j+m)))
+        this%ish(m*(this%maxj+1)-m*(m+1)/2+j+1) = sqrt((j**2-m**2) / (4*j**2-1._dbl))
       end do
     end do
       
@@ -162,7 +161,7 @@ module SphericalHarmonics
     call destroy_plan_sub(this%fftw_16_c2r)
     call destroy_plan_sub(this%fftw_19_c2r)
 
-    deallocate(this%roots, this%amjrr, this%bmjrr, this%fftLege)
+    deallocate(this%roots, this%fftLege, this%ish)
 
   end subroutine deallocate_harmonics_sub
 
