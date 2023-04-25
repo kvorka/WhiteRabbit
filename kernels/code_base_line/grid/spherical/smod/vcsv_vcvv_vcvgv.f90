@@ -14,26 +14,27 @@ submodule (SphericalHarmonics) vcsv_vcvv_vcvgv
                                                &                              field_re, ip, 19*step, 1, fftw_flags )
     deallocate(field, field_re)
 
-    allocate(field(8,step,this%nFourier/2+1), field_re(8,step,this%nFourier))
-      this%fftw_08_r2c = fftw_plan_many_dft_r2c( 1, [this%nFourier], 8*step, field_re, ip, 8*step, 1,            &
-                                               &                             field   , ip, 8*step, 1, fftw_flags )
+    allocate(field(4,step,this%nFourier/2+1), field_re(4,step,this%nFourier))
+      this%fftw_04_r2c = fftw_plan_many_dft_r2c( 1, [this%nFourier], 4*step, field_re, ip, 4*step, 1,            &
+                                               &                             field   , ip, 4*step, 1, fftw_flags )
     deallocate(field, field_re)
 
     write(*,*) 'vcsv_vcvv_vcvgv initialized'
 
   end subroutine init_vcsv_vcvv_vcvgv_sub
 
-  subroutine vcsv_vcvv_vcvgv_sub(this, ri, q, dv_r, v, cjm, cjml)
+  subroutine vcsv_vcvv_vcvgv_sub(this, ri, q, dv_r, v, cjm)
     class(T_lateralGrid), intent(in)  :: this
     real(kind=dbl),       intent(in)  :: ri
     complex(kind=dbl),    intent(in)  :: dv_r(:), q(:), v(:)
-    complex(kind=dbl),    intent(out) :: cjm(:), cjml(:)
+    complex(kind=dbl),    intent(out) :: cjm(:,:)
     integer                           :: i, j, m, l, ijm, lm, ijml, i1, i2, mj, s, iL, lm1, lm2
     real(kind=dbl)                    :: fac
-    real(kind=dbl),       allocatable :: gc(:), pmm(:), pmj(:), pmj1(:), pmj2(:), cosx(:), fftLege(:), gridN(:,:,:), &
-                                       & gridS(:,:,:), fft(:,:,:)
-    complex(kind=dbl),    allocatable :: sum1(:), sum2(:), sum3(:), cab(:,:), cc(:,:), cr(:,:), symL(:,:), asymL(:,:)
-    complex(kind=dbl),    allocatable :: sumLegendreN(:,:,:), sumLegendreS(:,:,:), fftC(:,:,:)
+    real(kind=dbl),       allocatable :: gc(:), pmm(:), pmj(:), pmj1(:), pmj2(:), cosx(:), sinx(:), fftLege(:)
+    real(kind=dbl),       allocatable :: grid(:,:,:), fft(:,:,:)
+    complex(kind=dbl),    allocatable :: sum1(:), sum2(:), sum3(:)
+    complex(kind=dbl),    allocatable :: cab(:,:), cc(:,:), cr(:,:), symL(:,:), asymL(:,:)
+    complex(kind=dbl),    allocatable :: sumLegendreN(:,:,:), sumLegendreS(:,:,:), fftNC(:,:,:), fftSC(:,:,:)
 
     allocate(cab(6,this%jmv1), sum1(2), sum2(2), sum3(2), gc(2)) ; cab = czero
 
@@ -132,15 +133,16 @@ submodule (SphericalHarmonics) vcsv_vcvv_vcvgv
       end do
 
     deallocate(cab, sum1, sum2, sum3)
-    allocate( pmm(step), pmj(step), pmj1(step), pmj2(step), cosx(step), fftLege(step),                                            &
-            & symL(19,step), asymL(19,step), sumLegendreN(19,step,0:this%nFourier/2), sumLegendreS(19,step,0:this%nFourier/2),    &                                 
-            & cr(4,this%jms1), gridN(19,step,0:this%nFourier-1), gridS(19,step,0:this%nFourier-1), fft(8,step,0:this%nFourier-1), & 
-            & fftC(8,step,0:this%nFourier/2))
+    allocate( pmm(step), pmj(step), pmj1(step), pmj2(step), cosx(step), fftLege(step), sinx(step),                             &
+            & symL(19,step), asymL(19,step), sumLegendreN(19,step,0:this%nFourier/2), sumLegendreS(19,step,0:this%nFourier/2), &
+            & cr(4,this%jms1), grid(19,step,0:this%nFourier-1), fft(4,step,0:this%nFourier-1),                                 & 
+            & fftNC(4,step,0:this%nFourier/2), fftSC(4,step,0:this%nFourier/2))
       
       cr = czero
 
       do i = 1, this%nLegendre, step
         cosx    = this%roots(i:i+step-1)
+        sinx    = sqrt(1-cosx**2)
         fftLege = this%fftLege(i:i+step-1)
         
         pmm = 1._dbl
@@ -230,44 +232,49 @@ submodule (SphericalHarmonics) vcsv_vcvv_vcvgv
           end do
         end do
 
-        call fftw_execute_dft_c2r(this%fftw_19_c2r, sumLegendreN, gridN)
-        call fftw_execute_dft_c2r(this%fftw_19_c2r, sumLegendreS, gridS)
+        call fftw_execute_dft_c2r(this%fftw_19_c2r, sumLegendreN, grid)
         
         do concurrent (i1=0:this%nFourier-1, i2=1:step)
-          fft(1,i2,i1) = gridN( 1,i2,i1) * gridN( 4,i2,i1) + &    
-                       & gridN( 2,i2,i1) * gridN( 5,i2,i1) + &    
-                       & gridN( 3,i2,i1) * gridN( 6,i2,i1)
-          fft(3,i2,i1) = gridN( 4,i2,i1) * gridN( 7,i2,i1) + &
-                       & gridN( 5,i2,i1) * gridN( 8,i2,i1) + &
-                       & gridN( 6,i2,i1) * gridN( 9,i2,i1) + &
-                       & gridN(16,i2,i1) * gridN(19,i2,i1)
-          fft(5,i2,i1) = gridN( 4,i2,i1) * gridN(10,i2,i1) + &
-                       & gridN( 5,i2,i1) * gridN(11,i2,i1) + &
-                       & gridN( 6,i2,i1) * gridN(12,i2,i1) + &
-                       & gridN(17,i2,i1) * gridN(19,i2,i1)
-          fft(7,i2,i1) = gridN( 4,i2,i1) * gridN(13,i2,i1) + &
-                       & gridN( 5,i2,i1) * gridN(14,i2,i1) + &
-                       & gridN( 6,i2,i1) * gridN(15,i2,i1) + &
-                       & gridN(18,i2,i1) * gridN(19,i2,i1)
-          
-          fft(2,i2,i1) = gridS( 1,i2,i1) * gridS( 4,i2,i1) + &    
-                       & gridS( 2,i2,i1) * gridS( 5,i2,i1) + &    
-                       & gridS( 3,i2,i1) * gridS( 6,i2,i1)
-          fft(4,i2,i1) = gridS( 4,i2,i1) * gridS( 7,i2,i1) + &
-                       & gridS( 5,i2,i1) * gridS( 8,i2,i1) + &
-                       & gridS( 6,i2,i1) * gridS( 9,i2,i1) + &
-                       & gridS(16,i2,i1) * gridS(19,i2,i1)
-          fft(6,i2,i1) = gridS( 4,i2,i1) * gridS(10,i2,i1) + &
-                       & gridS( 5,i2,i1) * gridS(11,i2,i1) + &
-                       & gridS( 6,i2,i1) * gridS(12,i2,i1) + &
-                       & gridS(17,i2,i1) * gridS(19,i2,i1)
-          fft(8,i2,i1) = gridS( 4,i2,i1) * gridS(13,i2,i1) + &
-                       & gridS( 5,i2,i1) * gridS(14,i2,i1) + &
-                       & gridS( 6,i2,i1) * gridS(15,i2,i1) + &
-                       & gridS(18,i2,i1) * gridS(19,i2,i1)
+          fft(1,i2,i1) = grid( 1,i2,i1) * grid( 4,i2,i1) + &    
+                       & grid( 2,i2,i1) * grid( 5,i2,i1) + &    
+                       & grid( 3,i2,i1) * grid( 6,i2,i1)
+          fft(2,i2,i1) = grid( 4,i2,i1) * grid( 7,i2,i1) + &
+                       & grid( 5,i2,i1) * grid( 8,i2,i1) + &
+                       & grid( 6,i2,i1) * grid( 9,i2,i1) + &
+                       & grid(16,i2,i1) * grid(19,i2,i1)
+          fft(3,i2,i1) = grid( 4,i2,i1) * grid(10,i2,i1) + &
+                       & grid( 5,i2,i1) * grid(11,i2,i1) + &
+                       & grid( 6,i2,i1) * grid(12,i2,i1) + &
+                       & grid(17,i2,i1) * grid(19,i2,i1)
+          fft(4,i2,i1) = grid( 4,i2,i1) * grid(13,i2,i1) + &
+                       & grid( 5,i2,i1) * grid(14,i2,i1) + &
+                       & grid( 6,i2,i1) * grid(15,i2,i1) + &
+                       & grid(18,i2,i1) * grid(19,i2,i1)
         end do
 
-        call fftw_execute_dft_r2c(this%fftw_08_r2c, fft, fftC)
+        call fftw_execute_dft_r2c(this%fftw_04_r2c, fft, fftNC)
+
+        call fftw_execute_dft_c2r(this%fftw_19_c2r, sumLegendreS, grid)
+        
+        do concurrent (i1=0:this%nFourier-1, i2=1:step)
+          fft(1,i2,i1) = grid( 1,i2,i1) * grid( 4,i2,i1) + &    
+                       & grid( 2,i2,i1) * grid( 5,i2,i1) + &    
+                       & grid( 3,i2,i1) * grid( 6,i2,i1)
+          fft(2,i2,i1) = grid( 4,i2,i1) * grid( 7,i2,i1) + &
+                       & grid( 5,i2,i1) * grid( 8,i2,i1) + &
+                       & grid( 6,i2,i1) * grid( 9,i2,i1) + &
+                       & grid(16,i2,i1) * grid(19,i2,i1)
+          fft(3,i2,i1) = grid( 4,i2,i1) * grid(10,i2,i1) + &
+                       & grid( 5,i2,i1) * grid(11,i2,i1) + &
+                       & grid( 6,i2,i1) * grid(12,i2,i1) + &
+                       & grid(17,i2,i1) * grid(19,i2,i1)
+          fft(4,i2,i1) = grid( 4,i2,i1) * grid(13,i2,i1) + &
+                       & grid( 5,i2,i1) * grid(14,i2,i1) + &
+                       & grid( 6,i2,i1) * grid(15,i2,i1) + &
+                       & grid(18,i2,i1) * grid(19,i2,i1)
+        end do
+        
+        call fftw_execute_dft_r2c(this%fftw_04_r2c, fft, fftSC)
         
         pmm  = 1._dbl
         mj   = 0
@@ -277,18 +284,16 @@ submodule (SphericalHarmonics) vcsv_vcvv_vcvgv
           pmj1 = 0._dbl
           pmj  = 1._dbl
           
-          do concurrent (i2=1:step, i1=1:8)
-            fftC(i1,i2,m) = fftLege(i2) * fftC(i1,i2,m) ; fftC(i1,i2,m)%im = 0._dbl
+          do concurrent (i2=1:step, i1=1:4)
+            fftNC(i1,i2,m) = fftLege(i2) * fftNC(i1,i2,m) ; fftNC(i1,i2,m)%im = 0._dbl
+            fftSC(i1,i2,m) = fftLege(i2) * fftSC(i1,i2,m) ; fftSC(i1,i2,m)%im = 0._dbl
           end do
           
           j = m
             s = +1 ; mj = mj+1
-            
-            do i2 = 1, step
-              cr(1,mj) = cr(1,mj) + pmj(i2) * ( fftC(1,i2,m) + fftC(2,i2,m) )
-              cr(2,mj) = cr(2,mj) + pmj(i2) * ( fftC(3,i2,m) + fftC(4,i2,m) )
-              cr(3,mj) = cr(3,mj) + pmj(i2) * ( fftC(5,i2,m) + fftC(6,i2,m) )
-              cr(4,mj) = cr(4,mj) + pmj(i2) * ( fftC(7,i2,m) + fftC(8,i2,m) )
+
+            do concurrent (i2=1:step, i1=1:4)
+              cr(i1,mj) = cr(i1,mj) + fftNC(i1,i2,m) + fftSC(i1,i2,m)
             end do
           
           do j = m+1, this%jmax+1
@@ -298,35 +303,30 @@ submodule (SphericalHarmonics) vcsv_vcvv_vcvgv
             pmj1 = pmj
             pmj  = this%amjrr(mj+m) * cosx * pmj1 - this%bmjrr(mj+m) * pmj2
             
-            do i2 = 1, step
-              cr(1,mj) = cr(1,mj) + pmj(i2) * ( fftC(1,i2,m) + s * fftC(2,i2,m) )
-              cr(2,mj) = cr(2,mj) + pmj(i2) * ( fftC(3,i2,m) + s * fftC(4,i2,m) )
-              cr(3,mj) = cr(3,mj) + pmj(i2) * ( fftC(5,i2,m) + s * fftC(6,i2,m) )
-              cr(4,mj) = cr(4,mj) + pmj(i2) * ( fftC(7,i2,m) + s * fftC(8,i2,m) )
+            do concurrent (i2=1:step, i1=1:4)
+              cr(i1,mj) = cr(i1,mj) + pmj(i2) * ( fftNC(i1,i2,m) + s * fftSC(i1,i2,m) )
             end do
           end do
         
         do m = 1, this%jmax+1
-          fac = ( 2*m+1._dbl ) / ( 2*m )
-          pmm = -sqrt( fac * (1-cosx**2) ) * pmm
+          fac = -sqrt( ( 2*m+1 ) / ( 2._dbl*m ) )
+          pmm = fac * sinx * pmm
           if (maxval(abs(pmm)) < 1.0d-55) exit
           
           pmj2 = 0._dbl
           pmj1 = 0._dbl
           pmj  = 1._dbl
 
-          do concurrent (i2=1:step, i1=1:8)
-            fftC(i1,i2,m) = fftLege(i2) * fftC(i1,i2,m) * pmm(i2)
-          end do
+            do concurrent (i2=1:step, i1=1:4)
+              fftNC(i1,i2,m) = fftLege(i2) * fftNC(i1,i2,m) * pmm(i2)
+              fftSC(i1,i2,m) = fftLege(i2) * fftSC(i1,i2,m) * pmm(i2)
+            end do
           
           j = m
             s = +1 ; mj = mj+1
             
-            do i2 = 1, step
-              cr(1,mj) = cr(1,mj) + pmj(i2) * ( fftC(1,i2,m) + fftC(2,i2,m) )
-              cr(2,mj) = cr(2,mj) + pmj(i2) * ( fftC(3,i2,m) + fftC(4,i2,m) )
-              cr(3,mj) = cr(3,mj) + pmj(i2) * ( fftC(5,i2,m) + fftC(6,i2,m) )
-              cr(4,mj) = cr(4,mj) + pmj(i2) * ( fftC(7,i2,m) + fftC(8,i2,m) )
+            do concurrent (i2=1:step, i1=1:4)
+              cr(i1,mj) = cr(i1,mj) + fftNC(i1,i2,m) + fftSC(i1,i2,m)
             end do
           
           do j = m+1, this%jmax+1
@@ -336,17 +336,14 @@ submodule (SphericalHarmonics) vcsv_vcvv_vcvgv
             pmj1 = pmj
             pmj  = this%amjrr(mj+m) * cosx * pmj1 - this%bmjrr(mj+m) * pmj2
             
-            do i2 = 1, step
-              cr(1,mj) = cr(1,mj) + pmj(i2) * ( fftC(1,i2,m) + s * fftC(2,i2,m) )
-              cr(2,mj) = cr(2,mj) + pmj(i2) * ( fftC(3,i2,m) + s * fftC(4,i2,m) )
-              cr(3,mj) = cr(3,mj) + pmj(i2) * ( fftC(5,i2,m) + s * fftC(6,i2,m) )
-              cr(4,mj) = cr(4,mj) + pmj(i2) * ( fftC(7,i2,m) + s * fftC(8,i2,m) )
+            do concurrent (i2=1:step, i1=1:4)
+              cr(i1,mj) = cr(i1,mj) + pmj(i2) * ( fftNC(i1,i2,m) + s * fftSC(i1,i2,m) )
             end do
           end do
         end do
       end do
 
-    deallocate( cc, sumLegendreN, sumLegendreS, gridN, gridS, fft, fftC, pmm, pmj, pmj1, pmj2, cosx, fftLege, symL, asymL )
+    deallocate( cc, sumLegendreN, sumLegendreS, grid, fft, fftNC, fftSC, pmm, pmj, pmj1, pmj2, cosx, sinx, fftLege, symL, asymL )
     
     fac = 1 / ( 4 * this%nLegendre**2 * this%nFourier * sqrt(pi) )
     
@@ -361,65 +358,52 @@ submodule (SphericalHarmonics) vcsv_vcvv_vcvgv
       m = 0
         ijm = 1
         lm  = m*(this%maxj)-m*(m+1)/2+j+1
-          cjm(ijm) = cr(1,lm) ; cjm(ijm)%im = 0._dbl
+        lm2 = lm+this%maxj-m
 
-      l = j+1
-        ijml = 1
-        lm   = m*(this%maxj)-m*(m+1)/2+l+1
-        lm2  = (m+1)*(this%maxj)-(m+1)*(m+2)/2+l+1
-
-        cjml(ijml) = (        cr(2,lm2) - cr(3,lm2)   ) * cleb1_fn(l,m+1,1,-1,j,m) + &
-                   & (        cr(4,lm )               ) * cleb1_fn(l,m+0,1, 0,j,m) + &
-                   & ( conjg( cr(2,lm2) - cr(3,lm2) ) ) * cleb1_fn(l,m-1,1,+1,j,m) ; cjml(ijml)%im = 0._dbl
+        cjm(1,ijm) = cr(1,lm)
+        cjm(2,ijm) = czero
+        cjm(3,ijm) = czero
+        cjm(4,ijm) = (        cr(2,lm2 ) - cr(3,lm2)   ) * cleb1_fn(j+1,m+1,1,-1,j,m) + &
+                   & (        cr(4,lm+1)               ) * cleb1_fn(j+1,m+0,1, 0,j,m) + &
+                   & ( conjg( cr(2,lm2 ) - cr(3,lm2) ) ) * cleb1_fn(j+1,m-1,1,+1,j,m)
+        
+        cjm(1,ijm)%im = 0._dbl ; cjm(4,ijm)%im = 0._dbl
 
     do j = 1, this%jmax
       m = 0
         ijm = ijm+1
         lm  = m*(this%maxj)-m*(m+1)/2+j+1
-          cjm(ijm) = cr(1,lm) ; cjm(ijm)%im = 0._dbl
-      
-      l = j-1
-        ijml = ijml+1
-        lm   = m*(this%maxj)-m*(m+1)/2+l+1
-        lm2  = (m+1)*(this%maxj)-(m+1)*(m+2)/2+l+1
+        lm2 = lm+this%maxj-m-1
 
-        cjml(ijml) = (        cr(2,lm2) - cr(3,lm2)   ) * cleb1_fn(l,m+1,1,-1,j,m) + &
-                   & (        cr(4,lm )               ) * cleb1_fn(l,m+0,1, 0,j,m) + &
-                   & ( conjg( cr(2,lm2) - cr(3,lm2) ) ) * cleb1_fn(l,m-1,1,+1,j,m) ; cjml(ijml)%im = 0._dbl
-      
-      l = j
-        ijml = ijml+1
-        lm   = m*(this%maxj)-m*(m+1)/2+l+1
-        lm2  = (m+1)*(this%maxj)-(m+1)*(m+2)/2+l+1
-
-        cjml(ijml) = (        cr(2,lm2) - cr(3,lm2)   ) * cleb1_fn(l,m+1,1,-1,j,m) + &
-                   & (        cr(4,lm )               ) * cleb1_fn(l,m+0,1, 0,j,m) + &
-                   & ( conjg( cr(2,lm2) - cr(3,lm2) ) ) * cleb1_fn(l,m-1,1,+1,j,m) ; cjml(ijml)%re = 0._dbl
-      
-      l = j+1
-        ijml = ijml+1
-        lm   = m*(this%maxj)-m*(m+1)/2+l+1
-        lm2  = (m+1)*(this%maxj)-(m+1)*(m+2)/2+l+1
+        cjm(1,ijm) = cr(1,lm)
+        cjm(2,ijm) = (        cr(2,lm2-1) - cr(3,lm2-1)   ) * cleb1_fn(j-1,m+1,1,-1,j,m) + &
+                   & (        cr(4,lm -1)                 ) * cleb1_fn(j-1,m+0,1, 0,j,m) + &
+                   & ( conjg( cr(2,lm2-1) - cr(3,lm2-1) ) ) * cleb1_fn(j-1,m-1,1,+1,j,m)
+        cjm(3,ijm) = (        cr(2,lm2  ) - cr(3,lm2  )   ) * cleb1_fn(j  ,m+1,1,-1,j,m) + &
+                   & (        cr(4,lm   )                 ) * cleb1_fn(j  ,m+0,1, 0,j,m) + &
+                   & ( conjg( cr(2,lm2  ) - cr(3,lm2  ) ) ) * cleb1_fn(j  ,m-1,1,+1,j,m)
+        cjm(4,ijm) = (        cr(2,lm2+1) - cr(3,lm2+1)   ) * cleb1_fn(j+1,m+1,1,-1,j,m) + &
+                   & (        cr(4,lm +1)                 ) * cleb1_fn(j+1,m+0,1, 0,j,m) + &
+                   & ( conjg( cr(2,lm2+1) - cr(3,lm2+1) ) ) * cleb1_fn(j+1,m-1,1,+1,j,m)
         
-        cjml(ijml) = (        cr(2,lm2) - cr(3,lm2)   ) * cleb1_fn(l,m+1,1,-1,j,m) + &
-                   & (        cr(4,lm )               ) * cleb1_fn(l,m+0,1, 0,j,m) + &
-                   & ( conjg( cr(2,lm2) - cr(3,lm2) ) ) * cleb1_fn(l,m-1,1,+1,j,m) ; cjml(ijml)%im = 0._dbl
+        cjm(1,ijm)%im = 0._dbl ; cjm(2,ijm)%im = 0._dbl ; cjm(3,ijm)%re = 0._dbl ; cjm(4,ijm)%im = 0._dbl
 
       do m = 1, j
         ijm = ijm+1
         lm  = m*(this%maxj)-m*(m+1)/2+j+1
-          cjm(ijm) = cr(1,lm)
+        lm1 = lm - this%maxj + m
+        lm2 = lm + this%maxj - m - 1
 
-        do l = j-1, j+1
-          ijml = ijml+1
-          lm   = m*(this%maxj)-m*(m+1)/2+l+1
-          lm1  = (m-1)*(this%maxj)-(m-1)*(m  )/2+l+1
-          lm2  = (m+1)*(this%maxj)-(m+1)*(m+2)/2+l+1
-
-          cjml(ijml) = ( cr(2,lm2) - cr(3,lm2) ) * cleb1_fn(l,m+1,1,-1,j,m) + &
-                     & ( cr(4,lm )             ) * cleb1_fn(l,m+0,1, 0,j,m) - &
-                     & ( cr(2,lm1) + cr(3,lm1) ) * cleb1_fn(l,m-1,1,+1,j,m)
-        end do
+        cjm(1,ijm) = cr(1,lm)
+        cjm(2,ijm) = ( cr(2,lm2-1) - cr(3,lm2-1) ) * cleb1_fn(j-1,m+1,1,-1,j,m) + &
+                   & ( cr(4,lm -1)               ) * cleb1_fn(j-1,m+0,1, 0,j,m) - &
+                   & ( cr(2,lm1-1) + cr(3,lm1-1) ) * cleb1_fn(j-1,m-1,1,+1,j,m)
+        cjm(3,ijm) = ( cr(2,lm2  ) - cr(3,lm2  ) ) * cleb1_fn(j  ,m+1,1,-1,j,m) + &
+                   & ( cr(4,lm   )               ) * cleb1_fn(j  ,m+0,1, 0,j,m) - &
+                   & ( cr(2,lm1  ) + cr(3,lm1  ) ) * cleb1_fn(j  ,m-1,1,+1,j,m)
+        cjm(4,ijm) = ( cr(2,lm2+1) - cr(3,lm2+1) ) * cleb1_fn(j+1,m+1,1,-1,j,m) + &
+                   & ( cr(4,lm +1)               ) * cleb1_fn(j+1,m+0,1, 0,j,m) - &
+                   & ( cr(2,lm1+1) + cr(3,lm1+1) ) * cleb1_fn(j+1,m-1,1,+1,j,m)
       end do
     end do
 
@@ -431,7 +415,7 @@ submodule (SphericalHarmonics) vcsv_vcvv_vcvgv
     class(T_lateralGrid), intent(inout) :: this
 
     call fftw_destroy_plan( this%fftw_19_c2r )
-    call fftw_destroy_plan( this%fftw_08_r2c )
+    call fftw_destroy_plan( this%fftw_04_r2c )
 
   end subroutine deallocate_fftw_vcsv_vcvv_vcvgv_sub
 

@@ -18,9 +18,7 @@ $compiler -$optimization -march=native -c kernels/code_base_line/grid/radial/smo
 $compiler -$optimization -march=native -c kernels/code_base_line/grid/spherical/SphericalFunctions.f90
 $compiler -$optimization -march=native -c kernels/code_base_line/grid/spherical/SphericalHarmonics.f90
 
-$compiler -$optimization -march=native -c kernels/code_base_line/grid/spherical/smod/vcsv.f90
 $compiler -$optimization -march=native -c kernels/code_base_line/grid/spherical/smod/vcvv.f90
-$compiler -$optimization -march=native -c kernels/code_base_line/grid/spherical/smod/vcvgv.f90
 $compiler -$optimization -march=native -c kernels/code_base_line/grid/spherical/smod/vcsv_vcvgv.f90
 $compiler -$optimization -march=native -c kernels/code_base_line/grid/spherical/smod/vcsv_vcvv_vcvgv.f90
 

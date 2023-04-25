@@ -46,7 +46,7 @@ module NonLinearTerms
     integer,                 intent(in)  :: i
     complex(kind=dbl),       intent(out) :: ntemp(:), nsph1(:), ntorr(:), nsph2(:)
     integer                              :: ijm, ijml
-    complex(kind=dbl),       allocatable :: v(:), nlm(:), dv(:), dT(:)
+    complex(kind=dbl),       allocatable :: v(:), nlm(:,:), dv(:), dT(:), nlm1(:)
 
     allocate( v(this%jmv), dv(this%jmv), dT(this%jmv) )
     
@@ -54,25 +54,27 @@ module NonLinearTerms
       dv = this%dv_dr_rrjml_fn(i,v)
       dT = this%mgradT_rrjml_fn(i)
     
-    allocate( nlm(this%jmv) )
+    allocate( nlm(4,this%jms) )
       
-      call this%lat_grid%vcsv_vcvv_vcvgv_sub(this%rad_grid%rr(i), dT, dv, v, ntemp, nlm)
+      call this%lat_grid%vcsv_vcvv_vcvgv_sub(this%rad_grid%rr(i), dT, dv, v, nlm)
 
     deallocate( dv, dT )
+    allocate( nlm1(this%jmv) )
 
-      nlm = nlm / this%Pr - this%buoy_rr_jml_fn(i) + this%coriolis_rr_jml_fn(v=v)
+      nlm1 = this%coriolis_rr_jml_fn(v=v) - this%buoy_rr_jml_fn(i)
     
     deallocate( v )
       
-      do ijm = 2, this%jms
+      do ijm = 1, this%jms
         ijml = 3*(ijm-1)-1
 
-        nsph1(ijm) = nlm(ijml  )
-        ntorr(ijm) = nlm(ijml+1)
-        nsph2(ijm) = nlm(ijml+2)
+        ntemp(ijm) = nlm(1,ijm)
+        nsph1(ijm) = nlm(2,ijm) / this%Pr + nlm1(ijml  )
+        ntorr(ijm) = nlm(3,ijm) / this%Pr + nlm1(ijml+1)
+        nsph2(ijm) = nlm(4,ijm) / this%Pr + nlm1(ijml+2)
       end do
       
-    deallocate( nlm )
+    deallocate( nlm, nlm1 )
     
   end subroutine fullnl_sub
 
