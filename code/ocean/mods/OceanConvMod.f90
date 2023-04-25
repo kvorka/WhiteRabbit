@@ -79,31 +79,45 @@ module OceanConvMod
     do ijm = 2, this%jms
       ir = 1
         this%sol%temp(1,ijm) = czero
+        this%sol%temp(2,ijm) = czero
+        this%sol%temp(3,ijm) = czero
+        
         this%sol%torr(1,ijm) = czero
+        this%sol%torr(2,ijm) = czero
+        this%sol%torr(3,ijm) = czero
+
         this%sol%mech(1,ijm) = czero
         this%sol%mech(2,ijm) = czero
-
-        this%sol%temp(2:3,ijm) = czero
-        this%sol%torr(2:3,ijm) = czero
-        this%sol%mech(3:6,ijm) = czero
+        this%sol%mech(3,ijm) = czero
+        this%sol%mech(4,ijm) = czero
+        this%sol%mech(5,ijm) = czero
+        this%sol%mech(6,ijm) = czero
         
       do ir = 2, this%nd
         ir1 = 3*(ir-1)+1
         ir2 = 6*(ir-1)+1
 
         this%sol%temp(ir1  ,ijm) = this%rtemp(ir,ijm) + cf * this%ntemp(ijm,ir)
+        this%sol%temp(ir1+1,ijm) = czero
+        this%sol%temp(ir1+2,ijm) = czero
+
         this%sol%torr(ir1  ,ijm) = this%rtorr(ir,ijm) + cf * this%ntorr(ijm,ir)
+        this%sol%torr(ir1+1,ijm) = czero
+        this%sol%torr(ir1+2,ijm) = czero
+
         this%sol%mech(ir2  ,ijm) = this%rsph1(ir,ijm) + cf * this%nsph1(ijm,ir)
         this%sol%mech(ir2+1,ijm) = this%rsph2(ir,ijm) + cf * this%nsph2(ijm,ir)
-        
-        this%sol%temp(ir1+1:ir1+2,ijm) = czero
-        this%sol%torr(ir1+1:ir1+2,ijm) = czero
-        this%sol%mech(ir2+2:ir2+5,ijm) = czero
+        this%sol%mech(ir2+2,ijm) = czero
+        this%sol%mech(ir2+3,ijm) = czero
+        this%sol%mech(ir2+4,ijm) = czero
+        this%sol%mech(ir2+5,ijm) = czero
       end do
       
       ir = this%nd+1
         this%sol%temp(3*this%nd+1,ijm) = czero
+
         this%sol%torr(3*this%nd+1,ijm) = czero
+        
         this%sol%mech(6*this%nd+1,ijm) = czero
         this%sol%mech(6*this%nd+2,ijm) = czero
       
