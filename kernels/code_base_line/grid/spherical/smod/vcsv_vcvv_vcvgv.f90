@@ -28,109 +28,179 @@ submodule (SphericalHarmonics) vcsv_vcvv_vcvgv
     real(kind=dbl),       intent(in)  :: ri
     complex(kind=dbl),    intent(in)  :: dv_r(:), q(:), v(:)
     complex(kind=dbl),    intent(out) :: cjm(:,:)
-    integer                           :: i, j, m, l, ijm, lm, ijml, i1, i2, mj, s, iL, lm1, lm2, jml_int
-    real(kind=dbl)                    :: fac
+    integer                           :: i, j, m, l, ijm, lm, ijml, i1, i2, mj, s, iL, lm1, lm2
+    real(kind=dbl)                    :: fac, cleb1, cleb2, cleb3
     real(kind=dbl),       allocatable :: gc(:), pmm(:), pmj(:), pmj1(:), pmj2(:), cosx(:), sinx(:), fftLege(:)
     real(kind=dbl),       allocatable :: grid(:,:,:), fft(:,:,:)
+    complex(kind=dbl)                 :: cr12
     complex(kind=dbl),    allocatable :: sum1(:), sum2(:), sum3(:)
     complex(kind=dbl),    allocatable :: cab(:,:), cc(:,:), cr(:,:), symL(:,:), asymL(:,:)
     complex(kind=dbl),    allocatable :: sumLegendreN(:,:,:), sumLegendreS(:,:,:), fftNC(:,:,:), fftSC(:,:,:)
 
     allocate(cab(6,this%jmv1), sum1(2), sum2(2), sum3(2), gc(2)) ; cab = czero
 
-      do ijml = 1, this%jmv
-        cab(1,ijml) = q(ijml)
-        cab(2,ijml) = v(ijml)
-        cab(6,ijml) = dv_r(ijml)
-      end do
+    do ijml = 1, this%jmv
+      cab(1,ijml) = q(ijml)
+      cab(2,ijml) = v(ijml)
+      cab(6,ijml) = dv_r(ijml)
+    end do
 
-      do j = 1, this%jmax+1
-        gc(1) = sqrt(j*(j+1._dbl)*(j+1._dbl)/(2*j+1._dbl))
-        gc(2) = sqrt(j*(j       )*(j+1._dbl)/(2*j+1._dbl))
+    do j = 1, this%jmax+1
+      gc(1) = sqrt(j*(j+1)*(j+1)/(2*j+1._dbl))
+      gc(2) = sqrt(j*(j  )*(j+1)/(2*j+1._dbl))
 
-        do m = 0, j
-          sum1 = czero
-          sum2 = czero
-          sum3 = czero
+      do m = 0, j
+        sum1 = czero
+        sum2 = czero
+        sum3 = czero
 
-          if (m == 0) then
-            do l = abs(j-1), min(this%jmax, j+1)
-              sum1 = sum1 + conjg( v(3*(l*(l+1)/2+m+1)+j-l) ) * cleb1_fn(j,m,1,-1,l,m-1) * gc * (-1)**(j+l)
-              sum3 = sum3 +        v(3*(l*(l+1)/2+m+0)+j-l)   * cleb1_fn(j,m,1, 0,l,m+0) * gc
-              sum2 = sum2 +        v(3*(l*(l+1)/2+m+1)+j-l)   * cleb1_fn(j,m,1,+1,l,m+1) * gc
+        if (m == 0) then
+          do l = abs(j-1), min(this%jmax, j+1)
+            lm = 3*(l*(l+1)/2+m+1)+j-l
+
+            cleb1 = cleb1_fn(j,m,1,-1,l,m-1) * (-1)**(j+l)
+            cleb3 = cleb1_fn(j,m,1, 0,l,m+0)
+            cleb2 = cleb1_fn(j,m,1,+1,l,m+1)
+
+            do concurrent ( i1=1:2 )
+              sum1(i1) = sum1(i1) + conjg( v(lm  ) ) * cleb1 * gc(i1)
+              sum3(i1) = sum3(i1) +        v(lm-3)   * cleb3 * gc(i1)
+              sum2(i1) = sum2(i1) +        v(lm  )   * cleb2 * gc(i1)
             end do
-          else
-            do l = max(abs(m-1), j-1), min(this%jmax, j+1)
-                           sum1 = sum1 + v(3*(l*(l+1)/2+m-1)+j-l) * cleb1_fn(j,m,1,-1,l,m-1) * gc
-              if (l > m-1) sum3 = sum3 + v(3*(l*(l+1)/2+m+0)+j-l) * cleb1_fn(j,m,1, 0,l,m+0) * gc
-              if (l > m+0) sum2 = sum2 + v(3*(l*(l+1)/2+m+1)+j-l) * cleb1_fn(j,m,1,+1,l,m+1) * gc
-            end do
-          end if
+          end do
+        else
+          do l = max(abs(m-1), j-1), min(this%jmax, j+1)
+            lm = 3*(l*(l+1)/2+m-1)+j-l
 
-          ijml = 3*(j*(j+1)/2+m)+abs(j-1)-j
-            cab(3,ijml) =         ( sum1(1) - sum2(1) ) / ri
-            cab(4,ijml) = cunit * ( sum1(1) + sum2(1) ) / ri
-            cab(5,ijml) =         ( sum3(1)           ) / ri
+            if (l > m) then
+              cleb1 = cleb1_fn(j,m,1,-1,l,m-1)
+              cleb3 = cleb1_fn(j,m,1, 0,l,m+0)
+              cleb2 = cleb1_fn(j,m,1,+1,l,m+1)
 
-          ijml = 3*(j*(j+1)/2+m)+(j+1)-j
-            cab(3,ijml) =         ( sum1(2) - sum2(2) ) / ri
-            cab(4,ijml) = cunit * ( sum1(2) + sum2(2) ) / ri
-            cab(5,ijml) =         ( sum3(2)           ) / ri
-        end do
-      end do
+              do concurrent ( i1=1:2 )
+                sum1(i1) = sum1(i1) + v(lm  ) * cleb1 * gc(i1)
+                sum3(i1) = sum3(i1) + v(lm+3) * cleb3 * gc(i1)
+                sum2(i1) = sum2(i1) + v(lm+6) * cleb2 * gc(i1)
+              end do
+            
+            else if (l > m-1) then
+              cleb1 = cleb1_fn(j,m,1,-1,l,m-1)
+              cleb3 = cleb1_fn(j,m,1, 0,l,m+0)
 
-    deallocate(sum1, sum2, sum3, gc)
-    allocate(cc(19, this%jms2), sum1(6), sum2(6), sum3(6)) ; cc = czero
-    
-    mj = 0
-      do m = 0, this%maxj
-        do j = m, this%maxj
-          sum1 = czero
-          sum2 = czero
-          sum3 = czero
+              do concurrent ( i1=1:2 )
+                sum1(i1) = sum1(i1) + v(lm  ) * cleb1 * gc(i1)
+                sum3(i1) = sum3(i1) + v(lm+3) * cleb3 * gc(i1)
+              end do
+            
+            else
+              cleb1 = cleb1_fn(j,m,1,-1,l,m-1)
 
-          if (m == 0) then
-            do l = abs(j-1), min(this%jmax+1, j+1)
-              sum1 = sum1 + conjg( cab(:,3*(l*(l+1)/2+m+1)+j-l) ) * cleb1_fn(j,m,1,-1,l,m-1) * (-1)**(j+l)
-              sum3 = sum3 +        cab(:,3*(l*(l+1)/2+m  )+j-l)   * cleb1_fn(j,m,1, 0,l,m  )
-              sum2 = sum2 +        cab(:,3*(l*(l+1)/2+m+1)+j-l)   * cleb1_fn(j,m,1,+1,l,m+1)
-            end do
-          else
-            do l = abs(j-1), min(this%jmax+1, j+1)
-                           sum1 = sum1 + cab(:,3*(l*(l+1)/2+m-1)+j-l) * cleb1_fn(j,m,1,-1,l,m-1)
-              if (l > m-1) sum3 = sum3 + cab(:,3*(l*(l+1)/2+m  )+j-l) * cleb1_fn(j,m,1, 0,l,m  )
-              if (l > m+0) sum2 = sum2 + cab(:,3*(l*(l+1)/2+m+1)+j-l) * cleb1_fn(j,m,1,+1,l,m+1)
-            end do
-          end if
-
-          mj = mj+1
-            do i1 = 1, 6
-              cc(3*(i1-1)+1, mj) =           sum1(i1) - sum2(i1)
-              cc(3*(i1-1)+2, mj) = cunit * ( sum1(i1) + sum2(i1) )
-              cc(3*(i1-1)+3, mj) =           sum3(i1)
-            end do
-
-            if (j <= this%jmax) then
-              ijml = 3*(j*(j+1)/2+m)
-
-              if (j == 0) then
-                cc(19,mj) = -v(ijml+1)
-              else
-                cc(19,mj) = sqrt(j/(2*j+1._dbl)) * v(ijml-1) - sqrt((j+1)/(2*j+1._dbl)) * v(ijml+1)
-              end if
+              do concurrent ( i1=1:2 )
+                sum1(i1) = sum1(i1) + v(lm  ) * cleb1 * gc(i1)
+              end do
             end if
-        end do
-      end do
-      
-      do mj = 1, this%jms2
-        do i1 = 1, 5
-          cc(i1,mj) = cc(i1,mj) / 2
-        end do
+          end do
+        end if
 
-        do i1 = 7, 18
-          cc(i1,mj) = cc(i1,mj) / 2
-        end do
+        ijml = 3*(j*(j+1)/2+m)+abs(j-1)-j
+          cab(3,ijml) =         ( sum1(1) - sum2(1) ) / ri
+          cab(4,ijml) = cunit * ( sum1(1) + sum2(1) ) / ri
+          cab(5,ijml) =         ( sum3(1)           ) / ri
+
+        ijml = 3*(j*(j+1)/2+m)+(j+1)-j
+          cab(3,ijml) =         ( sum1(2) - sum2(2) ) / ri
+          cab(4,ijml) = cunit * ( sum1(2) + sum2(2) ) / ri
+          cab(5,ijml) =         ( sum3(2)           ) / ri
       end do
+    end do
+
+  deallocate(sum1, sum2, sum3, gc)
+  allocate(cc(19, this%jms2), sum1(6), sum2(6), sum3(6)) ; cc = czero
+  
+  mj = 0
+    do m = 0, this%maxj
+      do j = m, this%maxj
+        sum1 = czero
+        sum2 = czero
+        sum3 = czero
+
+        if (m == 0) then
+          do l = abs(j-1), min(this%jmax+1, j+1)
+            lm = 3*(l*(l+1)/2+m+1)+j-l
+
+            cleb1 = cleb1_fn(j,m,1,-1,l,m-1) * (-1)**(j+l)
+            cleb3 = cleb1_fn(j,m,1, 0,l,m  )
+            cleb2 = cleb1_fn(j,m,1,+1,l,m+1)
+
+            do concurrent ( i1=1:6 )
+              sum1(i1) = sum1(i1) + conjg( cab(i1,lm  ) ) * cleb1
+              sum3(i1) = sum3(i1) +        cab(i1,lm-3)   * cleb3
+              sum2(i1) = sum2(i1) +        cab(i1,lm  )   * cleb2
+            end do
+          end do
+        else
+          do l = abs(j-1), min(this%jmax+1, j+1)
+            lm = 3*(l*(l+1)/2+m-1)+j-l
+
+            if (l > m) then
+              cleb1 = cleb1_fn(j,m,1,-1,l,m-1)
+              cleb3 = cleb1_fn(j,m,1, 0,l,m  )
+              cleb2 = cleb1_fn(j,m,1,+1,l,m+1)
+
+              do concurrent (i1 = 1:6)
+                sum1(i1) = sum1(i1) + cab(i1,lm  ) * cleb1
+                sum3(i1) = sum3(i1) + cab(i1,lm+3) * cleb3
+                sum2(i1) = sum2(i1) + cab(i1,lm+6) * cleb2
+              end do
+
+            else if (l > m-1) then
+              cleb1 = cleb1_fn(j,m,1,-1,l,m-1)
+              cleb3 = cleb1_fn(j,m,1, 0,l,m  )
+
+              do concurrent (i1 = 1:6)
+                sum1(i1) = sum1(i1) + cab(i1,lm  ) * cleb1
+                sum3(i1) = sum3(i1) + cab(i1,lm+3) * cleb3
+              end do
+            else
+              cleb1 = cleb1_fn(j,m,1,-1,l,m-1)
+
+              do concurrent (i1 = 1:6)
+                sum1(i1) = sum1(i1) + cab(i1,lm) * cleb1
+              end do
+            end if
+          end do
+        end if
+
+        mj = mj+1
+          do i1 = 1, 6
+            i2 = 3*(i1-1)+1
+
+            cc(i2  , mj) =           sum1(i1) - sum2(i1)
+            cc(i2+1, mj) = cunit * ( sum1(i1) + sum2(i1) )
+            cc(i2+2, mj) =           sum3(i1)
+          end do
+
+          if (j <= this%jmax) then
+            ijml = 3*(j*(j+1)/2+m)
+
+            if (j == 0) then
+              cc(19,mj) = -v(ijml+1)
+            else
+              cc(19,mj) = sqrt(j/(2*j+1._dbl)) * v(ijml-1) - sqrt((j+1)/(2*j+1._dbl)) * v(ijml+1)
+            end if
+          end if
+      end do
+    end do
+    
+    do mj = 1, this%jms2
+      do i1 = 1, 5
+        cc(i1,mj) = cc(i1,mj) / 2
+      end do
+
+      do i1 = 7, 18
+        cc(i1,mj) = cc(i1,mj) / 2
+      end do
+    end do
 
     deallocate(cab, sum1, sum2, sum3)
     allocate( pmm(step), pmj(step), pmj1(step), pmj2(step), cosx(step), fftLege(step), sinx(step),                             &
@@ -380,6 +450,10 @@ submodule (SphericalHarmonics) vcsv_vcvv_vcvgv
       cr(2,mj) = cr(2,mj) * fac / 2
       cr(3,mj) = cr(3,mj) * fac / 2 * cunit
       cr(4,mj) = cr(4,mj) * fac
+
+      cr12     = cr(2,mj) - cr(3,mj)
+      cr(3,mj) = cr(2,mj) + cr(3,mj)
+      cr(2,mj) = cr12
     end do
     
     j = 0
@@ -388,14 +462,10 @@ submodule (SphericalHarmonics) vcsv_vcvv_vcvgv
         lm  = m*(this%maxj)-m*(m+1)/2+j+1
         lm2 = lm+this%maxj-m
 
-        cjm(1,ijm) = cr(1,lm)
-        cjm(2,ijm) = czero
-        cjm(3,ijm) = czero
-        cjm(4,ijm) = (        cr(2,lm2 ) - cr(3,lm2)   ) * cleb1_fn(j+1,m+1,1,-1,j,m) + &
-                   & (        cr(4,lm+1)               ) * cleb1_fn(j+1,m+0,1, 0,j,m) + &
-                   & ( conjg( cr(2,lm2 ) - cr(3,lm2) ) ) * cleb1_fn(j+1,m-1,1,+1,j,m)
-        
-        cjm(1,ijm)%im = 0._dbl ; cjm(4,ijm)%im = 0._dbl
+        cjm(1,ijm) =        cr(1,lm  )                                ; cjm(1,ijm)%im = 0._dbl
+        cjm(4,ijm) =        cr(2,lm2 )   * cleb1_fn(j+1,m+1,1,-1,j,m) + &
+                   &        cr(4,lm+1)   * cleb1_fn(j+1,m+0,1, 0,j,m) + &
+                   & conjg( cr(2,lm2 ) ) * cleb1_fn(j+1,m-1,1,+1,j,m) ; cjm(4,ijm)%im = 0._dbl
 
     do j = 1, this%jmax
       m = 0
@@ -403,18 +473,16 @@ submodule (SphericalHarmonics) vcsv_vcvv_vcvgv
         lm  = m*(this%maxj)-m*(m+1)/2+j+1
         lm2 = lm+this%maxj-m-1
 
-        cjm(1,ijm) = cr(1,lm)
-        cjm(2,ijm) = (        cr(2,lm2-1) - cr(3,lm2-1)   ) * cleb1_fn(j-1,m+1,1,-1,j,m) + &
-                   & (        cr(4,lm -1)                 ) * cleb1_fn(j-1,m+0,1, 0,j,m) + &
-                   & ( conjg( cr(2,lm2-1) - cr(3,lm2-1) ) ) * cleb1_fn(j-1,m-1,1,+1,j,m)
-        cjm(3,ijm) = (        cr(2,lm2  ) - cr(3,lm2  )   ) * cleb1_fn(j  ,m+1,1,-1,j,m) + &
-                   & (        cr(4,lm   )                 ) * cleb1_fn(j  ,m+0,1, 0,j,m) + &
-                   & ( conjg( cr(2,lm2  ) - cr(3,lm2  ) ) ) * cleb1_fn(j  ,m-1,1,+1,j,m)
-        cjm(4,ijm) = (        cr(2,lm2+1) - cr(3,lm2+1)   ) * cleb1_fn(j+1,m+1,1,-1,j,m) + &
-                   & (        cr(4,lm +1)                 ) * cleb1_fn(j+1,m+0,1, 0,j,m) + &
-                   & ( conjg( cr(2,lm2+1) - cr(3,lm2+1) ) ) * cleb1_fn(j+1,m-1,1,+1,j,m)
-        
-        cjm(1,ijm)%im = 0._dbl ; cjm(2,ijm)%im = 0._dbl ; cjm(3,ijm)%re = 0._dbl ; cjm(4,ijm)%im = 0._dbl
+        cjm(1,ijm) =        cr(1,lm   )                                ; cjm(1,ijm)%im = 0._dbl
+        cjm(2,ijm) =        cr(2,lm2-1)   * cleb1_fn(j-1,m+1,1,-1,j,m) + &
+                   &        cr(4,lm -1)   * cleb1_fn(j-1,m+0,1, 0,j,m) + &
+                   & conjg( cr(2,lm2-1) ) * cleb1_fn(j-1,m-1,1,+1,j,m) ; cjm(2,ijm)%im = 0._dbl
+        cjm(3,ijm) =        cr(2,lm2  )   * cleb1_fn(j  ,m+1,1,-1,j,m) + &
+                   &        cr(4,lm   )   * cleb1_fn(j  ,m+0,1, 0,j,m) + &
+                   & conjg( cr(2,lm2  ) ) * cleb1_fn(j  ,m-1,1,+1,j,m) ; cjm(3,ijm)%re = 0._dbl
+        cjm(4,ijm) =        cr(2,lm2+1)   * cleb1_fn(j+1,m+1,1,-1,j,m) + &
+                   &        cr(4,lm +1)   * cleb1_fn(j+1,m+0,1, 0,j,m) + &
+                   & conjg( cr(2,lm2+1) ) * cleb1_fn(j+1,m-1,1,+1,j,m) ; cjm(4,ijm)%im = 0._dbl
 
       do m = 1, j
         ijm = ijm+1
@@ -422,16 +490,16 @@ submodule (SphericalHarmonics) vcsv_vcvv_vcvgv
         lm1 = lm - this%maxj + m
         lm2 = lm + this%maxj - m - 1
 
-        cjm(1,ijm) = cr(1,lm)
-        cjm(2,ijm) = ( cr(2,lm2-1) - cr(3,lm2-1) ) * cleb1_fn(j-1,m+1,1,-1,j,m) + &
-                   & ( cr(4,lm -1)               ) * cleb1_fn(j-1,m+0,1, 0,j,m) - &
-                   & ( cr(2,lm1-1) + cr(3,lm1-1) ) * cleb1_fn(j-1,m-1,1,+1,j,m)
-        cjm(3,ijm) = ( cr(2,lm2  ) - cr(3,lm2  ) ) * cleb1_fn(j  ,m+1,1,-1,j,m) + &
-                   & ( cr(4,lm   )               ) * cleb1_fn(j  ,m+0,1, 0,j,m) - &
-                   & ( cr(2,lm1  ) + cr(3,lm1  ) ) * cleb1_fn(j  ,m-1,1,+1,j,m)
-        cjm(4,ijm) = ( cr(2,lm2+1) - cr(3,lm2+1) ) * cleb1_fn(j+1,m+1,1,-1,j,m) + &
-                   & ( cr(4,lm +1)               ) * cleb1_fn(j+1,m+0,1, 0,j,m) - &
-                   & ( cr(2,lm1+1) + cr(3,lm1+1) ) * cleb1_fn(j+1,m-1,1,+1,j,m)
+        cjm(1,ijm) = cr(1,lm   )
+        cjm(2,ijm) = cr(2,lm2-1) * cleb1_fn(j-1,m+1,1,-1,j,m) + &
+                   & cr(4,lm -1) * cleb1_fn(j-1,m+0,1, 0,j,m) - &
+                   & cr(3,lm1-1) * cleb1_fn(j-1,m-1,1,+1,j,m)
+        cjm(3,ijm) = cr(2,lm2  ) * cleb1_fn(j  ,m+1,1,-1,j,m) + &
+                   & cr(4,lm   ) * cleb1_fn(j  ,m+0,1, 0,j,m) - &
+                   & cr(3,lm1  ) * cleb1_fn(j  ,m-1,1,+1,j,m)
+        cjm(4,ijm) = cr(2,lm2+1) * cleb1_fn(j+1,m+1,1,-1,j,m) + &
+                   & cr(4,lm +1) * cleb1_fn(j+1,m+0,1, 0,j,m) - &
+                   & cr(3,lm1+1) * cleb1_fn(j+1,m-1,1,+1,j,m)
       end do
     end do
 
