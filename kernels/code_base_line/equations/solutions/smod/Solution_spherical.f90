@@ -20,21 +20,23 @@ submodule(Solution) Solution_spherical
     class(T_solution), intent(in) :: this
     integer,           intent(in) :: i
     complex(kind=dbl)             :: flux(this%jmv)
-    integer                       :: jm, ind1, ind2
+    integer                       :: ijm, ijml, ind1
 
     ind1 = 3*(i-1)+2
-    ind2 = 3*(i-1)+3
 
     if ( allocated(this%temp) ) then
-      flux(1) = this%temp(ind2,1)
+      ijml = 1
+        flux(ijml) = this%temp(ind1+1,1)
 
-      do jm = 2, this%jms
-        flux(3*(jm-1)-1) = this%temp(ind1,jm)
-        flux(3*(jm-1)  ) = cmplx(0._dbl, 0._dbl, kind=dbl)
-        flux(3*(jm-1)+1) = this%temp(ind2,jm)
+      do ijm = 2, this%jms
+        ijml = ijml+3
+
+        flux(ijml-2) = this%temp(ind1, ijm)
+        flux(ijml-1) = czero
+        flux(ijml  ) = this%temp(ind1+1, ijm)
       end do
     else
-      flux = cmplx(0._dbl, 0._dbl, kind=dbl)
+      flux = czero
     end if
 
   end function flux_jml_fn
@@ -43,30 +45,35 @@ submodule(Solution) Solution_spherical
     class(T_solution), intent(in) :: this
     integer,           intent(in) :: i
     complex(kind=dbl)             :: velocity(this%jmv)
-    integer                       :: jm, sfer_ind1, sfer_ind2, torr_ind
+    integer                       :: ijm, ijml, sfer_ind1, torr_ind
 
-    velocity = cmplx(0._dbl, 0._dbl, kind=dbl)
+    ijml = 1
+      velocity(ijml) = czero
 
     sfer_ind1 = 6*(i-1)+1
     torr_ind  = 3*(i-1)+1
-    sfer_ind2 = 6*(i-1)+2
       
     if ( allocated(this%mech) .and. allocated(this%torr) ) then
-      do jm = 2, this%jms
-        velocity(3*(jm-1)-1) = this%mech(sfer_ind1,jm)
-        velocity(3*(jm-1)  ) = this%torr(torr_ind ,jm)
-        velocity(3*(jm-1)+1) = this%mech(sfer_ind2,jm)
+      do ijm = 2, this%jms
+        ijml = ijml+3
+
+        velocity(ijml-2) = this%mech(sfer_ind1  , ijm)
+        velocity(ijml-1) = this%torr(torr_ind   , ijm)
+        velocity(ijml  ) = this%mech(sfer_ind1+1, ijm)
       end do
 
     else if ( (.not. allocated(this%torr)) .and. allocated(this%mech) ) then
-      do jm = 2, this%jms
-        velocity(3*(jm-1)-1) = this%mech(sfer_ind1,jm)
-        velocity(3*(jm-1)+1) = this%mech(sfer_ind2,jm)
+      do ijm = 2, this%jms
+        ijml = ijml+3
+
+        velocity(ijml-2) = this%mech(sfer_ind1  , ijm)
+        velocity(ijml-1) = czero
+        velocity(ijml  ) = this%mech(sfer_ind1+1, ijm)
       end do
       
     else if ( allocated(this%torr) .and. (.not. allocated(this%mech)) ) then
-      do jm = 2, this%jms
-        velocity(3*(jm-1)) = this%torr(torr_ind ,jm)
+      do ijm = 2, this%jms
+        velocity(3*(ijm-1)) = this%torr(torr_ind, ijm)
       end do
     end if
 
