@@ -114,99 +114,98 @@ submodule (SphericalHarmonics) vcsv_vcvv_vcvgv
       end do
     end do
 
-  deallocate(sum1, sum2, sum3, gc)
-  allocate(cc(19, this%jms2), sum1(6), sum2(6), sum3(6)) ; cc = czero
+    deallocate(sum1, sum2, sum3, gc)
+    allocate(cc(19, this%jms2), sum1(6), sum2(6), sum3(6)) ; cc = czero
   
-  mj = 0
-    do m = 0, this%maxj
-      do j = m, this%maxj
-        sum1 = czero
-        sum2 = czero
-        sum3 = czero
-
-        if (m == 0) then
-          do l = abs(j-1), min(this%jmax+1, j+1)
-            lm = 3*(l*(l+1)/2+m+1)+j-l
-
-            cleb1 = cleb1_fn(j,m,1,-1,l,m-1) * (-1)**(j+l)
-            cleb3 = cleb1_fn(j,m,1, 0,l,m  )
-            cleb2 = cleb1_fn(j,m,1,+1,l,m+1)
-
-            do concurrent ( i1=1:6 )
-              sum1(i1) = sum1(i1) + conjg( cab(i1,lm  ) ) * cleb1
-              sum3(i1) = sum3(i1) +        cab(i1,lm-3)   * cleb3
-              sum2(i1) = sum2(i1) +        cab(i1,lm  )   * cleb2
-            end do
-          end do
-        else
-          do l = abs(j-1), min(this%jmax+1, j+1)
-            lm = 3*(l*(l+1)/2+m-1)+j-l
-
-            if (l > m) then
-              cleb1 = cleb1_fn(j,m,1,-1,l,m-1)
+    mj = 0
+      do m = 0, this%maxj
+        do j = m, this%maxj
+          sum1 = czero
+          sum2 = czero
+          sum3 = czero
+    
+          if (m == 0) then
+            do l = abs(j-1), min(this%jmax+1, j+1)
+              lm = 3*(l*(l+1)/2+m+1)+j-l
+    
+              cleb1 = cleb1_fn(j,m,1,-1,l,m-1) * (-1)**(j+l)
               cleb3 = cleb1_fn(j,m,1, 0,l,m  )
               cleb2 = cleb1_fn(j,m,1,+1,l,m+1)
-
-              do concurrent (i1 = 1:6)
-                sum1(i1) = sum1(i1) + cab(i1,lm  ) * cleb1
-                sum3(i1) = sum3(i1) + cab(i1,lm+3) * cleb3
-                sum2(i1) = sum2(i1) + cab(i1,lm+6) * cleb2
-              end do
-
-            else if (l > m-1) then
-              cleb1 = cleb1_fn(j,m,1,-1,l,m-1)
-              cleb3 = cleb1_fn(j,m,1, 0,l,m  )
-
-              do concurrent (i1 = 1:6)
-                sum1(i1) = sum1(i1) + cab(i1,lm  ) * cleb1
-                sum3(i1) = sum3(i1) + cab(i1,lm+3) * cleb3
-              end do
-            else
-              cleb1 = cleb1_fn(j,m,1,-1,l,m-1)
-
-              do concurrent (i1 = 1:6)
-                sum1(i1) = sum1(i1) + cab(i1,lm) * cleb1
-              end do
-            end if
-          end do
-        end if
-
-        mj = mj+1
-          do i1 = 1, 6
-            i2 = 3*(i1-1)+1
-
-            cc(i2  , mj) =           sum1(i1) - sum2(i1)
-            cc(i2+1, mj) = cunit * ( sum1(i1) + sum2(i1) )
-            cc(i2+2, mj) =           sum3(i1)
-          end do
-
-          if (j <= this%jmax) then
-            ijml = 3*(j*(j+1)/2+m)
-
-            if (j == 0) then
-              cc(19,mj) = -v(ijml+1)
-            else
-              cc(19,mj) = sqrt(j/(2*j+1._dbl)) * v(ijml-1) - sqrt((j+1)/(2*j+1._dbl)) * v(ijml+1)
-            end if
-          end if
-      end do
-    end do
     
-    do mj = 1, this%jms2
-      do i1 = 1, 5
-        cc(i1,mj) = cc(i1,mj) / 2
+              do concurrent ( i1=1:6 )
+                sum1(i1) = sum1(i1) + conjg( cab(i1,lm  ) ) * cleb1
+                sum3(i1) = sum3(i1) +        cab(i1,lm-3)   * cleb3
+                sum2(i1) = sum2(i1) +        cab(i1,lm  )   * cleb2
+              end do
+            end do
+          else
+            do l = abs(j-1), min(this%jmax+1, j+1)
+              lm = 3*(l*(l+1)/2+m-1)+j-l
+    
+              if (l > m) then
+                cleb1 = cleb1_fn(j,m,1,-1,l,m-1)
+                cleb3 = cleb1_fn(j,m,1, 0,l,m  )
+                cleb2 = cleb1_fn(j,m,1,+1,l,m+1)
+    
+                do concurrent (i1 = 1:6)
+                  sum1(i1) = sum1(i1) + cab(i1,lm  ) * cleb1
+                  sum3(i1) = sum3(i1) + cab(i1,lm+3) * cleb3
+                  sum2(i1) = sum2(i1) + cab(i1,lm+6) * cleb2
+                end do
+    
+              else if (l > m-1) then
+                cleb1 = cleb1_fn(j,m,1,-1,l,m-1)
+                cleb3 = cleb1_fn(j,m,1, 0,l,m  )
+    
+                do concurrent (i1 = 1:6)
+                  sum1(i1) = sum1(i1) + cab(i1,lm  ) * cleb1
+                  sum3(i1) = sum3(i1) + cab(i1,lm+3) * cleb3
+                end do
+              else
+                cleb1 = cleb1_fn(j,m,1,-1,l,m-1)
+    
+                do concurrent (i1 = 1:6)
+                  sum1(i1) = sum1(i1) + cab(i1,lm) * cleb1
+                end do
+              end if
+            end do
+          end if
+    
+          mj = mj+1
+            do i1 = 1, 6
+              i2 = 3*(i1-1)+1
+    
+              cc(i2  , mj) =           sum1(i1) - sum2(i1)
+              cc(i2+1, mj) = cunit * ( sum1(i1) + sum2(i1) )
+              cc(i2+2, mj) =           sum3(i1)
+            end do
+    
+            if (j <= this%jmax) then
+              ijml = 3*(j*(j+1)/2+m)
+    
+              if (j == 0) then
+                cc(19,mj) = -v(ijml+1)
+              else
+                cc(19,mj) = sqrt(j/(2*j+1._dbl)) * v(ijml-1) - sqrt((j+1)/(2*j+1._dbl)) * v(ijml+1)
+              end if
+            end if
+        end do
       end do
-
-      do i1 = 7, 18
-        cc(i1,mj) = cc(i1,mj) / 2
+      
+      do mj = 1, this%jms2
+        do i1 = 1, 5
+          cc(i1,mj) = cc(i1,mj) / 2
+        end do
+    
+        do i1 = 7, 18
+          cc(i1,mj) = cc(i1,mj) / 2
+        end do
       end do
-    end do
-
+    
     deallocate(cab, sum1, sum2, sum3)
-    allocate( pmm(step), pmj(step), pmj1(step), pmj2(step), cosx(step), fftLege(step), sinx(step),                             &
-            & symL(19,step), asymL(19,step), sumLegendreN(19,step,0:this%nFourier/2), sumLegendreS(19,step,0:this%nFourier/2), &                                 
-            & cr(4,this%jms1), grid(19,step,0:this%nFourier-1), fft(4,step,0:this%nFourier-1),                                 & 
-            & fftNC(4,step,0:this%nFourier/2), fftSC(4,step,0:this%nFourier/2))
+    allocate( pmm(step), pmj(step), pmj1(step), pmj2(step), cosx(step), fftLege(step), sinx(step), symL(19,step), asymL(19,step), &
+            & sumLegendreN(19,step,0:this%nFourier/2), sumLegendreS(19,step,0:this%nFourier/2), grid(19,step,0:this%nFourier-1),  &                                 
+            & cr(4,this%jms1), fft(4,step,0:this%nFourier-1), fftNC(4,step,0:this%nFourier/2), fftSC(4,step,0:this%nFourier/2)    )
       
       cr = czero
 
