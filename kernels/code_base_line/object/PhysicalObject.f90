@@ -145,15 +145,15 @@ module PhysicalObject
     end function coriolis_rr_jml_fn
 
     module subroutine coriolis_rr_jml_sub(this, v, coriolis)
-      class(T_physicalObject), intent(in)  :: this
-      complex(kind=dbl),       intent(in)  :: v(:)
-      complex(kind=dbl),       intent(out) :: coriolis(:)
+      class(T_physicalObject), intent(in)    :: this
+      complex(kind=dbl),       intent(in)    :: v(:)
+      complex(kind=dbl),       intent(inout) :: coriolis(:,:)
     end subroutine coriolis_rr_jml_sub
 
     module subroutine buoy_rr_jml_sub(this, i, force)
       class(T_physicalObject), intent(in)    :: this
       integer,                 intent(in)    :: i
-      complex(kind=dbl),       intent(inout) :: force(:)
+      complex(kind=dbl),       intent(inout) :: force(:,:)
     end subroutine buoy_rr_jml_sub
   end interface
 

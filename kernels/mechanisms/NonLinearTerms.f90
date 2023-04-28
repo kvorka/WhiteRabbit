@@ -45,40 +45,36 @@ module NonLinearTerms
     class(T_physicalObject), intent(in)  :: this
     integer,                 intent(in)  :: i
     complex(kind=dbl),       intent(out) :: ntemp(:), nsph1(:), ntorr(:), nsph2(:)
-    integer                              :: ijm, ijml
-    complex(kind=dbl),       allocatable :: v(:), nlm(:,:), dv(:), dT(:), nlm1(:)
+    integer                              :: ijm, i1
+    complex(kind=dbl),       allocatable :: v(:), dv(:), dT(:), nlm(:,:)
 
-    allocate( v(this%jmv), dv(this%jmv), dT(this%jmv) )
-      
-      call this%sol%velocity_jml_sub(i, v)
-      call this%dv_dr_rr_jml_sub(i, v, dv)
-      call this%mgradT_rr_jml_sub(i, dT)
+    allocate(  v(this%jmv) ) ; call this%sol%velocity_jml_sub(i, v)
+    allocate( dv(this%jmv) ) ; call this%dv_dr_rr_jml_sub(i, v, dv)
+    allocate( dT(this%jmv) ) ; call this%mgradT_rr_jml_sub(i, dT)
     
     allocate( nlm(4,this%jms) )
       
       call this%lat_grid%vcsv_vcvv_vcvgv_sub(this%rad_grid%rr(i), dT, dv, v, nlm)
-
-    deallocate( dv, dT )
-    allocate( nlm1(this%jmv) )
-      
-      call this%coriolis_rr_jml_sub(v, nlm1)
-      call this%buoy_rr_jml_sub(i, nlm1)
     
-    deallocate( v )
+    deallocate( dv, dT )
 
-      ijm = 1
-        ntemp(ijm) = nlm(1,ijm)
-      
-      do ijm = 2, this%jms
-        ijml = 3*(ijm-1)-1
-        
-        ntemp(ijm) = nlm(1,ijm)
-        nsph1(ijm) = nlm(2,ijm) / this%Pr + nlm1(ijml  )
-        ntorr(ijm) = nlm(3,ijm) / this%Pr + nlm1(ijml+1)
-        nsph2(ijm) = nlm(4,ijm) / this%Pr + nlm1(ijml+2)
+      do concurrent ( ijm = 1:this%jms, i1 = 2:4 )
+        nlm(i1,ijm) = nlm(i1,ijm) / this%Pr
       end do
       
-    deallocate( nlm, nlm1 )
+      call this%coriolis_rr_jml_sub(v, nlm(2:4,:))
+      call this%buoy_rr_jml_sub(i, nlm(2:4,:))
+    
+    deallocate( v )
+    
+      do ijm = 1, this%jms
+        ntemp(ijm) = nlm(1,ijm)
+        nsph1(ijm) = nlm(2,ijm)
+        ntorr(ijm) = nlm(3,ijm)
+        nsph2(ijm) = nlm(4,ijm)
+      end do
+      
+    deallocate( nlm )
     
   end subroutine fullnl_sub
 

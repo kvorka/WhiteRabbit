@@ -146,53 +146,72 @@ module Spherical_func
 
   end function ezvv_fn
 
-  subroutine ezvv_sub(np, cajml, cjml)
-    integer,           intent(in)  :: np
-    complex(kind=dbl), intent(in)  :: cajml(:)
-    complex(kind=dbl), intent(out) :: cjml(:)
-    integer                        :: j, m, jm0, jm1, jm2
+  subroutine ezvv_sub(np, fac, cajml, cjml)
+    integer,           intent(in)    :: np
+    real(kind=dbl),    intent(in)    :: fac
+    complex(kind=dbl), intent(in)    :: cajml(:)
+    complex(kind=dbl), intent(inout) :: cjml(:,:)
+    integer                          :: j, m, ijm, jm0, jm1, jm2
+    complex(kind=dbl)                :: cfac
 
-    cjml(1) = sqrt(2._dbl/3._dbl) * cajml(3)
+    cfac = cunit * fac
+
+    j = 0
+      m = 0
+        ijm = 1
+
+        cjml(1,ijm) = czero
+        cjml(2,ijm) = czero
+        cjml(3,ijm) = cjml(3,ijm) + sqrt(2._dbl/3._dbl) * cajml(3) * cfac
 
     j = 1
       do m = 0, j
+        ijm = ijm+1
+
         jm1 = 3*((j-1)*(j  )/2+m)
         jm0 = 3*((j  )*(j+1)/2+m)
         jm2 = 3*((j+1)*(j+2)/2+m)
 
-        cjml(jm0-1) =                                                                                - m*cajml(jm0-1)/(j      )
-        cjml(jm0 )  = sqrt(((j+1._dbl)*((j       )*(j       )-m*m))/(2*j+1._dbl))*cajml(jm1+1)/(j  ) - m*cajml(jm0  )/(j*(j+1)) + &
-                    & sqrt(((j       )*((j+1._dbl)*(j+1._dbl)-m*m))/(2*j+1._dbl))*cajml(jm2-1)/(j+1)
-        cjml(jm0+1) =                                                                                  m*cajml(jm0+1)/(   j+1 ) + &
-                    & sqrt(((j+2._dbl)*((j+1._dbl)*(j+1._dbl)-m*m))/(2*j+3._dbl))*cajml(jm2  )/(j+1)
+        cjml(1,ijm) = cjml(1,ijm) + (                                           -m * cajml(jm0-1) /  j          ) * cfac
+        cjml(2,ijm) = cjml(2,ijm) + ( sqrt(((j+1)*((j  )*(j  )-m*m))/(2*j+1._dbl)) * cajml(jm1+1) /  j -        &
+                                    &                                            m * cajml(jm0  ) / (j*(j+1)) + &
+                                    & sqrt(((j  )*((j+1)*(j+1)-m*m))/(2*j+1._dbl)) * cajml(jm2-1) /    (j+1)    ) * cfac
+        cjml(3,ijm) = cjml(3,ijm) + (                                            m * cajml(jm0+1) /    (j+1)  + &
+                                    & sqrt(((j+2)*((j+1)*(j+1)-m*m))/(2*j+3._dbl)) * cajml(jm2  ) /    (j+1)    ) * cfac
       end do
 
     do j = 2, np-1
       do m = 0, j
+        ijm = ijm+1
+
         jm1 = 3*((j-1)*(j  )/2+m)
         jm0 = 3*((j  )*(j+1)/2+m)
         jm2 = 3*((j+1)*(j+2)/2+m)
 
-        cjml(jm0-1) = sqrt(((j-1._dbl)*((j       )*(j       )-m*m))/(2*j-1._dbl))*cajml(jm1  )/(j  ) - m*cajml(jm0-1)/(j      )
-        cjml(jm0  ) = sqrt(((j+1._dbl)*((j       )*(j       )-m*m))/(2*j+1._dbl))*cajml(jm1+1)/(j  ) - m*cajml(jm0  )/(j*(j+1)) + &
-                    & sqrt(((j       )*((j+1._dbl)*(j+1._dbl)-m*m))/(2*j+1._dbl))*cajml(jm2-1)/(j+1)
-        cjml(jm0+1) =                                                                                  m*cajml(jm0+1)/(   j+1 ) + &
-                    & sqrt(((j+2._dbl)*((j+1._dbl)*(j+1._dbl)-m*m))/(2*j+3._dbl))*cajml(jm2  )/(j+1)
+        cjml(1,ijm) = cjml(1,ijm) + ( sqrt(((j-1)*((j  )*(j  )-m*m))/(2*j-1._dbl)) * cajml(jm1  ) /  j -        &
+                                    &                                            m * cajml(jm0-1) /  j          ) * cfac
+        cjml(2,ijm) = cjml(2,ijm) + ( sqrt(((j+1)*((j  )*(j  )-m*m))/(2*j+1._dbl)) * cajml(jm1+1) /  j -        &
+                                    &                                            m * cajml(jm0  ) / (j*(j+1)) + &
+                                    & sqrt(((j  )*((j+1)*(j+1)-m*m))/(2*j+1._dbl)) * cajml(jm2-1) /    (j+1)    ) * cfac
+        cjml(3,ijm) = cjml(3,ijm) + (                                            m * cajml(jm0+1) /    (j+1) +  &
+                                    & sqrt(((j+2)*((j+1)*(j+1)-m*m))/(2*j+3._dbl)) * cajml(jm2  ) /    (j+1)    ) * cfac
       end do
     end do
 
     j = np
       do m = 0, j
+        ijm = ijm+1
+
         jm1 = 3*((j-1)*(j  )/2+m)
         jm0 = 3*((j  )*(j+1)/2+m)
         jm2 = 3*((j+1)*(j+2)/2+m)
 
-        cjml(jm0-1) = sqrt(((j-1._dbl)*((j  )*(j  )-m*m))/(2*j-1._dbl))*cajml(jm1  )/(j  ) - m*cajml(jm0-1)/(j      )
-        cjml(jm0  ) = sqrt(((j+1._dbl)*((j  )*(j  )-m*m))/(2*j+1._dbl))*cajml(jm1+1)/(j  ) - m*cajml(jm0  )/(j*(j+1))
-        cjml(jm0+1) =                                                                        m*cajml(jm0+1)/(   j+1 )
+        cjml(1,ijm) = cjml(1,ijm) + ( sqrt(((j-1)*((j  )*(j  )-m*m))/(2*j-1._dbl)) * cajml(jm1  ) /  j -      &
+                                    &                                            m * cajml(jm0-1) /  j        ) * cfac
+        cjml(2,ijm) = cjml(2,ijm) + ( sqrt(((j+1)*((j  )*(j  )-m*m))/(2*j+1._dbl)) * cajml(jm1+1) /  j -      &
+                                    &                                            m * cajml(jm0  ) / (j*(j+1)) ) * cfac
+        cjml(3,ijm) = cjml(3,ijm) + (                                            m * cajml(jm0+1) /    (j+1)  ) * cfac
       end do
-
-    cjml = cunit * cjml
 
   end subroutine ezvv_sub
 

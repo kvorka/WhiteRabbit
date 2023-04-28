@@ -27,41 +27,34 @@ submodule(PhysicalObject) Forces
   end function coriolis_rr_jml_fn
 
   subroutine coriolis_rr_jml_sub(this, v, coriolis) 
-    class(T_physicalObject), intent(in)  :: this
-    complex(kind=dbl),       intent(in)  :: v(:)
-    complex(kind=dbl),       intent(out) :: coriolis(:)
-    real(kind=dbl)                       :: fac
+    class(T_physicalObject), intent(in)    :: this
+    complex(kind=dbl),       intent(in)    :: v(:)
+    complex(kind=dbl),       intent(inout) :: coriolis(:,:)
+    real(kind=dbl)                         :: fac
     
-    call ezvv_sub(this%jmax, v, coriolis) ; fac = 2 / this%Ek ; coriolis = coriolis * fac
+    call ezvv_sub(this%jmax, 2/this%Ek, v, coriolis)
 
   end subroutine coriolis_rr_jml_sub
 
   subroutine buoy_rr_jml_sub(this, i, force)
     class(T_physicalObject), intent(in)    :: this
     integer,                 intent(in)    :: i
-    complex(kind=dbl),       intent(inout) :: force(:)
-    integer                                :: ijm, ijml, j
-    real(kind=dbl)                         :: fac1, fac2
+    complex(kind=dbl),       intent(inout) :: force(:,:)
+    integer                                :: ijm, j
+    real(kind=dbl)                         :: fac, fac1, fac2
     complex(kind=dbl),       allocatable   :: gdrho(:)
     
     allocate( gdrho(this%jms) ) ; call this%sol%temp_jm_sub(i, gdrho)
       
-      fac1 = this%Ra * this%alpha_fn(i) * this%gravity%g_fn(this%rad_grid%rr(i))
+      fac = this%Ra * this%alpha_fn(i) * this%gravity%g_fn(this%rad_grid%rr(i))
       
-      do ijm = 1, this%jms
-        gdrho(ijm) = fac1 * gdrho(ijm)
-      end do
-
-      ijml = -1
       do j = 1, this%jmax
-        fac1 = -sqrt( (j  ) / (2*j+1._dbl) )
-        fac2 = +sqrt( (j+1) / (2*j+1._dbl) )
+        fac1 = -sqrt( (j  ) / (2*j+1._dbl) ) * fac
+        fac2 = +sqrt( (j+1) / (2*j+1._dbl) ) * fac
 
         do ijm = j*(j+1)/2+1, j*(j+1)/2+j+1
-          ijml = ijml+3
-
-          force(ijml  ) = force(ijml  ) + fac1 * gdrho(ijm)
-          force(ijml+2) = force(ijml+2) + fac2 * gdrho(ijm)
+          force(1,ijm) = force(1,ijm) + fac1 * gdrho(ijm)
+          force(3,ijm) = force(3,ijm) + fac2 * gdrho(ijm)
         end do
       end do
     
