@@ -45,9 +45,13 @@ module PhysicalObject
     procedure :: vr_jm_fn
     procedure :: dv_dr_rrjml_fn
     procedure :: mgradT_rrjml_fn
+    procedure :: dv_dr_rr_jml_sub
+    procedure :: mgradT_rr_jml_sub
 
     procedure :: buoy_rr_jml_fn
     procedure :: coriolis_rr_jml_fn
+    procedure :: coriolis_rr_jml_sub
+    procedure :: buoy_rr_jml_sub
     
   end type T_physicalObject
   
@@ -111,6 +115,19 @@ module PhysicalObject
       integer,                 intent(in) :: i
       complex(kind=dbl)                   :: gradT(this%jmv)
     end function mgradT_rrjml_fn
+
+    module subroutine dv_dr_rr_jml_sub(this, i, v, dv)
+      class(T_physicalObject), intent(in)  :: this
+      integer,                 intent(in)  :: i
+      complex(kind=dbl),       intent(in)  :: v(:)
+      complex(kind=dbl),       intent(out) :: dv(:)
+    end subroutine dv_dr_rr_jml_sub
+    
+    module subroutine mgradT_rr_jml_sub(this, i, gradT)
+      class(T_physicalObject), intent(in)  :: this
+      integer,                 intent(in)  :: i
+      complex(kind=dbl),       intent(out) :: gradT(:)
+    end subroutine mgradT_rr_jml_sub
   end interface
 
   interface
@@ -126,6 +143,18 @@ module PhysicalObject
       complex(kind=dbl), optional, intent(in) :: v(:)
       complex(kind=dbl)                       :: coriolis(this%jmv)
     end function coriolis_rr_jml_fn
+
+    module subroutine coriolis_rr_jml_sub(this, v, coriolis)
+      class(T_physicalObject), intent(in)  :: this
+      complex(kind=dbl),       intent(in)  :: v(:)
+      complex(kind=dbl),       intent(out) :: coriolis(:)
+    end subroutine coriolis_rr_jml_sub
+
+    module subroutine buoy_rr_jml_sub(this, i, force)
+      class(T_physicalObject), intent(in)    :: this
+      integer,                 intent(in)    :: i
+      complex(kind=dbl),       intent(inout) :: force(:)
+    end subroutine buoy_rr_jml_sub
   end interface
 
   contains

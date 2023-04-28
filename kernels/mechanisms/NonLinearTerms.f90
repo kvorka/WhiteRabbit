@@ -49,10 +49,10 @@ module NonLinearTerms
     complex(kind=dbl),       allocatable :: v(:), nlm(:,:), dv(:), dT(:), nlm1(:)
 
     allocate( v(this%jmv), dv(this%jmv), dT(this%jmv) )
-    
-      v  = this%sol%velocity_jml_fn(i)
-      dv = this%dv_dr_rrjml_fn(i,v)
-      dT = this%mgradT_rrjml_fn(i)
+      
+      call this%sol%velocity_jml_sub(i, v)
+      call this%dv_dr_rr_jml_sub(i, v, dv)
+      call this%mgradT_rr_jml_sub(i, dT)
     
     allocate( nlm(4,this%jms) )
       
@@ -60,14 +60,18 @@ module NonLinearTerms
 
     deallocate( dv, dT )
     allocate( nlm1(this%jmv) )
-
-      nlm1 = this%coriolis_rr_jml_fn(v=v) - this%buoy_rr_jml_fn(i)
+      
+      call this%coriolis_rr_jml_sub(v, nlm1)
+      call this%buoy_rr_jml_sub(i, nlm1)
     
     deallocate( v )
-      
-      do ijm = 1, this%jms
-        ijml = 3*(ijm-1)-1
 
+      ijm = 1
+        ntemp(ijm) = nlm(1,ijm)
+      
+      do ijm = 2, this%jms
+        ijml = 3*(ijm-1)-1
+        
         ntemp(ijm) = nlm(1,ijm)
         nsph1(ijm) = nlm(2,ijm) / this%Pr + nlm1(ijml  )
         ntorr(ijm) = nlm(3,ijm) / this%Pr + nlm1(ijml+1)
