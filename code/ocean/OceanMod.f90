@@ -25,6 +25,10 @@ module OceanMod
     procedure, pass :: init_eq_torr_sub
     procedure, pass :: init_bnd_deformation_sub
 
+    procedure, pass :: solve_temp_sub
+    procedure, pass :: solve_torr_sub
+    procedure, pass :: solve_mech_sub
+
     procedure, pass :: vypis_ocean_sub => vypis_ocean_sub
     procedure, pass :: iter_sub        => iter_ocean_sub
     procedure, pass :: init_state_sub  => init_state_ocean_sub
@@ -74,6 +78,20 @@ module OceanMod
     module subroutine init_state_ocean_sub(this)
       class(T_ocean), intent(inout) :: this
     end subroutine init_state_ocean_sub
+  end interface
+
+  interface
+    module subroutine solve_temp_sub(this)
+      class(T_ocean), intent(inout) :: this
+    end subroutine solve_temp_sub
+
+    module subroutine solve_torr_sub(this)
+      class(T_ocean), intent(inout) :: this
+    end subroutine solve_torr_sub
+
+    module subroutine solve_mech_sub(this)
+      class(T_ocean), intent(inout) :: this
+    end subroutine solve_mech_sub
   end interface
   
   contains
