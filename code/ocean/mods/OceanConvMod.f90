@@ -44,10 +44,10 @@ module OceanConvMod
 
     !$omp do
     do ir = 2, this%nd
-      call fullnl_sub( this, ir, this%ntemp(:,ir), &
-                                 this%nsph1(:,ir), &
-                                 this%ntorr(:,ir), &
-                                 this%nsph2(:,ir)  )
+      call this%fullnl_sub( ir, this%ntemp(:,ir), &
+                                this%nsph1(:,ir), &
+                                this%ntorr(:,ir), &
+                                this%nsph2(:,ir)  )
     end do
     !$omp end do
 
