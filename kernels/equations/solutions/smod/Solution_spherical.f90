@@ -11,7 +11,7 @@ submodule(Solution) Solution_spherical
     if ( allocated(this%temp) ) then
       temp = this%temp(3*(i-1)+1,:)
     else
-      temp = cmplx(0._dbl, 0._dbl, kind=dbl)
+      temp = czero
     end if
 
   end function temp_jm_fn
@@ -85,7 +85,7 @@ submodule(Solution) Solution_spherical
     complex(kind=dbl)             :: velocity(this%jmv)
     integer                       :: j, m, l
       
-    velocity = cmplx(0._dbl, 0._dbl, kind=dbl)
+    velocity = czero
       
     do j = 0, this%jmax
       do m = 1, j
@@ -113,7 +113,7 @@ submodule(Solution) Solution_spherical
 
   end function deviatoric_stress_jml2_fn
   
-  subroutine temp_jm_sub(this, i, temp)
+  pure subroutine temp_jm_sub(this, i, temp)
     class(T_solution), intent(in)  :: this
     integer,           intent(in)  :: i
     complex(kind=dbl), intent(out) :: temp(:)
@@ -122,7 +122,7 @@ submodule(Solution) Solution_spherical
     if ( allocated(this%temp) ) then
       ir = 3*(i-1)+1
 
-      do ijm = 1, this%jms
+      do concurrent ( ijm = 1:this%jms )
         temp(ijm) = this%temp(ir,ijm)
       end do
     else
@@ -130,22 +130,22 @@ submodule(Solution) Solution_spherical
     end if
 
   end subroutine temp_jm_sub
-
-  subroutine flux_jml_sub(this, i, flux)
+  
+  pure subroutine flux_jml_sub(this, i, flux)
     class(T_solution), intent(in)  :: this
     integer,           intent(in)  :: i
     complex(kind=dbl), intent(out) :: flux(:)
     integer                        :: ijm, ijml, ind1
-
+    
     ind1 = 3*(i-1)+2
-
+    
     if ( allocated(this%temp) ) then
       ijml = 1
         flux(ijml) = this%temp(ind1+1,1)
-
-      do ijm = 2, this%jms
-        ijml = ijml+3
-
+        
+      do concurrent ( ijm = 2:this%jms )
+        ijml = 3*(ijm-1)+1
+        
         flux(ijml-2) = this%temp(ind1, ijm)
         flux(ijml-1) = czero
         flux(ijml  ) = this%temp(ind1+1, ijm)
@@ -153,10 +153,10 @@ submodule(Solution) Solution_spherical
     else
       flux = czero
     end if
-
+    
   end subroutine flux_jml_sub
-
-  subroutine velocity_jml_sub(this, i, velocity)
+  
+  pure subroutine velocity_jml_sub(this, i, velocity)
     class(T_solution), intent(in)  :: this
     integer,           intent(in)  :: i
     complex(kind=dbl), intent(out) :: velocity(:)
@@ -169,8 +169,8 @@ submodule(Solution) Solution_spherical
     torr_ind  = 3*(i-1)+1
       
     if ( allocated(this%mech) .and. allocated(this%torr) ) then
-      do ijm = 2, this%jms
-        ijml = ijml+3
+      do concurrent ( ijm = 2:this%jms )
+        ijml = 3*(ijm-1)+1
 
         velocity(ijml-2) = this%mech(sfer_ind1  , ijm)
         velocity(ijml-1) = this%torr(torr_ind   , ijm)
@@ -178,8 +178,8 @@ submodule(Solution) Solution_spherical
       end do
 
     else if ( (.not. allocated(this%torr)) .and. allocated(this%mech) ) then
-      do ijm = 2, this%jms
-        ijml = ijml+3
+      do concurrent ( ijm = 2:this%jms )
+        ijml = 3*(ijm-1)+1
 
         velocity(ijml-2) = this%mech(sfer_ind1  , ijm)
         velocity(ijml-1) = czero
@@ -187,7 +187,9 @@ submodule(Solution) Solution_spherical
       end do
       
     else if ( allocated(this%torr) .and. (.not. allocated(this%mech)) ) then
-      do ijm = 2, this%jms
+      do concurrent ( ijm = 2:this%jms )
+        ijml = 3*(ijm-1)+1
+        
         velocity(ijml-2) = czero
         velocity(ijml-1) = this%torr(torr_ind, ijm)
         velocity(ijml  ) = czero

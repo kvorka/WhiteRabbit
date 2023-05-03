@@ -19,7 +19,7 @@ submodule(Solution) Solution_singles
       case (-1)
         flux_fn = this%temp(3*(i-1)+2, j*(j+1)/2+m+1)
       case (0)
-        flux_fn = cmplx(0._dbl, 0._dbl, kind=dbl)
+        flux_fn = czero
       case (+1)
         flux_fn = this%temp(3*(i-1)+3, j*(j+1)/2+m+1)
       end select
@@ -30,7 +30,7 @@ submodule(Solution) Solution_singles
     class(T_solution), intent(in) :: this
     integer,           intent(in) :: i, j, m, l
 
-    velocity_fn = cmplx(0._dbl, 0._dbl, kind=dbl)
+    velocity_fn = czero
 
     if ( j > 0 ) then
       select case (l)
@@ -49,7 +49,7 @@ submodule(Solution) Solution_singles
     class(T_solution), intent(in) :: this
     integer,           intent(in) :: i, j, m, l
 
-    deviatoric_stress_fn = cmplx(0._dbl, 0._dbl, kind=dbl)
+    deviatoric_stress_fn = czero
 
     if ( j > 0 ) then
       select case (l)

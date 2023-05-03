@@ -58,7 +58,7 @@ module OceanMod
     class(T_ocean), intent(inout) :: this
     integer                       :: k
 
-    this%flux_up = cmplx(0._dbl, 0._dbl, kind=dbl)
+    this%flux_up = czero
     
     do k = 1, this%n_iter
       this%t = this%t + this%dt

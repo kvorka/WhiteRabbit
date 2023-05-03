@@ -58,27 +58,30 @@ module Clebsch_Legendre
 
   pure real(kind=dbl) function cleb1_fn(j1, m1, j2, m2, j, m)
     integer, intent(in) :: j1, m1, j2, m2, j, m
-
-    if ((j2 /= 1) .or. (abs(j1-j) > 1) .or. ((j1+j) == 0) .or. (abs(m2) > 1) .or. abs(m1) > j1) then
-      cleb1_fn = 0._dbl
-
-    else if (m2 == -1) then
-      if (j1 == j-1) cleb1_fn = +sqrt((j-m-1._dbl)*(j-m       )/((2*j-1._dbl)*(  j       ))/2)
-      if (j1 == j  ) cleb1_fn = +sqrt((j+m+1._dbl)*(j-m       )/((  j+1._dbl)*(  j       ))/2)
-      if (j1 == j+1) cleb1_fn = +sqrt((j+m+2._dbl)*(j+m+1._dbl)/((  j+1._dbl)*(2*j+3._dbl))/2)
-
-    else if (m2 == 0) then
-      if (j1 == j-1) cleb1_fn = +sqrt((j+m       )*(j-m       )/ (2*j-1._dbl)/(  j       ))
-      if (j1 == j  ) cleb1_fn = +sqrt((  m       )*(  m       )/ (  j+1._dbl)/(  j       ))
-      if (j1 == j+1) cleb1_fn = -sqrt((j+m+1._dbl)*(j-m+1._dbl)/((  j+1._dbl)*(2*j+3._dbl)))
     
-    else
-      if (j1 == j-1) cleb1_fn = +sqrt((j+m-1._dbl)*(j+m       )/((2*j-1._dbl)*(  j       ))/2)
-      if (j1 == j  ) cleb1_fn = -sqrt((j+m       )*(j-m+1._dbl)/((  j+1._dbl)*(  j       ))/2)
-      if (j1 == j+1) cleb1_fn = +sqrt((j-m+1._dbl)*(j-m+2._dbl)/((  j+1._dbl)*(2*j+3._dbl))/2)
-
-    end if
-
+    select case (m2)
+      case (-1)
+        select case (j1-j)
+          case (-1) ; cleb1_fn = +sqrt((j-m-1._dbl)*(j-m       )/((2*j-1._dbl)*(  j       ))/2)
+          case (0)  ; cleb1_fn = +sqrt((j+m+1._dbl)*(j-m       )/((  j+1._dbl)*(  j       ))/2)
+          case (+1) ; cleb1_fn = +sqrt((j+m+2._dbl)*(j+m+1._dbl)/((  j+1._dbl)*(2*j+3._dbl))/2)
+        end select
+        
+      case (0)
+        select case (j1-j)
+          case (-1) ; cleb1_fn = +sqrt((j+m       )*(j-m       )/ (2*j-1._dbl)/(  j       ))
+          case (0)  ; cleb1_fn = +sqrt((  m       )*(  m       )/ (  j+1._dbl)/(  j       ))
+          case (+1) ; cleb1_fn = -sqrt((j+m+1._dbl)*(j-m+1._dbl)/((  j+1._dbl)*(2*j+3._dbl)))
+        end select
+        
+      case (+1)
+        select case (j1-j)
+          case (-1) ; cleb1_fn = +sqrt((j+m-1._dbl)*(j+m       )/((2*j-1._dbl)*(  j       ))/2)
+          case (0)  ; cleb1_fn = -sqrt((j+m       )*(j-m+1._dbl)/((  j+1._dbl)*(  j       ))/2)
+          case (+1) ; cleb1_fn = +sqrt((j-m+1._dbl)*(j-m+2._dbl)/((  j+1._dbl)*(2*j+3._dbl))/2)
+        end select
+    end select
+    
   end function cleb1_fn
 
 end module Clebsch_Legendre

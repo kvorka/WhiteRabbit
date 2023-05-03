@@ -9,11 +9,12 @@ module Matrices
     
     contains
     
-    procedure :: init_sub       => init_matrices_sub
-    procedure :: init_mtemp_sub => init_mtemp_sub
-    procedure :: init_mtorr_sub => init_mtorr_sub
-    procedure :: init_mmech_sub => init_mmech_sub
-    procedure :: deallocate_sub => deallocate_matrices_sub
+    procedure, pass :: init_sub       => init_matrices_sub
+    procedure, pass :: deallocate_sub => deallocate_matrices_sub
+
+    procedure, pass :: init_mtemp_sub
+    procedure, pass :: init_mtorr_sub
+    procedure, pass :: init_mmech_sub
     
   end type T_matrices
 
