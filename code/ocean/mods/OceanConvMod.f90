@@ -14,8 +14,7 @@ module OceanConvMod
   subroutine init_oceanConv_sub(this)
     class(T_oceanConv), intent(inout) :: this
     
-    call this%init_ocean_sub()
-      call this%lat_grid%init_vcsv_vcvv_vcvgv_sub()
+    call this%init_ocean_sub() ; call this%lat_grid%init_vcsv_vcvv_vcvgv_sub()
     
     call this%init_eq_temp_sub(rhs=.true., nl=.true.)
     call this%init_eq_torr_sub(rhs=.true., nl=.true.)
@@ -44,10 +43,7 @@ module OceanConvMod
 
     !$omp do
     do ir = 2, this%nd
-      call this%fullnl_sub( ir, this%ntemp(:,ir), &
-                                this%nsph1(:,ir), &
-                                this%ntorr(:,ir), &
-                                this%nsph2(:,ir)  )
+      call this%fullnl_sub(ir)
     end do
     !$omp end do
 
@@ -67,9 +63,7 @@ module OceanConvMod
     call this%solve_torr_sub()
     call this%solve_mech_sub()
     
-    if (this%mechanic_bnd == 'frees') then
-      call this%global_rotation_sub()
-    end if
+    if (this%mechanic_bnd == 'frees') call this%global_rotation_sub()
     
   end subroutine time_scheme_oceanConv_sub
   

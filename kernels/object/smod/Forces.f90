@@ -36,30 +36,26 @@ submodule(PhysicalObject) Forces
 
   end subroutine coriolis_rr_jml_sub
 
-  subroutine buoy_rr_jml_sub(this, i, force)
+  subroutine buoy_rr_jml_sub(this, i, T, force)
     class(T_physicalObject), intent(in)    :: this
     integer,                 intent(in)    :: i
+    complex(kind=dbl),       intent(in)    :: T(:)
     complex(kind=dbl),       intent(inout) :: force(:,:)
     integer                                :: ijm, j
     real(kind=dbl)                         :: fac, fac1, fac2
-    complex(kind=dbl),       allocatable   :: gdrho(:)
+      
+    fac = this%Ra * this%alpha_fn(i) * this%gravity%g_fn(this%rad_grid%rr(i))
     
-    allocate( gdrho(this%jms) ) ; call this%sol%temp_jm_sub(i, gdrho)
+    do j = 1, this%jmax
+      fac1 = -sqrt( (j  ) / (2*j+1._dbl) ) * fac
+      fac2 = +sqrt( (j+1) / (2*j+1._dbl) ) * fac
       
-      fac = this%Ra * this%alpha_fn(i) * this%gravity%g_fn(this%rad_grid%rr(i))
-      
-      do j = 1, this%jmax
-        fac1 = -sqrt( (j  ) / (2*j+1._dbl) ) * fac
-        fac2 = +sqrt( (j+1) / (2*j+1._dbl) ) * fac
-
-        do ijm = j*(j+1)/2+1, j*(j+1)/2+j+1
-          force(1,ijm) = force(1,ijm) + fac1 * gdrho(ijm)
-          force(3,ijm) = force(3,ijm) + fac2 * gdrho(ijm)
-        end do
+      do concurrent ( ijm = j*(j+1)/2+1:j*(j+1)/2+j+1 )
+        force(1,ijm) = force(1,ijm) + fac1 * T(ijm)
+        force(3,ijm) = force(3,ijm) + fac2 * T(ijm)
       end do
-    
-    deallocate( gdrho )
-    
+    end do
+      
   end subroutine buoy_rr_jml_sub
 
   subroutine global_rotation_sub(this)

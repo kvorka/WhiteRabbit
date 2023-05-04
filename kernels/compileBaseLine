@@ -42,13 +42,15 @@ $compiler -$optimization -march=native -c kernels/gmodel/Gravity.f90          #g
 #kompilacia fyzikalneho modelu
 $compiler -$optimization -march=native -c kernels/object/PhysicalObject.f90
 
+$compiler -$optimization -march=native -c kernels/object/smod/Init_object.f90
 $compiler -$optimization -march=native -c kernels/object/smod/Parameters.f90
 $compiler -$optimization -march=native -c kernels/object/smod/Variables.f90
 $compiler -$optimization -march=native -c kernels/object/smod/Forces.f90
 $compiler -$optimization -march=native -c kernels/object/smod/MatrixDefinitions.f90
 $compiler -$optimization -march=native -c kernels/object/smod/NonLinearTerms.f90
 $compiler -$optimization -march=native -c kernels/object/smod/VolumeMeassures.f90
-$compiler -$optimization -march=native -c kernels/object/smod/BalanceEquations.f90 
+$compiler -$optimization -march=native -c kernels/object/smod/BalanceEquations.f90
+$compiler -$optimization -march=native -c kernels/object/smod/Output.f90
 
 $compiler -$optimization -march=native -c kernels/object/smod/matrices/ThermalMatrices.f90
 $compiler -$optimization -march=native -c kernels/object/smod/matrices/ToroidalVisc.f90

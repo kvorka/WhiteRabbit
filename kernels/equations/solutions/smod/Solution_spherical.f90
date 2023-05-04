@@ -119,15 +119,11 @@ submodule(Solution) Solution_spherical
     complex(kind=dbl), intent(out) :: temp(:)
     integer                        :: ijm, ir
     
-    if ( allocated(this%temp) ) then
-      ir = 3*(i-1)+1
-
-      do concurrent ( ijm = 1:this%jms )
-        temp(ijm) = this%temp(ir,ijm)
-      end do
-    else
-      temp = czero
-    end if
+    ir = 3*(i-1)+1
+    
+    do concurrent ( ijm = 1:this%jms )
+      temp(ijm) = this%temp(ir,ijm)
+    end do
 
   end subroutine temp_jm_sub
   
@@ -138,21 +134,17 @@ submodule(Solution) Solution_spherical
     integer                        :: ijm, ijml, ind1
     
     ind1 = 3*(i-1)+2
-    
-    if ( allocated(this%temp) ) then
-      ijml = 1
-        flux(ijml) = this%temp(ind1+1,1)
+
+    ijml = 1
+      flux(ijml) = this%temp(ind1+1,1)
         
-      do concurrent ( ijm = 2:this%jms )
-        ijml = 3*(ijm-1)+1
-        
-        flux(ijml-2) = this%temp(ind1, ijm)
-        flux(ijml-1) = czero
-        flux(ijml  ) = this%temp(ind1+1, ijm)
-      end do
-    else
-      flux = czero
-    end if
+    do concurrent ( ijm = 2:this%jms )
+      ijml = 3*(ijm-1)+1
+      
+      flux(ijml-2) = this%temp(ind1, ijm)
+      flux(ijml-1) = czero
+      flux(ijml  ) = this%temp(ind1+1, ijm)
+    end do
     
   end subroutine flux_jml_sub
   
@@ -161,12 +153,12 @@ submodule(Solution) Solution_spherical
     integer,           intent(in)  :: i
     complex(kind=dbl), intent(out) :: velocity(:)
     integer                        :: ijm, ijml, sfer_ind1, torr_ind
-
-    ijml = 1
-      velocity(ijml) = czero
-
+    
     sfer_ind1 = 6*(i-1)+1
     torr_ind  = 3*(i-1)+1
+    
+    ijml = 1
+      velocity(ijml) = czero
       
     if ( allocated(this%mech) .and. allocated(this%torr) ) then
       do concurrent ( ijm = 2:this%jms )
@@ -197,5 +189,66 @@ submodule(Solution) Solution_spherical
     end if
 
   end subroutine velocity_jml_sub
+  
+  pure subroutine velocity_jml_many_sub(this, i, velocity1, velocity2, velocity3)
+    class(T_solution), intent(in)  :: this
+    integer,           intent(in)  :: i
+    complex(kind=dbl), intent(out) :: velocity1(:), velocity2(:), velocity3(:)
+    integer                        :: ijm, ijml, sfer_ind, torr_ind
+    
+    sfer_ind = 6*(i-1)+1
+    torr_ind = 3*(i-1)+1
+    
+    ijml = 1
+      velocity1(ijml) = czero
+      velocity2(ijml) = czero
+      velocity3(ijml) = czero
+    
+    do concurrent ( ijm = 2:this%jms )
+      ijml = 3*(ijm-1)+1
+      
+      velocity1(ijml-2) = this%mech(sfer_ind  , ijm)
+      velocity1(ijml-1) = this%torr(torr_ind  , ijm)
+      velocity1(ijml  ) = this%mech(sfer_ind+1, ijm)
+      
+      velocity2(ijml-2) = this%mech(sfer_ind+6, ijm)
+      velocity2(ijml-1) = this%torr(torr_ind+3, ijm)
+      velocity2(ijml  ) = this%mech(sfer_ind+7, ijm)
+      
+      velocity3(ijml-2) = this%mech(sfer_ind+12, ijm)
+      velocity3(ijml-1) = this%torr(torr_ind+ 6, ijm)
+      velocity3(ijml  ) = this%mech(sfer_ind+13, ijm)
+    end do
+    
+  end subroutine velocity_jml_many_sub
+  
+  pure subroutine flux_jml_many_sub(this, i, temp2, flux1, flux2)
+    class(T_solution), intent(in)  :: this
+    integer,           intent(in)  :: i
+    complex(kind=dbl), intent(out) :: temp2(:), flux1(:), flux2(:)
+    integer                        :: ijm, ijml, ind
+    
+    ind = 3*(i-1)+2
+    
+    ijml = 1
+      flux1(1) = this%temp(ind+1,1)
+      temp2(1) = this%temp(ind+2,1)
+      flux2(1) = this%temp(ind+4,1)
+    
+    do concurrent ( ijm = 2:this%jms )
+      ijml = 3*(ijm-1)+1
+      
+      flux1(ijml-2) = this%temp(ind  , ijm)
+      flux1(ijml-1) = czero
+      flux1(ijml  ) = this%temp(ind+1, ijm)
+      
+      temp2(ijm)    = this%temp(ind+2, ijm)
+      
+      flux2(ijml-2) = this%temp(ind+3, ijm)
+      flux2(ijml-1) = czero
+      flux2(ijml  ) = this%temp(ind+4, ijm)
+    end do
 
+  end subroutine flux_jml_many_sub
+  
 end submodule Solution_spherical

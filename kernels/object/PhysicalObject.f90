@@ -83,11 +83,26 @@ module PhysicalObject
     procedure, pass :: laws_force_fn
     
   end type T_physicalObject
-  
-  private :: init_objects_sub
-  private :: deallocate_objects_sub
 
   interface
+    module subroutine init_objects_sub( this, nd, jmax, r_ud, rgrid, noobj, noharm )
+      class(T_physicalObject),    intent(inout) :: this
+      integer,                    intent(in)    :: nd, jmax
+      real(kind=dbl),             intent(in)    :: r_ud
+      character(len=*),           intent(in)    :: rgrid
+      logical,          optional, intent(in)    :: noobj, noharm
+    end subroutine init_objects_sub
+    
+    module subroutine deallocate_objects_sub(this)
+      class(T_physicalObject), intent(inout) :: this
+    end subroutine deallocate_objects_sub
+    
+    module subroutine vypis_sub(this, filenum, path, quantity)
+      class(T_physicalObject), intent(in) :: this
+      integer,                 intent(in) :: filenum
+      character(len=*),        intent(in) :: path, quantity
+    end subroutine vypis_sub
+    
     module pure real(kind=dbl) function lambda_fn(this, i)
       class(T_physicalObject), intent(in) :: this
       integer,                 intent(in) :: i
@@ -107,9 +122,7 @@ module PhysicalObject
       class(T_physicalObject), intent(in) :: this
       integer,                 intent(in) :: i
     end function alpha_fn
-  end interface
-  
-  interface
+    
     module pure complex(kind=dbl) function htide_fn(this, i, jm_int)
       class(T_physicalObject), intent(in) :: this
       integer,                 intent(in) :: i, jm_int
@@ -148,18 +161,15 @@ module PhysicalObject
     module subroutine dv_dr_rr_jml_sub(this, i, v, dv)
       class(T_physicalObject), intent(in)  :: this
       integer,                 intent(in)  :: i
-      complex(kind=dbl),       intent(in)  :: v(:)
-      complex(kind=dbl),       intent(out) :: dv(:)
+      complex(kind=dbl),       intent(out) :: dv(:), v(:)
     end subroutine dv_dr_rr_jml_sub
     
-    module subroutine mgradT_rr_jml_sub(this, i, gradT)
+    module subroutine mgradT_rr_jml_sub(this, i, T, gradT)
       class(T_physicalObject), intent(in)  :: this
       integer,                 intent(in)  :: i
-      complex(kind=dbl),       intent(out) :: gradT(:)
+      complex(kind=dbl),       intent(out) :: T(:), gradT(:)
     end subroutine mgradT_rr_jml_sub
-  end interface
-
-  interface
+    
     module pure function buoy_rr_jml_fn(this, i) result(gdrho)
       class(T_physicalObject), intent(in) :: this
       integer,                 intent(in) :: i
@@ -179,18 +189,17 @@ module PhysicalObject
       complex(kind=dbl),       intent(inout) :: coriolis(:,:)
     end subroutine coriolis_rr_jml_sub
 
-    module subroutine buoy_rr_jml_sub(this, i, force)
+    module subroutine buoy_rr_jml_sub(this, i, T, force)
       class(T_physicalObject), intent(in)    :: this
       integer,                 intent(in)    :: i
+      complex(kind=dbl),       intent(in)    :: T(:)
       complex(kind=dbl),       intent(inout) :: force(:,:)
     end subroutine buoy_rr_jml_sub
 
     module subroutine global_rotation_sub(this)
       class(T_physicalObject), intent(inout) :: this
     end subroutine global_rotation_sub
-  end interface
-  
-  interface
+    
     module function vgradT_fn(this, i) result(vgradT)
       class(T_physicalObject), intent(in) :: this
       integer,                 intent(in) :: i
@@ -203,14 +212,11 @@ module PhysicalObject
       complex(kind=dbl)                   :: vgradv(this%jmv)
     end function vgradv_fn
 
-    module subroutine fullnl_sub(this, i, ntemp, nsph1, ntorr, nsph2)
-      class(T_physicalObject), intent(in)  :: this
-      integer,                 intent(in)  :: i
-      complex(kind=dbl),       intent(out) :: ntemp(:), nsph1(:), ntorr(:), nsph2(:)
+    module subroutine fullnl_sub(this, i)
+      class(T_physicalObject), intent(inout) :: this
+      integer,                 intent(in)    :: i
     end subroutine fullnl_sub
-  end interface
-  
-  interface
+    
     module pure function matica_temp_fn(this, j_in, a_in) result(matica)
       class(T_physicalObject), intent(in) :: this
       integer,                 intent(in) :: j_in
@@ -231,9 +237,7 @@ module PhysicalObject
       real(kind=dbl),          intent(in) :: a_in
       real(kind=dbl),        allocatable  :: matica(:,:)
     end function matica_mech_fn
-  end interface
-
-  interface
+    
     module pure function matica_mech_chb_viscos_fn(this, j_in, a_in) result(matica)
       class(T_physicalObject), intent(in) :: this
       integer,                 intent(in) :: j_in
@@ -296,9 +300,7 @@ module PhysicalObject
       real(kind=dbl),          intent(in) :: a_in
       real(kind=dbl),         allocatable :: matica(:,:)
     end function matica_torr_chb_christ_viscos_fn
-  end interface
-
-  interface
+    
     module subroutine init_eq_temp_sub(this,rhs,nl)
       class(T_physicalObject), intent(inout) :: this
       logical,                 intent(in)    :: rhs, nl
@@ -313,9 +315,7 @@ module PhysicalObject
       class(T_physicalObject), intent(inout) :: this
       logical,                 intent(in)    :: rhs, nl
     end subroutine init_eq_mech_sub
-  end interface
-
-  interface
+    
     module subroutine solve_temp_sub(this)
       class(T_physicalObject), intent(inout) :: this
     end subroutine solve_temp_sub
@@ -327,9 +327,7 @@ module PhysicalObject
     module subroutine solve_mech_sub(this)
       class(T_physicalObject), intent(inout) :: this
     end subroutine solve_mech_sub
-  end interface
-
-  interface
+    
     module real(kind=dbl) function nuss_fn(this)
       class(T_physicalObject), intent(in) :: this
     end function nuss_fn
@@ -345,9 +343,7 @@ module PhysicalObject
     module real(kind=dbl) function volume_heating_fn(this)
       class(T_physicalObject), intent(in) :: this
     end function volume_heating_fn
-  end interface
-
-  interface
+    
     module real(kind=dbl) function laws_mech_fn(this)
       class(T_physicalObject), intent(in) :: this
     end function laws_mech_fn
@@ -381,141 +377,5 @@ module PhysicalObject
       class(T_physicalObject), intent(in) :: this
     end function advected_heat_fn
   end interface
-
-  contains
-  
-  subroutine init_objects_sub( this, nd, jmax, r_ud, rgrid, noobj, noharm )
-    class(T_physicalObject),    intent(inout) :: this
-    integer,                    intent(in)    :: nd, jmax
-    real(kind=dbl),             intent(in)    :: r_ud
-    character(len=*),           intent(in)    :: rgrid
-    logical,          optional, intent(in)    :: noobj, noharm
-    integer                                   :: j, m
-    
-    this%nd        = nd
-    this%jmax      = jmax
-    this%r_ud      = r_ud
-    this%rd        = r_ud / ( 1-r_ud )
-    this%ru        = 1    / ( 1-r_ud )
-    this%grid_type = rgrid
-
-    if (present(noobj)) then
-      this%noobj = noobj
-    else
-      this%noobj = .false.
-    end if
-
-    if (present(noharm)) then
-      this%noharm = noharm
-    else if (this%noobj .eqv. .true.) then
-      this%noharm = .true.
-    else
-      this%noharm = .false.
-    end if
-
-    !Pomocne premenne
-    this%jms  =   ( this%jmax*(this%jmax+1)/2+this%jmax ) + 1
-    this%jmv  = 3*( this%jmax*(this%jmax+1)/2+this%jmax ) + 1
-
-    if (.not. this%noobj) then
-      !Inicializuj radialny grid danej velkosti
-      call this%rad_grid%init_sub(this%nd, this%r_ud / (1-this%r_ud), 1 / (1-this%r_ud), this%grid_type)
-    
-      !Inicializuj lateralny grid danej velkosti
-      if (.not. this%noharm) call this%lat_grid%init_sub(this%jmax)
-    
-      !Inicializuj premenne pre riesenie
-      call this%sol%init_sub(this%nd, this%jmax)
-    
-      !Inicializuj premenne pre matice
-      call this%mat%init_sub(this%nd, this%jmax, this%grid_type)
-
-      !Indexacia
-      allocate( this%j_indx(this%jms) )
-      do j = 0, this%jmax
-        do m = 0, j
-          this%j_indx(j*(j+1)/2+m+1) = j
-        end do
-      end do
-    end if
-      
-    !Cas a casovy krok, vypis
-    this%poc = 0
-    this%t   = 0._dbl
-
-    if (this%noobj) then
-      call this%rad_grid%init_sub(this%nd, this%r_ud / (1-this%r_ud), 1 / (1-this%r_ud), this%grid_type)
-      this%dt  = 0.49_dbl * ( this%rad_grid%r(2)-this%rad_grid%r(1) )**2
-      call this%rad_grid%deallocate_sub()
-    else
-      this%dt  = 0.49_dbl * ( this%rad_grid%r(2)-this%rad_grid%r(1) )**2
-    end if
-    
-  end subroutine init_objects_sub
-  
-  subroutine vypis_sub(this, filenum, path, quantity)
-    class(T_physicalObject), intent(in) :: this
-    integer,                 intent(in) :: filenum
-    character(len=*),        intent(in) :: path, quantity
-    integer                             :: i, j, m
-
-    select case (quantity)
-      case ('temperature')
-        open(unit=filenum, file=path//'/Temp-'//trim(adjustl(int2str_fn(this%poc)))//'.dat', status='new', action='write')
-          do i = 1, this%nd+1
-            write(filenum,*) this%rad_grid%rr(i), this%sol%temp_jm_fn(i)
-          end do
-        close(filenum)
-
-      case ('velocity')
-        open(unit=filenum, file=path//'/Velc-'//trim(adjustl(int2str_fn(this%poc)))//'.dat', status='new', action='write')
-          do i = 1, this%nd+1
-            write(filenum,*) this%rad_grid%rr(i), this%sol%velocity_jml_fn(i)
-          end do
-        close(filenum)
-      
-      case ('flux')
-        open(unit=filenum, file=path//'/Flux-'//trim(adjustl(int2str_fn(this%poc)))//'.dat', status='new', action='write')
-          do j = 0, this%jmax
-            do m = 0, j
-              write(filenum,*) j, m, this%flux_up(jm(j,m))
-            end do
-          end do
-        close(filenum)
-      
-      case ('topo')
-        open(unit=filenum, file=path//'/Topo-'//trim(adjustl(int2str_fn(this%poc)))//'.dat', status='new', action='write')
-          do j = 1, this%jmax
-            do m = 0, j
-              write(filenum,*) j, m, this%sol%t_dn(jm(j,m)) * this%D_ud, this%sol%t_up(jm(j,m)) * this%D_ud
-            end do
-          end do
-        close(filenum)
-      
-      case('shape')
-        open(unit=7, file=path//'/Shape-'//trim(adjustl(int2str_fn(this%poc)))//'.dat', status='new', action='write')
-          do j = 1, this%jmax
-            do m = 0, j
-              write(7,*) j, m, this%sol%u_dn(jm(j,m)) * this%D_ud, this%sol%u_up(jm(j,m)) * this%D_ud
-            end do
-          end do
-        close(7)
-    end select
-
-  end subroutine vypis_sub
-
-  subroutine deallocate_objects_sub(this)
-    class(T_physicalObject), intent(inout) :: this
-    
-    if (.not. this%noobj) then
-      deallocate( this%j_indx )
-      
-      if (.not. this%noharm) call this%lat_grid%deallocate_sub()
-      call this%rad_grid%deallocate_sub()
-      call this%mat%deallocate_sub()
-      call this%sol%deallocate_sub()
-    end if
-    
-  end subroutine deallocate_objects_sub
   
 end module PhysicalObject

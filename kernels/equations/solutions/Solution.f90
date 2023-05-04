@@ -29,8 +29,10 @@ module Solution
     procedure, pass :: temp_jm_sub
     procedure, pass :: flux_jml_fn
     procedure, pass :: flux_jml_sub
+    procedure, pass :: flux_jml_many_sub
     procedure, pass :: velocity_jml_fn
     procedure, pass :: velocity_jml_sub
+    procedure, pass :: velocity_jml_many_sub
     procedure, pass :: conv_velocity_jml_fn
     procedure, pass :: deviatoric_stress_jml2_fn
     
@@ -121,12 +123,24 @@ module Solution
       integer,           intent(in) :: i
       complex(kind=dbl)             :: flux(this%jmv)
     end function flux_jml_fn
+
+    module pure subroutine flux_jml_many_sub(this, i, temp2, flux1, flux2)
+      class(T_solution), intent(in)  :: this
+      integer,           intent(in)  :: i
+      complex(kind=dbl), intent(out) :: temp2(:), flux1(:), flux2(:)
+    end subroutine flux_jml_many_sub
     
     module pure function velocity_jml_fn(this, i) result(velocity)
       class(T_solution), intent(in) :: this
       integer,           intent(in) :: i
       complex(kind=dbl)             :: velocity(this%jmv)
     end function velocity_jml_fn
+
+    module pure subroutine velocity_jml_many_sub(this, i, velocity1, velocity2, velocity3)
+      class(T_solution), intent(in)  :: this
+      integer,           intent(in)  :: i
+      complex(kind=dbl), intent(out) :: velocity1(:), velocity2(:), velocity3(:)
+    end subroutine velocity_jml_many_sub
     
     module pure subroutine temp_jm_sub(this, i, temp)
       class(T_solution), intent(in)  :: this
