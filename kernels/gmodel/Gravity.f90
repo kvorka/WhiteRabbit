@@ -133,7 +133,7 @@ module Gravity
     integer,          intent(in) :: j, m
     real(kind=dbl),   intent(in) :: ri, phase
     
-    V_tide_fn = cmplx(0._dbl, 0._dbl, kind=dbl)
+    V_tide_fn = czero
     
     if ( j == 2 ) then
       if ( m == 0 ) then
@@ -152,7 +152,7 @@ module Gravity
     integer,          intent(in) :: j, m
     real(kind=dbl),   intent(in) :: ri
     
-    V_rt_fn = cmplx(0._dbl, 0._dbl, kind=dbl)
+    V_rt_fn = czero
     
     if ( j == 2) then
       if ( m == 0) then

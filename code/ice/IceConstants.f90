@@ -9,7 +9,7 @@ module IceConstants
   
   integer, parameter :: nd_ice = 97
   integer, parameter :: jmax_ice = 24
-  integer, parameter :: n_iter_ice = 10
+  integer, parameter :: n_iter_ice = 10000
   integer, parameter :: n_iter_tides = 1000
   
   integer, parameter :: nlay = 13

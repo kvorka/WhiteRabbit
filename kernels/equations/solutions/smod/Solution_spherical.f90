@@ -73,7 +73,11 @@ submodule(Solution) Solution_spherical
       
     else if ( allocated(this%torr) .and. (.not. allocated(this%mech)) ) then
       do ijm = 2, this%jms
-        velocity(3*(ijm-1)) = this%torr(torr_ind, ijm)
+        ijml = ijml+3
+
+        velocity(ijml-2) = czero
+        velocity(ijml-1) = this%torr(torr_ind   , ijm)
+        velocity(ijml  ) = czero
       end do
     end if
 

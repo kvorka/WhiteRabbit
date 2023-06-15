@@ -1,7 +1,6 @@
 module IceTidesMod
   use Math
   use IceMod
-  use MatrixDefinitions
   implicit none
     
   type, extends(T_ice), public :: T_iceTides
@@ -98,8 +97,8 @@ module IceTidesMod
     
       !Matice a casovy krok
       this%dt = this%period / this%n_iter
-      call this%mat%mech(2)%fill_sub( matica_mech_fn(this, j_in=2, a_in=1._dbl), &
-                                    & matica_mech_fn(this, j_in=2, a_in=0._dbl)  )
+      call this%mat%mech(2)%fill_sub( this%matica_mech_fn(j_in=2, a_in=1._dbl), &
+                                    & this%matica_mech_fn(j_in=2, a_in=0._dbl)  )
 
       !Selfgravitacia  
       !call set_layers_iceTides_sub(this)
@@ -210,8 +209,8 @@ module IceTidesMod
       complex(kind=dbl), allocatable   :: Temp(:)
     
       this%dt = huge(0._dbl)
-      call this%mat%temp(0)%fill_sub( matica_temp_fn(this, j_in=0, a_in=1._dbl), &
-                                      matica_temp_fn(this, j_in=0, a_in=0._dbl)  )
+      call this%mat%temp(0)%fill_sub( this%matica_temp_fn(j_in=0, a_in=1._dbl), &
+                                      this%matica_temp_fn(j_in=0, a_in=0._dbl)  )
       
       allocate( Temp(this%nd+1) ); Temp = this%sol%temp_i_fn(0,0)
         i = 1
