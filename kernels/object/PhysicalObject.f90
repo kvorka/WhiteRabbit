@@ -51,6 +51,7 @@ module PhysicalObject
     procedure, pass :: dv_dr_rr_jml_sub
     procedure, pass :: mgradT_rr_jml_sub
 
+    procedure, pass :: buoy_rr_fn
     procedure, pass :: buoy_rr_jml_fn
     procedure, pass :: coriolis_rr_jml_fn
     procedure, pass :: coriolis_rr_jml_sub
@@ -169,6 +170,12 @@ module PhysicalObject
       integer,                 intent(in)  :: i
       complex(kind=dbl),       intent(out) :: T(:), gradT(:)
     end subroutine mgradT_rr_jml_sub
+    
+    module pure function buoy_rr_fn(this, i, ijm) result(buoy)
+      class(T_physicalObject), intent(in) :: this
+      integer,                 intent(in) :: i, ijm
+      complex(kind=dbl)                   :: buoy
+    end function buoy_rr_fn
     
     module pure function buoy_rr_jml_fn(this, i) result(gdrho)
       class(T_physicalObject), intent(in) :: this

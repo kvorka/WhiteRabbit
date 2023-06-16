@@ -10,7 +10,15 @@ submodule(Solution) Solution_singles
     temp_fn = this%temp(3*(i-1)+1, j*(j+1)/2+m+1)
 
   end function temp_fn
-
+  
+  pure complex(kind=dbl) function temp2_fn(this, i, jm)
+    class(T_solution), intent(in) :: this
+    integer,           intent(in) :: i, jm
+    
+    temp2_fn = this%temp(3*(i-1)+1, jm)
+    
+  end function temp2_fn
+  
   pure complex(kind=dbl) function flux_fn(this, i, j, m, l)
     class(T_solution), intent(in) :: this
     integer,           intent(in) :: i, j, m, l

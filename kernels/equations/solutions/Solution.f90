@@ -18,6 +18,7 @@ module Solution
     procedure, pass :: init_layers_sub
     procedure, pass :: init_layer_u_sub
     procedure, pass :: temp_fn
+    procedure, pass :: temp2_fn
     procedure, pass :: flux_fn
     procedure, pass :: velocity_fn
     procedure, pass :: deviatoric_stress_fn
@@ -72,6 +73,11 @@ module Solution
       class(T_solution), intent(in) :: this
       integer,           intent(in) :: i, j, m
     end function temp_fn
+    
+    module pure complex(kind=dbl) function temp2_fn(this, i, jm)
+      class(T_solution), intent(in) :: this
+      integer,           intent(in) :: i, jm
+    end function temp2_fn
     
     module pure complex(kind=dbl) function flux_fn(this, i, j, m, l)
       class(T_solution), intent(in) :: this

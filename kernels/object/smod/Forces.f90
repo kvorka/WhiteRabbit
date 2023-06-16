@@ -2,6 +2,15 @@ submodule(PhysicalObject) Forces
   implicit none
   
   contains
+
+  pure function buoy_rr_fn(this, i, ijm) result(buoy)
+    class(T_physicalObject), intent(in) :: this
+    integer,                 intent(in) :: i, ijm
+    complex(kind=dbl)                   :: buoy
+    
+    buoy = this%Ra * this%alpha_fn(i) * this%gravity%g_fn( this%rad_grid%rr(i) ) * this%sol%temp2_fn(i,ijm)
+    
+  end function buoy_rr_fn
   
   pure function buoy_rr_jml_fn(this, i) result(gdrho)
     class(T_physicalObject), intent(in) :: this

@@ -20,8 +20,6 @@ module IceCrustMod
   private :: init_iceCrust_sub
   private :: find_hydrostatic_iceCrust_sub
   private :: EE_iceCrust_sub
-  private :: EE_iceCrust_temp_sub
-  private :: EE_iceCrust_mech_sub
   private :: Vdelta_iceCrust_fn
   private :: set_layers_iceCrust_sub
   private :: htide_iceCrust_fn
@@ -39,6 +37,8 @@ module IceCrustMod
    
     call this%init_ice_sub(jmax_in = jmax_ice, rheol_in = 'viscos', n_iter = n_iter_ice)
     call this%lat_grid%init_vcvv_sub()
+
+    allocate( this%ntemp(this%jms,2:this%nd) ) ; this%ntemp = czero
     
     call tides%init_sub()
     call tides%deallocate_sub()
@@ -67,7 +67,7 @@ module IceCrustMod
       class(T_iceCrust), intent(inout) :: this
       complex(kind=dbl), allocatable   :: flux_bnd(:)
       
-      allocate( flux_bnd(this%jms) ); flux_bnd = cmplx(0._dbl, 0._dbl, kind=dbl)
+      allocate( flux_bnd(this%jms) ); flux_bnd = czero
       
       do
         call EE_iceCrust_sub(this, flux_bnd)
@@ -82,9 +82,9 @@ module IceCrustMod
     end subroutine find_hydrostatic_iceCrust_sub
   
   subroutine iter_iceCrust_sub(this, flux_bnd)
-    class(T_iceCrust),               intent(inout) :: this
-    complex(kind=dbl), dimension(:), intent(in)    :: flux_bnd
-    integer                                        :: n
+    class(T_iceCrust), intent(inout) :: this
+    complex(kind=dbl), intent(in)    :: flux_bnd(:)
+    integer                          :: n
     
     do n = 1, this%n_iter
       call EE_iceCrust_sub(this, flux_bnd)
@@ -97,183 +97,159 @@ module IceCrustMod
   subroutine EE_iceCrust_sub(this, flux_bnd)
     class(T_iceCrust), intent(inout) :: this
     complex(kind=dbl), intent(in)    :: flux_bnd(:)
-    integer                          :: j, m, jm_int
+    integer                          :: ir, is, ij, ijm
     real(kind=dbl)                   :: qConv
+    complex(kind=dbl), allocatable   :: Temp(:), Temp1(:)
     
     this%t = this%t + this%dt
     
-    call EE_iceCrust_temp_sub(this, qConv, flux_bnd)
-    call EE_iceCrust_mech_sub(this, qConv, flux_bnd)
-    
-    this%sol%v_dn = this%sol%v_dn + this%vr_jm_fn(1);       this%sol%v_dn(1) = cmplx(0._dbl, 0._dbl, kind=dbl)
-    this%sol%v_up =                 this%vr_jm_fn(this%nd); this%sol%v_up(1) = cmplx(0._dbl, 0._dbl, kind=dbl)
-    
-      this%sol%u_dn = this%sol%u_dn + this%sol%v_dn * this%dt
-      this%sol%u_up = this%sol%u_up + this%sol%v_up * this%dt
-    
-    do j = 1, this%jmax
-      do m = 0, j
-        jm_int = j*(j+1)/2+m+1
-        
-        this%sol%t_dn(jm_int) = this%sol%u_dn(jm_int) - this%Vdelta_fn(j,m,      1)
-        this%sol%t_up(jm_int) = this%sol%u_up(jm_int) - this%Vdelta_fn(j,m,this%nd)
-      end do
+    !$omp parallel do
+    do ir = 2, this%nd
+      this%ntemp(:,ir) = -this%vgradT_fn(ir)
     end do
+    !$omp end parallel do
+    
+    allocate( Temp(this%nd+1), Temp1(this%nd+1) ); Temp = this%sol%temp_i_fn(0,0)
+      do
+        Temp1 = this%sol%temp_i_fn(0,0)
+        call this%mat%temp(0)%fill_sub( this%matica_temp_fn(j_in=0, a_in=1._dbl), this%matica_temp_fn(j_in=0, a_in=0._dbl)  )
+      
+        ir = 1
+          this%sol%temp(1,1) = cmplx(sqrt(4*pi), 0._dbl, kind=dbl)
+          this%sol%temp(2,1) = czero
+          this%sol%temp(3,1) = czero
+    
+        do ir = 2, this%nd
+          is = 3*(ir-1)+1
+          
+          this%sol%temp(is  ,1) = Temp(ir) / this%dt + this%ntemp(1,ir) + this%htide_fn(ir,1)
+          this%sol%temp(is+1,1) = czero
+          this%sol%temp(is+2,1) = czero
+        end do
+    
+        ir = this%nd+1
+          this%sol%temp(3*this%nd+1,1) = czero
+    
+        call this%mat%temp(0)%luSolve_sub(this%sol%temp(:,1))
+    
+        if ( maxval(abs(this%sol%temp_i_fn(0,0) - Temp1)/abs(Temp1)) < 1e-5) exit       
+      end do
+    deallocate( Temp, Temp1 )
+    
+    qConv = real(-this%sol%flux_fn(1,0,0,1), kind=dbl) / sqrt(4*pi)
+    this%sol%v_dn = this%vr_jm_fn(1) + this%Raf * qConv * flux_bnd(1:this%jms) ; this%sol%v_dn(1) = czero
+    
+    !$omp parallel do
+    do ij = 1, this%jmax
+      call this%mat%temp(ij)%fill_sub( this%matica_temp_fn(j_in=ij, a_in=1._dbl), this%matica_temp_fn(j_in=ij, a_in=0._dbl) )
+    end do
+    !$omp end parallel do
+  
+    !$omp parallel do private (is,ir)
+    do ijm = 2, this%jms
+      ir = 1
+        this%sol%temp(1,ijm) = -( this%sol%u_dn(ijm) + this%sol%v_dn(ijm) * this%dt )
+        this%sol%temp(2,ijm) = czero
+        this%sol%temp(3,ijm) = czero
+      
+      do ir = 2, this%nd
+        is = 3*(ir-1)+1
+        
+        this%sol%temp(is  ,ijm) = this%sol%temp(is,ijm) / this%dt + this%ntemp(ijm,ir) + this%htide_fn(ir,ijm)
+        this%sol%temp(is+1,ijm) = czero
+        this%sol%temp(is+2,ijm) = czero
+      end do
+  
+      ir = this%nd+1
+        this%sol%temp(3*this%nd+1,ijm) = -(this%sol%u_up(ijm) + this%sol%v_up(ijm) * this%dt)
+      
+      call this%mat%temp( this%j_indx(ijm) )%luSolve_sub(this%sol%temp(:,ijm))
+    end do
+    !$omp end parallel do
+    
+    !$omp parallel do
+    do ij = 1, this%jmax
+      call this%mat%mech(ij)%fill_sub( this%matica_mech_fn(j_in=ij, a_in=1._dbl), this%matica_mech_fn(j_in=ij, a_in=0._dbl) )
+    end do
+    !$omp end parallel do
 
+    this%sol%v_dn = - this%Raf * ( this%qr_jm_fn(1) - qConv * flux_bnd(1:this%jms) ) ; this%sol%v_dn(1) = czero
+
+    !$omp parallel do private (ir,is,ij)
+    do ijm = 2, this%jms
+      ij = this%j_indx(ijm)
+    
+      ir = 1
+        this%sol%mech(1,ijm) = -( this%sol%u_dn(ijm) + this%sol%v_dn(ijm) * this%dt - this%Vdelta_fn(1,ijm) )
+        this%sol%mech(2,ijm) = czero
+        this%sol%mech(3,ijm) = czero
+        this%sol%mech(4,ijm) = czero
+        this%sol%mech(5,ijm) = czero
+        this%sol%mech(6,ijm) = czero
+  
+      do ir = 2, this%nd
+        is = 6*(ir-1)+1
+        
+        this%sol%mech(is  ,ijm) = -sqrt((ij  )/(2*ij+1._dbl)) * this%buoy_rr_fn(ir,ijm)
+        this%sol%mech(is+1,ijm) = +sqrt((ij+1)/(2*ij+1._dbl)) * this%buoy_rr_fn(ir,ijm)
+        this%sol%mech(is+2,ijm) = czero
+        this%sol%mech(is+3,ijm) = czero
+        this%sol%mech(is+4,ijm) = czero
+        this%sol%mech(is+5,ijm) = czero
+      end do
+  
+      ir = this%nd+1
+        this%sol%mech(6*this%nd+1,ijm) = czero
+        this%sol%mech(6*this%nd+2,ijm) = -( this%sol%u_up(ijm) - this%Vdelta_fn(this%nd,ijm) )
+      
+      call this%mat%mech(ij)%luSolve_sub(this%sol%mech(:,ijm))
+    end do
+    !$omp end parallel do
+    
+    this%sol%v_dn = this%sol%v_dn + this%vr_jm_fn(1)      ; this%sol%v_dn(1) = czero
+    this%sol%v_up =                 this%vr_jm_fn(this%nd); this%sol%v_up(1) = czero
+    
+    this%sol%u_dn = this%sol%u_dn + this%sol%v_dn * this%dt
+    this%sol%u_up = this%sol%u_up + this%sol%v_up * this%dt
+    
+    do ijm = 2, this%jms
+      this%sol%t_dn(ijm) = this%sol%u_dn(ijm) - this%Vdelta_fn(1      ,ijm)
+      this%sol%t_up(ijm) = this%sol%u_up(ijm) - this%Vdelta_fn(this%nd,ijm)
+    end do
+    
   end subroutine EE_iceCrust_sub
-    
-    subroutine EE_iceCrust_temp_sub(this, qConv, flux_bnd)
-      class(T_iceCrust), intent(inout) :: this
-      real(kind=dbl),    intent(out)   :: qConv
-      complex(kind=dbl), intent(in)    :: flux_bnd(:)
-      integer                          :: i, j, m, jm_int
-      real(kind=dbl)                   :: Ra_g_alpha
-      complex(kind=dbl), allocatable   :: Temp(:), Temp1(:), ntemp(:,:)
 
-      allocate( ntemp(this%jms,2:this%nd) ) ; ntemp = czero
-      
-      !$omp parallel do
-      do i = 2, this%nd
-        ntemp(:,i) = -this%vgradT_fn(i)
-      end do
-      !$omp end parallel do
-      
-      allocate( Temp(this%nd+1), Temp1(this%nd+1) ); Temp = this%sol%temp_i_fn(0,0)
-        do
-          Temp1 = this%sol%temp_i_fn(0,0)
-          call this%mat%temp(0)%fill_sub( this%matica_temp_fn(j_in=0, a_in=1._dbl), this%matica_temp_fn(j_in=0, a_in=0._dbl)  )
-        
-          i = 1
-            this%sol%temp(3*(i-1)+1,1) = cmplx(sqrt(4*pi), 0._dbl, kind=dbl)
-            this%sol%temp(3*(i-1)+2,1) = cmplx(0._dbl, 0._dbl, kind=dbl)
-            this%sol%temp(3*(i-1)+3,1) = cmplx(0._dbl, 0._dbl, kind=dbl)
-      
-          do i = 2, this%nd
-            this%sol%temp(3*(i-1)+1,1) = Temp(i)/this%dt + ntemp(1,i) + this%Ds/this%Ra * this%htide_fn(i,1) / this%cp_fn(i)
-            this%sol%temp(3*(i-1)+2,1) = cmplx(0._dbl, 0._dbl, kind=dbl)
-            this%sol%temp(3*(i-1)+3,1) = cmplx(0._dbl, 0._dbl, kind=dbl)
-          end do
-      
-          i = this%nd+1
-            this%sol%temp(3*(i-1)+1,1) = cmplx(0._dbl, 0._dbl, kind=dbl)
-      
-          call this%mat%temp(0)%luSolve_sub(this%sol%temp(:,1))
-      
-          if ( maxval(abs(this%sol%temp_i_fn(0,0) - Temp1)/abs(Temp1)) < 1e-5) exit       
-        end do
-      deallocate( Temp, Temp1 )
-    
-      qConv = real(-this%sol%flux_fn(1,0,0,1), kind=dbl) / sqrt(4*pi)
-
-      !$omp parallel do
-      do j = 1, this%jmax
-        call this%mat%temp(j)%fill_sub( this%matica_temp_fn(j_in=j, a_in=1._dbl), this%matica_temp_fn(j_in=j, a_in=1._dbl)  )
-      end do
-      !$omp end parallel do
-
-      this%sol%v_dn = this%vr_jm_fn(1) + this%Raf * qConv * flux_bnd(1:this%jms)
-        this%sol%v_dn(1) = cmplx(0._dbl, 0._dbl, kind=dbl)
-    
-      !$omp parallel do private (i)
-      do jm_int = 2, this%jms
-        i = 1
-          this%sol%temp( 3*(i-1)+1 ,jm_int ) = -(this%sol%u_dn(jm_int) + this%sol%v_dn(jm_int) * this%dt)
-          this%sol%temp( 3*(i-1)+2 :   &
-                       & 3*(i-1)+3 ,jm_int ) = cmplx(0._dbl, 0._dbl, kind=dbl)
-    
-        do i = 2, this%nd
-          this%sol%temp( 3*(i-1)+1 ,jm_int ) = this%sol%temp(3*(i-1)+1,jm_int) / this%dt + ntemp(jm_int,i) + &
-                   & this%Ds/this%Ra * this%htide_fn(i,jm_int) / this%cp_fn(i)
-          this%sol%temp( 3*(i-1)+2 :   &
-                       & 3*(i-1)+3 ,jm_int ) = cmplx(0._dbl, 0._dbl, kind=dbl)
-        end do
-    
-        i = this%nd+1
-          this%sol%temp( 3*(i-1)+1 ,jm_int ) = -(this%sol%u_up(jm_int) + this%sol%v_up(jm_int) * this%dt)
-        
-        call this%mat%temp(this%j_indx(jm_int))%luSolve_sub(this%sol%temp(:,jm_int))
-      end do
-      !$omp end parallel do
-
-      deallocate( ntemp )
-
-    end subroutine EE_iceCrust_temp_sub
-
-    subroutine EE_iceCrust_mech_sub(this, qConv, flux_bnd)
-      class(T_iceCrust), intent(inout) :: this
-      real(kind=dbl),    intent(in)    :: qConv
-      complex(kind=dbl), intent(in)    :: flux_bnd(:)
-      integer                          :: i, j, m, jm_int
-      real(kind=dbl)                   :: Ra_g_alpha
-
-      !$omp parallel do
-      do j = 1, this%jmax
-        call this%mat%mech(j)%fill_sub( this%matica_mech_fn(j_in=j, a_in=1._dbl), this%matica_mech_fn(j_in=j, a_in=0._dbl)  )
-      end do
-      !$omp end parallel do
-
-      this%sol%v_dn = - this%Raf * ( this%qr_jm_fn(1) - qConv * flux_bnd(1:this%jms) )
-      !call this%setLayers_sub()
-
-      !$omp parallel do private (i,j,m,Ra_g_alpha)
-      do jm_int = 2, this%jms
-        j  = this%j_indx(jm_int)
-        m  = jm_int - (j*(j+1)/2+1)
-      
-        i = 1
-          this%sol%mech( 6*(i-1)+1 ,jm_int ) = -( this%sol%u_dn(jm_int) + this%sol%v_dn(jm_int)*this%dt - this%Vdelta_fn(j,m,1) )
-          this%sol%mech( 6*(i-1)+2 :   &
-                       & 6*(i-1)+6 ,jm_int ) = cmplx(0._dbl, 0._dbl, kind=dbl)
-    
-        do i = 2, this%nd
-          Ra_g_alpha = this%Ra * this%alpha_fn(i) * this%gravity%g_fn(this%rad_grid%rr(i))
-        
-          this%sol%mech( 6*(i-1)+1 ,jm_int ) = -Ra_g_alpha * sqrt((j  )/(2*j+1._dbl)) * this%sol%temp_fn(i,j,m)
-          this%sol%mech( 6*(i-1)+2 ,jm_int ) = +Ra_g_alpha * sqrt((j+1)/(2*j+1._dbl)) * this%sol%temp_fn(i,j,m)
-          this%sol%mech( 6*(i-1)+3 :   &
-                       & 6*(i-1)+6 ,jm_int ) = cmplx(0._dbl, 0._dbl, kind=dbl)
-        end do
-    
-        i = this%nd+1
-          this%sol%mech(6*(i-1)+1,jm_int) = cmplx(0._dbl, 0._dbl, kind=dbl)
-          this%sol%mech(6*(i-1)+2,jm_int) = -( this%sol%u_up(jm_int) - this%Vdelta_fn(j,m,this%nd) )
-        
-        call this%mat%mech(j)%luSolve_sub(this%sol%mech(:,jm_int))
-      end do
-      !$end omp parallel do
-
-    end subroutine EE_iceCrust_mech_sub
-
-    complex(kind=dbl) function Vdelta_iceCrust_fn(this, j, m, i)
+    complex(kind=dbl) function Vdelta_iceCrust_fn(this, i, jm_int)
       class(T_iceCrust),  intent(in) :: this
-      integer,            intent(in) :: j, m, i
-      integer                        :: k
+      integer,            intent(in) :: i, jm_int
+      integer                        :: k, j, m
+      real(kind=dbl)                 :: ri
       complex(kind=dbl), allocatable :: field(:)
       
-      allocate( field(this%nd+1) ); field = cmplx(0._dbl, 0._dbl, kind=dbl)
-
-        do k = 1, this%nd+1
-          field(k) = -this%rhoI * this%alphaU * this%alpha_fn(k) * (this%Td-this%Tu) * this%sol%temp_fn(k,j,m)
-        end do
-        
-        if (i == 1) then
-          field = field * ( this%rad_grid%r(1) / this%rad_grid%rr(:) ) ** (j-1)
-        else if (i == this%nd) then
-          field = field * ( this%rad_grid%rr(:) / this%rad_grid%r(this%nd) ) ** (j+2)
-        end if
-
-        associate( ri => this%rad_grid%r(i), rd => this%rad_grid%r(1), ru => this%rad_grid%r(this%nd) )
-          Vdelta_iceCrust_fn = this%gravity%V_bnd_fn( j, m, ri, ru      , this%rhoI           , this%sol%u_up(jm(j,m)) ) + &
-                             & this%gravity%V_bnd_fn( j, m, ri, rd      , this%rhoW-this%rhoI , this%sol%u_dn(jm(j,m)) ) + &
-                             & this%gravity%V_bnd_fn( j, m, ri, this%rI2, this%rhoI2-this%rhoW, this%sol%u_I2(jm(j,m)) ) + &
-                             & this%gravity%V_bnd_fn( j, m, ri, this%rC , this%rhoC-this%rhoI2, this%sol%u_C(jm(j,m))  ) + &
-                             & this%gravity%V_rho_fn( j, m, ri, field, this%rad_grid)                                    + &
-                             & this%gravity%V_rt_fn(  j, m, ri )
-        end associate
-
+      j  = this%j_indx(jm_int)
+      m  = jm_int - (j*(j+1)/2+1)
+      ri = this%rad_grid%r(i)
+      
+      allocate( field(this%nd+1) ); field = czero
+      
+      do k = 1, this%nd+1
+        field(k) = -this%rhoI * this%alphaU * this%alpha_fn(k) * (this%Td-this%Tu) * this%sol%temp_fn(k,j,m)
+      end do
+      
+      if (i == 1) then
+        field = field * ( this%rad_grid%r(1) / this%rad_grid%rr(:) ) ** (j-1)
+      else if (i == this%nd) then
+        field = field * ( this%rad_grid%rr(:) / this%rad_grid%r(this%nd) ) ** (j+2)
+      end if
+      
+      Vdelta_iceCrust_fn = ( this%gravity%V_bnd_fn( j, m, ri, this%ru , this%rhoI           , this%sol%u_up(jm_int) ) + &
+                           & this%gravity%V_bnd_fn( j, m, ri, this%rd , this%rhoW-this%rhoI , this%sol%u_dn(jm_int) ) + &
+                           & this%gravity%V_bnd_fn( j, m, ri, this%rI2, this%rhoI2-this%rhoW, this%sol%u_I2(jm_int) ) + &
+                           & this%gravity%V_bnd_fn( j, m, ri, this%rC , this%rhoC-this%rhoI2, this%sol%u_C(jm_int)  ) + &
+                           & this%gravity%V_rho_fn( j, m, ri, field, this%rad_grid)                                   + &
+                           & this%gravity%V_rt_fn(  j, m, ri ) ) / this%gravity%g_fn( ri )
+      
       deallocate( field )
-
-      Vdelta_iceCrust_fn = Vdelta_iceCrust_fn / this%gravity%g_fn(this%rad_grid%r(i))
       
     end function Vdelta_iceCrust_fn
     
@@ -284,17 +260,17 @@ module IceCrustMod
       complex(kind=dbl)                :: rhs1, rhs2
       complex(kind=dbl), allocatable   :: field(:)
       
-      rhs1 = cmplx(0._dbl, 0._dbl, kind=dbl)
-      rhs2 = cmplx(0._dbl, 0._dbl, kind=dbl)
+      rhs1 = czero
+      rhs2 = czero
       
       associate( rd => this%rad_grid%r(1), ru => this%rad_grid%r(this%nd), grv => this%gravity  )
       allocate( field(this%nd+1) )
 
       do j = 1, this%jmax
-        a11 = 4 * pi * kappa * this%rI2 * this%D_ud * (this%rhoI2-this%rhoW)  / (2*j+1) / this%g - this%gravity%g_fn(this%rI2)
+        a11 = 4 * pi * kappa * this%rI2 * this%D_ud * (this%rhoI2-this%rhoW)  / (2*j+1) / this%g - grv%g_fn(this%rI2)
         a12 = 4 * pi * kappa * this%rI2 * this%D_ud * (this%rhoC -this%rhoI2) / (2*j+1) / this%g * (this%rC/this%rI2)**(j+2)
         a21 = 4 * pi * kappa * this%rC  * this%D_ud * (this%rhoI2-this%rhoW)  / (2*j+1) / this%g * (this%rC/this%rI2)**(j-1)
-        a22 = 4 * pi * kappa * this%rC  * this%D_ud * (this%rhoC -this%rhoI2) / (2*j+1) / this%g - this%gravity%g_fn(this%rC)
+        a22 = 4 * pi * kappa * this%rC  * this%D_ud * (this%rhoC -this%rhoI2) / (2*j+1) / this%g - grv%g_fn(this%rC)
         
         det = a11 * a22 - a12 * a21
           a11 = a11 / det; a12 = a12 / det
@@ -338,10 +314,14 @@ module IceCrustMod
       integer,           intent(in) :: i, jm_int
       complex(kind=dbl)             :: HI
       
-      HI = cmplx(0._dbl, 0._dbl, kind=dbl)
-      if (jm_int <= jms4) HI = this%rad_grid%cc(i,-1) * this%htide(i-1,jm_int) + &
-                            &  this%rad_grid%cc(i,+1) * this%htide(i  ,jm_int)
-    
+      if (jm_int <= jms4) then
+        HI = this%rad_grid%cc(i,-1) * this%htide(i-1,jm_int) + this%rad_grid%cc(i,+1) * this%htide(i,jm_int)
+      else
+        HI = czero
+      end if
+      
+      HI = this%Ds/this%Ra * HI / this%cp_fn(i)
+      
     end function htide_iceCrust_fn
     
   subroutine vypis_iceCrust_sub(this)

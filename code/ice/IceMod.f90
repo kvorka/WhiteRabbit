@@ -36,7 +36,6 @@ module iceMod
     logical, optional, intent(in)    :: noharm
     real(kind=dbl)                   :: tkappa_ice
     
-    !Inicializuj objekty vseobecne
     if (present(noharm)) then
       call this%init_objects_sub( nd = nd_ice, jmax = jmax_in, r_ud = rdown_ice / rup_ice, rgrid = grid_type_ice, noharm = noharm )
     else
@@ -85,20 +84,17 @@ module iceMod
     this%Rau  = (this%rhoI                                  ) * this%g * this%D_ud**3 / this%viscU / tkappa_ice
     this%Ds   = this%alphaU * this%g * this%D_ud / this%cU
     
-    !Inicializuj gravitaciu
+    
     call this%gravity%init_sub( gmod = gravity_ice, g = this%g, Dcrust = this%D_ud, omega = omega, exc = exc )
     
-    !Inicializuj premenne pre riesenie
     call this%sol%init_stemp_sub()
     call this%sol%init_smech_sub()
     call this%sol%init_layers_sub()
     
-    !Inicializuj premenne pre matice
     call this%mat%init_mtemp_sub()
     call this%mat%init_mmech_sub()
     
-    !Inicializuj slapove zahrievanie
-    allocate( this%htide(this%nd,jms4) ); this%htide = cmplx(0._dbl, 0._dbl, kind=dbl)
+    allocate( this%htide(this%nd,jms4) ); this%htide = czero
     
   end subroutine init_ice_sub
   
