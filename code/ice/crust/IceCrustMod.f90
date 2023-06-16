@@ -219,16 +219,16 @@ module IceCrustMod
     
   end subroutine EE_iceCrust_sub
 
-    complex(kind=dbl) function Vdelta_iceCrust_fn(this, i, jm_int)
+    complex(kind=dbl) function Vdelta_iceCrust_fn(this, ir, ijm)
       class(T_iceCrust),  intent(in) :: this
-      integer,            intent(in) :: i, jm_int
+      integer,            intent(in) :: ir, ijm
       integer                        :: k, j, m
       real(kind=dbl)                 :: ri
       complex(kind=dbl), allocatable :: field(:)
       
-      j  = this%j_indx(jm_int)
-      m  = jm_int - (j*(j+1)/2+1)
-      ri = this%rad_grid%r(i)
+      j  = this%j_indx(ijm)
+      m  = ijm - (j*(j+1)/2+1)
+      ri = this%rad_grid%r(ir)
       
       allocate( field(this%nd+1) ); field = czero
       
@@ -236,16 +236,16 @@ module IceCrustMod
         field(k) = -this%rhoI * this%alphaU * this%alpha_fn(k) * (this%Td-this%Tu) * this%sol%temp_fn(k,j,m)
       end do
       
-      if (i == 1) then
+      if (ir == 1) then
         field = field * ( this%rad_grid%r(1) / this%rad_grid%rr(:) ) ** (j-1)
-      else if (i == this%nd) then
+      else if (ir == this%nd) then
         field = field * ( this%rad_grid%rr(:) / this%rad_grid%r(this%nd) ) ** (j+2)
       end if
       
-      Vdelta_iceCrust_fn = ( this%gravity%V_bnd_fn( j, m, ri, this%ru , this%rhoI           , this%sol%u_up(jm_int) ) + &
-                           & this%gravity%V_bnd_fn( j, m, ri, this%rd , this%rhoW-this%rhoI , this%sol%u_dn(jm_int) ) + &
-                           & this%gravity%V_bnd_fn( j, m, ri, this%rI2, this%rhoI2-this%rhoW, this%sol%u_I2(jm_int) ) + &
-                           & this%gravity%V_bnd_fn( j, m, ri, this%rC , this%rhoC-this%rhoI2, this%sol%u_C(jm_int)  ) + &
+      Vdelta_iceCrust_fn = ( this%gravity%V_bnd_fn( j, m, ri, this%ru , this%rhoI           , this%sol%u_up(ijm) ) + &
+                           & this%gravity%V_bnd_fn( j, m, ri, this%rd , this%rhoW-this%rhoI , this%sol%u_dn(ijm) ) + &
+                           & this%gravity%V_bnd_fn( j, m, ri, this%rI2, this%rhoI2-this%rhoW, this%sol%u_I2(ijm) ) + &
+                           & this%gravity%V_bnd_fn( j, m, ri, this%rC , this%rhoC-this%rhoI2, this%sol%u_C(ijm)  ) + &
                            & this%gravity%V_rho_fn( j, m, ri, field, this%rad_grid)                                   + &
                            & this%gravity%V_rt_fn(  j, m, ri ) ) / this%gravity%g_fn( ri )
       
@@ -309,18 +309,18 @@ module IceCrustMod
       
     end subroutine set_layers_iceCrust_sub
     
-    pure function htide_iceCrust_fn(this, i, jm_int) result(HI)
+    pure function htide_iceCrust_fn(this, ir, ijm) result(HI)
       class(T_iceCrust), intent(in) :: this
-      integer,           intent(in) :: i, jm_int
+      integer,           intent(in) :: ir, ijm
       complex(kind=dbl)             :: HI
       
-      if (jm_int <= jms4) then
-        HI = this%rad_grid%cc(i,-1) * this%htide(i-1,jm_int) + this%rad_grid%cc(i,+1) * this%htide(i,jm_int)
+      if ( ijm <= jms4 ) then
+        HI = this%rad_grid%cc(ir,-1) * this%htide(ir-1,ijm) + this%rad_grid%cc(ir,+1) * this%htide(ir,ijm)
       else
         HI = czero
       end if
       
-      HI = this%Ds/this%Ra * HI / this%cp_fn(i)
+      HI = this%Ds/this%Ra * HI / this%cp_fn(ir)
       
     end function htide_iceCrust_fn
     

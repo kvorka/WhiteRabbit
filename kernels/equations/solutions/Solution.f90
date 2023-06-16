@@ -69,30 +69,45 @@ module Solution
       class(T_solution), intent(inout) :: this
     end subroutine init_layer_u_sub
     
-    module pure complex(kind=dbl) function temp_fn(this, i, j, m)
+    module pure complex(kind=dbl) function temp_fn(this, ir, ij, im)
       class(T_solution), intent(in) :: this
-      integer,           intent(in) :: i, j, m
+      integer,           intent(in) :: ir, ij, im
     end function temp_fn
     
-    module pure complex(kind=dbl) function temp2_fn(this, i, jm)
+    module pure complex(kind=dbl) function temp2_fn(this, ir, ijm)
       class(T_solution), intent(in) :: this
-      integer,           intent(in) :: i, jm
+      integer,           intent(in) :: ir, ijm
     end function temp2_fn
     
-    module pure complex(kind=dbl) function flux_fn(this, i, j, m, l)
+    module pure complex(kind=dbl) function flux_fn(this, ir, ij, im, il)
       class(T_solution), intent(in) :: this
-      integer,           intent(in) :: i, j, m, l
+      integer,           intent(in) :: ir, ij, im, il
     end function flux_fn
-    
-    module pure complex(kind=dbl) function velocity_fn(this, i, j, m, l)
+
+    module pure complex(kind=dbl) function flux2_fn(this, ir, il, ijm)
       class(T_solution), intent(in) :: this
-      integer,           intent(in) :: i, j, m, l
+      integer,           intent(in) :: ir, ijm, il
+    end function flux2_fn
+    
+    module pure complex(kind=dbl) function velocity_fn(this, ir, ij, im, il)
+      class(T_solution), intent(in) :: this
+      integer,           intent(in) :: ir, ij, im, il
     end function velocity_fn
-    
-    module pure complex(kind=dbl) function deviatoric_stress_fn(this, i, j, m, l)
+
+    module pure complex(kind=dbl) function velocity2_fn(this, ir, il, ijm)
       class(T_solution), intent(in) :: this
-      integer,           intent(in) :: i, j, m, l
+      integer,           intent(in) :: ir, ijm, il
+    end function velocity2_fn
+    
+    module pure complex(kind=dbl) function deviatoric_stress_fn(this, ir, ij, im, il)
+      class(T_solution), intent(in) :: this
+      integer,           intent(in) :: ir, ij, im, il
     end function deviatoric_stress_fn
+
+    module pure complex(kind=dbl) function deviatoric_stress2_fn(this, ir, il, ijm)
+      class(T_solution), intent(in) :: this
+      integer,           intent(in) :: ir, ijm, il
+    end function deviatoric_stress2_fn
     
     module pure function temp_i_fn(this, j, m) result(temp)
       class(T_solution), intent(in) :: this

@@ -3,11 +3,11 @@ submodule(PhysicalObject) Variables
 
   contains
 
-  pure complex(kind=dbl) function htide_fn(this, i, jm_int)
+  pure complex(kind=dbl) function htide_fn(this, ir, ijm)
     class(T_physicalObject), intent(in) :: this
-    integer,                 intent(in) :: i, jm_int
+    integer,                 intent(in) :: ir, ijm
 
-    htide_fn = this%rad_grid%cc(i,-1) * this%htide(i-1,jm_int) + this%rad_grid%cc(i,+1) * this%htide(i,jm_int)
+    htide_fn = this%rad_grid%cc(ir,-1) * this%htide(ir-1,ijm) + this%rad_grid%cc(ir,+1) * this%htide(ir,ijm)
 
   end function htide_fn
 

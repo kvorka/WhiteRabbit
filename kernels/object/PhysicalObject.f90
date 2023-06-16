@@ -124,9 +124,9 @@ module PhysicalObject
       integer,                 intent(in) :: i
     end function alpha_fn
     
-    module pure complex(kind=dbl) function htide_fn(this, i, jm_int)
+    module pure complex(kind=dbl) function htide_fn(this, ir, ijm)
       class(T_physicalObject), intent(in) :: this
-      integer,                 intent(in) :: i, jm_int
+      integer,                 intent(in) :: ir, ijm
     end function htide_fn
 
     module pure complex(kind=dbl) function vr_fn(this, i, j, m)
