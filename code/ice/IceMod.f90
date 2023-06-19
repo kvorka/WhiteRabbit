@@ -104,8 +104,8 @@ module iceMod
     real(kind=dbl)            :: temp, lambdaI
 
     if ( this%rad_grid%r(i) < this%rad_grid%r(this%nd) - this%hC ) then
-       temp = this%Tu + (this%Td-this%Tu) * real( this%rad_grid%c(i,-1) * this%sol%temp_fn(i  ,0,0) + &
-                                                & this%rad_grid%c(i,+1) * this%sol%temp_fn(i+1,0,0)    , kind=dbl) / sqrt(4*pi)
+       temp = this%Tu + (this%Td-this%Tu) * real( this%rad_grid%c(i,-1) * this%sol%temp_fn(i  ,1) + &
+                                                & this%rad_grid%c(i,+1) * this%sol%temp_fn(i+1,1)    , kind=dbl) / sqrt(4*pi)
        
        lambdaI = 0.4685_dbl + 488.12_dbl / temp
        
@@ -123,7 +123,7 @@ module iceMod
     integer,       intent(in) :: i
     real(kind=dbl)            :: temp, cI
     
-    temp = this%Tu + (this%Td-this%Tu) * real( this%sol%temp_fn(i,0,0), kind=dbl ) / sqrt(4*pi)
+    temp = this%Tu + (this%Td-this%Tu) * real( this%sol%temp_fn(i,1), kind=dbl ) / sqrt(4*pi)
     cI = 185._dbl + 7.037_dbl * temp
     
     cp_ice_fn = cI / this%cU
@@ -144,7 +144,7 @@ module iceMod
     integer,       intent(in) :: i
     real(kind=dbl)            :: temp, v, dv, alphaI
     
-    temp = this%Tu + (this%Td-this%Tu) * real( this%sol%temp_fn(i,0,0), kind=dbl ) / sqrt(4*pi)
+    temp = this%Tu + (this%Td-this%Tu) * real( this%sol%temp_fn(i,1), kind=dbl ) / sqrt(4*pi)
     
     v  = A0 +    A3 * temp**3 +     A4 * temp**4 +     A5 * temp**5 +     A6 * temp**6 +     A7 * temp**7
     dv =      3* A3 * temp**2 + 4 * A4 * temp**3 + 5 * A5 * temp**4 + 6 * A6 * temp**5 + 7 * A7 * temp**6
@@ -163,8 +163,8 @@ module iceMod
     integer,       intent(in) :: i
     real(kind=dbl)            :: temp, viscI
     
-    temp = this%Tu + (this%Td-this%Tu) * real( this%rad_grid%c(i,-1) * this%sol%temp_fn(i,0,0) + &
-                                             & this%rad_grid%c(i,+1) * this%sol%temp_fn(i+1,0,0), kind=dbl) / sqrt(4*pi)
+    temp = this%Tu + (this%Td-this%Tu) * real( this%rad_grid%c(i,-1) * this%sol%temp_fn(i,1) + &
+                                             & this%rad_grid%c(i,+1) * this%sol%temp_fn(i+1,1), kind=dbl) / sqrt(4*pi)
     
     viscI = min( temp * this%diam**2 * exp(e / rgas / temp) / a / 2, this%cutoff )
     

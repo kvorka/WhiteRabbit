@@ -2,7 +2,8 @@ module Solution
   use Math
   implicit none
 
-  type, public :: T_solution 
+  type, public :: T_solution
+    logical                        :: inittemp, initsfer, inittorr
     integer                        :: nd, jmax, jms, jmv, jmt
     complex(kind=dbl), allocatable :: u_dn(:), u_up(:), u_I2(:), u_C(:), v_dn(:), v_up(:), t_dn(:), t_up(:), &
                                     & mech(:,:), temp(:,:), torr(:,:)
@@ -18,7 +19,6 @@ module Solution
     procedure, pass :: init_layers_sub
     procedure, pass :: init_layer_u_sub
     procedure, pass :: temp_fn
-    procedure, pass :: temp2_fn
     procedure, pass :: flux_fn
     procedure, pass :: velocity_fn
     procedure, pass :: deviatoric_stress_fn
@@ -69,128 +69,108 @@ module Solution
       class(T_solution), intent(inout) :: this
     end subroutine init_layer_u_sub
     
-    module pure complex(kind=dbl) function temp_fn(this, ir, ij, im)
-      class(T_solution), intent(in) :: this
-      integer,           intent(in) :: ir, ij, im
-    end function temp_fn
-    
-    module pure complex(kind=dbl) function temp2_fn(this, ir, ijm)
+    module pure complex(kind=dbl) function temp_fn(this, ir, ijm)
       class(T_solution), intent(in) :: this
       integer,           intent(in) :: ir, ijm
-    end function temp2_fn
+    end function temp_fn
     
-    module pure complex(kind=dbl) function flux_fn(this, ir, ij, im, il)
+    module pure complex(kind=dbl) function flux_fn(this, ir, il, ijm)
       class(T_solution), intent(in) :: this
-      integer,           intent(in) :: ir, ij, im, il
+      integer,           intent(in) :: ir, il, ijm
     end function flux_fn
-
-    module pure complex(kind=dbl) function flux2_fn(this, ir, il, ijm)
-      class(T_solution), intent(in) :: this
-      integer,           intent(in) :: ir, ijm, il
-    end function flux2_fn
     
-    module pure complex(kind=dbl) function velocity_fn(this, ir, ij, im, il)
+    module pure complex(kind=dbl) function velocity_fn(this, ir, il, ijm)
       class(T_solution), intent(in) :: this
-      integer,           intent(in) :: ir, ij, im, il
+      integer,           intent(in) :: ir, il, ijm
     end function velocity_fn
-
-    module pure complex(kind=dbl) function velocity2_fn(this, ir, il, ijm)
-      class(T_solution), intent(in) :: this
-      integer,           intent(in) :: ir, ijm, il
-    end function velocity2_fn
     
-    module pure complex(kind=dbl) function deviatoric_stress_fn(this, ir, ij, im, il)
+    module pure complex(kind=dbl) function deviatoric_stress_fn(this, ir, il, ijm)
       class(T_solution), intent(in) :: this
-      integer,           intent(in) :: ir, ij, im, il
+      integer,           intent(in) :: ir, il, ijm
     end function deviatoric_stress_fn
-
-    module pure complex(kind=dbl) function deviatoric_stress2_fn(this, ir, il, ijm)
-      class(T_solution), intent(in) :: this
-      integer,           intent(in) :: ir, ijm, il
-    end function deviatoric_stress2_fn
     
-    module pure function temp_i_fn(this, j, m) result(temp)
-      class(T_solution), intent(in) :: this
-      integer,           intent(in) :: j, m
-      complex(kind=dbl)             :: temp(this%nd+1)
+    module pure function temp_i_fn(this, ijm) result(temp)
+      class(T_solution), intent(in)  :: this
+      integer,           intent(in)  :: ijm
+      complex(kind=dbl), allocatable :: temp(:)
     end function temp_i_fn
     
-    module pure function flux_i_fn(this, j, m, l) result(flux)
-      class(T_solution), intent(in) :: this
-      integer,           intent(in) :: j, m, l
-      complex(kind=dbl)             :: flux(this%nd)
+    module pure function flux_i_fn(this, il, ijm) result(flux)
+      class(T_solution), intent(in)  :: this
+      integer,           intent(in)  :: il, ijm
+      complex(kind=dbl), allocatable :: flux(:)
     end function flux_i_fn
     
-    module pure function velocity_i_fn(this, j, m, l) result(velocity)
-      class(T_solution), intent(in) :: this
-      integer,           intent(in) :: j, m, l
-      complex(kind=dbl)             :: velocity(this%nd+1)
+    module pure function velocity_i_fn(this, il, ijm) result(velocity)
+      class(T_solution), intent(in)  :: this
+      integer,           intent(in)  :: il, ijm
+      complex(kind=dbl), allocatable :: velocity(:)
     end function velocity_i_fn
     
-    module pure function deviatoric_stress_i_fn(this, j, m, l) result(dstress)
-      class(T_solution), intent(in) :: this
-      integer,           intent(in) :: j, m, l
-      complex(kind=dbl)             :: dstress(this%nd)
+    module pure function deviatoric_stress_i_fn(this, il, ijm) result(dstress)
+      class(T_solution), intent(in)  :: this
+      integer,           intent(in)  :: il, ijm
+      complex(kind=dbl), allocatable :: dstress(:)
     end function deviatoric_stress_i_fn
     
-    module pure function temp_jm_fn(this, i) result(temp)
-      class(T_solution), intent(in) :: this
-      integer,           intent(in) :: i
-      complex(kind=dbl)             :: temp(this%jms)
+    module pure function temp_jm_fn(this, ir) result(temp)
+      class(T_solution), intent(in)  :: this
+      integer,           intent(in)  :: ir
+      complex(kind=dbl), allocatable :: temp(:)
     end function temp_jm_fn
     
-    module pure function flux_jml_fn(this, i) result(flux)
-      class(T_solution), intent(in) :: this
-      integer,           intent(in) :: i
-      complex(kind=dbl)             :: flux(this%jmv)
+    module pure function flux_jml_fn(this, ir) result(flux)
+      class(T_solution), intent(in)  :: this
+      integer,           intent(in)  :: ir
+      complex(kind=dbl), allocatable :: flux(:)
     end function flux_jml_fn
 
-    module pure subroutine flux_jml_many_sub(this, i, temp2, flux1, flux2)
+    module pure subroutine flux_jml_many_sub(this, ir, temp2, flux1, flux2)
       class(T_solution), intent(in)  :: this
-      integer,           intent(in)  :: i
+      integer,           intent(in)  :: ir
       complex(kind=dbl), intent(out) :: temp2(:), flux1(:), flux2(:)
     end subroutine flux_jml_many_sub
     
-    module pure function velocity_jml_fn(this, i) result(velocity)
-      class(T_solution), intent(in) :: this
-      integer,           intent(in) :: i
-      complex(kind=dbl)             :: velocity(this%jmv)
+    module pure function velocity_jml_fn(this, ir) result(velocity)
+      class(T_solution), intent(in)  :: this
+      integer,           intent(in)  :: ir
+      complex(kind=dbl), allocatable :: velocity(:)
     end function velocity_jml_fn
 
-    module pure subroutine velocity_jml_many_sub(this, i, velocity1, velocity2, velocity3)
+    module pure subroutine velocity_jml_many_sub(this, ir, velocity1, velocity2, velocity3)
       class(T_solution), intent(in)  :: this
-      integer,           intent(in)  :: i
+      integer,           intent(in)  :: ir
       complex(kind=dbl), intent(out) :: velocity1(:), velocity2(:), velocity3(:)
     end subroutine velocity_jml_many_sub
     
-    module pure subroutine temp_jm_sub(this, i, temp)
+    module pure subroutine temp_jm_sub(this, ir, temp)
       class(T_solution), intent(in)  :: this
-      integer,           intent(in)  :: i
+      integer,           intent(in)  :: ir
       complex(kind=dbl), intent(out) :: temp(:)
     end subroutine temp_jm_sub
     
-    module pure subroutine flux_jml_sub(this, i, flux)
+    module pure subroutine flux_jml_sub(this, ir, flux)
       class(T_solution), intent(in)  :: this
-      integer,           intent(in)  :: i
+      integer,           intent(in)  :: ir
       complex(kind=dbl), intent(out) :: flux(:)
     end subroutine flux_jml_sub
     
-    module pure subroutine velocity_jml_sub(this, i, velocity)
+    module pure subroutine velocity_jml_sub(this, ir, velocity)
       class(T_solution), intent(in)  :: this
-      integer,           intent(in)  :: i
+      integer,           intent(in)  :: ir
       complex(kind=dbl), intent(out) :: velocity(:)
     end subroutine velocity_jml_sub
     
-    module pure function conv_velocity_jml_fn(this, i) result(velocity)
-      class(T_solution), intent(in) :: this
-      integer,           intent(in) :: i
-      complex(kind=dbl)             :: velocity(this%jmv)
+    module pure function conv_velocity_jml_fn(this, ir) result(velocity)
+      class(T_solution), intent(in)  :: this
+      integer,           intent(in)  :: ir
+      complex(kind=dbl), allocatable :: velocity(:)
     end function conv_velocity_jml_fn
     
-    module pure function deviatoric_stress_jml2_fn(this, i) result(dstress)
-      class(T_solution), intent(in) :: this
-      integer,           intent(in) :: i
-      complex(kind=dbl)             :: dstress(this%jmt)
+    module pure function deviatoric_stress_jml2_fn(this, ir) result(dstress)
+      class(T_solution), intent(in)  :: this
+      integer,           intent(in)  :: ir
+      complex(kind=dbl), allocatable :: dstress(:)
     end function deviatoric_stress_jml2_fn
   end interface
   

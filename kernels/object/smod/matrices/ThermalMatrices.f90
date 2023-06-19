@@ -4,12 +4,12 @@ submodule (PhysicalObject) ThermalMatrices
   contains
   
   pure function matica_temp_hom_fn(this, j_in, a_in) result(matica)
-    class(T_physicalObject), intent(in) :: this
-    integer,                 intent(in) :: j_in
-    real(kind=dbl),          intent(in) :: a_in
-    real(kind=dbl),         allocatable :: matica(:,:)
-    integer                             :: i
-    real(kind=dbl)                      :: j, q
+    class(T_physicalObject), intent(in)  :: this
+    integer,                 intent(in)  :: j_in
+    real(kind=dbl),          intent(in)  :: a_in
+    real(kind=dbl),          allocatable :: matica(:,:)
+    integer                              :: i
+    real(kind=dbl)                       :: j, q
     
     allocate( matica(7,3*this%nd+1) )
     
@@ -21,7 +21,7 @@ submodule (PhysicalObject) ThermalMatrices
           matica(4, 1) = 0.5_dbl
           matica(7, 1) = 0.5_dbl
         else
-          q = -real(-this%sol%flux_fn(1,0,0,+1), kind=dbl) / sqrt(4*pi) / this%lambda_fn(1)
+          q = -real(-this%sol%flux_fn(1,1,1), kind=dbl) / sqrt(4*pi) / this%lambda_fn(1)
             matica(4, 1) = 0.5_dbl / q
             matica(5, 1) = -sqrt((j  )/(2*j+1)) * this%Raf * this%dt
             matica(6, 1) = +sqrt((j+1)/(2*j+1)) * this%Raf * this%dt
@@ -57,7 +57,7 @@ submodule (PhysicalObject) ThermalMatrices
           matica(1, 3*this%nd+1) = 0.5_dbl
           matica(4, 3*this%nd+1) = 0.5_dbl
         else
-          q = -real(-this%sol%flux_fn(this%nd,0,0,+1), kind=dbl) / sqrt(4*pi) / this%lambda_fn(this%nd)
+          q = -real(-this%sol%flux_fn(this%nd,1,1), kind=dbl) / sqrt(4*pi) / this%lambda_fn(this%nd)
             matica(1, 3*this%nd+1) = 0.5_dbl / q
             matica(4, 3*this%nd+1) = 0.5_dbl / q
         end if
@@ -89,7 +89,7 @@ submodule (PhysicalObject) ThermalMatrices
           matica(6,1) = grid%c(1,-1)
           matica(9,1) = grid%c(1,+1)
         else
-          q = -real(-this%sol%flux_fn(1,0,0,1), kind=dbl) / sqrt(4*pi) / this%lambda_fn(1)
+          q = -real(-this%sol%flux_fn(1,1,1), kind=dbl) / sqrt(4*pi) / this%lambda_fn(1)
             matica(6,1) = grid%c(1,-1) / q
             matica(7,1) = -sqrt((j  )/(2*j+1)) * this%Raf * this%dt
             matica(8,1) = +sqrt((j+1)/(2*j+1)) * this%Raf * this%dt
@@ -133,7 +133,7 @@ submodule (PhysicalObject) ThermalMatrices
           matica(3,3*this%nd+1) = grid%c(this%nd,-1)
           matica(6,3*this%nd+1) = grid%c(this%nd,+1)
         else
-          q = -real(-this%sol%flux_fn(this%nd,0,0,1), kind=dbl) / sqrt(4*pi) / this%lambda_fn(this%nd)
+          q = -real(-this%sol%flux_fn(this%nd,1,1), kind=dbl) / sqrt(4*pi) / this%lambda_fn(this%nd)
             matica(3,3*this%nd+1) = grid%c(this%nd,-1) / q
             matica(6,3*this%nd+1) = grid%c(this%nd,+1) / q    
         end if

@@ -45,10 +45,10 @@ module IceTidesMod
       call EE_temp_iceTides_sub(this, exitCode); if ( exitCode ) exit
       
       !Mechanicka cast riesenia
-      this%Rtide    = cmplx(0._dbl, 0._dbl, kind=dbl) ; this%sol%mech = cmplx(0._dbl, 0._dbl, kind=dbl)
-      this%sol%u_C  = cmplx(0._dbl, 0._dbl, kind=dbl) ; this%sol%u_I2 = cmplx(0._dbl, 0._dbl, kind=dbl)
-      this%sol%u_dn = cmplx(0._dbl, 0._dbl, kind=dbl) ; this%sol%u_up = cmplx(0._dbl, 0._dbl, kind=dbl)
-      this%htide    = cmplx(0._dbl, 0._dbl, kind=dbl) ; this%t = 0._dbl
+      this%Rtide    = czero ; this%sol%mech = czero
+      this%sol%u_C  = czero ; this%sol%u_I2 = czero
+      this%sol%u_dn = czero ; this%sol%u_up = czero
+      this%htide    = czero ; this%t = 0._dbl
       
       do
         do n = 1, this%n_iter
@@ -61,7 +61,7 @@ module IceTidesMod
           exit
         else
           this%Pglobal = P
-          this%htide   = cmplx(0._dbl, 0._dbl, kind=dbl)
+          this%htide   = czero
         end if
       end do
     end do
@@ -76,7 +76,7 @@ module IceTidesMod
     
       open(unit=7, file='data/data_ice_tides/Temp_tides.dat', status='new', action='write')
         do i = 1, this%nd+1
-          write(7,*) this%rad_grid%rr(i), this%sol%temp_fn(i,0,0)
+          write(7,*) this%rad_grid%rr(i), this%sol%temp_fn(i,1)
         end do
       close(7)
     
@@ -129,8 +129,8 @@ module IceTidesMod
         
         call this%mat%mech(2)%luSolve_sub(this%sol%mech(:,jm1))
       
-        this%sol%u_dn(jm1) = this%vr_fn(       1 , 2 , jm1-4 )   
-        this%sol%u_up(jm1) = this%vr_fn( this%nd , 2 , jm1-4 )
+        this%sol%v_dn(jm1) = this%vr_fn(       1 , jm1 )   
+        this%sol%v_up(jm1) = this%vr_fn( this%nd , jm1 )
       end do
     
       !Slapove zahrievanie
@@ -212,7 +212,7 @@ module IceTidesMod
       call this%mat%temp(0)%fill_sub( this%matica_temp_fn(j_in=0, a_in=1._dbl), &
                                       this%matica_temp_fn(j_in=0, a_in=0._dbl)  )
       
-      allocate( Temp(this%nd+1) ); Temp = this%sol%temp_i_fn(0,0)
+      allocate( Temp(this%nd+1) ); Temp = this%sol%temp_i_fn(1)
         i = 1
           this%sol%temp(3*(i-1)+1,1) = cmplx(sqrt(4*pi), 0._dbl, kind=dbl)
           this%sol%temp(3*(i-1)+2,1) = cmplx(0._dbl, 0._dbl, kind=dbl)
@@ -229,7 +229,7 @@ module IceTidesMod
     
         call this%mat%temp(0)%luSolve_sub(this%sol%temp(:,1))
 
-        if ( maxval(abs(this%sol%temp_i_fn(0,0)-Temp)/abs(Temp)) < 1e-5 ) then
+        if ( maxval(abs(this%sol%temp_i_fn(1)-Temp)/abs(Temp)) < 1e-5 ) then
           exitCode = .true.
         else
           exitCode = .false.

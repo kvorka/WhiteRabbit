@@ -129,65 +129,65 @@ module PhysicalObject
       integer,                 intent(in) :: ir, ijm
     end function htide_fn
 
-    module pure complex(kind=dbl) function vr_fn(this, i, j, m)
+    module pure complex(kind=dbl) function vr_fn(this, ir, ijm)
       class(T_physicalObject), intent(in) :: this
-      integer,                 intent(in) :: i, j, m
+      integer,                 intent(in) :: ir, ijm
     end function vr_fn
 
-    module pure function qr_jm_fn(this, i) result(qr)
-      class(T_physicalObject), intent(in) :: this
-      integer,                 intent(in) :: i
-      complex(kind=dbl)                   :: qr(this%jms)
+    module pure function qr_jm_fn(this, ir) result(qr)
+      class(T_physicalObject), intent(in)  :: this
+      integer,                 intent(in)  :: ir
+      complex(kind=dbl),       allocatable :: qr(:)
     end function qr_jm_fn
 
-    module pure function vr_jm_fn(this, i) result(vr)
-      class(T_physicalObject), intent(in) :: this
-      integer,                 intent(in) :: i
-      complex(kind=dbl)                   :: vr(this%jms)
+    module pure function vr_jm_fn(this, ir) result(vr)
+      class(T_physicalObject), intent(in)  :: this
+      integer,                 intent(in)  :: ir
+      complex(kind=dbl),       allocatable :: vr(:)
     end function vr_jm_fn
 
-    module pure function dv_dr_rrjml_fn(this, i, v) result(dv)
-      class(T_physicalObject), intent(in) :: this
-      integer,                 intent(in) :: i
-      complex(kind=dbl),       intent(in) :: v(:)
-      complex(kind=dbl)                   :: dv(this%jmv)
+    module pure function dv_dr_rrjml_fn(this, ir, v) result(dv)
+      class(T_physicalObject), intent(in)  :: this
+      integer,                 intent(in)  :: ir
+      complex(kind=dbl),       intent(in)  :: v(:)
+      complex(kind=dbl),       allocatable :: dv(:)
     end function dv_dr_rrjml_fn
 
-    module pure function mgradT_rrjml_fn(this, i) result(gradT)
-      class(T_physicalObject), intent(in) :: this
-      integer,                 intent(in) :: i
-      complex(kind=dbl)                   :: gradT(this%jmv)
+    module pure function mgradT_rrjml_fn(this, ir) result(gradT)
+      class(T_physicalObject), intent(in)  :: this
+      integer,                 intent(in)  :: ir
+      complex(kind=dbl),       allocatable :: gradT(:)
     end function mgradT_rrjml_fn
 
-    module subroutine dv_dr_rr_jml_sub(this, i, v, dv)
+    module subroutine dv_dr_rr_jml_sub(this, ir, v, dv)
       class(T_physicalObject), intent(in)  :: this
-      integer,                 intent(in)  :: i
+      integer,                 intent(in)  :: ir
       complex(kind=dbl),       intent(out) :: dv(:), v(:)
     end subroutine dv_dr_rr_jml_sub
     
-    module subroutine mgradT_rr_jml_sub(this, i, T, gradT)
+    module subroutine mgradT_rr_jml_sub(this, ir, T, gradT)
       class(T_physicalObject), intent(in)  :: this
-      integer,                 intent(in)  :: i
+      integer,                 intent(in)  :: ir
       complex(kind=dbl),       intent(out) :: T(:), gradT(:)
     end subroutine mgradT_rr_jml_sub
     
-    module pure function buoy_rr_fn(this, i, ijm) result(buoy)
+    module pure function buoy_rr_fn(this, ir, ijm) result(buoy)
       class(T_physicalObject), intent(in) :: this
-      integer,                 intent(in) :: i, ijm
+      integer,                 intent(in) :: ir, ijm
       complex(kind=dbl)                   :: buoy
     end function buoy_rr_fn
     
-    module pure function buoy_rr_jml_fn(this, i) result(gdrho)
-      class(T_physicalObject), intent(in) :: this
-      integer,                 intent(in) :: i
-      complex(kind=dbl)                   :: gdrho(this%jmv)
+    module pure function buoy_rr_jml_fn(this, ir) result(gdrho)
+      class(T_physicalObject), intent(in)  :: this
+      integer,                 intent(in)  :: ir
+      complex(kind=dbl),       allocatable :: gdrho(:)
     end function buoy_rr_jml_fn
 
-    module pure function coriolis_rr_jml_fn(this, i, v) result(coriolis)
-      class(T_physicalObject),     intent(in) :: this
-      integer,           optional, intent(in) :: i
-      complex(kind=dbl), optional, intent(in) :: v(:)
-      complex(kind=dbl)                       :: coriolis(this%jmv)
+    module pure function coriolis_rr_jml_fn(this, ir, v) result(coriolis)
+      class(T_physicalObject),     intent(in)  :: this
+      integer,           optional, intent(in)  :: ir
+      complex(kind=dbl), optional, intent(in)  :: v(:)
+      complex(kind=dbl),           allocatable :: coriolis(:)
     end function coriolis_rr_jml_fn
 
     module subroutine coriolis_rr_jml_sub(this, v, coriolis)
@@ -196,9 +196,9 @@ module PhysicalObject
       complex(kind=dbl),       intent(inout) :: coriolis(:,:)
     end subroutine coriolis_rr_jml_sub
 
-    module subroutine buoy_rr_jml_sub(this, i, T, force)
+    module subroutine buoy_rr_jml_sub(this, ir, T, force)
       class(T_physicalObject), intent(in)    :: this
-      integer,                 intent(in)    :: i
+      integer,                 intent(in)    :: ir
       complex(kind=dbl),       intent(in)    :: T(:)
       complex(kind=dbl),       intent(inout) :: force(:,:)
     end subroutine buoy_rr_jml_sub
@@ -359,9 +359,9 @@ module PhysicalObject
       class(T_physicalObject), intent(in) :: this
     end function laws_temp_fn
 
-    module real(kind=dbl) function laws_force_fn(this, j, m)
+    module real(kind=dbl) function laws_force_fn(this, ijm)
       class(T_physicalObject), intent(in) :: this
-      integer,                 intent(in) :: j, m
+      integer,                 intent(in) :: ijm
     end function laws_force_fn
 
     module real(kind=dbl) function buoyancy_power_fn(this)

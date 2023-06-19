@@ -109,9 +109,9 @@ module IceCrustMod
     end do
     !$omp end parallel do
     
-    allocate( Temp(this%nd+1), Temp1(this%nd+1) ); Temp = this%sol%temp_i_fn(0,0)
+    allocate( Temp(this%nd+1), Temp1(this%nd+1) ); Temp = this%sol%temp_i_fn(1)
       do
-        Temp1 = this%sol%temp_i_fn(0,0)
+        Temp1 = this%sol%temp_i_fn(1)
         call this%mat%temp(0)%fill_sub( this%matica_temp_fn(j_in=0, a_in=1._dbl), this%matica_temp_fn(j_in=0, a_in=0._dbl)  )
       
         ir = 1
@@ -132,11 +132,11 @@ module IceCrustMod
     
         call this%mat%temp(0)%luSolve_sub(this%sol%temp(:,1))
     
-        if ( maxval(abs(this%sol%temp_i_fn(0,0) - Temp1)/abs(Temp1)) < 1e-5) exit       
+        if ( maxval(abs(this%sol%temp_i_fn(1) - Temp1)/abs(Temp1)) < 1e-5) exit       
       end do
     deallocate( Temp, Temp1 )
     
-    qConv = real(-this%sol%flux_fn(1,0,0,1), kind=dbl) / sqrt(4*pi)
+    qConv = real(-this%sol%flux_fn(1,1,1), kind=dbl) / sqrt(4*pi)
     this%sol%v_dn = this%vr_jm_fn(1) + this%Raf * qConv * flux_bnd(1:this%jms) ; this%sol%v_dn(1) = czero
     
     !$omp parallel do
@@ -233,7 +233,7 @@ module IceCrustMod
       allocate( field(this%nd+1) ); field = czero
       
       do k = 1, this%nd+1
-        field(k) = -this%rhoI * this%alphaU * this%alpha_fn(k) * (this%Td-this%Tu) * this%sol%temp_fn(k,j,m)
+        field(k) = -this%rhoI * this%alphaU * this%alpha_fn(k) * (this%Td-this%Tu) * this%sol%temp_fn(k,ijm)
       end do
       
       if (ir == 1) then
@@ -281,7 +281,7 @@ module IceCrustMod
           
           do i = 1, this%nd+1
             field(i) = -this%rhoI * this%alphaU * this%alpha_fn(i) * &
-                            & (this%Td-this%Tu) * this%sol%temp_fn(i,j,m) * (this%rI2/this%rad_grid%rr(i))**(j-1)
+                            & (this%Td-this%Tu) * this%sol%temp_fn(i,jm_int) * (this%rI2/this%rad_grid%rr(i))**(j-1)
           end do
           
           rhs1 = -( grv%V_bnd_fn(j,m,this%rI2,ru,this%rhoI          ,this%sol%u_up(jm_int)+this%sol%v_up(jm_int)*this%dt ) + &
@@ -291,7 +291,7 @@ module IceCrustMod
           
           do i = 1, this%nd+1
             field(i) = -this%rhoI * this%alphaU * this%alpha_fn(i) * &
-                              & (this%Td-this%Tu) * this%sol%temp_fn(i,j,m) * (this%rC/this%rad_grid%rr(i))**(j-1)
+                              & (this%Td-this%Tu) * this%sol%temp_fn(i,jm_int) * (this%rC/this%rad_grid%rr(i))**(j-1)
           end do
           
           rhs2 = -( grv%V_bnd_fn(j,m,this%rC,ru,this%rhoI          ,this%sol%u_up(jm_int)+this%sol%v_up(jm_int)*this%dt ) + &
