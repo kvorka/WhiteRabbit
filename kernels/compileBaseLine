@@ -60,3 +60,16 @@ $compiler -$optimization -march=native -c kernels/object/smod/matrices/Spheroida
 $compiler -$optimization -march=native -fopenmp -c kernels/object/smod/equations/Equations_temp.f90
 $compiler -$optimization -march=native -fopenmp -c kernels/object/smod/equations/Equations_torr.f90
 $compiler -$optimization -march=native -fopenmp -c kernels/object/smod/equations/Equations_mech.f90
+
+#kompilacia vseobecnych struktur pre ocean
+$compiler -$optimization -march=native -c code/ocean/OceanConstants.f90
+$compiler -$optimization -march=native -c code/ocean/OceanMod.f90
+
+#kompilacia vseobecnych struktur pre ladovu koru
+$compiler -$optimization -march=native -c code/ice/IceConstants.f90
+$compiler -$optimization -march=native -c code/ice/IceMod.f90
+
+$compiler -$optimization -march=native -c code/ice/smod/Init_ice.f90
+$compiler -$optimization -march=native -c code/ice/smod/ParametersIce.f90
+$compiler -$optimization -march=native -c code/ice/smod/TidalHeatingIce.f90
+$compiler -$optimization -march=native -c code/ice/smod/GravDeformIce.f90
