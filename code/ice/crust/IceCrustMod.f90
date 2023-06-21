@@ -35,6 +35,7 @@ module IceCrustMod
     allocate( this%ntemp(this%jms,2:this%nd) ) ; this%ntemp = czero
     allocate( this%rsph1(this%nd+1,this%jms) ) ; this%rsph1 = czero
     allocate( this%rsph2(this%nd+1,this%jms) ) ; this%rsph2 = czero
+    allocate( this%rtemp(this%nd+1,this%jms) ) ; this%rtemp = czero
     
     call tides%init_sub()
     call tides%deallocate_sub()
@@ -93,9 +94,8 @@ module IceCrustMod
   subroutine EE_iceCrust_sub(this, flux_bnd)
     class(T_iceCrust), intent(inout) :: this
     complex(kind=dbl), intent(in)    :: flux_bnd(:)
-    integer                          :: ir, is, ij, ijm
+    integer                          :: ir, ij, ijm
     real(kind=dbl)                   :: qConv
-    complex(kind=dbl), allocatable   :: Temp(:), Temp1(:)
     
     this%t = this%t + this%dt
     
@@ -105,37 +105,7 @@ module IceCrustMod
     end do
     !$omp end parallel do
     
-    allocate( Temp(this%nd+1), Temp1(this%nd+1) ); Temp = this%sol%temp_i_fn(1)
-    
-    do
-      Temp1 = this%sol%temp_i_fn(1)
-      call this%mat%temp(0)%fill_sub( this%matica_temp_fn(j_in=0, a_in=1._dbl), this%matica_temp_fn(j_in=0, a_in=0._dbl) )
-    
-      ir = 1
-        this%sol%temp(1,1) = cmplx(sqrt(4*pi), 0._dbl, kind=dbl)
-        this%sol%temp(2,1) = czero
-        this%sol%temp(3,1) = czero
-  
-      do ir = 2, this%nd
-        is = 3*(ir-1)+1
-        
-        this%sol%temp(is  ,1) = Temp(ir) / this%dt + this%ntemp(1,ir) + this%htide_fn(ir,1)
-        this%sol%temp(is+1,1) = czero
-        this%sol%temp(is+2,1) = czero
-      end do
-  
-      ir = this%nd+1
-        this%sol%temp(3*this%nd+1,1) = czero
-  
-      call this%mat%temp(0)%luSolve_sub(this%sol%temp(:,1))
-  
-      if ( maxval(abs(this%sol%temp_i_fn(1) - Temp1)/abs(Temp1)) < 1e-5) exit       
-    end do
-
-    deallocate( Temp, Temp1 )
-    
-    qConv = real(-this%sol%flux_fn(1,1,1), kind=dbl) / sqrt(4*pi)
-    this%sol%v_dn = this%vr_jm_fn(1) + this%Raf * qConv * flux_bnd(1:this%jms) ; this%sol%v_dn(1) = czero
+    call this%solve_temp_deg0_sub() ; qConv = real(-this%sol%flux_fn(1,1,1), kind=dbl) / sqrt(4*pi)
     
     !$omp parallel do
     do ij = 1, this%jmax
@@ -143,28 +113,24 @@ module IceCrustMod
       call this%mat%mech(ij)%fill_sub( this%matica_mech_fn(j_in=ij, a_in=1._dbl), this%matica_mech_fn(j_in=ij, a_in=0._dbl) )
     end do
     !$omp end parallel do
-  
-    !$omp parallel do private (is,ir)
+    
+    this%sol%v_dn = this%vr_jm_fn(1) + this%Raf * qConv * flux_bnd(1:this%jms) ; this%sol%v_dn(1) = czero
+    
+    !$omp parallel do private (ir)
     do ijm = 2, this%jms
       ir = 1
-        this%sol%temp(1,ijm) = -( this%sol%u_dn(ijm) + this%sol%v_dn(ijm) * this%dt )
-        this%sol%temp(2,ijm) = czero
-        this%sol%temp(3,ijm) = czero
+        this%rtemp(ir,ijm) = -( this%sol%u_dn(ijm) + this%sol%v_dn(ijm) * this%dt )
       
       do ir = 2, this%nd
-        is = 3*(ir-1)+1
-        
-        this%sol%temp(is  ,ijm) = this%sol%temp(is,ijm) / this%dt + this%ntemp(ijm,ir) + this%htide_fn(ir,ijm)
-        this%sol%temp(is+1,ijm) = czero
-        this%sol%temp(is+2,ijm) = czero
+        this%rtemp(ir,ijm) = this%ntemp(ijm,ir) + this%htide_fn(ir,ijm)
       end do
-  
+
       ir = this%nd+1
-        this%sol%temp(3*this%nd+1,ijm) = -(this%sol%u_up(ijm) + this%sol%v_up(ijm) * this%dt)
-      
-      call this%mat%temp( this%j_indx(ijm) )%luSolve_sub(this%sol%temp(:,ijm))
+        this%rtemp(ir,ijm) = -(this%sol%u_up(ijm) + this%sol%v_up(ijm) * this%dt)
     end do
     !$omp end parallel do
+
+    call this%solve_temp_sub( ijmstart=2 )
 
     this%sol%v_dn = - this%Raf * ( this%qr_jm_fn(1) - qConv * flux_bnd(1:this%jms) ) ; this%sol%v_dn(1) = czero
     

@@ -71,6 +71,7 @@ module PhysicalObject
     procedure, pass :: init_eq_torr_sub
 
     procedure, pass :: solve_temp_sub
+    procedure, pass :: solve_temp_deg0_sub
     procedure, pass :: solve_torr_sub
     procedure, pass :: solve_mech_sub
 
@@ -323,9 +324,14 @@ module PhysicalObject
       logical,                 intent(in)    :: rhs, nl
     end subroutine init_eq_mech_sub
     
-    module subroutine solve_temp_sub(this)
+    module subroutine solve_temp_sub(this, ijmstart)
       class(T_physicalObject), intent(inout) :: this
+      integer,                 intent(in)    :: ijmstart
     end subroutine solve_temp_sub
+
+    module subroutine solve_temp_deg0_sub(this)
+      class(T_physicalObject), intent(inout) :: this
+    end subroutine solve_temp_deg0_sub
   
     module subroutine solve_torr_sub(this)
       class(T_physicalObject), intent(inout) :: this
