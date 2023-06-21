@@ -33,6 +33,8 @@ module IceCrustMod
     call this%lat_grid%init_vcvv_sub()
 
     allocate( this%ntemp(this%jms,2:this%nd) ) ; this%ntemp = czero
+    allocate( this%rsph1(this%nd+1,this%jms) ) ; this%rsph1 = czero
+    allocate( this%rsph2(this%nd+1,this%jms) ) ; this%rsph2 = czero
     
     call tides%init_sub()
     call tides%deallocate_sub()
@@ -104,30 +106,32 @@ module IceCrustMod
     !$omp end parallel do
     
     allocate( Temp(this%nd+1), Temp1(this%nd+1) ); Temp = this%sol%temp_i_fn(1)
-      do
-        Temp1 = this%sol%temp_i_fn(1)
-        call this%mat%temp(0)%fill_sub( this%matica_temp_fn(j_in=0, a_in=1._dbl), this%matica_temp_fn(j_in=0, a_in=0._dbl)  )
-      
-        ir = 1
-          this%sol%temp(1,1) = cmplx(sqrt(4*pi), 0._dbl, kind=dbl)
-          this%sol%temp(2,1) = czero
-          this%sol%temp(3,1) = czero
     
-        do ir = 2, this%nd
-          is = 3*(ir-1)+1
-          
-          this%sol%temp(is  ,1) = Temp(ir) / this%dt + this%ntemp(1,ir) + this%htide_fn(ir,1)
-          this%sol%temp(is+1,1) = czero
-          this%sol%temp(is+2,1) = czero
-        end do
+    do
+      Temp1 = this%sol%temp_i_fn(1)
+      call this%mat%temp(0)%fill_sub( this%matica_temp_fn(j_in=0, a_in=1._dbl), this%matica_temp_fn(j_in=0, a_in=0._dbl) )
     
-        ir = this%nd+1
-          this%sol%temp(3*this%nd+1,1) = czero
-    
-        call this%mat%temp(0)%luSolve_sub(this%sol%temp(:,1))
-    
-        if ( maxval(abs(this%sol%temp_i_fn(1) - Temp1)/abs(Temp1)) < 1e-5) exit       
+      ir = 1
+        this%sol%temp(1,1) = cmplx(sqrt(4*pi), 0._dbl, kind=dbl)
+        this%sol%temp(2,1) = czero
+        this%sol%temp(3,1) = czero
+  
+      do ir = 2, this%nd
+        is = 3*(ir-1)+1
+        
+        this%sol%temp(is  ,1) = Temp(ir) / this%dt + this%ntemp(1,ir) + this%htide_fn(ir,1)
+        this%sol%temp(is+1,1) = czero
+        this%sol%temp(is+2,1) = czero
       end do
+  
+      ir = this%nd+1
+        this%sol%temp(3*this%nd+1,1) = czero
+  
+      call this%mat%temp(0)%luSolve_sub(this%sol%temp(:,1))
+  
+      if ( maxval(abs(this%sol%temp_i_fn(1) - Temp1)/abs(Temp1)) < 1e-5) exit       
+    end do
+
     deallocate( Temp, Temp1 )
     
     qConv = real(-this%sol%flux_fn(1,1,1), kind=dbl) / sqrt(4*pi)
@@ -136,6 +140,7 @@ module IceCrustMod
     !$omp parallel do
     do ij = 1, this%jmax
       call this%mat%temp(ij)%fill_sub( this%matica_temp_fn(j_in=ij, a_in=1._dbl), this%matica_temp_fn(j_in=ij, a_in=0._dbl) )
+      call this%mat%mech(ij)%fill_sub( this%matica_mech_fn(j_in=ij, a_in=1._dbl), this%matica_mech_fn(j_in=ij, a_in=0._dbl) )
     end do
     !$omp end parallel do
   
@@ -160,45 +165,29 @@ module IceCrustMod
       call this%mat%temp( this%j_indx(ijm) )%luSolve_sub(this%sol%temp(:,ijm))
     end do
     !$omp end parallel do
-    
-    !$omp parallel do
-    do ij = 1, this%jmax
-      call this%mat%mech(ij)%fill_sub( this%matica_mech_fn(j_in=ij, a_in=1._dbl), this%matica_mech_fn(j_in=ij, a_in=0._dbl) )
-    end do
-    !$omp end parallel do
 
     this%sol%v_dn = - this%Raf * ( this%qr_jm_fn(1) - qConv * flux_bnd(1:this%jms) ) ; this%sol%v_dn(1) = czero
-
-    !$omp parallel do private (ir,is,ij)
+    
+    !$omp parallel do private (ir,ij)
     do ijm = 2, this%jms
       ij = this%j_indx(ijm)
-    
+
       ir = 1
-        this%sol%mech(1,ijm) = -( this%sol%u_dn(ijm) + this%sol%v_dn(ijm) * this%dt - this%Vdelta_fn(1,ijm) )
-        this%sol%mech(2,ijm) = czero
-        this%sol%mech(3,ijm) = czero
-        this%sol%mech(4,ijm) = czero
-        this%sol%mech(5,ijm) = czero
-        this%sol%mech(6,ijm) = czero
-  
-      do ir = 2, this%nd
-        is = 6*(ir-1)+1
-        
-        this%sol%mech(is  ,ijm) = -sqrt((ij  )/(2*ij+1._dbl)) * this%buoy_rr_fn(ir,ijm)
-        this%sol%mech(is+1,ijm) = +sqrt((ij+1)/(2*ij+1._dbl)) * this%buoy_rr_fn(ir,ijm)
-        this%sol%mech(is+2,ijm) = czero
-        this%sol%mech(is+3,ijm) = czero
-        this%sol%mech(is+4,ijm) = czero
-        this%sol%mech(is+5,ijm) = czero
-      end do
-  
-      ir = this%nd+1
-        this%sol%mech(6*this%nd+1,ijm) = czero
-        this%sol%mech(6*this%nd+2,ijm) = -( this%sol%u_up(ijm) - this%Vdelta_fn(this%nd,ijm) )
+        this%rsph1(ir,ijm) = -( this%sol%u_dn(ijm) + this%sol%v_dn(ijm) * this%dt - this%Vdelta_fn(1,ijm) )
+        this%rsph2(ir,ijm) = czero
       
-      call this%mat%mech(ij)%luSolve_sub(this%sol%mech(:,ijm))
+      do ir = 2, this%nd
+        this%rsph1(ir,ijm) = -sqrt((ij  )/(2*ij+1._dbl)) * this%buoy_rr_fn(ir,ijm)
+        this%rsph2(ir,ijm) = +sqrt((ij+1)/(2*ij+1._dbl)) * this%buoy_rr_fn(ir,ijm)
+      end do
+      
+      ir = this%nd+1
+        this%rsph1(ir,ijm) = czero
+        this%rsph2(ir,ijm) = -( this%sol%u_up(ijm) - this%Vdelta_fn(this%nd,ijm) )
     end do
     !$omp end parallel do
+
+    call this%solve_mech_sub()
     
     this%sol%v_dn = this%sol%v_dn + this%vr_jm_fn(1)      ; this%sol%v_dn(1) = czero
     this%sol%v_up =                 this%vr_jm_fn(this%nd); this%sol%v_up(1) = czero
@@ -206,7 +195,7 @@ module IceCrustMod
     this%sol%u_dn = this%sol%u_dn + this%sol%v_dn * this%dt
     this%sol%u_up = this%sol%u_up + this%sol%v_up * this%dt
     
-    do ijm = 2, this%jms
+    do concurrent ( ijm = 2:this%jms )
       this%sol%t_dn(ijm) = this%sol%u_dn(ijm) - this%Vdelta_fn(1      ,ijm)
       this%sol%t_up(ijm) = this%sol%u_up(ijm) - this%Vdelta_fn(this%nd,ijm)
     end do

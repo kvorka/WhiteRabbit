@@ -51,8 +51,8 @@ submodule (PhysicalObject) Equations_mech
       end do
         
       ir = this%nd+1
-        this%sol%mech(6*this%nd+1,ijm) = czero
-        this%sol%mech(6*this%nd+2,ijm) = czero
+        this%sol%mech(6*this%nd+1,ijm) = this%rsph1(ir,ijm)
+        this%sol%mech(6*this%nd+2,ijm) = this%rsph2(ir,ijm)
         
       call this%mat%mech(ij)%luSolve_sub( this%sol%mech(:,ijm) )
     end do

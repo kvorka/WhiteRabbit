@@ -33,11 +33,6 @@ module IceTidesMod
     this%sol%temp(1:3*this%nd+1:3,1) = cone
     
     do
-      !*****************************************************************************************!
-      !     Riesenie pre ustalenu teplotu pri danom slapovom zahrievani, casovy krok            !
-      !     sa prenastavuje na huge a riesi sa len priemerna teplota, na ktorej zavisia         !
-      !     materialove parametre ladu.                                                         !
-      !******************************************************************************************
       this%dt = huge(0._dbl) ; Temp = this%sol%temp_i_fn(1)
       
       call this%mat%temp(0)%fill_sub( this%matica_temp_fn(j_in=0, a_in=1._dbl), &
@@ -61,10 +56,6 @@ module IceTidesMod
         
       call this%mat%temp(0)%luSolve_sub( this%sol%temp(:,1) )
       
-      !*****************************************************************************************!
-      !     Iteracia pohybovej rovnice pre jednu periodu, priemerovane slapove zahrievanie      !
-      !     je urcene na konci celej subroutiny.                                                !
-      !*****************************************************************************************!
       Rtide         = czero ; this%sol%mech = czero
       this%sol%u_C  = czero ; this%sol%u_I2 = czero
       this%sol%u_dn = czero ; this%sol%u_up = czero
@@ -121,11 +112,6 @@ module IceTidesMod
           call this%tidal_heating_sub() ; this%t = this%t + this%dt
         end do
         
-        !***************************************************************************************!
-        !   Kontrola pre ukoncenie vyvoja celkoveho vykonu slapoveho zahrievania pre dane       !
-        !   pole teploty. Ak sa vykon medzi iteraciami meni malo, vonkajsi cyklus zacina        !
-        !   znova s novym rozlozenim teploty pre dane slapove zahrievanie.                      !
-        !***************************************************************************************!
         P = this%rad_grid%intV_fn( real(this%htide(:,1), kind=dbl) )
         
         if ( abs(P-Pglobal) / P < 1.0d-6 ) then
