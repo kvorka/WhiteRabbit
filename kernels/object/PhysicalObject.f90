@@ -44,8 +44,9 @@ module PhysicalObject
     procedure, pass :: alpha_fn
 
     procedure, pass :: htide_fn
-    procedure, pass :: qr_jm_fn
+    procedure, pass :: qr_fn
     procedure, pass :: vr_fn
+    procedure, pass :: qr_jm_fn
     procedure, pass :: vr_jm_fn
     procedure, pass :: dv_dr_rrjml_fn
     procedure, pass :: mgradT_rrjml_fn
@@ -139,6 +140,11 @@ module PhysicalObject
       class(T_physicalObject), intent(in) :: this
       integer,                 intent(in) :: ir, ijm
     end function vr_fn
+
+    module pure complex(kind=dbl) function qr_fn(this, ir, ijm)
+      class(T_physicalObject), intent(in) :: this
+      integer,                 intent(in) :: ir, ijm
+    end function qr_fn
 
     module pure function qr_jm_fn(this, ir) result(qr)
       class(T_physicalObject), intent(in)  :: this
@@ -350,8 +356,9 @@ module PhysicalObject
       logical,                 intent(in)    :: rematrix
     end subroutine solve_temp_sub
 
-    module subroutine solve_temp_deg0_sub(this)
+    module subroutine solve_temp_deg0_sub(this, qConv)
       class(T_physicalObject), intent(inout) :: this
+      real(kind=dbl),          intent(out)   :: qConv
     end subroutine solve_temp_deg0_sub
   
     module subroutine solve_torr_sub(this)

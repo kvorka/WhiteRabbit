@@ -27,6 +27,20 @@ submodule(PhysicalObject) Variables
     
   end function vr_fn
 
+  pure complex(kind=dbl) function qr_fn(this, ir, ijm)
+    class(T_physicalObject), intent(in) :: this
+    integer,                 intent(in) :: ir, ijm
+    real(kind=dbl)                      :: j, cj1, cj2
+    
+    j = real(this%j_indx(ijm), kind=dbl)
+    
+    cj1 = sqrt( (j  ) / (2*j+1) )
+    cj2 = sqrt( (j+1) / (2*j+1) )
+    
+    qr_fn = cj1 * this%sol%flux_fn(ir,-1,ijm) - cj2 * this%sol%flux_fn(ir,+1,ijm)
+    
+  end function qr_fn
+
   pure function qr_jm_fn(this, ir) result(qr)
     class(T_physicalObject), intent(in) :: this
     integer,                 intent(in) :: ir

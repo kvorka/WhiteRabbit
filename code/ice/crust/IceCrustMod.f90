@@ -29,6 +29,7 @@ module IceCrustMod
    
     call this%init_ice_sub(jmax_in = jmax_ice, rheol_in = 'viscos', n_iter = n_iter_ice)
     call this%lat_grid%init_vcvv_sub()
+    
     this%cf = 1._dbl
 
     call this%init_eq_temp_sub( rhs=.true. , nl=.true.  )
@@ -102,34 +103,31 @@ module IceCrustMod
     end do
     !$omp end parallel do
     
-    call this%solve_temp_deg0_sub() ; qConv = c2r_fn( -this%sol%flux_fn(1,1,1)/sqrt(4*pi) )
-    
-    this%sol%v_dn = this%vr_jm_fn(1) + this%Raf * qConv * flux_bnd(1:this%jms) ; this%sol%v_dn(1) = czero
+    call this%solve_temp_deg0_sub( qConv )
     
     !$omp parallel do private (ir)
     do ijm = 2, this%jms
       ir = 1
-        this%rtemp(ir,ijm) = -( this%sol%u_dn(ijm) + this%sol%v_dn(ijm) * this%dt )
+        this%rtemp(ir,ijm) = -( this%sol%u_dn(ijm) + ( this%vr_fn(ir,ijm) + this%Raf * qConv * flux_bnd(ijm) ) * this%dt )
       
       do concurrent ( ir = 2:this%nd )
         this%rtemp(ir,ijm) = this%ntemp(ijm,ir) + this%htide_fn(ir,ijm)
       end do
 
       ir = this%nd+1
-        this%rtemp(ir,ijm) = -(this%sol%u_up(ijm) + this%sol%v_up(ijm) * this%dt)
+        this%rtemp(ir,ijm) = -(this%sol%u_up(ijm) + this%vr_fn(ir,ijm) * this%dt)
     end do
     !$omp end parallel do
     
     call this%solve_temp_sub( ijmstart=2, rematrix=.true. )
-    
-    this%sol%v_dn = - this%Raf * ( this%qr_jm_fn(1) - qConv * flux_bnd(1:this%jms) ) ; this%sol%v_dn(1) = czero
     
     !$omp parallel do private (ir,ij)
     do ijm = 2, this%jms
       ij = this%j_indx(ijm)
 
       ir = 1
-        this%rsph1(ir,ijm) = -( this%sol%u_dn(ijm) + this%sol%v_dn(ijm) * this%dt - this%Vdelta_fn(1,ijm) )
+        this%rsph1(ir,ijm) = -( this%sol%u_dn(ijm) - this%Vdelta_fn(1,ijm)                          &
+                              & - this%Raf*( this%qr_fn(ir,ijm) - qConv * flux_bnd(ijm) ) * this%dt )
         this%rsph2(ir,ijm) = czero
       
       do concurrent ( ir = 2:this%nd )
@@ -145,8 +143,11 @@ module IceCrustMod
 
     call this%solve_mech_sub( ijmstart=2, rematrix=.true. )
     
-    this%sol%v_dn = this%sol%v_dn + this%vr_jm_fn(1)      ; this%sol%v_dn(1) = czero
-    this%sol%v_up =                 this%vr_jm_fn(this%nd); this%sol%v_up(1) = czero
+    this%sol%v_dn = this%vr_jm_fn(1) - this%Raf * ( this%qr_jm_fn(1) - qConv * flux_bnd(1:this%jms) )
+    this%sol%v_up = this%vr_jm_fn(this%nd)
+
+    this%sol%v_dn(1) = czero
+    this%sol%v_up(1) = czero
     
     this%sol%u_dn = this%sol%u_dn + this%sol%v_dn * this%dt
     this%sol%u_up = this%sol%u_up + this%sol%v_up * this%dt

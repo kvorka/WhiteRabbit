@@ -68,8 +68,9 @@ submodule (PhysicalObject) Equations_temp
     
   end subroutine solve_temp_sub
   
-  subroutine solve_temp_deg0_sub(this)
+  subroutine solve_temp_deg0_sub(this, qConv)
     class(T_physicalObject), intent(inout) :: this
+    real(kind=dbl),          intent(out)   :: qConv
     integer                                :: ir, is
     complex(kind=dbl),       allocatable   :: Temp(:), Temp1(:)
 
@@ -101,6 +102,8 @@ submodule (PhysicalObject) Equations_temp
     end do
 
     deallocate( Temp, Temp1 )
+
+    qConv = c2r_fn( -this%sol%flux_fn(1,1,1) / sqrt(4*pi) )
     
   end subroutine solve_temp_deg0_sub
 
