@@ -60,13 +60,7 @@ submodule(IceMod) Init_ice
     
     
     call this%gravity%init_sub( gmod = gravity_ice, g = this%g, Dcrust = this%D_ud, omega = omega, exc = exc )
-    
-    call this%sol%init_stemp_sub()
-    call this%sol%init_smech_sub()
     call this%sol%init_layers_sub()
-    
-    call this%mat%init_mtemp_sub()
-    call this%mat%init_mmech_sub()
     
     allocate( this%htide(this%nd,jms4) ); this%htide = czero
     

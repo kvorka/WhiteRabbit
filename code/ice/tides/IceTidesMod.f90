@@ -24,7 +24,10 @@ module IceTidesMod
     complex(kind=dbl), allocatable   :: Temp(:), Rtide(:,:,:)
     
     call this%init_ice_sub(jmax_in = 2, rheol_in = 'viscel', n_iter = n_iter_tides, noharm = .true.)
-
+    
+    call this%init_eq_temp_sub( rhs=.false. , nl=.false. )
+    call this%init_eq_mech_sub( rhs=.false. , nl=.false. )
+    
     allocate( Rtide(3,this%nd,this%jms), Temp(this%nd+1) )
     
     Rtide   = czero

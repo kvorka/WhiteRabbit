@@ -19,18 +19,32 @@ submodule (PhysicalObject) Equations_mech
       allocate( this%nsph1(this%jms,2:this%nd) ) ; this%nsph1 = czero
       allocate( this%nsph2(this%jms,2:this%nd) ) ; this%nsph2 = czero
     end if
-
-    do j=1, this%jmax
-      call this%mat%mech(j)%fill_sub( this%matica_mech_fn(j,+0.6_dbl), this%matica_mech_fn(j,-0.4_dbl) )
-    end do
-
+    
   end subroutine init_eq_mech_sub
-
-  subroutine solve_mech_sub(this)
+  
+  subroutine prepare_mat_mech_sub(this, ijstart)
     class(T_physicalObject), intent(inout) :: this
-    integer                                :: ij, ijm, ir, ir1
+    integer,                 intent(in)    :: ijstart
+    integer                                :: ij
+    
+    !$omp parallel do
+    do ij = ijstart, this%jmax
+      call this%mat%mech(ij)%fill_sub( this%matica_mech_fn(j_in=ij, a_in=  this%cf), &
+                                     & this%matica_mech_fn(j_in=ij, a_in=1-this%cf)  )
+    end do
+    !$omp end parallel do
+    
+  end subroutine prepare_mat_mech_sub
+  
+  subroutine solve_mech_sub(this, ijmstart, rematrix)
+    class(T_physicalObject), intent(inout) :: this
+    integer,                 intent(in)    :: ijmstart
+    logical,                 intent(in)    :: rematrix
+    integer                                :: ij, ijm, ir, is
+    
+    if (rematrix) call this%prepare_mat_mech_sub( this%j_indx(ijmstart) )
 
-    !$omp parallel do private (ir,ir1,ij)
+    !$omp parallel do private (ir,is,ij)
     do ijm = 2, this%jms
       ij = this%j_indx(ijm)
 
@@ -40,14 +54,14 @@ submodule (PhysicalObject) Equations_mech
       end do
       
       do concurrent ( ir=1:this%nd )
-        ir1 = 6*(ir-1)+1
+        is = 6*(ir-1)+1
         
-        this%sol%mech(ir1  ,ijm) = this%rsph1(ir,ijm)
-        this%sol%mech(ir1+1,ijm) = this%rsph2(ir,ijm)
-        this%sol%mech(ir1+2,ijm) = czero
-        this%sol%mech(ir1+3,ijm) = czero
-        this%sol%mech(ir1+4,ijm) = czero
-        this%sol%mech(ir1+5,ijm) = czero
+        this%sol%mech(is  ,ijm) = this%rsph1(ir,ijm)
+        this%sol%mech(is+1,ijm) = this%rsph2(ir,ijm)
+        this%sol%mech(is+2,ijm) = czero
+        this%sol%mech(is+3,ijm) = czero
+        this%sol%mech(is+4,ijm) = czero
+        this%sol%mech(is+5,ijm) = czero
       end do
         
       ir = this%nd+1

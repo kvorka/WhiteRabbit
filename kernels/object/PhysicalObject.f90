@@ -18,6 +18,7 @@ module PhysicalObject
     integer                        :: nd, jmax, jms, jmv
     integer                        :: n_iter, poc
     real(kind=dbl)                 :: t, dt
+    real(kind=dbl)                 :: cf
     real(kind=dbl)                 :: rd, ru, r_ud, D_ud
     real(kind=dbl)                 :: Pr, Ra, Ek, Ds, Raf, Ramu, Rad, Rau
     integer,           allocatable :: j_indx(:)
@@ -69,6 +70,10 @@ module PhysicalObject
     procedure, pass :: init_eq_temp_sub
     procedure, pass :: init_eq_mech_sub
     procedure, pass :: init_eq_torr_sub
+
+    procedure, pass :: prepare_mat_mech_sub
+    procedure, pass :: prepare_mat_temp_sub
+    procedure, pass :: prepare_mat_torr_sub
 
     procedure, pass :: solve_temp_sub
     procedure, pass :: solve_temp_deg0_sub
@@ -323,10 +328,26 @@ module PhysicalObject
       class(T_physicalObject), intent(inout) :: this
       logical,                 intent(in)    :: rhs, nl
     end subroutine init_eq_mech_sub
+
+    module subroutine prepare_mat_temp_sub(this, ijstart)
+      class(T_physicalObject), intent(inout) :: this
+      integer,                 intent(in)    :: ijstart
+    end subroutine prepare_mat_temp_sub
+
+    module subroutine prepare_mat_torr_sub(this, ijstart)
+      class(T_physicalObject), intent(inout) :: this
+      integer,                 intent(in)    :: ijstart
+    end subroutine prepare_mat_torr_sub
+
+    module subroutine prepare_mat_mech_sub(this, ijstart)
+      class(T_physicalObject), intent(inout) :: this
+      integer,                 intent(in)    :: ijstart
+    end subroutine prepare_mat_mech_sub
     
-    module subroutine solve_temp_sub(this, ijmstart)
+    module subroutine solve_temp_sub(this, ijmstart, rematrix)
       class(T_physicalObject), intent(inout) :: this
       integer,                 intent(in)    :: ijmstart
+      logical,                 intent(in)    :: rematrix
     end subroutine solve_temp_sub
 
     module subroutine solve_temp_deg0_sub(this)
@@ -337,8 +358,10 @@ module PhysicalObject
       class(T_physicalObject), intent(inout) :: this
     end subroutine solve_torr_sub
   
-    module subroutine solve_mech_sub(this)
+    module subroutine solve_mech_sub(this, ijmstart, rematrix)
       class(T_physicalObject), intent(inout) :: this
+      integer,                 intent(in)    :: ijmstart
+      logical,                 intent(in)    :: rematrix
     end subroutine solve_mech_sub
     
     module real(kind=dbl) function nuss_fn(this)

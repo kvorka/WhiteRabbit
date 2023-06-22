@@ -5,7 +5,6 @@ submodule (PhysicalObject) Equations_torr
   subroutine init_eq_torr_sub(this, rhs, nl)
     class(T_physicalObject), intent(inout) :: this
     logical,                 intent(in)    :: rhs, nl
-    integer                                :: j
     
     call this%sol%init_storr_sub()
     call this%mat%init_mtorr_sub()
@@ -17,12 +16,22 @@ submodule (PhysicalObject) Equations_torr
     if (nl) then
       allocate( this%ntorr(this%jms,2:this%nd) ) ; this%ntorr = czero
     end if
-
-    do j=1, this%jmax
-      call this%mat%torr(j)%fill_sub( this%matica_torr_fn(j,+0.6_dbl), this%matica_torr_fn(j,-0.4_dbl) )
-    end do
     
   end subroutine init_eq_torr_sub
+  
+  subroutine prepare_mat_torr_sub(this, ijstart)
+    class(T_physicalObject), intent(inout) :: this
+    integer,                 intent(in)    :: ijstart
+    integer                                :: ij
+    
+    !$omp parallel do
+    do ij = ijstart, this%jmax
+      call this%mat%torr(ij)%fill_sub( this%matica_torr_fn(j_in=ij, a_in=  this%cf), &
+                                     & this%matica_torr_fn(j_in=ij, a_in=1-this%cf)  )
+    end do
+    !$omp end parallel do
+    
+  end subroutine prepare_mat_torr_sub
 
   subroutine solve_torr_sub(this)
     class(T_physicalObject), intent(inout) :: this
