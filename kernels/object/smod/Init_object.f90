@@ -75,13 +75,26 @@ submodule (PhysicalObject) Init_object
   subroutine deallocate_objects_sub(this)
     class(T_physicalObject), intent(inout) :: this
     
+    if ( allocated(this%j_indx)  ) deallocate( this%j_indx  )
+    if ( allocated(this%flux_up) ) deallocate( this%flux_up )
+    if ( allocated(this%htide)   ) deallocate( this%htide   )
+    
+    if ( allocated(this%rsph1) ) deallocate( this%rsph1 )
+    if ( allocated(this%rsph2) ) deallocate( this%rsph2 )
+    if ( allocated(this%rtorr) ) deallocate( this%rtorr )
+    if ( allocated(this%rtemp) ) deallocate( this%rtemp )
+    
+    if ( allocated(this%nsph1) ) deallocate( this%nsph1 )
+    if ( allocated(this%nsph2) ) deallocate( this%nsph2 )
+    if ( allocated(this%ntorr) ) deallocate( this%ntorr )
+    if ( allocated(this%ntemp) ) deallocate( this%ntemp )
+
     if (.not. this%noobj) then
-      deallocate( this%j_indx )
+      call this%sol%deallocate_sub()
+      call this%mat%deallocate_sub()
+      call this%rad_grid%deallocate_sub()
       
       if (.not. this%noharm) call this%lat_grid%deallocate_sub()
-      call this%rad_grid%deallocate_sub()
-      call this%mat%deallocate_sub()
-      call this%sol%deallocate_sub()
     end if
     
   end subroutine deallocate_objects_sub

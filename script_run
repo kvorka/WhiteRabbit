@@ -29,16 +29,16 @@ mkdir data/data_ocean_veloc
 mkdir data/data_ocean_flux
 
 #kompilacia modelu oceana a ladovej kory
-$compiler -$optimization -march=native          -c code/ice/tides/IceTidesMod.f90
-$compiler -$optimization -march=native -fopenmp -c code/ocean/mods/OceanIceMod.f90
-$compiler -$optimization -march=native -fopenmp -c code/ice/crust/IceCrustMod.f90
+$compiler -$optimization -march=native          -c code/ice/mod/IceTidesMod.f90
+$compiler -$optimization -march=native -fopenmp -c code/ice/mod/IceCrustMod.f90
+$compiler -$optimization -march=native -fopenmp -c code/ocean/mod/OceanIceMod.f90
 
 $compiler -$optimization -march=native -fopenmp code/codes/BielyKralik_oceanIce.f90 *.o -o Test_oceanIce -lfftw3
 fi
 
 if [ "$code_type" = "$code_tides" ]; then
 #kompilacia modelu oceanskych slapov
-$compiler -$optimization -march=native -fopenmp -c code/ocean/mods/OceanTidesMod.f90
+$compiler -$optimization -march=native -fopenmp -c code/ocean/mod/OceanTidesMod.f90
 
 $compiler -$optimization -march=native -fopenmp code/codes/BielyKralik_tidesOcean.f90 *.o -o Test_tides -lfftw3
 fi
@@ -49,7 +49,7 @@ mkdir data/data_ocean_temp
 mkdir data/data_ocean_veloc
 mkdir data/data_ocean_flux
 
-$compiler -$optimization -march=native -fopenmp -c code/ocean/mods/OceanConvMod.f90
+$compiler -$optimization -march=native -fopenmp -c code/ocean/mod/OceanConvMod.f90
 
 $compiler -$optimization -march=native -fopenmp code/codes/BielyKralik_speedTest.f90 *.o -o Test_speed -lfftw3
 fi
@@ -60,7 +60,7 @@ mkdir data/data_ocean_temp
 mkdir data/data_ocean_veloc
 mkdir data/data_ocean_flux
 
-$compiler -$optimization -march=native -fopenmp -c code/ocean/mods/OceanConvMod.f90
+$compiler -$optimization -march=native -fopenmp -c code/ocean/mod/OceanConvMod.f90
 
 $compiler -$optimization -march=native -fopenmp code/codes/BielyKralik_oceanConv.f90 *.o -o Test_convection -lfftw3
 fi
@@ -71,8 +71,8 @@ mkdir data/data_ice_shape
 mkdir data/data_ice_tides
 
 #kompilacia modelu ladovej kory
-$compiler -$optimization -march=native          -c code/ice/tides/IceTidesMod.f90
-$compiler -$optimization -march=native -fopenmp -c code/ice/crust/IceCrustMod.f90
+$compiler -$optimization -march=native          -c code/ice/mod/IceTidesMod.f90
+$compiler -$optimization -march=native -fopenmp -c code/ice/mod/IceCrustMod.f90
 
 $compiler -$optimization -march=native -fopenmp code/codes/BielyKralik_Ice.f90 *.o -o Test_ice -lfftw3
 fi

@@ -68,43 +68,4 @@ submodule (PhysicalObject) Equations_temp
     
   end subroutine solve_temp_sub
   
-  subroutine solve_temp_deg0_sub(this, qConv)
-    class(T_physicalObject), intent(inout) :: this
-    real(kind=dbl),          intent(out)   :: qConv
-    integer                                :: ir, is
-    complex(kind=dbl),       allocatable   :: Temp(:), Temp1(:)
-
-    allocate( Temp(this%nd+1), Temp1(this%nd+1) ); Temp = this%sol%temp_i_fn(1)
-    
-    do
-      Temp1 = this%sol%temp_i_fn(1)
-      call this%mat%temp(0)%fill_sub( this%matica_temp_fn(j_in=0, a_in=1._dbl), this%matica_temp_fn(j_in=0, a_in=0._dbl) )
-    
-      ir = 1
-        this%sol%temp(1,1) = cs4pi
-        this%sol%temp(2,1) = czero
-        this%sol%temp(3,1) = czero
-  
-      do ir = 2, this%nd
-        is = 3*(ir-1)+1
-        
-        this%sol%temp(is  ,1) = Temp(ir) / this%dt + this%ntemp(1,ir) + this%htide_fn(ir,1)
-        this%sol%temp(is+1,1) = czero
-        this%sol%temp(is+2,1) = czero
-      end do
-  
-      ir = this%nd+1
-        this%sol%temp(3*this%nd+1,1) = czero
-  
-      call this%mat%temp(0)%luSolve_sub(this%sol%temp(:,1))
-  
-      if ( maxval(abs(this%sol%temp_i_fn(1) - Temp1)/abs(Temp1)) < 1e-5) exit       
-    end do
-
-    deallocate( Temp, Temp1 )
-
-    qConv = c2r_fn( -this%sol%flux_fn(1,1,1) / sqrt(4*pi) )
-    
-  end subroutine solve_temp_deg0_sub
-
 end submodule Equations_temp

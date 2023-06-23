@@ -188,19 +188,6 @@ module OceanMod
     class(T_ocean), intent(inout) :: this
 
     close(11); close(12)
-    
-    if ( allocated(this%flux_up) ) deallocate( this%flux_up )
-
-    if ( allocated(this%ntemp) ) deallocate( this%ntemp )
-    if ( allocated(this%ntorr) ) deallocate( this%ntorr )
-    if ( allocated(this%nsph1) ) deallocate( this%nsph1 )
-    if ( allocated(this%nsph2) ) deallocate( this%nsph2 )
-
-    if ( allocated(this%rtemp) ) deallocate( this%rtemp )
-    if ( allocated(this%rtorr) ) deallocate( this%rtorr )
-    if ( allocated(this%rsph1) ) deallocate( this%rsph1 )
-    if ( allocated(this%rsph2) ) deallocate( this%rsph2 )
-
     call this%deallocate_objects_sub()
 
   end subroutine deallocate_ocean_sub

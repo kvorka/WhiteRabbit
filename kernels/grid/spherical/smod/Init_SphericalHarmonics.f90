@@ -75,7 +75,9 @@ submodule (SphericalHarmonics) Init_SphericalHarmonics
     call destroy_plan_sub(this%fftw_16_c2r)
     call destroy_plan_sub(this%fftw_19_c2r)
     
-    deallocate(this%roots, this%fftLege, this%ish)
+    if ( allocated(this%roots)   ) deallocate( this%roots   )
+    if ( allocated(this%fftLege) ) deallocate( this%fftLege )
+    if ( allocated(this%ish)     ) deallocate( this%ish     )
     
   end subroutine deallocate_harmonics_sub
   

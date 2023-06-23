@@ -168,8 +168,8 @@ module Gravity
   subroutine deallocate_gravity_sub(this)
     class(T_gravity), intent(inout) :: this
     
-    if (allocated(this%rho))    deallocate(this%rho)
-    if (allocated(this%radius)) deallocate(this%radius)
+    if ( allocated( this%rho    ) ) deallocate( this%rho    )
+    if ( allocated( this%radius ) ) deallocate( this%radius )
     
   end subroutine deallocate_gravity_sub
 

@@ -69,7 +69,7 @@ submodule(IceMod) Init_ice
   subroutine deallocate_ice_sub(this)
     class(T_ice), intent(inout) :: this
     
-    deallocate( this%htide )
+    !call this%gravity%deallocate_sub()
     call this%deallocate_objects_sub()
     
   end subroutine deallocate_ice_sub

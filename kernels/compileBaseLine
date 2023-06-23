@@ -66,10 +66,10 @@ $compiler -$optimization -march=native -c code/ocean/OceanConstants.f90
 $compiler -$optimization -march=native -c code/ocean/OceanMod.f90
 
 #kompilacia vseobecnych struktur pre ladovu koru
-$compiler -$optimization -march=native -c code/ice/mod/IceConstants.f90
-$compiler -$optimization -march=native -c code/ice/mod/IceMod.f90
+$compiler -$optimization -march=native -c code/ice/IceConstants.f90
+$compiler -$optimization -march=native -c code/ice/IceMod.f90
 
-$compiler -$optimization -march=native -c code/ice/mod/smod/Init_ice.f90
-$compiler -$optimization -march=native -c code/ice/mod/smod/ParametersIce.f90
-$compiler -$optimization -march=native -c code/ice/mod/smod/TidalHeatingIce.f90
-$compiler -$optimization -march=native -c code/ice/mod/smod/GravDeformIce.f90
+$compiler -$optimization -march=native -c code/ice/smod/Init_ice.f90
+$compiler -$optimization -march=native -c code/ice/smod/ParametersIce.f90
+$compiler -$optimization -march=native -c code/ice/smod/TidalHeatingIce.f90
+$compiler -$optimization -march=native -c code/ice/smod/GravDeformIce.f90

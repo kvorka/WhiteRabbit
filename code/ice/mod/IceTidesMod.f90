@@ -8,11 +8,10 @@ module IceTidesMod
     procedure, public, pass :: init_sub       => init_iceTides_sub
     procedure, public, pass :: Vdelta_fn      => Vdelta_iceTides_fn
     procedure, public, pass :: set_layers_sub => set_layers_iceTides_sub
-    procedure, public, pass :: deallocate_sub => deallocate_iceTides_sub
     
   end type T_iceTides
   
-  private :: init_iceTides_sub , deallocate_iceTides_sub
+  private :: init_iceTides_sub
   private :: vypis_iceTides_sub , Vdelta_iceTides_fn , set_layers_iceTides_sub
   
   contains
@@ -206,12 +205,5 @@ module IceTidesMod
       end do
         
     end subroutine set_layers_iceTides_sub
-  
-  subroutine deallocate_iceTides_sub(this)
-    class(T_iceTides), intent(inout) :: this
-    
-    call this%deallocate_ice_sub()
-    
-  end subroutine deallocate_iceTides_sub
     
 end module IceTidesMod

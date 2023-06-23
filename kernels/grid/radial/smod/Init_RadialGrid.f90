@@ -31,7 +31,8 @@ submodule (RadialGrid) Init_RadialGrid
   subroutine deallocate_grid_sub(this)
     class(T_radialGrid), intent(inout) :: this
     
-    deallocate(this%r, this%rr)
+    if ( allocated(this%r)  ) deallocate( this%r  )
+    if ( allocated(this%rr) ) deallocate( this%rr )
     
   end subroutine deallocate_grid_sub
   

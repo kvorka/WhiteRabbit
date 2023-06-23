@@ -9,8 +9,8 @@ module iceMod
     
     contains
     
-    procedure :: init_ice_sub       => init_ice_sub
-    procedure :: deallocate_ice_sub => deallocate_ice_sub
+    procedure :: init_ice_sub      => init_ice_sub
+    procedure :: deallocate_sub    => deallocate_ice_sub
                                   
     procedure :: Vdelta_fn         => Vdelta_ice_fn
     procedure :: htide_fn          => htide_ice_4_fn
