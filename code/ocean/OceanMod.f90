@@ -20,10 +20,9 @@ module OceanMod
   end type T_ocean
 
   abstract interface
-    subroutine time_scheme_abstract(this, cf)
+    subroutine time_scheme_abstract(this)
        import :: T_ocean, dbl
        class(T_ocean), intent(inout) :: this
-       real(kind=dbl), intent(in)    :: cf
     end subroutine time_scheme_abstract
   end interface
   
@@ -38,6 +37,8 @@ module OceanMod
     call this%gravity%init_sub( gmod = gravity_ocean, g = 1 / this%ru**2 )
 
     this%n_iter = n_iter_ocean
+    this%cf     = 0.6_dbl
+    this%ab     = 1.5_dbl
 
     this%Pr = Pr_ocean
     this%Ra = Ra_ocean
@@ -57,24 +58,24 @@ module OceanMod
   subroutine iter_ocean_sub(this)
     class(T_ocean), intent(inout) :: this
     integer                       :: k
-
+    
     this%flux_up = czero
     
     do k = 1, this%n_iter
       this%t = this%t + this%dt
-        call this%time_scheme_sub(cf=1.5_dbl)
+        call this%time_scheme_sub()
     end do
-
+    
     do k = 1, this%n_iter
       this%t = this%t + this%dt
-        call this%time_scheme_sub(cf=1.5_dbl)
+        call this%time_scheme_sub()
         this%flux_up = this%flux_up + this%qr_jm_fn(this%nd)
     end do
     
     this%flux_up = this%flux_up / ( this%flux_up(1)%re / sqrt(4*pi) )
-
+    
     call this%vypis_ocean_sub()
-
+    
   end subroutine iter_ocean_sub
 
   subroutine speed_sub(this)
@@ -83,7 +84,7 @@ module OceanMod
     
     do k = 1, this%n_iter
       this%t = this%t + this%dt
-        call this%time_scheme_sub(cf=1.5_dbl)
+        call this%time_scheme_sub()
     end do
     
   end subroutine speed_sub
@@ -105,6 +106,7 @@ module OceanMod
   subroutine init_state_ocean_sub(this)
     class(T_ocean), intent(inout) :: this
     integer                           :: i, j, m, jm_int, ndI1, jmsI, jmvI
+    real(kind=dbl)                    :: ab_help
     real(kind=dbl),    allocatable    :: r(:)
     complex(kind=dbl), allocatable    :: velc(:), temp(:,:), spher1(:,:), torr(:,:), spher2(:,:)
 
@@ -132,7 +134,7 @@ module OceanMod
       ndI1 = nd_init_ocean+1; jmsI = jm(jmax_init_ocean,jmax_init_ocean); jmvI = jml(jmax_init_ocean,jmax_init_ocean,+1)
 
       allocate( r(ndI1), velc(jmvI), temp(ndI1,jmsI), spher1(ndI1,jmsI), spher2(ndI1,jmsI), torr(ndI1,jmsI) )
-        spher1 = cmplx(0._dbl, 0._dbl, kind=dbl); spher2 = cmplx(0._dbl, 0._dbl, kind=dbl); torr = cmplx(0._dbl, 0._dbl, kind=dbl)
+        spher1 = czero; spher2 = czero; torr = czero
 
         open(unit=8, file='code/ocean/inittemp', status='old', action='read')
           do i = 1, ndI1
@@ -164,7 +166,9 @@ module OceanMod
       deallocate(r, spher1, spher2, torr, temp)
     end if
     
-    call this%time_scheme_sub(cf=1._dbl) ; call this%vypis_ocean_sub()
+    ab_help = this%ab ; this%ab = 1._dbl
+    call this%time_scheme_sub() ; call this%vypis_ocean_sub()
+    this%ab = ab_help
     
   end subroutine init_state_ocean_sub
 
@@ -179,7 +183,7 @@ module OceanMod
     this%sol%u_up(1:jmsmax) = u_up(1:jmsmax) / this%D_ud
 
   end subroutine set_boundary_deformation_sub
-
+  
   subroutine deallocate_ocean_sub(this)
     class(T_ocean), intent(inout) :: this
 

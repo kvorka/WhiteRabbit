@@ -33,10 +33,14 @@ submodule (PhysicalObject) Equations_torr
     
   end subroutine prepare_mat_torr_sub
 
-  subroutine solve_torr_sub(this)
+  subroutine solve_torr_sub(this, ijmstart, rematrix)
     class(T_physicalObject), intent(inout) :: this
+    integer,                 intent(in)    :: ijmstart
+    logical,                 intent(in)    :: rematrix
     integer                                :: ij, ijm, ir, ir1
-
+    
+    if (rematrix) call this%prepare_mat_torr_sub( this%j_indx(ijmstart) )
+    
     !$omp parallel do private (ir,ir1,ij)
     do ijm = 2, this%jms
       ij = this%j_indx(ijm)

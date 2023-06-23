@@ -18,7 +18,7 @@ module PhysicalObject
     integer                        :: nd, jmax, jms, jmv
     integer                        :: n_iter, poc
     real(kind=dbl)                 :: t, dt
-    real(kind=dbl)                 :: cf
+    real(kind=dbl)                 :: cf, ab
     real(kind=dbl)                 :: rd, ru, r_ud, D_ud
     real(kind=dbl)                 :: Pr, Ra, Ek, Ds, Raf, Ramu, Rad, Rau
     integer,           allocatable :: j_indx(:)
@@ -361,8 +361,10 @@ module PhysicalObject
       real(kind=dbl),          intent(out)   :: qConv
     end subroutine solve_temp_deg0_sub
   
-    module subroutine solve_torr_sub(this)
+    module subroutine solve_torr_sub(this, ijmstart, rematrix)
       class(T_physicalObject), intent(inout) :: this
+      integer,                 intent(in)    :: ijmstart
+      logical,                 intent(in)    :: rematrix
     end subroutine solve_torr_sub
   
     module subroutine solve_mech_sub(this, ijmstart, rematrix)
