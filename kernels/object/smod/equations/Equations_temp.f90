@@ -28,8 +28,8 @@ submodule (PhysicalObject) Equations_temp
     
     !$omp parallel do
     do ij = ijstart, this%jmax
-      call this%mat%temp(ij)%fill_sub( this%matica_temp_fn(j_in=ij, a_in=  this%cf), &
-                                     & this%matica_temp_fn(j_in=ij, a_in=1-this%cf)  )
+      call this%mat%temp(ij)%fill_sub( this%matica_temp_fn(j_in=ij, a_in=this%cf  ), &
+                                     & this%matica_temp_fn(j_in=ij, a_in=this%cf-1)  )
     end do
     !$omp end parallel do
     
