@@ -155,7 +155,7 @@ module IceCrustMod
     
       call this%mat%temp(0)%luSolve_sub(this%sol%temp(:,1))
     
-      if ( maxval(abs(this%sol%temp_i_fn(1) - Temp1)/abs(Temp1)) < 1e-5) exit       
+      if ( maxval(abs(this%sol%temp_i_fn(1) - Temp1)/abs(Temp1)) < 1e-5 ) exit       
     end do
     
     deallocate( Temp, Temp1 )

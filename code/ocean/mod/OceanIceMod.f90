@@ -30,7 +30,7 @@ module OceanIceMod
   
   subroutine time_scheme_oceanice_sub(this)
     class(T_oceanIce), intent(inout) :: this
-    integer                          :: ir, is, ijm
+    integer                          :: ir, ijm
     real(kind=dbl)                   :: q
     
     ijm = 1 ; ir = 1
@@ -66,10 +66,10 @@ module OceanIceMod
     !$omp end do
     !$omp end parallel
     
-    is = 3*this%nd+1 ; q = -c2r_fn( this%sol%flux_fn(this%nd,1,1) ) / sqrt(4*pi)
+    q = c2r_fn( -this%sol%flux_fn(this%nd,1,1) ) / sqrt(4*pi)
     
     do concurrent ( ijm = 2:this%jms )
-      this%rtemp(is,ijm) = this%ClRoc2 * this%sol%t_up(ijm) + q * this%sol%u_up(ijm)
+      this%rtemp(this%nd+1,ijm) = this%ClRoc2 * this%sol%t_up(ijm) + q * this%sol%u_up(ijm)
     end do
     
     call this%solve_temp_sub( ijmstart=1 , rematrix=.false. )
