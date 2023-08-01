@@ -47,7 +47,7 @@ submodule (PhysicalObject) Equations_mech
     !$omp parallel do private (ir,is,ij)
     do ijm = 2, this%jms
       ij = this%j_indx(ijm)
-
+      
       do concurrent ( ir=2:this%nd )
         this%rsph1(ir,ijm) = this%rsph1(ir,ijm) + this%mat%mech(ij)%multipl_fn(6*(ir-1)+1,this%sol%mech(:,ijm))
         this%rsph2(ir,ijm) = this%rsph2(ir,ijm) + this%mat%mech(ij)%multipl_fn(6*(ir-1)+2,this%sol%mech(:,ijm))

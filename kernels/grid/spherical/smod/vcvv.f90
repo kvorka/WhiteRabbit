@@ -107,150 +107,142 @@ submodule (SphericalHarmonics) vcvv
       
       sumLegendreN = czero
       sumLegendreS = czero
-
+      
       m = 0
         pmj2 = 0._dbl
         pmj1 = 0._dbl
         pmj  = 1._dbl
-
+        
         j = m
           s = +1 ; mj = mj + 1
-
+        
           do concurrent ( i2=1:step, i1=1:6 )
             sumLegendreN(i1,i2,m) = sumLegendreN(i1,i2,m) + cc(i1,mj)
             sumLegendreS(i1,i2,m) = sumLegendreS(i1,i2,m) + cc(i1,mj)
           end do
-
+        
         do j = m+1, this%maxj
           s = -s ; mj = mj+1
           
           pmj2 = pmj1
           pmj1 = pmj
           pmj = ( cosx * pmj1 - this%ish(mj-1) * pmj2) / this%ish(mj)
-
+          
           do concurrent ( i2=1:step, i1=1:6 )
             sumLegendreN(i1,i2,m) = sumLegendreN(i1,i2,m) + cc(i1,mj) * pmj(i2)
             sumLegendreS(i1,i2,m) = sumLegendreS(i1,i2,m) + cc(i1,mj) * pmj(i2) * s
           end do
         end do
-
+        
         do concurrent ( i2=1:step, i1=1:6 )
           sumLegendreN(i1,i2,m)%im = 0._dbl
           sumLegendreS(i1,i2,m)%im = 0._dbl
         end do
-
-        do m = 1, this%maxj
-          fac = sqrt(( 2*m+1._dbl ) / ( 2*m ))
-          pmm = -fac * sinx * pmm
-          if (maxval(abs(pmm)) < 1.0d-55) exit
-
-          pmj2 = 0._dbl
-          pmj1 = 0._dbl
-          pmj  = 1._dbl
-
-          j = m
-            s = +1 ; mj = mj+1
-
-            do concurrent ( i2=1:step, i1=1:6 )
-              sumLegendreN(i1,i2,m) = sumLegendreN(i1,i2,m) + cc(i1,mj)
-              sumLegendreS(i1,i2,m) = sumLegendreS(i1,i2,m) + cc(i1,mj)
-            end do
-
-          do j = m+1, this%maxj
-            s = -s ; mj = mj+1
-
-            pmj2 = pmj1
-            pmj1 = pmj
-            pmj  = ( cosx * pmj1 - this%ish(mj-1) * pmj2) / this%ish(mj)
-
-            do concurrent ( i2=1:step, i1=1:6 )
-              sumLegendreN(i1,i2,m) = sumLegendreN(i1,i2,m) + cc(i1,mj) * pmj(i2)
-              sumLegendreS(i1,i2,m) = sumLegendreS(i1,i2,m) + cc(i1,mj) * pmj(i2) * s
-            end do
-          end do
+        
+      do m = 1, this%maxj
+        fac = sqrt(( 2*m+1._dbl ) / ( 2*m ))
+        pmm = -fac * sinx * pmm
+        if (maxval(abs(pmm)) < 1.0d-55) exit
+        
+        pmj2 = 0._dbl
+        pmj1 = 0._dbl
+        pmj  = 1._dbl
+        
+        j = m
+          s = +1 ; mj = mj+1
         
           do concurrent ( i2=1:step, i1=1:6 )
-            sumLegendreN(i1,i2,m) = sumLegendreN(i1,i2,m) * pmm(i2)
-            sumLegendreS(i1,i2,m) = sumLegendreS(i1,i2,m) * pmm(i2)
+            sumLegendreN(i1,i2,m) = sumLegendreN(i1,i2,m) + cc(i1,mj)
+            sumLegendreS(i1,i2,m) = sumLegendreS(i1,i2,m) + cc(i1,mj)
+          end do
+        
+        do j = m+1, this%maxj
+          s = -s ; mj = mj+1
+          
+          pmj2 = pmj1
+          pmj1 = pmj
+          pmj  = ( cosx * pmj1 - this%ish(mj-1) * pmj2) / this%ish(mj)
+          
+          do concurrent ( i2=1:step, i1=1:6 )
+            sumLegendreN(i1,i2,m) = sumLegendreN(i1,i2,m) + cc(i1,mj) * pmj(i2)
+            sumLegendreS(i1,i2,m) = sumLegendreS(i1,i2,m) + cc(i1,mj) * pmj(i2) * s
           end do
         end do
-
+        
+        do concurrent ( i2=1:step, i1=1:6 )
+          sumLegendreN(i1,i2,m) = sumLegendreN(i1,i2,m) * pmm(i2)
+          sumLegendreS(i1,i2,m) = sumLegendreS(i1,i2,m) * pmm(i2)
+        end do
+      end do
+      
       call fftw_execute_dft_c2r(this%fftw_06_c2r, sumLegendreN, grid)
-
-      do concurrent ( i1=0:this%nFourier-1, i2=1:step )
-        fft(i2,i1) = grid(1,i2,i1) * grid(4,i2,i1) + &
-                   & grid(2,i2,i1) * grid(5,i2,i1) + &
-                   & grid(3,i2,i1) * grid(6,i2,i1)
-      end do
-
+        do concurrent ( i1=0:this%nFourier-1, i2=1:step )
+          fft(i2,i1) = grid(1,i2,i1) * grid(4,i2,i1) + grid(2,i2,i1) * grid(5,i2,i1) + grid(3,i2,i1) * grid(6,i2,i1)
+        end do
       call fftw_execute_dft_r2c(this%fftw_01_r2c, fft, fftNC)
-
+      
       call fftw_execute_dft_c2r(this%fftw_06_c2r, sumLegendreS, grid)
-
-      do concurrent ( i1=0:this%nFourier-1, i2=1:step )
-        fft(i2,i1) = grid(1,i2,i1) * grid(4,i2,i1) + &
-                   & grid(2,i2,i1) * grid(5,i2,i1) + &
-                   & grid(3,i2,i1) * grid(6,i2,i1)
-      end do
-
+        do concurrent ( i1=0:this%nFourier-1, i2=1:step )
+          fft(i2,i1) = grid(1,i2,i1) * grid(4,i2,i1) + grid(2,i2,i1) * grid(5,i2,i1) + grid(3,i2,i1) * grid(6,i2,i1)
+        end do
       call fftw_execute_dft_r2c(this%fftw_01_r2c, fft, fftSC)
       
       pmm = 1._dbl
       mj  = 0
-
+      
       m = 0
         pmj2 = 0._dbl
         pmj1 = 0._dbl
         pmj  = 1._dbl
-
+        
         do concurrent ( i2 = 1:step )
           fftNC(i2,m) = fftLege(i2) * fftNC(i2,m) ; fftNC(i2,m)%im = 0._dbl
           fftSC(i2,m) = fftLege(i2) * fftSC(i2,m) ; fftSC(i2,m)%im = 0._dbl
         end do
-
+        
         j = m
           s = +1 ; mj = mj+1
-
+          
           cr(mj) = cr(mj) + sum( fftNC(:,m) + fftSC(:,m) )
         
         do j = m+1, this%jmax+1
           s = -s ; mj = mj+1
-
+          
           pmj2 = pmj1
           pmj1 = pmj
           pmj = ( cosx * pmj1 - this%ish(mj+m-1) * pmj2) / this%ish(mj+m)
-
+          
           cr(mj) = cr(mj) + sum( pmj * ( fftNC(:,m) + s * fftSC(:,m) ) )
         end do
         
-        do m = 1, this%jmax+1
-          fac = sqrt(( 2*m+1._dbl ) / ( 2*m ))
-          pmm = -fac * sinx * pmm
-          if (maxval(abs(pmm)) < 1.0d-55) exit
-
-          pmj2 = 0._dbl
-          pmj1 = 0._dbl
-          pmj  = 1._dbl
-
-          do concurrent ( i2 = 1:step )
-            fftNC(i2,m) = fftLege(i2) * fftNC(i2,m) * pmm(i2)
-            fftSC(i2,m) = fftLege(i2) * fftSC(i2,m) * pmm(i2)
-          end do
-
-          j = m
-            s = +1 ; mj = mj+1
-
-            cr(mj) = cr(mj) + sum( fftNC(:,m) + fftSC(:,m) )
-           
-          do j = m+1, this%jmax+1
-            s = -s ; mj = mj+1
-
-            pmj2 = pmj1
-            pmj1 = pmj
-            pmj = ( cosx * pmj1 - this%ish(mj+m-1) * pmj2) / this%ish(mj+m)
-
-            cr(mj) = cr(mj) + sum( pmj * ( fftNC(:,m) + s * fftSC(:,m) ) )
-          end do
+      do m = 1, this%jmax+1
+        fac = sqrt(( 2*m+1._dbl ) / ( 2*m ))
+        pmm = -fac * sinx * pmm
+        if (maxval(abs(pmm)) < 1.0d-55) exit
+        
+        pmj2 = 0._dbl
+        pmj1 = 0._dbl
+        pmj  = 1._dbl
+        
+        do concurrent ( i2 = 1:step )
+          fftNC(i2,m) = fftLege(i2) * fftNC(i2,m) * pmm(i2)
+          fftSC(i2,m) = fftLege(i2) * fftSC(i2,m) * pmm(i2)
+        end do
+        
+        j = m
+          s = +1 ; mj = mj+1
+          
+          cr(mj) = cr(mj) + sum( fftNC(:,m) + fftSC(:,m) )
+        
+        do j = m+1, this%jmax+1
+          s = -s ; mj = mj+1
+          
+          pmj2 = pmj1
+          pmj1 = pmj
+          pmj = ( cosx * pmj1 - this%ish(mj+m-1) * pmj2) / this%ish(mj+m)
+          
+          cr(mj) = cr(mj) + sum( pmj * ( fftNC(:,m) + s * fftSC(:,m) ) )
+        end do
       end do
     end do
 
@@ -259,7 +251,11 @@ submodule (SphericalHarmonics) vcvv
     fac = 1 / (16 * this%nLegendre**2 * this%nFourier * sqrt(pi) )
 
     do j = 0, this%jmax
-      do m = 0, j
+      m = 0
+        cjm(j*(j+1)/2+m+1)%re = cr(m*(this%maxj)-m*(m+1)/2+j+1)%re * fac
+        cjm(j*(j+1)/2+m+1)%im = 0._dbl
+
+      do m = 1, j
         cjm(j*(j+1)/2+m+1) = cr(m*(this%maxj)-m*(m+1)/2+j+1) * fac
       end do
     end do

@@ -48,7 +48,7 @@ module IceCrustMod
     call tides%deallocate_sub()
     write(*,*) 'OK'
     
-    if (.not. notides) then
+    if ( notides ) then
       open(unit=1, file='data/data_ice_tides/Temp_tides.dat', status='old', action='read')
         do i = 1, this%nd+1; read(1,*) radius, this%sol%temp(3*(i-1)+1,1); end do
       close(1)
@@ -66,8 +66,8 @@ module IceCrustMod
     allocate( flux_bnd(this%jms) ); flux_bnd = czero
       
     do
-      call EE_iceCrust_sub(this, flux_bnd)
-      if ( maxval(abs(this%sol%v_up * this%dt / this%sol%u_up)) < 1e-3 ) exit
+      call this%EE_sub(flux_bnd)
+      if ( abs(this%sol%v_up(4) * this%dt / this%sol%u_up(4)) < 1e-5 ) exit
     end do
     
     deallocate( flux_bnd )
@@ -118,9 +118,9 @@ module IceCrustMod
     !$omp end parallel do
     
     call this%EE_temp00_sub(flux)
-    call this%EE_temp_sub( flux )
-    call this%EE_mech_sub( flux )
-    call this%EE_topo_sub( flux )
+    call this%EE_temp_sub(flux)
+    call this%EE_mech_sub(flux)
+    call this%EE_topo_sub(flux)
     
   end subroutine EE_iceCrust_sub
 
@@ -145,7 +145,7 @@ module IceCrustMod
       do ir = 2, this%nd
         is = 3*(ir-1)+1
         
-        this%sol%temp(is  ,1) = Temp(ir) / this%dt + this%ntemp(1,ir) + this%htide_fn(ir,1)
+        this%sol%temp(is  ,1) = Temp(ir) / this%dt + this%htide_fn(ir,1) + this%ntemp(1,ir)
         this%sol%temp(is+1,1) = czero
         this%sol%temp(is+2,1) = czero
       end do
@@ -172,14 +172,14 @@ module IceCrustMod
     !$omp parallel do private (ir)
     do ijm = 2, this%jms
       ir = 1
-        this%rtemp(ir,ijm) = -( this%sol%u_dn(ijm) + ( this%vr_fn(ir,ijm) + this%Raf * flux(ijm) ) * this%dt )
+        this%rtemp(1,ijm) = -( this%sol%u_dn(ijm) + ( this%vr_fn(1,ijm) + this%Raf * flux(ijm) ) * this%dt )
       
       do concurrent ( ir = 2:this%nd )
-        this%rtemp(ir,ijm) = this%ntemp(ijm,ir) + this%htide_fn(ir,ijm)
+        this%rtemp(ir,ijm) = this%htide_fn(ir,ijm) + this%ntemp(ijm,ir)
       end do
       
       ir = this%nd+1
-        this%rtemp(ir,ijm) = -(this%sol%u_up(ijm) + this%vr_fn(ir,ijm) * this%dt)
+        this%rtemp(this%nd+1,ijm) = -( this%sol%u_up(ijm) + this%vr_fn(this%nd,ijm) * this%dt )
     end do
     !$omp end parallel do
     

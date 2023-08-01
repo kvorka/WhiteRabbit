@@ -30,10 +30,12 @@ submodule(IceMod) GravDeformIce
                     & this%gravity%V_bnd_fn( j, m, ri, this%rd , this%rhoW-this%rhoI , this%sol%u_dn(ijm) ) + &
                     & this%gravity%V_bnd_fn( j, m, ri, this%rI2, this%rhoI2-this%rhoW, this%sol%u_I2(ijm) ) + &
                     & this%gravity%V_bnd_fn( j, m, ri, this%rC , this%rhoC-this%rhoI2, this%sol%u_C(ijm)  ) + &
-                    & this%gravity%V_rho_fn( j, m, ri, field, this%rad_grid)                                   + &
+                    & this%gravity%V_rho_fn( j, m, ri, field, this%rad_grid)                                + &
                     & this%gravity%V_rt_fn(  j, m, ri ) ) / this%gravity%g_fn( ri )
     
     deallocate( field )
+    
+    if ( m == 0 ) Vdelta_ice_fn%im = 0._dbl
     
   end function Vdelta_ice_fn
   

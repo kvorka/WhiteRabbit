@@ -7,7 +7,7 @@ submodule (PhysicalObject) NonLinearTerms
     complex(kind=dbl)                   :: vgradT(this%jms)
     complex(kind=dbl),      allocatable :: v(:), mgradT(:)
     
-    allocate( v(this%jmv), mgradT(this%jmv) )
+    allocate( v(this%jmv), mgradT(this%jmv) ) ; vgradT = czero
 
       v = this%sol%velocity_jml_fn(i) ; mgradT = this%mgradT_rrjml_fn(i)
 
