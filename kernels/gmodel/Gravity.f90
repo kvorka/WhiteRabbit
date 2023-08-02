@@ -107,7 +107,7 @@ module Gravity
     real(kind=dbl),    intent(in) :: ri, rb, drho
     complex(kind=dbl), intent(in) :: ujm
     
-    V_bnd_fn = cmplx(0._dbl, 0._dbl, kind=dbl)
+    V_bnd_fn = czero
     
     if (ri <= rb) then 
       V_bnd_fn = 4 * pi * kappa * ri * this%Dcrust * drho * (ri/rb)**(j-1) * ujm / (2*j+1) / this%g    
@@ -133,18 +133,22 @@ module Gravity
     integer,          intent(in) :: j, m
     real(kind=dbl),   intent(in) :: ri, phase
     
-    V_tide_fn = czero
-    
-    if ( j == 2 ) then
-      if ( m == 0 ) then
-        V_tide_fn = (this%omega * ri)**2 * this%Dcrust * this%exc / this%g * cmplx(-sqrt(9*pi/5)*cos(phase), 0._dbl, kind=dbl)
+    select case (j)
+      case (2)
+        select case (m)
+          case (0)
+            V_tide_fn = (this%omega * ri)**2 * this%Dcrust * this%exc / this%g * r2c_fn( -sqrt(9*pi/5)*cos(phase) )
+          case (2)
+            V_tide_fn = (this%omega * ri)**2 * this%Dcrust * this%exc / this%g * cmplx( +sqrt(27*pi/10)*cos(phase) ,          &
+                                                                                      & -sqrt(24*pi/ 5)*sin(phase) , kind=dbl )
+          case default
+            V_tide_fn = czero
+        end select
+      
+      case default
+        V_tide_fn = czero
+    end select
         
-      else if ( m == 2 ) then
-        V_tide_fn = (this%omega * ri)**2 * this%Dcrust * this%exc / this%g * cmplx( +sqrt(27*pi/10)*cos(phase) ,          &
-                                                                                  & -sqrt(24*pi/ 5)*sin(phase) , kind=dbl )
-      end if
-    end if
-    
   end function V_tide_fn
   
   pure complex(kind=dbl) function V_rt_fn(this, j, m, ri)
@@ -152,16 +156,20 @@ module Gravity
     integer,          intent(in) :: j, m
     real(kind=dbl),   intent(in) :: ri
     
-    V_rt_fn = czero
-    
-    if ( j == 2) then
-      if ( m == 0) then
-        V_rt_fn = cmplx( -( this%omega * ri )**2 * this%Dcrust / this%g * sqrt(5*pi/9 ), 0._dbl, kind=dbl)
-        
-      else if ( m == 2 ) then
-        V_rt_fn = cmplx( +( this%omega * ri )**2 * this%Dcrust / this%g * sqrt(3*pi/10), 0._dbl, kind=dbl)
-      end if
-    end if
+    select case (j)
+      case (2)
+        select case (m)
+          case (0)
+            V_rt_fn = r2c_fn( -( this%omega * ri )**2 * this%Dcrust / this%g * sqrt(5*pi/9 ) )
+          case (2)
+            V_rt_fn = r2c_fn( +( this%omega * ri )**2 * this%Dcrust / this%g * sqrt(3*pi/10) )
+          case default
+            V_rt_fn = czero
+        end select
+      
+      case default
+        V_rt_fn = czero
+    end select
     
   end function V_rt_fn
   

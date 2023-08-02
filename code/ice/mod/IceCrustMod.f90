@@ -48,27 +48,31 @@ module IceCrustMod
     call tides%deallocate_sub()
     write(*,*) 'OK'
     
-    if ( notides ) then
-      open(unit=1, file='data/data_ice_tides/Temp_tides.dat', status='old', action='read')
-        do i = 1, this%nd+1; read(1,*) radius, this%sol%temp(3*(i-1)+1,1); end do
-      close(1)
-      
-    else
+    !if ( notides ) then
+    !  open(unit=1, file='data/data_ice_tides/Temp_tides.dat', status='old', action='read')
+    !    do i = 1, this%nd+1; read(1,*) radius, this%sol%temp(3*(i-1)+1,1); end do
+    !  close(1)
+    !  
+    !else
       open(unit=1, file='data/data_ice_tides/Temp_tides.dat', status='old', action='read')
         do i = 1, this%nd+1; read(1,*) radius, this%sol%temp(3*(i-1)+1,1); end do
       close(1)
     
-      open(unit=1, file='data/data_ice_tides/tidal_heating.dat', status='old', action='read')
-        do i = 1, this%nd; read(1,*) radius, this%htide(i,:); end do
-      close(1)
-    end if
+      !open(unit=1, file='data/data_ice_tides/tidal_heating.dat', status='old', action='read')
+      !  do i = 1, this%nd; read(1,*) radius, this%htide(i,:); end do
+      !close(1)
+    !end if
     
     allocate( flux_bnd(this%jms) ); flux_bnd = czero
       
     do
       call this%EE_sub(flux_bnd)
-      if ( abs(this%sol%v_up(4) * this%dt / this%sol%u_up(4)) < 1e-5 ) exit
+      !write(*,*) c2r_fn(this%sol%u_up(4)) * this%D_ud , c2r_fn(this%htide_fn(3,4)), c2r_fn(this%ntemp(4,3)), &
+      !          & abs(this%sol%v_up(4) * this%dt / this%sol%u_up(4))
+      if ( abs(this%sol%v_up(4) * this%dt / this%sol%u_up(4)) < 1e-9 ) exit
     end do
+
+    write(*,*) c2r_fn(this%qr_fn(1,4)) / ( c2r_fn(this%qr_fn(1,1)) / sqrt(4*pi) )
     
     deallocate( flux_bnd )
     
