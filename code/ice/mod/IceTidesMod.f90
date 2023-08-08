@@ -56,37 +56,19 @@ module IceTidesMod
       ir = this%nd+1
         this%sol%temp(3*this%nd+1,1) = czero
         
-      call this%mat%temp(0)%luSolve_sub( this%sol%temp(:,1) )
+      call this%mat%temp(0)%luSolve_sub( this%sol%temp(:,1) ) ; this%dt = this%period / this%n_iter
       
       do
         do n = 1, this%n_iter
-          this%dt = this%period / this%n_iter
-          
-          do ijm = 4, 6, 2
-            ir = 1
-              this%rsph1(1,ijm) = -this%sol%u_dn(ijm) + this%Vdelta_fn(1,ijm)
-              this%rsph2(1,ijm) = czero
-              this%rsph4(1,ijm) = this%Ramu * this%visc_fn(1) * this%sol%mech(3,ijm) / this%dt
-              this%rsph5(1,ijm) = this%Ramu * this%visc_fn(1) * this%sol%mech(5,ijm) / this%dt
-              this%rsph6(1,ijm) = this%Ramu * this%visc_fn(1) * this%sol%mech(6,ijm) / this%dt
+          do concurrent ( ijm = 4:6:2 )
+            this%rsph1(          1,ijm) = -this%sol%u_dn(ijm) + this%Vdelta_fn(1,ijm)
+            this%rsph1(2:this%nd+1,ijm) = czero
             
-            do ir = 2, this%nd
-              is = 6*(ir-1)+1
-              
-              this%rsph1(ir,ijm) = czero
-              this%rsph2(ir,ijm) = czero
-              this%rsph4(ir,ijm) = this%Ramu * this%visc_fn(ir) * this%sol%mech(is+2,ijm) / this%dt
-              this%rsph5(ir,ijm) = this%Ramu * this%visc_fn(ir) * this%sol%mech(is+4,ijm) / this%dt
-              this%rsph6(ir,ijm) = this%Ramu * this%visc_fn(ir) * this%sol%mech(is+5,ijm) / this%dt
-            end do
-
-            ir = this%nd+1
-              this%rsph1(this%nd+1,ijm) = czero
-              this%rsph2(this%nd+1,ijm) = -this%sol%u_up(ijm) + this%Vdelta_fn(this%nd,ijm)
+            this%rsph2(1:this%nd,ijm) = czero
+            this%rsph2(this%nd+1,ijm) = -this%sol%u_up(ijm) + this%Vdelta_fn(this%nd,ijm)
           end do
           
-          call this%solve_mech_sub(ijmstart=4, ijmend=6, ijmstep=2, rematrix=.true.)
-          call this%tidal_heating_sub()
+          call this%solve_mech_sub(ijmstart=4, ijmend=6, ijmstep=2, rematrix=.true.) ; call this%tidal_heating_sub()
           
           do concurrent ( ijm = 4:6:2 )
             this%sol%u_dn(ijm) = this%sol%u_dn(ijm) + this%vr_fn(1      ,ijm) * this%dt
@@ -96,7 +78,7 @@ module IceTidesMod
           this%t = this%t + this%dt
         end do
         
-        P = this%rad_grid%intV_fn( real(this%htide(:,1), kind=dbl) )
+        P = this%rad_grid%intV_fn( real(this%htide(:,1), kind=dbl) ) ; write(*,*) P
         
         if ( abs(P-Pglobal) / P < 1.0d-6 ) then
           write(*,*) P ; exit
