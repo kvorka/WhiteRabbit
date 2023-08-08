@@ -18,7 +18,7 @@ module IceTidesMod
   
   subroutine init_iceTides_sub(this)
     class(T_iceTides), intent(inout) :: this
-    integer                          :: n, ir, is, ij, im, ijm
+    integer                          :: n, ir, is, ijm
     real(kind=dbl)                   :: P, Pglobal
     complex(kind=dbl), allocatable   :: Temp(:)
     
