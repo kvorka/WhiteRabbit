@@ -334,9 +334,9 @@ module PhysicalObject
       logical,                 intent(in)    :: rhs, nl
     end subroutine init_eq_mech_sub
 
-    module subroutine prepare_mat_temp_sub(this, ijstart)
+    module subroutine prepare_mat_temp_sub(this, ijstart, ijend)
       class(T_physicalObject), intent(inout) :: this
-      integer,                 intent(in)    :: ijstart
+      integer,                 intent(in)    :: ijstart, ijend
     end subroutine prepare_mat_temp_sub
 
     module subroutine prepare_mat_torr_sub(this, ijstart)
@@ -349,10 +349,10 @@ module PhysicalObject
       integer,                 intent(in)    :: ijstart
     end subroutine prepare_mat_mech_sub
     
-    module subroutine solve_temp_sub(this, ijmstart, rematrix)
+    module subroutine solve_temp_sub(this, ijmstart, ijmend, ijmstep, rematrix, matxsol)
       class(T_physicalObject), intent(inout) :: this
-      integer,                 intent(in)    :: ijmstart
-      logical,                 intent(in)    :: rematrix
+      integer,                 intent(in)    :: ijmstart, ijmend, ijmstep
+      logical,                 intent(in)    :: rematrix, matxsol
     end subroutine solve_temp_sub
     
     module subroutine solve_torr_sub(this, ijmstart, rematrix)

@@ -5,13 +5,16 @@ module IceTidesMod
   type, extends(T_ice), public :: T_iceTides
     contains
     
-    procedure, public, pass :: init_sub       => init_iceTides_sub
-    procedure, public, pass :: Vdelta_fn      => Vdelta_iceTides_fn
-    procedure, public, pass :: set_layers_sub => set_layers_iceTides_sub
+    procedure, public,  pass :: init_sub       => init_iceTides_sub
+    procedure, private, pass :: EE_temp_sub    => EE_temp_iceTides_sub
+    procedure, private, pass :: EE_mech_sub    => EE_mech_iceTides_sub
+    procedure, public,  pass :: Vdelta_fn      => Vdelta_iceTides_fn
+    procedure, public,  pass :: set_layers_sub => set_layers_iceTides_sub
     
   end type T_iceTides
   
   private :: init_iceTides_sub
+  private :: EE_temp_iceTides_sub, EE_mech_iceTides_sub
   private :: vypis_iceTides_sub , Vdelta_iceTides_fn , set_layers_iceTides_sub
   
   contains
@@ -25,50 +28,20 @@ module IceTidesMod
     call this%init_ice_sub(jmax_in=2, rheol_in='viscel', n_iter=n_iter_tides, noharm=.true.)
       this%cf = 1._dbl ; this%andrade = .true.
     
-    call this%init_eq_temp_sub( rhs=.false. , nl=.false. )
-    call this%init_eq_mech_sub( rhs=.true.  , nl=.false. )
+    call this%init_eq_temp_sub( rhs=.true. , nl=.false. )
+    call this%init_eq_mech_sub( rhs=.true. , nl=.false. )
     
-    allocate( Temp(this%nd+1) )
+    allocate( Temp(this%nd+1) ) ; Temp = czero
     
-    Temp    = czero
     Pglobal = 0._dbl
     this%sol%temp(1:3*this%nd+1:3,1) = cone
     
     do
-      this%dt = huge(0._dbl) ; Temp = this%sol%temp_i_fn(1)
-      
-      call this%mat%temp(0)%fill_sub( this%matica_temp_fn(j_in=0, a_in=1._dbl), &
-                                    & this%matica_temp_fn(j_in=0, a_in=0._dbl)  )
-      
-      ir = 1
-        this%sol%temp(1,1) = cs4pi
-        this%sol%temp(2,1) = czero
-        this%sol%temp(3,1) = czero
-      
-      do ir = 2, this%nd
-        is = 3*(ir-1)+1
-        
-        this%sol%temp(is  ,1) = this%htide_fn(ir,1)
-        this%sol%temp(is+1,1) = czero
-        this%sol%temp(is+2,1) = czero
-      end do
-      
-      ir = this%nd+1
-        this%sol%temp(3*this%nd+1,1) = czero
-        
-      call this%mat%temp(0)%luSolve_sub( this%sol%temp(:,1) ) ; this%dt = this%period / this%n_iter
+      this%dt = huge(0._dbl) ; call this%EE_temp_sub( Temp ) ; this%dt = this%period / this%n_iter
       
       do
         do n = 1, this%n_iter
-          do concurrent ( ijm = 4:6:2 )
-            this%rsph1(          1,ijm) = -this%sol%u_dn(ijm) + this%Vdelta_fn(1,ijm)
-            this%rsph1(2:this%nd+1,ijm) = czero
-            
-            this%rsph2(1:this%nd,ijm) = czero
-            this%rsph2(this%nd+1,ijm) = -this%sol%u_up(ijm) + this%Vdelta_fn(this%nd,ijm)
-          end do
-          
-          call this%solve_mech_sub(ijmstart=4, ijmend=6, ijmstep=2, rematrix=.true.) ; call this%tidal_heating_sub()
+          call this%EE_mech_sub() ; call this%tidal_heating_sub()
           
           do concurrent ( ijm = 4:6:2 )
             this%sol%u_dn(ijm) = this%sol%u_dn(ijm) + this%vr_fn(1      ,ijm) * this%dt
@@ -78,7 +51,7 @@ module IceTidesMod
           this%t = this%t + this%dt
         end do
         
-        P = this%rad_grid%intV_fn( real(this%htide(:,1), kind=dbl) ) ; write(*,*) P
+        P = this%rad_grid%intV_fn( real(this%htide(:,1), kind=dbl) )
         
         if ( abs(P-Pglobal) / P < 1.0d-6 ) then
           write(*,*) P ; exit
@@ -95,7 +68,45 @@ module IceTidesMod
     call vypis_iceTides_sub(this)
 
   end subroutine init_iceTides_sub
-  
+    
+    subroutine EE_temp_iceTides_sub(this, Temp)
+      class(T_iceTides), intent(inout) :: this
+      complex(kind=dbl), intent(inout) :: Temp(:)
+      integer                          :: ijm, ir
+      
+      ijm = 1
+        Temp = this%sol%temp_i_fn(ijm)
+        
+        ir = 1
+          this%rtemp(ir,ijm) = cs4pi
+          
+        do concurrent ( ir = 2:this%nd )
+          this%rtemp(ir,ijm) = this%htide_fn(ir,1)
+        end do
+        
+        ir = this%nd+1
+          this%rtemp(ir,ijm) = czero
+        
+        call this%solve_temp_sub( ijmstart=ijm, ijmend=ijm, ijmstep=1, rematrix=.true., matxsol=.false. )
+        
+    end subroutine EE_temp_iceTides_sub
+    
+    subroutine EE_mech_iceTides_sub(this)
+      class(T_iceTides), intent(inout) :: this
+      integer                          :: ijm
+      
+      do concurrent ( ijm = 4:6:2 )
+        this%rsph1(          1,ijm) = -this%sol%u_dn(ijm) + this%Vdelta_fn(1,ijm)
+        this%rsph1(2:this%nd+1,ijm) = czero
+        
+        this%rsph2(1:this%nd,ijm) = czero
+        this%rsph2(this%nd+1,ijm) = -this%sol%u_up(ijm) + this%Vdelta_fn(this%nd,ijm)
+      end do
+      
+      call this%solve_mech_sub(ijmstart=4, ijmend=6, ijmstep=2, rematrix=.true.)
+      
+    end subroutine EE_mech_iceTides_sub
+    
     subroutine vypis_iceTides_sub(this)
       class(T_iceTides), intent(in) :: this
       integer                       :: i

@@ -10,10 +10,8 @@ module IceCrustMod
     procedure, public, pass :: time_scheme_sub => iter_iceCrust_sub
     
     procedure, private, pass :: EE_sub        => EE_iceCrust_sub
-    procedure, private, pass :: EE_temp00_sub => EE_temp00_iceCrust_sub
     procedure, private, pass :: EE_temp_sub   => EE_temp_iceCrust_sub
     procedure, private, pass :: EE_mech_sub   => EE_mech_iceCrust_sub
-    procedure, private, pass :: EE_topo_sub   => EE_topo_iceCrust_sub
     
   end type T_iceCrust
   
@@ -21,10 +19,8 @@ module IceCrustMod
   private :: vypis_iceCrust_sub
   
   private :: EE_iceCrust_sub
-  private :: EE_temp00_iceCrust_sub
   private :: EE_temp_iceCrust_sub
   private :: EE_mech_iceCrust_sub
-  private :: EE_topo_iceCrust_sub
   
   contains
   
@@ -66,13 +62,13 @@ module IceCrustMod
       
     do
       call this%EE_sub(flux_bnd)
-      write(*,*) c2r_fn(this%sol%t_up(4)) * this%D_ud , c2r_fn(this%sol%t_up(6)) * this%D_ud , &
-                & abs(this%sol%v_up(4) / this%sol%u_up(4)) , this%dt
-      if ( abs(this%sol%v_up(4) / this%sol%u_up(4)) < 1e-10 ) then 
-        exit
-      else if ( abs(this%sol%v_up(4) * this%dt / this%sol%u_up(4)) < 1e-3 ) then
-        this%dt = 5 * this%dt
-      end if
+      write(*,*) c2r_fn(this%sol%u_up(4)) * this%D_ud , &
+                & abs(this%sol%v_up(4) * this%dt / this%sol%u_up(4))
+      !if ( abs(this%sol%v_up(4) / this%sol%u_up(4)) < 1e-10 ) then 
+      !  exit
+      !else if ( abs(this%sol%v_up(4) * this%dt / this%sol%u_up(4)) < 1e-3 ) then
+      !  this%dt = 5 * this%dt
+      !end if
     end do
 
     write(*,*) c2r_fn(this%sol%u_up(4)) * this%D_ud , c2r_fn(this%sol%t_up(4)) * this%D_ud , &
@@ -115,7 +111,7 @@ module IceCrustMod
   subroutine EE_iceCrust_sub(this, flux)
     class(T_iceCrust), intent(inout) :: this
     complex(kind=dbl), intent(inout) :: flux(:)
-    integer                          :: ir
+    integer                          :: ir, ijm
     
     this%t = this%t + this%dt
     
@@ -125,57 +121,53 @@ module IceCrustMod
     end do
     !$omp end parallel do
     
-    call this%EE_temp00_sub(flux)
     call this%EE_temp_sub(flux)
     call this%EE_mech_sub(flux)
-    call this%EE_topo_sub(flux)
     
-  end subroutine EE_iceCrust_sub
-
-  subroutine EE_temp00_iceCrust_sub(this, flux)
-    class(T_iceCrust), intent(inout) :: this
-    complex(kind=dbl), intent(inout) :: flux(:)
-    integer                          :: ir, is
-    complex(kind=dbl), allocatable   :: Temp(:), Temp1(:)
-
-    allocate( Temp(this%nd+1), Temp1(this%nd+1) ); Temp = this%sol%temp_i_fn(1)
+    this%sol%v_dn = this%vr_jm_fn(1) - this%Raf * ( this%qr_jm_fn(1) - flux(1:this%jms) )
+    this%sol%v_up = this%vr_jm_fn(this%nd)
     
-    do
-      Temp1 = this%sol%temp_i_fn(1)
-      call this%mat%temp(0)%fill_sub( this%matica_temp_fn(j_in=0, a_in=  this%cf), &
-                                    & this%matica_temp_fn(j_in=0, a_in=1-this%cf)  )
+    this%sol%v_dn(1) = czero
+    this%sol%v_up(1) = czero
     
-      ir = 1
-        this%sol%temp(1,1) = cs4pi
-        this%sol%temp(2,1) = czero
-        this%sol%temp(3,1) = czero
-  
-      do ir = 2, this%nd
-        is = 3*(ir-1)+1
-        
-        this%sol%temp(is  ,1) = Temp(ir) / this%dt + this%htide_fn(ir,1) + this%ntemp(1,ir)
-        this%sol%temp(is+1,1) = czero
-        this%sol%temp(is+2,1) = czero
-      end do
+    this%sol%u_dn = this%sol%u_dn + this%sol%v_dn * this%dt
+    this%sol%u_up = this%sol%u_up + this%sol%v_up * this%dt
     
-      ir = this%nd+1
-        this%sol%temp(3*this%nd+1,1) = czero
-    
-      call this%mat%temp(0)%luSolve_sub(this%sol%temp(:,1))
-    
-      if ( maxval(abs(this%sol%temp_i_fn(1) - Temp1)/abs(Temp1)) < 1e-5 ) exit       
+    do concurrent ( ijm = 2:this%jms )
+      this%sol%t_dn(ijm) = this%sol%u_dn(ijm) - this%Vdelta_fn(1      ,ijm)
+      this%sol%t_up(ijm) = this%sol%u_up(ijm) - this%Vdelta_fn(this%nd,ijm)
     end do
     
-    deallocate( Temp, Temp1 )
-    
-    flux = flux * c2r_fn( -this%sol%flux_fn(1,1,1) / sqrt(4*pi) )
-    
-  end subroutine EE_temp00_iceCrust_sub
+  end subroutine EE_iceCrust_sub
   
   subroutine EE_temp_iceCrust_sub(this, flux)
     class(T_iceCrust), intent(inout) :: this
-    complex(kind=dbl), intent(in)    :: flux(:)
+    complex(kind=dbl), intent(inout) :: flux(:)
     integer                          :: ir, ijm
+    complex(kind=dbl), allocatable   :: Temp(:), Temp1(:)
+    
+    ijm = 1
+      allocate( Temp(this%nd+1), Temp1(this%nd+1) ); Temp = this%sol%temp_i_fn(ijm)
+        do
+          Temp1 = this%sol%temp_i_fn(ijm)
+          
+          ir = 1
+            this%rtemp(ir,ijm) = cs4pi
+          
+          do concurrent ( ir = 2:this%nd )
+            this%rtemp(ir,ijm) = Temp(ir) / this%dt + this%htide_fn(ir,ijm) + this%ntemp(ijm,ir)
+          end do
+          
+          ir = this%nd+1
+            this%rtemp(ir,ijm) = czero
+          
+          call this%solve_temp_sub( ijmstart=ijm, ijmend=ijm, ijmstep=1, rematrix=.true., matxsol=.false. )
+          
+          if ( maxval(abs(this%sol%temp_i_fn(ijm) - Temp1)/abs(Temp1)) < 1e-5 ) exit       
+        end do
+      deallocate( Temp, Temp1 )
+    
+      flux = flux * c2r_fn( -this%sol%flux_fn(1,1,1) / sqrt(4*pi) )
     
     !$omp parallel do private (ir)
     do ijm = 2, this%jms
@@ -191,7 +183,7 @@ module IceCrustMod
     end do
     !$omp end parallel do
     
-    call this%solve_temp_sub( ijmstart=2, rematrix=.true. )
+    call this%solve_temp_sub( ijmstart=2, ijmend=this%jms, ijmstep=1, rematrix=.true., matxsol=.true. )
     
   end subroutine EE_temp_iceCrust_sub
   
@@ -222,26 +214,5 @@ module IceCrustMod
     call this%solve_mech_sub( ijmstart=2, ijmend=this%jms, ijmstep=1, rematrix=.true. )
     
   end subroutine EE_mech_iceCrust_sub
-  
-  subroutine EE_topo_iceCrust_sub(this, flux)
-    class(T_iceCrust), intent(inout) :: this
-    complex(kind=dbl), intent(in)    :: flux(:)
-    integer                          :: ijm
-    
-    this%sol%v_dn = this%vr_jm_fn(1) - this%Raf * ( this%qr_jm_fn(1) - flux(1:this%jms) )
-    this%sol%v_up = this%vr_jm_fn(this%nd)
-    
-    this%sol%v_dn(1) = czero
-    this%sol%v_up(1) = czero
-    
-    this%sol%u_dn = this%sol%u_dn + this%sol%v_dn * this%dt
-    this%sol%u_up = this%sol%u_up + this%sol%v_up * this%dt
-    
-    do concurrent ( ijm = 2:this%jms )
-      this%sol%t_dn(ijm) = this%sol%u_dn(ijm) - this%Vdelta_fn(1      ,ijm)
-      this%sol%t_up(ijm) = this%sol%u_up(ijm) - this%Vdelta_fn(this%nd,ijm)
-    end do
-    
-  end subroutine EE_topo_iceCrust_sub
   
 end module IceCrustMod

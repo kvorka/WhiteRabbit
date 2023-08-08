@@ -21,35 +21,36 @@ submodule (PhysicalObject) Equations_temp
     
   end subroutine init_eq_temp_sub
 
-  subroutine prepare_mat_temp_sub(this, ijstart)
+  subroutine prepare_mat_temp_sub(this, ijstart, ijend)
     class(T_physicalObject), intent(inout) :: this
-    integer,                 intent(in)    :: ijstart
+    integer,                 intent(in)    :: ijstart, ijend
     integer                                :: ij
     
     !$omp parallel do
-    do ij = ijstart, this%jmax
-      call this%mat%temp(ij)%fill_sub( this%matica_temp_fn(j_in=ij, a_in=this%cf  ), &
-                                     & this%matica_temp_fn(j_in=ij, a_in=this%cf-1)  )
+    do ij = ijstart, ijend
+      call this%mat%temp(ij)%fill_sub( this%matica_temp_fn(j_in=ij, a_in=this%cf),  this%matica_temp_fn(j_in=ij, a_in=this%cf-1) )
     end do
     !$omp end parallel do
     
   end subroutine prepare_mat_temp_sub
 
-  subroutine solve_temp_sub(this, ijmstart, rematrix)
+  subroutine solve_temp_sub(this, ijmstart, ijmend, ijmstep, rematrix, matxsol)
     class(T_physicalObject), intent(inout) :: this
-    integer,                 intent(in)    :: ijmstart
-    logical,                 intent(in)    :: rematrix
+    integer,                 intent(in)    :: ijmstart, ijmend, ijmstep
+    logical,                 intent(in)    :: rematrix, matxsol
     integer                                :: ij, ir, is, ijm
     
-    if (rematrix) call this%prepare_mat_temp_sub( this%j_indx(ijmstart) )
+    if (rematrix) call this%prepare_mat_temp_sub( this%j_indx(ijmstart) , this%j_indx(ijmend) )
     
     !$omp parallel do private (ir,is,ij)
-    do ijm = ijmstart, this%jms
+    do ijm = ijmstart, ijmend, ijmstep
       ij = this%j_indx(ijm)
       
-      do concurrent ( ir=2:this%nd )
-        this%rtemp(ir,ijm) = this%rtemp(ir,ijm) + this%mat%temp(ij)%multipl_fn(3*(ir-1)+1, this%sol%temp(:,ijm))
-      end do
+      if ( matxsol .eqv. .true. ) then
+        do concurrent ( ir=2:this%nd )
+          this%rtemp(ir,ijm) = this%rtemp(ir,ijm) + this%mat%temp(ij)%multipl_fn(3*(ir-1)+1, this%sol%temp(:,ijm))
+        end do
+      end if
       
       do concurrent ( ir=1:this%nd )
         is = 3*(ir-1)+1
