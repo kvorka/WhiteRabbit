@@ -20,16 +20,16 @@ module IceTidesMod
     class(T_iceTides), intent(inout) :: this
     integer                          :: n, ir, is, ij, im, ijm
     real(kind=dbl)                   :: P, Pglobal
-    complex(kind=dbl), allocatable   :: Temp(:), Rtide(:,:,:)
+    complex(kind=dbl), allocatable   :: Temp(:)
     
-    call this%init_ice_sub(jmax_in = 2, rheol_in = 'viscel', n_iter = n_iter_tides, noharm = .true.)
+    call this%init_ice_sub(jmax_in=2, rheol_in='viscel', n_iter=n_iter_tides, noharm=.true.)
+      this%cf = 1._dbl ; this%andrade = .true.
     
     call this%init_eq_temp_sub( rhs=.false. , nl=.false. )
-    call this%init_eq_mech_sub( rhs=.false. , nl=.false. )
+    call this%init_eq_mech_sub( rhs=.true.  , nl=.false. )
     
-    allocate( Rtide(3,this%nd,this%jms), Temp(this%nd+1) )
+    allocate( Temp(this%nd+1) )
     
-    Rtide   = czero
     Temp    = czero
     Pglobal = 0._dbl
     this%sol%temp(1:3*this%nd+1:3,1) = cone
@@ -58,80 +58,60 @@ module IceTidesMod
         
       call this%mat%temp(0)%luSolve_sub( this%sol%temp(:,1) )
       
-      Rtide         = czero ; this%sol%mech = czero
-      this%sol%u_C  = czero ; this%sol%u_I2 = czero
-      this%sol%u_dn = czero ; this%sol%u_up = czero
-      this%htide    = czero ; this%t = 0._dbl
-      
       do
         do n = 1, this%n_iter
           this%dt = this%period / this%n_iter
           
-          call this%mat%mech(2)%fill_sub( this%matica_mech_fn(j_in=2, a_in=1._dbl), &
-                                        & this%matica_mech_fn(j_in=2, a_in=0._dbl)  )
-          
-          do concurrent ( ijm = 4:6:2 , ir = 1:this%nd )
-            is = 6*(ir-1)+1
-            
-            Rtide(1,ir,ijm) = Rtide(1,ir,ijm) - this%Ramu * this%dt / this%visc_fn(ir) * this%sol%mech(is+2,ijm)
-            Rtide(2,ir,ijm) = Rtide(2,ir,ijm) - this%Ramu * this%dt / this%visc_fn(ir) * this%sol%mech(is+4,ijm)
-            Rtide(3,ir,ijm) = Rtide(3,ir,ijm) - this%Ramu * this%dt / this%visc_fn(ir) * this%sol%mech(is+5,ijm)
-          end do
-          
           do ijm = 4, 6, 2
             ir = 1
-              this%sol%mech(1,ijm) = this%Vdelta_fn(1,ijm)
-              this%sol%mech(2,ijm) = czero
-              this%sol%mech(3,ijm) = czero
-              this%sol%mech(4,ijm) = Rtide(1,ir,ijm)
-              this%sol%mech(5,ijm) = Rtide(2,ir,ijm)
-              this%sol%mech(6,ijm) = Rtide(3,ir,ijm)
+              this%rsph1(1,ijm) = -this%sol%u_dn(ijm) + this%Vdelta_fn(1,ijm)
+              this%rsph2(1,ijm) = czero
+              this%rsph4(1,ijm) = this%Ramu * this%visc_fn(1) * this%sol%mech(3,ijm) / this%dt
+              this%rsph5(1,ijm) = this%Ramu * this%visc_fn(1) * this%sol%mech(5,ijm) / this%dt
+              this%rsph6(1,ijm) = this%Ramu * this%visc_fn(1) * this%sol%mech(6,ijm) / this%dt
             
             do ir = 2, this%nd
               is = 6*(ir-1)+1
               
-              this%sol%mech(is  ,ijm) = czero
-              this%sol%mech(is+1,ijm) = czero
-              this%sol%mech(is+2,ijm) = czero
-              this%sol%mech(is+3,ijm) = Rtide(1,ir,ijm)
-              this%sol%mech(is+4,ijm) = Rtide(2,ir,ijm)
-              this%sol%mech(is+5,ijm) = Rtide(3,ir,ijm)
+              this%rsph1(ir,ijm) = czero
+              this%rsph2(ir,ijm) = czero
+              this%rsph4(ir,ijm) = this%Ramu * this%visc_fn(ir) * this%sol%mech(is+2,ijm) / this%dt
+              this%rsph5(ir,ijm) = this%Ramu * this%visc_fn(ir) * this%sol%mech(is+4,ijm) / this%dt
+              this%rsph6(ir,ijm) = this%Ramu * this%visc_fn(ir) * this%sol%mech(is+5,ijm) / this%dt
             end do
-            
+
             ir = this%nd+1
-              this%sol%mech(6*this%nd+1,ijm) = czero
-              this%sol%mech(6*this%nd+2,ijm) = this%Vdelta_fn(this%nd,ijm)
+              this%rsph1(this%nd+1,ijm) = czero
+              this%rsph2(this%nd+1,ijm) = -this%sol%u_up(ijm) + this%Vdelta_fn(this%nd,ijm)
           end do
           
-          do ijm = 4, 6, 2
-            call this%mat%mech(2)%luSolve_sub(this%sol%mech(:,ijm))
-            
-            !Refactor vysledku do posunutia, riesi sa v posunuti
-            this%sol%u_dn(ijm) = this%vr_fn(      1,ijm)   
-            this%sol%u_up(ijm) = this%vr_fn(this%nd,ijm)
+          call this%solve_mech_sub(ijmstart=4, ijmend=6, ijmstep=2, rematrix=.true.)
+          call this%tidal_heating_sub()
+          
+          do concurrent ( ijm = 4:6:2 )
+            this%sol%u_dn(ijm) = this%sol%u_dn(ijm) + this%vr_fn(1      ,ijm) * this%dt
+            this%sol%u_up(ijm) = this%sol%u_up(ijm) + this%vr_fn(this%nd,ijm) * this%dt
           end do
           
-          call this%tidal_heating_sub() ; this%t = this%t + this%dt
+          this%t = this%t + this%dt
         end do
         
         P = this%rad_grid%intV_fn( real(this%htide(:,1), kind=dbl) )
         
         if ( abs(P-Pglobal) / P < 1.0d-6 ) then
-          write(*,*) P
-          exit
+          write(*,*) P ; exit
         else
-          Pglobal    = P
-          this%htide = czero
+          Pglobal = P ; this%htide = czero
         end if
       end do
       
-      if ( maxval( abs( this%sol%temp_i_fn(1)-Temp ) / abs(Temp) ) < 1e-5 ) exit
+      if ( maxval( abs( this%sol%temp_i_fn(1)-Temp ) / abs(Temp) ) < 1e-8 ) exit
     end do
     
-    deallocate( Rtide, Temp )
+    deallocate( Temp )
     
     call vypis_iceTides_sub(this)
-    
+
   end subroutine init_iceTides_sub
   
     subroutine vypis_iceTides_sub(this)

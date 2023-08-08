@@ -23,7 +23,7 @@ module PhysicalObject
     real(kind=dbl)                 :: Pr, Ra, Ek, Ds, Raf, Ramu, Rad, Rau
     integer,           allocatable :: j_indx(:)
     complex(kind=dbl), allocatable :: flux_up(:), htide(:,:)
-    complex(kind=dbl), allocatable :: rsph1(:,:), rsph2(:,:), rtorr(:,:), rtemp(:,:) 
+    complex(kind=dbl), allocatable :: rsph1(:,:), rsph2(:,:), rsph4(:,:), rsph5(:,:), rsph6(:,:), rtorr(:,:), rtemp(:,:) 
     complex(kind=dbl), allocatable :: nsph1(:,:), nsph2(:,:), ntorr(:,:), ntemp(:,:)
     
     type(T_radialGrid)  :: rad_grid
@@ -134,7 +134,7 @@ module PhysicalObject
       class(T_physicalObject), intent(in) :: this
       integer,                 intent(in) :: ir, ijm
     end function htide_fn
-
+    
     module pure complex(kind=dbl) function vr_fn(this, ir, ijm)
       class(T_physicalObject), intent(in) :: this
       integer,                 intent(in) :: ir, ijm
@@ -361,10 +361,10 @@ module PhysicalObject
       logical,                 intent(in)    :: rematrix
     end subroutine solve_torr_sub
   
-    module subroutine solve_mech_sub(this, ijmstart, rematrix)
-      class(T_physicalObject), intent(inout) :: this
-      integer,                 intent(in)    :: ijmstart
-      logical,                 intent(in)    :: rematrix
+    module subroutine solve_mech_sub(this, ijmstart, ijmend, ijmstep, rematrix)
+      class(T_physicalObject), intent(inout)        :: this
+      integer,                 intent(in)           :: ijmstart, ijmend, ijmstep
+      logical,                 intent(in)           :: rematrix
     end subroutine solve_mech_sub
     
     module real(kind=dbl) function nuss_fn(this)

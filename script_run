@@ -71,10 +71,10 @@ mkdir data/data_ice_shape
 mkdir data/data_ice_tides
 
 #kompilacia modelu ladovej kory
-$compiler -$optimization -march=native          -c code/ice/mod/IceTidesMod.f90
-$compiler -$optimization -march=native -fopenmp -c code/ice/mod/IceCrustMod.f90
+$compiler -$optimization -march=native -fcheck=bounds          -c code/ice/mod/IceTidesMod.f90
+$compiler -$optimization -march=native -fcheck=bounds -fopenmp -c code/ice/mod/IceCrustMod.f90
 
-$compiler -$optimization -march=native -fopenmp code/codes/BielyKralik_Ice.f90 *.o -o Test_ice -lfftw3
+$compiler -$optimization -march=native -fcheck=bounds -fopenmp code/codes/BielyKralik_Ice.f90 *.o -o Test_ice -lfftw3
 fi
 
 #cistenie

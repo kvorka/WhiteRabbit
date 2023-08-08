@@ -46,7 +46,6 @@ module IceCrustMod
     
     call tides%init_sub()
     call tides%deallocate_sub()
-    write(*,*) 'OK'
     
     !if ( notides ) then
     !  open(unit=1, file='data/data_ice_tides/Temp_tides.dat', status='old', action='read')
@@ -57,22 +56,27 @@ module IceCrustMod
       open(unit=1, file='data/data_ice_tides/Temp_tides.dat', status='old', action='read')
         do i = 1, this%nd+1; read(1,*) radius, this%sol%temp(3*(i-1)+1,1); end do
       close(1)
-    
-      !open(unit=1, file='data/data_ice_tides/tidal_heating.dat', status='old', action='read')
-      !  do i = 1, this%nd; read(1,*) radius, this%htide(i,:); end do
-      !close(1)
+      
+      open(unit=1, file='data/data_ice_tides/tidal_heating.dat', status='old', action='read')
+        do i = 1, this%nd; read(1,*) radius, this%htide(i,:); end do
+      close(1)
     !end if
     
     allocate( flux_bnd(this%jms) ); flux_bnd = czero
       
     do
       call this%EE_sub(flux_bnd)
-      !write(*,*) c2r_fn(this%sol%u_up(4)) * this%D_ud , c2r_fn(this%htide_fn(3,4)), c2r_fn(this%ntemp(4,3)), &
-      !          & abs(this%sol%v_up(4) * this%dt / this%sol%u_up(4))
-      if ( abs(this%sol%v_up(4) * this%dt / this%sol%u_up(4)) < 1e-9 ) exit
+      write(*,*) c2r_fn(this%sol%t_up(4)) * this%D_ud , c2r_fn(this%sol%t_up(6)) * this%D_ud , &
+                & abs(this%sol%v_up(4) / this%sol%u_up(4)) , this%dt
+      if ( abs(this%sol%v_up(4) / this%sol%u_up(4)) < 1e-10 ) then 
+        exit
+      else if ( abs(this%sol%v_up(4) * this%dt / this%sol%u_up(4)) < 1e-3 ) then
+        this%dt = 5 * this%dt
+      end if
     end do
 
-    write(*,*) c2r_fn(this%qr_fn(1,4)) / ( c2r_fn(this%qr_fn(1,1)) / sqrt(4*pi) )
+    write(*,*) c2r_fn(this%sol%u_up(4)) * this%D_ud , c2r_fn(this%sol%t_up(4)) * this%D_ud , &
+             & abs(this%sol%v_up(4) * this%dt / this%sol%u_up(4))
     
     deallocate( flux_bnd )
     
@@ -215,7 +219,7 @@ module IceCrustMod
     end do
     !$omp end parallel do
 
-    call this%solve_mech_sub( ijmstart=2, rematrix=.true. )
+    call this%solve_mech_sub( ijmstart=2, ijmend=this%jms, ijmstep=1, rematrix=.true. )
     
   end subroutine EE_mech_iceCrust_sub
   

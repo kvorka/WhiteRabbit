@@ -11,8 +11,18 @@ submodule (PhysicalObject) Equations_mech
     call this%mat%init_mmech_sub()
 
     if (rhs) then
-      allocate( this%rsph1(this%nd+1,this%jms) ) ; this%rsph1 = czero
-      allocate( this%rsph2(this%nd+1,this%jms) ) ; this%rsph2 = czero
+      select case (this%rheology)
+        case ('viscos')
+          allocate( this%rsph1(this%nd+1,this%jms) ) ; this%rsph1 = czero
+          allocate( this%rsph2(this%nd+1,this%jms) ) ; this%rsph2 = czero
+        
+        case ('viscel')
+          allocate( this%rsph1(this%nd+1,this%jms) ) ; this%rsph1 = czero
+          allocate( this%rsph2(this%nd+1,this%jms) ) ; this%rsph2 = czero
+          allocate( this%rsph4(this%nd+1,this%jms) ) ; this%rsph4 = czero
+          allocate( this%rsph5(this%nd+1,this%jms) ) ; this%rsph4 = czero
+          allocate( this%rsph6(this%nd+1,this%jms) ) ; this%rsph6 = czero
+      end select
     end if
 
     if (nl) then
@@ -36,41 +46,74 @@ submodule (PhysicalObject) Equations_mech
     
   end subroutine prepare_mat_mech_sub
   
-  subroutine solve_mech_sub(this, ijmstart, rematrix)
-    class(T_physicalObject), intent(inout) :: this
-    integer,                 intent(in)    :: ijmstart
-    logical,                 intent(in)    :: rematrix
-    integer                                :: ij, ijm, ir, is
+  subroutine solve_mech_sub(this, ijmstart, ijmend, ijmstep, rematrix)
+    class(T_physicalObject), intent(inout)        :: this
+    integer,                 intent(in)           :: ijmstart, ijmend, ijmstep
+    logical,                 intent(in)           :: rematrix
+    integer                                       :: ij, ijm, ir, is
     
     if (rematrix) call this%prepare_mat_mech_sub( this%j_indx(ijmstart) )
-
-    !$omp parallel do private (ir,is,ij)
-    do ijm = 2, this%jms
-      ij = this%j_indx(ijm)
+    
+    select case (this%rheology)
+      case ('viscos')
+        !$omp parallel do private (ir,is,ij)
+        do ijm = ijmstart, ijmend, ijmstep
+          ij = this%j_indx(ijm)
+          
+          do concurrent ( ir=2:this%nd )
+            this%rsph1(ir,ijm) = this%rsph1(ir,ijm) + this%mat%mech(ij)%multipl_fn(6*(ir-1)+1,this%sol%mech(:,ijm))
+            this%rsph2(ir,ijm) = this%rsph2(ir,ijm) + this%mat%mech(ij)%multipl_fn(6*(ir-1)+2,this%sol%mech(:,ijm))
+          end do
+          
+          do concurrent ( ir=1:this%nd )
+            is = 6*(ir-1)+1
+            
+            this%sol%mech(is  ,ijm) = this%rsph1(ir,ijm)
+            this%sol%mech(is+1,ijm) = this%rsph2(ir,ijm)
+            this%sol%mech(is+2,ijm) = czero
+            this%sol%mech(is+3,ijm) = czero
+            this%sol%mech(is+4,ijm) = czero
+            this%sol%mech(is+5,ijm) = czero
+          end do
+            
+          ir = this%nd+1
+            this%sol%mech(6*this%nd+1,ijm) = this%rsph1(ir,ijm)
+            this%sol%mech(6*this%nd+2,ijm) = this%rsph2(ir,ijm)
+            
+          call this%mat%mech(ij)%luSolve_sub( this%sol%mech(:,ijm) )
+        end do
+        !$omp end parallel do
       
-      do concurrent ( ir=2:this%nd )
-        this%rsph1(ir,ijm) = this%rsph1(ir,ijm) + this%mat%mech(ij)%multipl_fn(6*(ir-1)+1,this%sol%mech(:,ijm))
-        this%rsph2(ir,ijm) = this%rsph2(ir,ijm) + this%mat%mech(ij)%multipl_fn(6*(ir-1)+2,this%sol%mech(:,ijm))
-      end do
+      case ('viscel')
+        !$omp parallel do
+        do ijm = ijmstart, ijmend, ijmstep
+          ij = this%j_indx(ijm)
+          
+          do concurrent ( ir=2:this%nd )
+            this%rsph1(ir,ijm) = this%rsph1(ir,ijm) + this%mat%mech(ij)%multipl_fn(6*(ir-1)+1,this%sol%mech(:,ijm))
+            this%rsph2(ir,ijm) = this%rsph2(ir,ijm) + this%mat%mech(ij)%multipl_fn(6*(ir-1)+2,this%sol%mech(:,ijm))
+          end do
+          
+          do concurrent ( ir=1:this%nd )
+            is = 6*(ir-1)+1
+            
+            this%sol%mech(is  ,ijm) = this%rsph1(ir,ijm)
+            this%sol%mech(is+1,ijm) = this%rsph2(ir,ijm)
+            this%sol%mech(is+2,ijm) = czero
+            this%sol%mech(is+3,ijm) = this%rsph4(ir,ijm)
+            this%sol%mech(is+4,ijm) = this%rsph5(ir,ijm)
+            this%sol%mech(is+5,ijm) = this%rsph6(ir,ijm)
+          end do
+            
+          ir = this%nd+1
+            this%sol%mech(6*this%nd+1,ijm) = this%rsph1(ir,ijm)
+            this%sol%mech(6*this%nd+2,ijm) = this%rsph2(ir,ijm)
+            
+          call this%mat%mech(ij)%luSolve_sub( this%sol%mech(:,ijm) )
+        end do
+        !$omp end parallel do
       
-      do concurrent ( ir=1:this%nd )
-        is = 6*(ir-1)+1
-        
-        this%sol%mech(is  ,ijm) = this%rsph1(ir,ijm)
-        this%sol%mech(is+1,ijm) = this%rsph2(ir,ijm)
-        this%sol%mech(is+2,ijm) = czero
-        this%sol%mech(is+3,ijm) = czero
-        this%sol%mech(is+4,ijm) = czero
-        this%sol%mech(is+5,ijm) = czero
-      end do
-        
-      ir = this%nd+1
-        this%sol%mech(6*this%nd+1,ijm) = this%rsph1(ir,ijm)
-        this%sol%mech(6*this%nd+2,ijm) = this%rsph2(ir,ijm)
-        
-      call this%mat%mech(ij)%luSolve_sub( this%sol%mech(:,ijm) )
-    end do
-    !$omp end parallel do
+      end select
 
   end subroutine solve_mech_sub
 

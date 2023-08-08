@@ -63,15 +63,25 @@ submodule(IceMod) ParametersIce
   pure real(kind=dbl) function visc_ice_fn(this, i)
     real(kind=dbl), parameter :: a = 9.0d-8
     real(kind=dbl), parameter :: e = 59.0d+3
+    real(kind=dbl), parameter :: and_a  = 0.33_dbl
+    real(kind=dbl), parameter :: cosgam = gamma(1+and_a) * cos( and_a * pi / 2 )
+    real(kind=dbl), parameter :: singam = gamma(1+and_a) * sin( and_a * pi / 2 )
     
-    class(T_ice),  intent(in) :: this
-    integer,       intent(in) :: i
-    real(kind=dbl)            :: temp, viscI
+    class(T_ice),      intent(in) :: this
+    integer,           intent(in) :: i
+    real(kind=dbl)                :: temp, viscI
     
     temp = this%Tu + (this%Td-this%Tu) * real( this%rad_grid%c(i,-1) * this%sol%temp_fn(i,1) + &
                                              & this%rad_grid%c(i,+1) * this%sol%temp_fn(i+1,1), kind=dbl) / sqrt(4*pi)
     
-    visc_ice_fn = min( temp * this%diam**2 * exp(e / rgas / temp) / a / 2, this%cutoff ) / this%viscU
+    viscI = min( temp * this%diam**2 * exp(e / rgas / temp) / a / 2, this%cutoff )
+    
+    if ( .not. this%andrade ) then
+      visc_ice_fn = viscI / this%viscU
+    else
+      visc_ice_fn = viscI / this%viscU * ( (1 + ( this%mu / ( this%omega * viscI ) )**(and_a  ) * cosgam ) / &
+                                         & (1 + ( this%mu / ( this%omega * viscI ) )**(and_a-1) * singam )   )
+    end if
     
   end function visc_ice_fn
   

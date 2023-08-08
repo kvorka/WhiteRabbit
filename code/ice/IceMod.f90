@@ -4,7 +4,8 @@ module iceMod
   implicit none
   
   type, extends(T_physicalObject), abstract, public :: T_ice
-    real(kind=dbl) :: diam, lambdaC, hC, lambdaU, viscU, cutoff, alphaU, cU, Td, Tu, period, g
+    logical        :: andrade
+    real(kind=dbl) :: diam, lambdaC, hC, lambdaU, viscU, cutoff, alphaU, cU, Td, Tu, period, omega, g, mu
     real(kind=dbl) :: rC, rI2, rhoC, rhoI2, rhoW, rhoI
     
     contains
@@ -51,8 +52,8 @@ module iceMod
     end function alpha_ice_fn
     
     module pure real(kind=dbl) function visc_ice_fn(this, i)
-      class(T_ice),  intent(in) :: this
-      integer,       intent(in) :: i
+      class(T_ice),      intent(in) :: this
+      integer,           intent(in) :: i
     end function visc_ice_fn
 
     module pure complex(kind=dbl) function htide_ice_4_fn(this, ir, ijm)

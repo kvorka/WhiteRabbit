@@ -19,6 +19,7 @@ submodule(IceMod) Init_ice
     this%n_iter = n_iter
     
     this%rheology     = rheol_in
+    this%andrade      = .false.
     this%mechanic_bnd = mechanic_bnd_ice
     this%thermal_bnd  = thermal_bnd_ice
 
@@ -39,8 +40,10 @@ submodule(IceMod) Init_ice
     
     this%diam    = diam_ice
     this%cutoff  = cutoff_ice
+    this%mu      = mu_ice
     this%lambdaC = lambdaC_ice
     this%hC      = hC_ice / this%D_ud
+    this%omega   = omega
     
     this%alphaU  = 1.0d-4
     this%lambdaU = 0.4685_dbl + 488.12_dbl / this%Tu
@@ -53,7 +56,7 @@ submodule(IceMod) Init_ice
     
     this%Ra   = (this%rhoI * this%alphaU * (this%Td-this%Tu)) * this%g * this%D_ud**3 / this%viscU / tkappa_ice
     this%Raf  =                  this%cU * (this%Td-this%Tu) / lI_ice
-    this%Ramu = mu_ice * this%D_ud**2                                                 / this%viscU / tkappa_ice
+    this%Ramu = this%viscU * tkappa_ice / this%D_ud**2 / mu_ice
     this%Rad  = (this%rhoI-this%rhoW                        ) * this%g * this%D_ud**3 / this%viscU / tkappa_ice
     this%Rau  = (this%rhoI                                  ) * this%g * this%D_ud**3 / this%viscU / tkappa_ice
     this%Ds   = this%alphaU * this%g * this%D_ud / this%cU
