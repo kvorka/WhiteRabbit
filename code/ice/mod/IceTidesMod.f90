@@ -103,7 +103,7 @@ module IceTidesMod
         this%rsph2(this%nd+1,ijm) = -this%sol%u_up(ijm) + this%Vdelta_fn(this%nd,ijm)
       end do
       
-      call this%solve_mech_sub(ijmstart=4, ijmend=6, ijmstep=2, rematrix=.true.)
+      call this%solve_mech_sub( ijmstart=4, ijmend=6, ijmstep=2, rematrix=.true., matxsol=.true. )
       
     end subroutine EE_mech_iceTides_sub
     

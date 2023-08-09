@@ -46,7 +46,7 @@ submodule (PhysicalObject) Equations_temp
     do ijm = ijmstart, ijmend, ijmstep
       ij = this%j_indx(ijm)
       
-      if ( matxsol .eqv. .true. ) then
+      if ( matxsol ) then
         do concurrent ( ir=2:this%nd )
           this%rtemp(ir,ijm) = this%rtemp(ir,ijm) + this%mat%temp(ij)%multipl_fn(3*(ir-1)+1, this%sol%temp(:,ijm))
         end do

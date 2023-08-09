@@ -211,7 +211,7 @@ module IceCrustMod
     end do
     !$omp end parallel do
 
-    call this%solve_mech_sub( ijmstart=2, ijmend=this%jms, ijmstep=1, rematrix=.true. )
+    call this%solve_mech_sub( ijmstart=2, ijmend=this%jms, ijmstep=1, rematrix=.true., matxsol=.true. )
     
   end subroutine EE_mech_iceCrust_sub
   

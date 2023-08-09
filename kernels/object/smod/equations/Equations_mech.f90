@@ -22,13 +22,13 @@ submodule (PhysicalObject) Equations_mech
     
   end subroutine init_eq_mech_sub
   
-  subroutine prepare_mat_mech_sub(this, ijstart)
+  subroutine prepare_mat_mech_sub(this, ijstart, ijend)
     class(T_physicalObject), intent(inout) :: this
-    integer,                 intent(in)    :: ijstart
+    integer,                 intent(in)    :: ijstart, ijend
     integer                                :: ij
     
     !$omp parallel do
-    do ij = ijstart, this%jmax
+    do ij = ijstart, ijend
       call this%mat%mech(ij)%fill_sub( this%matica_mech_fn(j_in=ij, a_in=this%cf  ), &
                                      & this%matica_mech_fn(j_in=ij, a_in=this%cf-1)  )
     end do
@@ -36,14 +36,14 @@ submodule (PhysicalObject) Equations_mech
     
   end subroutine prepare_mat_mech_sub
   
-  subroutine solve_mech_sub(this, ijmstart, ijmend, ijmstep, rematrix)
+  subroutine solve_mech_sub(this, ijmstart, ijmend, ijmstep, rematrix, matxsol)
     class(T_physicalObject), intent(inout)        :: this
     integer,                 intent(in)           :: ijmstart, ijmend, ijmstep
-    logical,                 intent(in)           :: rematrix
+    logical,                 intent(in)           :: rematrix, matxsol
     integer                                       :: ij, ijm, ir, is
     real(kind=dbl)                                :: viscel_fac
     
-    if (rematrix) call this%prepare_mat_mech_sub( this%j_indx(ijmstart) )
+    if (rematrix) call this%prepare_mat_mech_sub( this%j_indx(ijmstart), this%j_indx(ijmend) )
     
     select case (this%rheology)
       case ('viscos')
@@ -51,10 +51,12 @@ submodule (PhysicalObject) Equations_mech
         do ijm = ijmstart, ijmend, ijmstep
           ij = this%j_indx(ijm)
           
-          do concurrent ( ir=2:this%nd )
-            this%rsph1(ir,ijm) = this%rsph1(ir,ijm) + this%mat%mech(ij)%multipl_fn(6*(ir-1)+1,this%sol%mech(:,ijm))
-            this%rsph2(ir,ijm) = this%rsph2(ir,ijm) + this%mat%mech(ij)%multipl_fn(6*(ir-1)+2,this%sol%mech(:,ijm))
-          end do
+          if ( matxsol ) then
+            do concurrent ( ir=2:this%nd )
+              this%rsph1(ir,ijm) = this%rsph1(ir,ijm) + this%mat%mech(ij)%multipl_fn(6*(ir-1)+1,this%sol%mech(:,ijm))
+              this%rsph2(ir,ijm) = this%rsph2(ir,ijm) + this%mat%mech(ij)%multipl_fn(6*(ir-1)+2,this%sol%mech(:,ijm))
+            end do
+          end if
           
           do concurrent ( ir=1:this%nd )
             is = 6*(ir-1)+1
@@ -80,10 +82,12 @@ submodule (PhysicalObject) Equations_mech
         do ijm = ijmstart, ijmend, ijmstep
           ij = this%j_indx(ijm)
           
-          do concurrent ( ir=2:this%nd )
-            this%rsph1(ir,ijm) = this%rsph1(ir,ijm) + this%mat%mech(ij)%multipl_fn(6*(ir-1)+1,this%sol%mech(:,ijm))
-            this%rsph2(ir,ijm) = this%rsph2(ir,ijm) + this%mat%mech(ij)%multipl_fn(6*(ir-1)+2,this%sol%mech(:,ijm))
-          end do
+          if ( matxsol ) then
+            do concurrent ( ir=2:this%nd )
+              this%rsph1(ir,ijm) = this%rsph1(ir,ijm) + this%mat%mech(ij)%multipl_fn(6*(ir-1)+1,this%sol%mech(:,ijm))
+              this%rsph2(ir,ijm) = this%rsph2(ir,ijm) + this%mat%mech(ij)%multipl_fn(6*(ir-1)+2,this%sol%mech(:,ijm))
+            end do
+          end if
           
           do concurrent ( ir=1:this%nd )
             is = 6*(ir-1)+1 ; viscel_fac = this%Ramu * this%visc_fn(ir) / this%dt
