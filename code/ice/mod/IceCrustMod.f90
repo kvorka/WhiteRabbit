@@ -62,17 +62,16 @@ module IceCrustMod
       
     do
       call this%EE_sub(flux_bnd)
-      write(*,*) c2r_fn(this%sol%u_up(4)) * this%D_ud , &
-                & abs(this%sol%v_up(4) * this%dt / this%sol%u_up(4))
-      !if ( abs(this%sol%v_up(4) / this%sol%u_up(4)) < 1e-10 ) then 
-      !  exit
-      !else if ( abs(this%sol%v_up(4) * this%dt / this%sol%u_up(4)) < 1e-3 ) then
-      !  this%dt = 5 * this%dt
-      !end if
+      write(*,*) c2r_fn(this%sol%u_up(4)) * this%D_ud , this%sol%u_up(6) * this%D_ud
+      if ( abs(this%sol%v_up(4) / this%sol%u_up(4)) < 1e-10 ) then 
+        exit
+      else if ( abs(this%sol%v_up(4) * this%dt / this%sol%u_up(4)) < 1e-4 ) then
+        this%dt = 5 * this%dt
+      end if
     end do
 
-    write(*,*) c2r_fn(this%sol%u_up(4)) * this%D_ud , c2r_fn(this%sol%t_up(4)) * this%D_ud , &
-             & abs(this%sol%v_up(4) * this%dt / this%sol%u_up(4))
+    !write(*,*) c2r_fn(this%sol%u_up(4)) * this%D_ud , c2r_fn(this%sol%t_up(4)) * this%D_ud , &
+    !         & abs(this%sol%v_up(4) * this%dt / this%sol%u_up(4))
     
     deallocate( flux_bnd )
     

@@ -63,7 +63,7 @@ submodule(IceMod) ParametersIce
   pure real(kind=dbl) function visc_ice_fn(this, i)
     real(kind=dbl), parameter :: a = 9.0d-8
     real(kind=dbl), parameter :: e = 59.0d+3
-    real(kind=dbl), parameter :: and_a  = 0.33_dbl
+    real(kind=dbl), parameter :: and_a  = 0.3_dbl
     real(kind=dbl), parameter :: cosgam = gamma(1+and_a) * cos( and_a * pi / 2 )
     real(kind=dbl), parameter :: singam = gamma(1+and_a) * sin( and_a * pi / 2 )
     
@@ -84,5 +84,43 @@ submodule(IceMod) ParametersIce
     end if
     
   end function visc_ice_fn
-  
+      
+      pure real(kind=dbl) function vdiff_visc_fn(diam, temperature)
+        real(kind=dbl), parameter  :: a = 9.0d-8
+        real(kind=dbl), parameter  :: e = 59.0d+3
+        real(kind=dbl), intent(in) :: diam, temperature
+        
+        vdiff_visc_fn = temp * this%diam**2 * exp(e / rgas / temperature) / a / 2
+        
+      end function vdiff_visc_fn
+      
+      pure real(kind=dbl) function gbdiff_visc_fn(diam, temperature)
+        real(kind=dbl), parameter  :: a = 3.0d-16
+        real(kind=dbl), parameter  :: e = 49.0d+3
+        real(kind=dbl), intent(in) :: diam, temperature
+        
+        vdiff_visc_fn = temp * this%diam**3 * exp(e / rgas / temperature) / a / 2
+        
+      end function gbdiff_visc_fn
+      
+      pure real(kind=dbl) function disl_visc_fn(diam, temperature, stress)
+        real(kind=dbl), intent(in) :: diam, temperature, stress
+        real(kind=dbl)             :: a, e
+        
+        if (temperature > 258) then
+          a = 6.0d4
+          e = 1.8d5
+        else
+          a = 4.0d-19
+          e = 6.0d4
+        end if
+        
+        disl_visc_fn = 1 / ( 2 * a * stress**3 ) * exp(e / rgas / temperature)
+        
+      end function disl_visc_fn
+      
+      pure real(kind=dbl) function basal_visc_fn(diam, temperature, stress)
+        real(kind=dbl), intent(in) :: diam, temperature, stress
+      end function basal_visc_fn
+      
 end submodule ParametersIce
