@@ -28,11 +28,11 @@ module IceCrustMod
     class(T_iceCrust), intent(inout) :: this
     logical, optional, intent(in)    :: notides
     type(T_iceTides)                 :: tides
-    integer                          :: i, j, m
+    integer                          :: i
     real(kind=dbl)                   :: radius
     complex(kind=dbl), allocatable   :: flux_bnd(:)
    
-    call this%init_ice_sub(jmax_in = jmax_ice, rheol_in = 'viscos', n_iter = n_iter_ice)
+    call this%init_ice_sub(jmax_in = jmax_ice, rheol_in = 'viscel', n_iter = n_iter_ice)
     call this%lat_grid%init_vcvv_sub()
     
     this%cf = 1._dbl
@@ -69,14 +69,11 @@ module IceCrustMod
         this%dt = 5 * this%dt
       end if
     end do
-
-    !write(*,*) c2r_fn(this%sol%u_up(4)) * this%D_ud , c2r_fn(this%sol%t_up(4)) * this%D_ud , &
-    !         & abs(this%sol%v_up(4) * this%dt / this%sol%u_up(4))
     
     deallocate( flux_bnd )
     
     write(*,*) 'Icy crust quasi hydrostatic' ; call vypis_iceCrust_sub(this)
-
+    
   end subroutine init_iceCrust_sub
 
   subroutine vypis_iceCrust_sub(this)

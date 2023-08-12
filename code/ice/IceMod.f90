@@ -1,11 +1,12 @@
 module iceMod
   use PhysicalObject
   use IceConstants
+  use IceViscosity
   implicit none
   
   type, extends(T_physicalObject), abstract, public :: T_ice
     logical        :: andrade
-    real(kind=dbl) :: diam, lambdaC, hC, lambdaU, viscU, cutoff, alphaU, cU, Td, Tu, period, omega, g, mu
+    real(kind=dbl) :: diam, lambdaC, hC, lambdaU, viscU, cutoff, alphaU, cU, kappaU, Td, Tu, period, omega, g, mu
     real(kind=dbl) :: rC, rI2, rhoC, rhoI2, rhoW, rhoI
     
     contains

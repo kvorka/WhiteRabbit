@@ -61,66 +61,25 @@ submodule(IceMod) ParametersIce
   end function alpha_ice_fn
   
   pure real(kind=dbl) function visc_ice_fn(this, i)
-    real(kind=dbl), parameter :: a = 9.0d-8
-    real(kind=dbl), parameter :: e = 59.0d+3
-    real(kind=dbl), parameter :: and_a  = 0.3_dbl
-    real(kind=dbl), parameter :: cosgam = gamma(1+and_a) * cos( and_a * pi / 2 )
-    real(kind=dbl), parameter :: singam = gamma(1+and_a) * sin( and_a * pi / 2 )
-    
     class(T_ice),      intent(in) :: this
     integer,           intent(in) :: i
-    real(kind=dbl)                :: temp, viscI
+    real(kind=dbl)                :: temp, stress, visc
     
-    temp = this%Tu + (this%Td-this%Tu) * real( this%rad_grid%c(i,-1) * this%sol%temp_fn(i,1) + &
-                                             & this%rad_grid%c(i,+1) * this%sol%temp_fn(i+1,1), kind=dbl) / sqrt(4*pi)
+    temp = this%Tu + (this%Td-this%Tu) * real( this%rad_grid%c(i,-1) * this%sol%temp_fn(i  ,1) +          &
+                                             & this%rad_grid%c(i,+1) * this%sol%temp_fn(i+1,1) , kind=dbl ) / sqrt(4*pi)
     
-    viscI = min( temp * this%diam**2 * exp(e / rgas / temp) / a / 2, this%cutoff )
+    stress = (this%viscU * this%kappaU / this%D_ud**2) * tnorm_fn( this%jmax, this%sol%deviatoric_stress_jml2_fn(i) ) / sqrt(4*pi)
+    
+    visc = min( goldsby_visc_fn(this%diam, temp, stress), this%cutoff )
     
     if ( .not. this%andrade ) then
-      visc_ice_fn = viscI / this%viscU
+      visc_ice_fn = visc
     else
-      visc_ice_fn = viscI / this%viscU * ( (1 + ( this%mu / ( this%omega * viscI ) )**(and_a  ) * cosgam ) / &
-                                         & (1 + ( this%mu / ( this%omega * viscI ) )**(and_a-1) * singam )   )
+      visc_ice_fn = andrade_visc_fn(this%mu, this%omega, visc)
     end if
     
+    visc_ice_fn = visc_ice_fn / this%viscU
+    
   end function visc_ice_fn
-      
-      pure real(kind=dbl) function vdiff_visc_fn(diam, temperature)
-        real(kind=dbl), parameter  :: a = 9.0d-8
-        real(kind=dbl), parameter  :: e = 59.0d+3
-        real(kind=dbl), intent(in) :: diam, temperature
-        
-        vdiff_visc_fn = temp * this%diam**2 * exp(e / rgas / temperature) / a / 2
-        
-      end function vdiff_visc_fn
-      
-      pure real(kind=dbl) function gbdiff_visc_fn(diam, temperature)
-        real(kind=dbl), parameter  :: a = 3.0d-16
-        real(kind=dbl), parameter  :: e = 49.0d+3
-        real(kind=dbl), intent(in) :: diam, temperature
-        
-        vdiff_visc_fn = temp * this%diam**3 * exp(e / rgas / temperature) / a / 2
-        
-      end function gbdiff_visc_fn
-      
-      pure real(kind=dbl) function disl_visc_fn(diam, temperature, stress)
-        real(kind=dbl), intent(in) :: diam, temperature, stress
-        real(kind=dbl)             :: a, e
-        
-        if (temperature > 258) then
-          a = 6.0d4
-          e = 1.8d5
-        else
-          a = 4.0d-19
-          e = 6.0d4
-        end if
-        
-        disl_visc_fn = 1 / ( 2 * a * stress**3 ) * exp(e / rgas / temperature)
-        
-      end function disl_visc_fn
-      
-      pure real(kind=dbl) function basal_visc_fn(diam, temperature, stress)
-        real(kind=dbl), intent(in) :: diam, temperature, stress
-      end function basal_visc_fn
       
 end submodule ParametersIce

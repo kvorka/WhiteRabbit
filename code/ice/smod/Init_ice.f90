@@ -8,7 +8,6 @@ submodule(IceMod) Init_ice
     integer,           intent(in)    :: jmax_in, n_iter
     character(len=*),  intent(in)    :: rheol_in
     logical, optional, intent(in)    :: noharm
-    real(kind=dbl)                   :: tkappa_ice
     
     if (present(noharm)) then
       call this%init_objects_sub( nd = nd_ice, jmax = jmax_in, r_ud = rdown_ice / rup_ice, rgrid = grid_type_ice, noharm = noharm )
@@ -49,16 +48,15 @@ submodule(IceMod) Init_ice
     this%lambdaU = 0.4685_dbl + 488.12_dbl / this%Tu
     this%cU      = 185._dbl + 7.037_dbl * this%Tu
     this%viscU   = (this%Tu+this%Td)/2 * this%diam**2 * exp( 59.0d+3 / rgas / ( (this%Tu+this%Td)/2 ) ) / 9.0d-8 / 2
+    this%kappaU  = this%lambdaU / ( this%cU * this%rhoI )
     
-    tkappa_ice = this%lambdaU / this%cU / this%rhoI
+    this%period = 2 * pi / omega * ( this%kappaU / this%D_ud**2 )
     
-    this%period = 2 * pi / omega * ( tkappa_ice / this%D_ud**2 )
-    
-    this%Ra   = (this%rhoI * this%alphaU * (this%Td-this%Tu)) * this%g * this%D_ud**3 / this%viscU / tkappa_ice
+    this%Ra   = (this%rhoI * this%alphaU * (this%Td-this%Tu)) * this%g * this%D_ud**3 / ( this%viscU * this%kappaU )
     this%Raf  =                  this%cU * (this%Td-this%Tu) / lI_ice
-    this%Ramu = this%viscU * tkappa_ice / this%D_ud**2 / mu_ice
-    this%Rad  = (this%rhoI-this%rhoW                        ) * this%g * this%D_ud**3 / this%viscU / tkappa_ice
-    this%Rau  = (this%rhoI                                  ) * this%g * this%D_ud**3 / this%viscU / tkappa_ice
+    this%Ramu = this%viscU * this%kappaU / this%D_ud**2 / this%mu
+    this%Rad  = (this%rhoI-this%rhoW) * this%g * this%D_ud**3 / ( this%viscU * this%kappaU )
+    this%Rau  = (this%rhoI          ) * this%g * this%D_ud**3 / ( this%viscU * this%kappaU )
     this%Ds   = this%alphaU * this%g * this%D_ud / this%cU
     
     
