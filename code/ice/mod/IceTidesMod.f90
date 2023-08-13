@@ -51,7 +51,7 @@ module IceTidesMod
               call this%tidal_heating_sub()
           end do
           
-          P = this%rad_grid%intV_fn( real(this%htide(:,1), kind=dbl) )
+          P = this%rad_grid%intV_fn( real(this%htide(:,1), kind=dbl) ) ; write(*,*) P
             if ( abs(P-Pglobal) / P < 1.0d-6 ) then
               write(*,*) P ; exit
             else
