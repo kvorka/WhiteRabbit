@@ -64,7 +64,7 @@ submodule(IceMod) Init_ice
     call this%sol%init_layers_sub()
     
     allocate( this%htide(this%nd,jms4) ); this%htide = czero
-    
+
   end subroutine init_ice_sub
 
   subroutine deallocate_ice_sub(this)

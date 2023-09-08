@@ -24,6 +24,8 @@ submodule (SphericalHarmonics) vcsv_vcvv_vcvgv
   end subroutine init_vcsv_vcvv_vcvgv_sub
 
   subroutine vcsv_vcvv_vcvgv_sub(this, ri, q, dv_r, v, cjm)
+    real(kind=dbl), parameter :: tolm = 1.0d-55 , tolj = 1.0d-55
+    
     class(T_lateralGrid), intent(in)  :: this
     real(kind=dbl),       intent(in)  :: ri
     complex(kind=dbl),    intent(in)  :: dv_r(:), q(:), v(:)
@@ -34,7 +36,7 @@ submodule (SphericalHarmonics) vcsv_vcvv_vcvgv
     real(kind=dbl),       allocatable :: grid(:,:,:), fft(:,:,:)
     complex(kind=dbl)                 :: cr12
     complex(kind=dbl),    allocatable :: sum1(:), sum2(:), sum3(:)
-    complex(kind=dbl),    allocatable :: cab(:,:), cc(:,:), cr(:,:), symL(:,:), asymL(:,:)
+    complex(kind=dbl),    allocatable :: cab(:,:), cc(:,:), cr(:,:), symL(:,:), asymL(:,:), symF(:,:), asymF(:,:)
     complex(kind=dbl),    allocatable :: sumLegendreN(:,:,:), sumLegendreS(:,:,:), fftNC(:,:,:), fftSC(:,:,:)
 
     allocate(cab(6,this%jmv1), sum1(2), sum2(2), sum3(2), gc(2)) ; cab = czero
@@ -175,9 +177,9 @@ submodule (SphericalHarmonics) vcsv_vcvv_vcvgv
             do i1 = 1, 6
               i2 = 3*(i1-1)+1
     
-              cc(i2  , mj) =           sum1(i1) - sum2(i1)
-              cc(i2+1, mj) = cunit * ( sum1(i1) + sum2(i1) )
-              cc(i2+2, mj) =           sum3(i1)
+              cc(i2  ,mj) =           sum1(i1) - sum2(i1)
+              cc(i2+1,mj) = cunit * ( sum1(i1) + sum2(i1) )
+              cc(i2+2,mj) =           sum3(i1)
             end do
     
             if (j <= this%jmax) then
@@ -205,7 +207,8 @@ submodule (SphericalHarmonics) vcsv_vcvv_vcvgv
     deallocate(cab, sum1, sum2, sum3)
     allocate( pmm(step), pmj(step), pmj1(step), pmj2(step), cosx(step), fftLege(step), sinx(step), symL(19,step), asymL(19,step), &
             & sumLegendreN(19,step,0:this%nFourier/2), sumLegendreS(19,step,0:this%nFourier/2), grid(19,step,0:this%nFourier-1),  &                                 
-            & cr(4,this%jms1), fft(4,step,0:this%nFourier-1), fftNC(4,step,0:this%nFourier/2), fftSC(4,step,0:this%nFourier/2)    )
+            & cr(4,this%jms1), fft(4,step,0:this%nFourier-1), fftNC(4,step,0:this%nFourier/2), fftSC(4,step,0:this%nFourier/2),   &
+            & symF(step,4), asymF(step,4) )
       
       cr = czero
 
@@ -229,7 +232,7 @@ submodule (SphericalHarmonics) vcsv_vcvv_vcvgv
           asymL = czero
           
           j = m
-            mj = mj+1 
+            mj = m*(this%maxj+1)-m*(m+1)/2+j+1
             
             do concurrent ( i2=1:step, i1=1:19 )
               symL(i1,i2) = symL(i1,i2) + cc(i1,mj)
@@ -240,55 +243,56 @@ submodule (SphericalHarmonics) vcsv_vcvv_vcvgv
             
             pmj2 = pmj1
             pmj1 = pmj
-            pmj = ( cosx * pmj1 - this%ish(mj-2) * pmj2 ) / this%ish(mj-1)
-
+            pmj = this%amjrr(mj-1) * cosx * pmj1 - this%bmjrr(mj-1) * pmj2
+            
             do concurrent ( i2=1:step, i1=1:19 )
               asymL(i1,i2) = asymL(i1,i2) + cc(i1,mj-1) * pmj(i2)
             end do
-
+            
             pmj2 = pmj1
             pmj1 = pmj
-            pmj = ( cosx * pmj1 - this%ish(mj-1) * pmj2 ) / this%ish(mj)
-
+            pmj = this%amjrr(mj) * cosx * pmj1 - this%bmjrr(mj) * pmj2
+            
             do concurrent ( i2=1:step, i1=1:19 )
               symL(i1,i2) = symL(i1,i2) + cc(i1,mj) * pmj(i2)
             end do
+            
+            if ( maxval(abs(pmj)) < tolj ) exit
           end do
-
-          if (mod((this%maxj-m),2) /= 0) then
+          
+          if ( (maxval(abs(pmj)) >= tolj) .and. (mod((this%maxj-m),2) /= 0) ) then
             mj = mj+1
-
+            
             pmj2 = pmj1
             pmj1 = pmj
-            pmj = ( cosx * pmj1 - this%ish(mj-1) * pmj2 ) / this%ish(mj)
-
+            pmj = this%amjrr(mj) * cosx * pmj1 - this%bmjrr(mj) * pmj2
+            
             do concurrent ( i2=1:step, i1=1:19 )
               asymL(i1,i2) = asymL(i1,i2) + cc(i1,mj) * pmj(i2)
             end do
           end if
           
           do concurrent ( i2=1:step, i1=1:19 )
-            sumLegendreN(i1,i2,0)%re = symL(i1,i2)%re+asymL(i1,i2)%re ; sumLegendreN(i1,i2,0)%im = 0._dbl
-            sumLegendreS(i1,i2,0)%re = symL(i1,i2)%re-asymL(i1,i2)%re ; sumLegendreS(i1,i2,0)%im = 0._dbl
+            sumLegendreN(i1,i2,0)%re = symL(i1,i2)%re + asymL(i1,i2)%re ; sumLegendreN(i1,i2,0)%im = 0._dbl
+            sumLegendreS(i1,i2,0)%re = symL(i1,i2)%re - asymL(i1,i2)%re ; sumLegendreS(i1,i2,0)%im = 0._dbl
           end do
           
         do m = 1, this%maxj
           fac = -sqrt( ( 2*m+1 ) / ( 2._dbl*m ) )
-          pmm = fac * sinx * pmm
-          if (maxval(abs(pmm)) < 1.0d-55) exit
+          pmm = fac * sinx * pmm ; if (maxval(abs(pmm)) < tolm) exit
           
           pmj2 = 0._dbl
           pmj1 = 0._dbl
-          pmj  = 1._dbl
+          pmj  = pmm
           
           symL  = czero
           asymL = czero
 
           j = m
-            mj = mj+1
+            mj = m*(this%maxj+1)-m*(m+1)/2+j+1
             
             do concurrent ( i2=1:step, i1=1:19 )
-              symL(i1,i2) = symL(i1,i2) + cc(i1,mj)
+              symL(i1,i2) = symL(i1,i2) + cc(i1,mj) * pmj(i2)
             end do
           
           do j = 1, (this%maxj-m)/2
@@ -296,7 +300,7 @@ submodule (SphericalHarmonics) vcsv_vcvv_vcvgv
 
             pmj2 = pmj1
             pmj1 = pmj
-            pmj = ( cosx * pmj1 - this%ish(mj-2) * pmj2) / this%ish(mj-1)
+            pmj = this%amjrr(mj-1) * cosx * pmj1 - this%bmjrr(mj-1) * pmj2
 
             do concurrent ( i2=1:step, i1=1:19 )
               asymL(i1,i2) = asymL(i1,i2) + cc(i1,mj-1) * pmj(i2)
@@ -304,19 +308,21 @@ submodule (SphericalHarmonics) vcsv_vcvv_vcvgv
 
             pmj2 = pmj1
             pmj1 = pmj
-            pmj = ( cosx * pmj1 - this%ish(mj-1) * pmj2) / this%ish(mj)
+            pmj  = this%amjrr(mj) * cosx * pmj1 - this%bmjrr(mj) * pmj2
 
             do concurrent ( i2=1:step, i1=1:19 )
               symL(i1,i2) = symL(i1,i2) + cc(i1,mj) * pmj(i2)
             end do
+
+            if ( maxval(abs(pmj)) < tolj ) exit
           end do
 
-          if (mod((this%maxj-m),2) /= 0) then
+          if ( (maxval(abs(pmj)) >= tolj) .and. (mod((this%maxj-m),2) /= 0) ) then
             mj = mj+1
 
             pmj2 = pmj1
             pmj1 = pmj
-            pmj = ( cosx * pmj1 - this%ish(mj-1) * pmj2) / this%ish(mj)
+            pmj  = this%amjrr(mj) * cosx * pmj1 - this%bmjrr(mj) * pmj2
 
             do concurrent ( i2=1:step, i1=1:19 )
               asymL(i1,i2) = asymL(i1,i2) + cc(i1,mj) * pmj(i2)
@@ -324,8 +330,8 @@ submodule (SphericalHarmonics) vcsv_vcvv_vcvgv
           end if
           
           do concurrent ( i2=1:step, i1=1:19 )
-            sumLegendreN(i1,i2,m) = (symL(i1,i2)+asymL(i1,i2)) * pmm(i2)
-            sumLegendreS(i1,i2,m) = (symL(i1,i2)-asymL(i1,i2)) * pmm(i2)
+            sumLegendreN(i1,i2,m) = symL(i1,i2) + asymL(i1,i2)
+            sumLegendreS(i1,i2,m) = symL(i1,i2) - asymL(i1,i2)
           end do
         end do
 
@@ -382,65 +388,109 @@ submodule (SphericalHarmonics) vcsv_vcvv_vcvgv
           pmj  = 1._dbl
           
           do concurrent (i2=1:step, i1=1:4)
-            fftNC(i1,i2,m) = fftLege(i2) * fftNC(i1,i2,m) ; fftNC(i1,i2,m)%im = 0._dbl
-            fftSC(i1,i2,m) = fftLege(i2) * fftSC(i1,i2,m) ; fftSC(i1,i2,m)%im = 0._dbl
+            symF(i2,i1)  = fftLege(i2) * ( fftNC(i1,i2,m) + fftSC(i1,i2,m) ) ; symF(i2,i1)%im  = 0._dbl
+            asymF(i2,i1) = fftLege(i2) * ( fftNC(i1,i2,m) - fftSC(i1,i2,m) ) ; asymF(i2,i1)%im = 0._dbl
           end do
           
           j = m
-            s = +1 ; mj = mj+1
+            s = +1 ; mj = m*this%maxj-m*(m+1)/2+j+1
 
-            do concurrent (i2=1:step, i1=1:4)
-              cr(i1,mj) = cr(i1,mj) + fftNC(i1,i2,m) + fftSC(i1,i2,m)
+            do concurrent ( i1=1:4 , i2=1:step )
+              cr(i1,mj) = cr(i1,mj) + symF(i2,i1)
             end do
           
-          do j = m+1, this%jmax+1
-            s = -s ; mj = mj+1
+          do j = 1, (this%jmax-m+1)/2
+            mj = mj+2
             
             pmj2 = pmj1
             pmj1 = pmj
-            pmj = ( cosx * pmj1 - this%ish(mj+m-1) * pmj2) / this%ish(mj+m)
+            pmj = this%amjrr(mj-1+m) * cosx * pmj1 - this%bmjrr(mj-1+m) * pmj2
             
-            do concurrent (i2=1:step, i1=1:4)
-              cr(i1,mj) = cr(i1,mj) + pmj(i2) * ( fftNC(i1,i2,m) + s * fftSC(i1,i2,m) )
+            do concurrent ( i1=1:4 , i2=1:step )
+              cr(i1,mj-1) = cr(i1,mj-1) + pmj(i2) * asymF(i2,i1)
             end do
+
+            pmj2 = pmj1
+            pmj1 = pmj
+            pmj = this%amjrr(mj+m) * cosx * pmj1 - this%bmjrr(mj+m) * pmj2
+            
+            do concurrent ( i1=1:4 , i2=1:step )
+              cr(i1,mj) = cr(i1,mj) + pmj(i2) * symF(i2,i1)
+            end do
+
+            if ( maxval(abs(pmj)) < tolj ) exit
           end do
+          
+          if ( (maxval(abs(pmj)) >= tolj) .and. (mod(this%jmax+1-m,2) /= 0) ) then
+            mj = mj+1
+            
+            pmj2 = pmj1
+            pmj1 = pmj
+            pmj = this%amjrr(mj+m) * cosx * pmj1 - this%bmjrr(mj+m) * pmj2
+            
+            do concurrent ( i1=1:4 , i2=1:step )
+              cr(i1,mj) = cr(i1,mj) + pmj(i2) * asymF(i2,i1)
+            end do
+          end if
         
         do m = 1, this%jmax+1
           fac = -sqrt( ( 2*m+1 ) / ( 2._dbl*m ) )
-          pmm = fac * sinx * pmm
-          if (maxval(abs(pmm)) < 1.0d-55) exit
+          pmm = fac * sinx * pmm ; if (maxval(abs(pmm)) < tolm) exit
           
           pmj2 = 0._dbl
           pmj1 = 0._dbl
-          pmj  = 1._dbl
+          pmj  = pmm
 
-            do concurrent (i2=1:step, i1=1:4)
-              fftNC(i1,i2,m) = fftLege(i2) * fftNC(i1,i2,m) * pmm(i2)
-              fftSC(i1,i2,m) = fftLege(i2) * fftSC(i1,i2,m) * pmm(i2)
-            end do
+          do concurrent ( i2=1:step, i1=1:4 )
+            symF(i2,i1)  = fftLege(i2) * ( fftNC(i1,i2,m) + fftSC(i1,i2,m) )
+            asymF(i2,i1) = fftLege(i2) * ( fftNC(i1,i2,m) - fftSC(i1,i2,m) )
+          end do
           
           j = m
-            s = +1 ; mj = mj+1
+            mj = m*this%maxj-m*(m+1)/2+j+1
             
-            do concurrent (i2=1:step, i1=1:4)
-              cr(i1,mj) = cr(i1,mj) + fftNC(i1,i2,m) + fftSC(i1,i2,m)
+            do concurrent ( i1=1:4 , i2=1:step )
+              cr(i1,mj) = cr(i1,mj) + pmj(i2) * symF(i2,i1)
             end do
           
-          do j = m+1, this%jmax+1
-            s = -s ; mj = mj+1
+          do j = 1, (this%jmax+1-m)/2
+            mj = mj+2
             
             pmj2 = pmj1
             pmj1 = pmj
-            pmj = ( cosx * pmj1 - this%ish(mj+m-1) * pmj2) / this%ish(mj+m)
+            pmj = this%amjrr(mj-1+m) * cosx * pmj1 - this%bmjrr(mj-1+m) * pmj2
             
-            do concurrent (i2=1:step, i1=1:4)
-              cr(i1,mj) = cr(i1,mj) + pmj(i2) * ( fftNC(i1,i2,m) + s * fftSC(i1,i2,m) )
+            do concurrent ( i1=1:4 , i2=1:step )
+              cr(i1,mj-1) = cr(i1,mj-1) + pmj(i2) * asymF(i2,i1)
             end do
+            
+            pmj2 = pmj1
+            pmj1 = pmj
+            pmj = this%amjrr(mj+m) * cosx * pmj1 - this%bmjrr(mj+m) * pmj2
+            
+            do concurrent ( i1=1:4 , i2=1:step )
+              cr(i1,mj) = cr(i1,mj) + pmj(i2) * symF(i2,i1)
+            end do
+
+            if ( maxval(abs(pmj)) < tolj ) exit
           end do
+
+          if ( (maxval(abs(pmj)) >= tolj) .and. (mod(this%jmax+1-m,2) /= 0) ) then
+            mj = mj+1
+            
+            pmj2 = pmj1
+            pmj1 = pmj
+            pmj = this%amjrr(mj+m) * cosx * pmj1 - this%bmjrr(mj+m) * pmj2
+            
+            do concurrent ( i1=1:4 , i2=1:step )
+              cr(i1,mj) = cr(i1,mj) + pmj(i2) * asymF(i2,i1)
+            end do
+          end if
         end do
       end do
 
-    deallocate( cc, sumLegendreN, sumLegendreS, grid, fft, fftNC, fftSC, pmm, pmj, pmj1, pmj2, cosx, sinx, fftLege, symL, asymL )
+    deallocate( cc, sumLegendreN, sumLegendreS, grid, fft, fftNC, fftSC, pmm, pmj, pmj1, pmj2, cosx, sinx, fftLege, symL, asymL, &
+              & symF, asymF )
     
     fac = 1 / ( 4 * this%nLegendre**2 * this%nFourier * sqrt(pi) )
     

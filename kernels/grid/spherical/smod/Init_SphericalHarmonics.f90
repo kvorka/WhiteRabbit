@@ -20,7 +20,8 @@ submodule (SphericalHarmonics) Init_SphericalHarmonics
     this%nFourier  = 3*(this%maxj+1)
     this%nLegendre = (((3*(this%maxj+1)/2+1)/2+1+step)/step)*step
 
-    allocate( this%ish(this%jms2), this%roots(this%nLegendre), this%fftLege(this%nLegendre) )
+    allocate( this%ish(this%jms2), this%roots(this%nLegendre), this%fftLege(this%nLegendre), &
+            & this%amjrr(this%jms2), this%bmjrr(this%jms2) )
 
     n = this%nLegendre
       do
@@ -57,6 +58,13 @@ submodule (SphericalHarmonics) Init_SphericalHarmonics
         this%ish(m*(this%maxj+1)-m*(m+1)/2+j+1) = sqrt((j**2-m**2) / (4*j**2-1._dbl))
       end do
     end do
+    
+    do m = 0, this%maxj
+      do j = m+1, this%maxj
+        this%amjrr(m*(this%maxj+1)-m*(m+1)/2+j+1) = sqrt((2*j-1._dbl)*(2*j+1._dbl)                          /(        (j-m)*(j+m)))
+        this%bmjrr(m*(this%maxj+1)-m*(m+1)/2+j+1) = sqrt(             (2*j+1._dbl)*(j-m-1._dbl)*(j+m-1._dbl)/((2*j-3)*(j-m)*(j+m)))
+      end do
+    end do
       
     do i = 1, this%nLegendre
       this%fftLege(i) = (1-this%roots(i)**2) / lege_fn(2*this%nLegendre-1, this%roots(i))**2
@@ -78,6 +86,8 @@ submodule (SphericalHarmonics) Init_SphericalHarmonics
     if ( allocated(this%roots)   ) deallocate( this%roots   )
     if ( allocated(this%fftLege) ) deallocate( this%fftLege )
     if ( allocated(this%ish)     ) deallocate( this%ish     )
+    if ( allocated(this%amjrr)   ) deallocate( this%amjrr   )
+    if ( allocated(this%bmjrr)   ) deallocate( this%bmjrr   )
     
   end subroutine deallocate_harmonics_sub
   

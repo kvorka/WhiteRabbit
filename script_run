@@ -10,7 +10,7 @@ code_oceanIce="iceOcean"
 code_test="speed"
 
 #co sa ice pocitat
-code_type="ice"
+code_type="convection"
 
 #priprava priecinkov
 rm -r -f data || true

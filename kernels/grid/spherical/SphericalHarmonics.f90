@@ -9,7 +9,7 @@ module SphericalHarmonics
   
   type, public :: T_lateralGrid
     integer,                     private :: jmax, jms, jms1, jms2, jmv, jmv1, maxj, nLegendre, nFourier
-    real(kind=dbl), allocatable, private :: roots(:), fftLege(:), ish(:)
+    real(kind=dbl), allocatable, private :: roots(:), fftLege(:), ish(:), amjrr(:), bmjrr(:)
     type(C_ptr),                 private :: fftw_06_c2r, fftw_01_r2c
     type(C_ptr),                 private :: fftw_16_c2r, fftw_03_r2c
     type(C_ptr),                 private :: fftw_19_c2r, fftw_04_r2c
