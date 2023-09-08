@@ -21,13 +21,13 @@ module IceViscosity
   pure real(kind=dbl) function goldsby_visc_fn(diam, temperature, stress)
     real(kind=dbl), intent(in) :: diam, temperature, stress
     
-    goldsby_visc_fn = 1 / ( 1 / vdiff_visc_fn(diam, temperature)  + &
-                          & 1 / gbdiff_visc_fn(diam, temperature)   )
+    !goldsby_visc_fn = 1 / ( 1 / vdiff_visc_fn(diam, temperature) + &
+    !                      & 1 / gbdiff_visc_fn(diam, temperature)  )
     
-    !goldsby_visc_fn = 1 / ( 1 / vdiff_visc_fn(diam, temperature)        +                                       &
-    !                      & 1 / gbdiff_visc_fn(diam, temperature)       +                                       &
-    !                      & 1 / disl_visc_fn(diam, temperature, stress) +                                       &
-    !                      & 1 / ( basal_visc_fn(temperature, stress) + gbs_visc_fn(diam, temperature, stress) ) )
+    goldsby_visc_fn = 1 / ( 1 / vdiff_visc_fn(diam, temperature)        +                                       &
+                          & 1 / gbdiff_visc_fn(diam, temperature)       +                                       &
+                          & 1 / disl_visc_fn(diam, temperature, stress) +                                       &
+                          & 1 / ( basal_visc_fn(temperature, stress) + gbs_visc_fn(diam, temperature, stress) ) )
     
   end function goldsby_visc_fn
   
