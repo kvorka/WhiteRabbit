@@ -35,7 +35,7 @@ submodule (SphericalHarmonics) vcsv_vcvv_vcvgv
     complex(kind=dbl)                 :: cr12
     complex(kind=dbl),    allocatable :: sum1(:), sum2(:), sum3(:)
     complex(kind=dbl),    allocatable :: cab(:,:), cc(:,:), cr(:,:), symL(:,:), asymL(:,:), symF(:,:), asymF(:,:)
-    complex(kind=dbl),    allocatable :: sumLegendreN(:,:,:), sumLegendreS(:,:,:), fftNC(:,:,:), fftSC(:,:,:)
+    complex(kind=dbl),    allocatable :: sumLegendreN(:,:,:), sumLegendreS(:,:,:), sumFourierN(:,:,:), sumFourierS(:,:,:)
 
     allocate(cab(6,this%jmv1), sum1(2), sum2(2), sum3(2), gc(2)) ; cab = czero
 
@@ -203,10 +203,10 @@ submodule (SphericalHarmonics) vcsv_vcvv_vcvgv
       end do
     
     deallocate(cab, sum1, sum2, sum3)
-    allocate( pmm(step), pmj(step), pmj1(step), pmj2(step), cosx(step), fftLege(step), sinx(step), symL(19,step), asymL(19,step), &
-            & sumLegendreN(19,step,0:this%nFourier/2), sumLegendreS(19,step,0:this%nFourier/2), grid(19,step,0:this%nFourier-1),  &                                 
-            & cr(4,this%jms1), fft(4,step,0:this%nFourier-1), fftNC(4,step,0:this%nFourier/2), fftSC(4,step,0:this%nFourier/2),   &
-            & symF(step,4), asymF(step,4) )
+    allocate( pmm(step), pmj(step), pmj1(step), pmj2(step), cosx(step), fftLege(step), sinx(step), symL(step,19), asymL(step,19), &
+            & sumLegendreN(19,step,0:this%nFourier/2), sumLegendreS(19,step,0:this%nFourier/2), grid(19,step,0:this%nFourier-1),  &
+            & cr(4,this%jms1), fft(4,step,0:this%nFourier-1), sumFourierN(4,step,0:this%nFourier/2), symF(step,4), asymF(step,4), &
+            & sumFourierS(4,step,0:this%nFourier/2) )
       
       cr = czero
 
@@ -231,8 +231,8 @@ submodule (SphericalHarmonics) vcsv_vcvv_vcvgv
           j = m
             mj = m*(this%maxj+1)-m*(m+1)/2+j+1
             
-            do concurrent ( i2=1:step, i1=1:19 )
-              symL(i1,i2) = symL(i1,i2) + cc(i1,mj)
+            do concurrent ( i1=1:19 , i2=1:step )
+              symL(i2,i1) = symL(i2,i1) + cc(i1,mj)
             end do
             
           do j = 1, (this%maxj-m)/2
@@ -242,16 +242,16 @@ submodule (SphericalHarmonics) vcsv_vcvv_vcvgv
             pmj1 = pmj
             pmj = this%amjrr(mj-1) * cosx * pmj1 - this%bmjrr(mj-1) * pmj2
             
-            do concurrent ( i2=1:step, i1=1:19 )
-              asymL(i1,i2) = asymL(i1,i2) + cc(i1,mj-1) * pmj(i2)
+            do concurrent ( i1=1:19 , i2=1:step )
+              asymL(i2,i1) = asymL(i2,i1) + cc(i1,mj-1) * pmj(i2)
             end do
             
             pmj2 = pmj1
             pmj1 = pmj
             pmj = this%amjrr(mj) * cosx * pmj1 - this%bmjrr(mj) * pmj2
             
-            do concurrent ( i2=1:step, i1=1:19 )
-              symL(i1,i2) = symL(i1,i2) + cc(i1,mj) * pmj(i2)
+            do concurrent ( i1=1:19 , i2=1:step )
+              symL(i2,i1) = symL(i2,i1) + cc(i1,mj) * pmj(i2)
             end do
             
             if ( maxval(abs(pmj)) < this%tolm ) exit
@@ -264,14 +264,16 @@ submodule (SphericalHarmonics) vcsv_vcvv_vcvgv
             pmj1 = pmj
             pmj = this%amjrr(mj) * cosx * pmj1 - this%bmjrr(mj) * pmj2
             
-            do concurrent ( i2=1:step, i1=1:19 )
-              asymL(i1,i2) = asymL(i1,i2) + cc(i1,mj) * pmj(i2)
+            do concurrent ( i1=1:19 , i2=1:step )
+              asymL(i2,i1) = asymL(i2,i1) + cc(i1,mj) * pmj(i2)
             end do
           end if
           
           do concurrent ( i2=1:step, i1=1:19 )
-            sumLegendreN(i1,i2,0)%re = symL(i1,i2)%re + asymL(i1,i2)%re ; sumLegendreN(i1,i2,0)%im = 0._dbl
-            sumLegendreS(i1,i2,0)%re = symL(i1,i2)%re - asymL(i1,i2)%re ; sumLegendreS(i1,i2,0)%im = 0._dbl
+            sumLegendreN(i1,i2,0)%re = symL(i2,i1)%re + asymL(i2,i1)%re
+            sumLegendreS(i1,i2,0)%re = symL(i2,i1)%re - asymL(i2,i1)%re
+            
+            sumLegendreN(i1,i2,0)%im = 0._dbl ; sumLegendreS(i1,i2,0)%im = 0._dbl
           end do
           
         do m = 1, this%maxj
@@ -288,8 +290,8 @@ submodule (SphericalHarmonics) vcsv_vcvv_vcvgv
           j = m
             mj = m*(this%maxj+1)-m*(m+1)/2+j+1
             
-            do concurrent ( i2=1:step, i1=1:19 )
-              symL(i1,i2) = symL(i1,i2) + cc(i1,mj) * pmj(i2)
+            do concurrent ( i1=1:19 , i2=1:step )
+              symL(i2,i1) = symL(i2,i1) + cc(i1,mj) * pmj(i2)
             end do
           
           do j = 1, (this%maxj-m)/2
@@ -299,16 +301,16 @@ submodule (SphericalHarmonics) vcsv_vcvv_vcvgv
             pmj1 = pmj
             pmj = this%amjrr(mj-1) * cosx * pmj1 - this%bmjrr(mj-1) * pmj2
 
-            do concurrent ( i2=1:step, i1=1:19 )
-              asymL(i1,i2) = asymL(i1,i2) + cc(i1,mj-1) * pmj(i2)
+            do concurrent ( i1=1:19 , i2=1:step )
+              asymL(i2,i1) = asymL(i2,i1) + cc(i1,mj-1) * pmj(i2)
             end do
 
             pmj2 = pmj1
             pmj1 = pmj
             pmj  = this%amjrr(mj) * cosx * pmj1 - this%bmjrr(mj) * pmj2
 
-            do concurrent ( i2=1:step, i1=1:19 )
-              symL(i1,i2) = symL(i1,i2) + cc(i1,mj) * pmj(i2)
+            do concurrent ( i1=1:19 , i2=1:step )
+              symL(i2,i1) = symL(i2,i1) + cc(i1,mj) * pmj(i2)
             end do
             
             if ( maxval(abs(pmj)) < this%tolm ) exit
@@ -321,14 +323,14 @@ submodule (SphericalHarmonics) vcsv_vcvv_vcvgv
             pmj1 = pmj
             pmj  = this%amjrr(mj) * cosx * pmj1 - this%bmjrr(mj) * pmj2
 
-            do concurrent ( i2=1:step, i1=1:19 )
-              asymL(i1,i2) = asymL(i1,i2) + cc(i1,mj) * pmj(i2)
+            do concurrent ( i1=1:19 , i2=1:step )
+              asymL(i2,i1) = asymL(i2,i1) + cc(i1,mj) * pmj(i2)
             end do
           end if
           
           do concurrent ( i2=1:step, i1=1:19 )
-            sumLegendreN(i1,i2,m) = ( symL(i1,i2) + asymL(i1,i2) )
-            sumLegendreS(i1,i2,m) = ( symL(i1,i2) - asymL(i1,i2) ) 
+            sumLegendreN(i1,i2,m) = ( symL(i2,i1) + asymL(i2,i1) )
+            sumLegendreS(i1,i2,m) = ( symL(i2,i1) - asymL(i2,i1) ) 
           end do
         end do
 
@@ -352,7 +354,7 @@ submodule (SphericalHarmonics) vcsv_vcvv_vcvgv
                        & grid(18,i2,i1) * grid(19,i2,i1)
         end do
 
-        call fftw_execute_dft_r2c(this%fftw_04_r2c, fft, fftNC)
+        call fftw_execute_dft_r2c(this%fftw_04_r2c, fft, sumFourierN)
 
         call fftw_execute_dft_c2r(this%fftw_19_c2r, sumLegendreS, grid)
         
@@ -374,7 +376,7 @@ submodule (SphericalHarmonics) vcsv_vcvv_vcvgv
                        & grid(18,i2,i1) * grid(19,i2,i1)
         end do
         
-        call fftw_execute_dft_r2c(this%fftw_04_r2c, fft, fftSC)
+        call fftw_execute_dft_r2c(this%fftw_04_r2c, fft, sumFourierS)
         
         pmm  = 1._dbl
         
@@ -384,8 +386,8 @@ submodule (SphericalHarmonics) vcsv_vcvv_vcvgv
           pmj  = pmm
           
           do concurrent (i2=1:step, i1=1:4)
-            symF(i2,i1)  = fftLege(i2) * ( fftNC(i1,i2,m) + fftSC(i1,i2,m) ) ; symF(i2,i1)%im  = 0._dbl
-            asymF(i2,i1) = fftLege(i2) * ( fftNC(i1,i2,m) - fftSC(i1,i2,m) ) ; asymF(i2,i1)%im = 0._dbl
+            symF(i2,i1)  = fftLege(i2) * ( sumFourierN(i1,i2,m) + sumFourierS(i1,i2,m) ) ; symF(i2,i1)%im  = 0._dbl
+            asymF(i2,i1) = fftLege(i2) * ( sumFourierN(i1,i2,m) - sumFourierS(i1,i2,m) ) ; asymF(i2,i1)%im = 0._dbl
           end do
           
           j = m
@@ -413,11 +415,9 @@ submodule (SphericalHarmonics) vcsv_vcvv_vcvgv
             do concurrent ( i1=1:4 , i2=1:step )
               cr(i1,mj) = cr(i1,mj) + pmj(i2) * symF(i2,i1)
             end do
-            
-            if ( maxval(abs(pmj)) < this%tolm ) exit
           end do
           
-          if ( (maxval(abs(pmj)) >= this%tolm) .and. (mod(this%jmax+1-m,2) /= 0) ) then
+          if (mod(this%jmax+1-m,2) /= 0) then
             mj = mj+1
             
             pmj2 = pmj1
@@ -431,15 +431,15 @@ submodule (SphericalHarmonics) vcsv_vcvv_vcvgv
         
         do m = 1, this%jmax+1
           fac = -sqrt( ( 2*m+1 ) / ( 2._dbl*m ) )
-          pmm = fac * sinx * pmm ; if (maxval(abs(pmm)) < this%tolm) exit
+          pmm = fac * sinx * pmm
           
           pmj2 = 0._dbl
           pmj1 = 0._dbl
           pmj  = pmm
 
           do concurrent ( i2=1:step, i1=1:4 )
-            symF(i2,i1)  = fftLege(i2) * ( fftNC(i1,i2,m) + fftSC(i1,i2,m) )
-            asymF(i2,i1) = fftLege(i2) * ( fftNC(i1,i2,m) - fftSC(i1,i2,m) )
+            symF(i2,i1)  = fftLege(i2) * ( sumFourierN(i1,i2,m) + sumFourierS(i1,i2,m) )
+            asymF(i2,i1) = fftLege(i2) * ( sumFourierN(i1,i2,m) - sumFourierS(i1,i2,m) )
           end do
           
           j = m
@@ -467,11 +467,9 @@ submodule (SphericalHarmonics) vcsv_vcvv_vcvgv
             do concurrent ( i1=1:4 , i2=1:step )
               cr(i1,mj) = cr(i1,mj) + pmj(i2) * symF(i2,i1)
             end do
-            
-            if ( maxval(abs(pmj)) < this%tolm ) exit
           end do
           
-          if ( (maxval(abs(pmj)) >= this%tolm) .and. (mod(this%jmax+1-m,2) /= 0) ) then
+          if (mod(this%jmax+1-m,2) /= 0) then
             mj = mj+1
             
             pmj2 = pmj1
@@ -485,8 +483,8 @@ submodule (SphericalHarmonics) vcsv_vcvv_vcvgv
         end do
       end do
 
-    deallocate( cc, sumLegendreN, sumLegendreS, grid, fft, fftNC, fftSC, pmm, pmj, pmj1, pmj2, cosx, sinx, fftLege, symL, asymL, &
-              & symF, asymF )
+    deallocate( cc, sumLegendreN, sumLegendreS, grid, fft, sumFourierN, sumFourierS, pmm, pmj, pmj1, pmj2, cosx, sinx, fftLege, &
+              & symL, asymL, symF, asymF )
     
     fac = 1 / ( 4 * this%nLegendre**2 * this%nFourier * sqrt(pi) )
     
