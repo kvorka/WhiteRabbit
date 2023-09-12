@@ -24,8 +24,6 @@ submodule (SphericalHarmonics) vcsv_vcvv_vcvgv
   end subroutine init_vcsv_vcvv_vcvgv_sub
 
   subroutine vcsv_vcvv_vcvgv_sub(this, ri, q, dv_r, v, cjm)
-    real(kind=dbl), parameter :: tolm = 1.0d-55 , tolj = 1.0d-55
-    
     class(T_lateralGrid), intent(in)  :: this
     real(kind=dbl),       intent(in)  :: ri
     complex(kind=dbl),    intent(in)  :: dv_r(:), q(:), v(:)
@@ -218,7 +216,6 @@ submodule (SphericalHarmonics) vcsv_vcvv_vcvgv
         fftLege = this%fftLege(i:i+step-1)
         
         pmm = 1._dbl
-        mj  = 0
 
         sumLegendreN = czero
         sumLegendreS = czero
@@ -226,7 +223,7 @@ submodule (SphericalHarmonics) vcsv_vcvv_vcvgv
         m = 0
           pmj2 = 0._dbl
           pmj1 = 0._dbl
-          pmj  = 1._dbl
+          pmj  = pmm
           
           symL  = czero
           asymL = czero
@@ -257,10 +254,10 @@ submodule (SphericalHarmonics) vcsv_vcvv_vcvgv
               symL(i1,i2) = symL(i1,i2) + cc(i1,mj) * pmj(i2)
             end do
             
-            if ( maxval(abs(pmj)) < tolj ) exit
+            if ( maxval(abs(pmj)) < this%tolm ) exit
           end do
           
-          if ( (maxval(abs(pmj)) >= tolj) .and. (mod((this%maxj-m),2) /= 0) ) then
+          if ( (maxval(abs(pmj)) >= this%tolm) .and. (mod((this%maxj-m),2) /= 0) ) then
             mj = mj+1
             
             pmj2 = pmj1
@@ -279,7 +276,7 @@ submodule (SphericalHarmonics) vcsv_vcvv_vcvgv
           
         do m = 1, this%maxj
           fac = -sqrt( ( 2*m+1 ) / ( 2._dbl*m ) )
-          pmm = fac * sinx * pmm ; if (maxval(abs(pmm)) < tolm) exit
+          pmm = fac * sinx * pmm ; if (maxval(abs(pmm)) < this%tolm) exit
           
           pmj2 = 0._dbl
           pmj1 = 0._dbl
@@ -313,11 +310,11 @@ submodule (SphericalHarmonics) vcsv_vcvv_vcvgv
             do concurrent ( i2=1:step, i1=1:19 )
               symL(i1,i2) = symL(i1,i2) + cc(i1,mj) * pmj(i2)
             end do
-
-            if ( maxval(abs(pmj)) < tolj ) exit
+            
+            if ( maxval(abs(pmj)) < this%tolm ) exit
           end do
-
-          if ( (maxval(abs(pmj)) >= tolj) .and. (mod((this%maxj-m),2) /= 0) ) then
+          
+          if ( (maxval(abs(pmj)) >= this%tolm) .and. (mod((this%maxj-m),2) /= 0) ) then
             mj = mj+1
 
             pmj2 = pmj1
@@ -330,8 +327,8 @@ submodule (SphericalHarmonics) vcsv_vcvv_vcvgv
           end if
           
           do concurrent ( i2=1:step, i1=1:19 )
-            sumLegendreN(i1,i2,m) = symL(i1,i2) + asymL(i1,i2)
-            sumLegendreS(i1,i2,m) = symL(i1,i2) - asymL(i1,i2)
+            sumLegendreN(i1,i2,m) = ( symL(i1,i2) + asymL(i1,i2) )
+            sumLegendreS(i1,i2,m) = ( symL(i1,i2) - asymL(i1,i2) ) 
           end do
         end do
 
@@ -380,12 +377,11 @@ submodule (SphericalHarmonics) vcsv_vcvv_vcvgv
         call fftw_execute_dft_r2c(this%fftw_04_r2c, fft, fftSC)
         
         pmm  = 1._dbl
-        mj   = 0
         
         m = 0
           pmj2 = 0._dbl
           pmj1 = 0._dbl
-          pmj  = 1._dbl
+          pmj  = pmm
           
           do concurrent (i2=1:step, i1=1:4)
             symF(i2,i1)  = fftLege(i2) * ( fftNC(i1,i2,m) + fftSC(i1,i2,m) ) ; symF(i2,i1)%im  = 0._dbl
@@ -393,7 +389,7 @@ submodule (SphericalHarmonics) vcsv_vcvv_vcvgv
           end do
           
           j = m
-            s = +1 ; mj = m*this%maxj-m*(m+1)/2+j+1
+            mj = m*this%maxj-m*(m+1)/2+j+1
 
             do concurrent ( i1=1:4 , i2=1:step )
               cr(i1,mj) = cr(i1,mj) + symF(i2,i1)
@@ -417,11 +413,11 @@ submodule (SphericalHarmonics) vcsv_vcvv_vcvgv
             do concurrent ( i1=1:4 , i2=1:step )
               cr(i1,mj) = cr(i1,mj) + pmj(i2) * symF(i2,i1)
             end do
-
-            if ( maxval(abs(pmj)) < tolj ) exit
+            
+            if ( maxval(abs(pmj)) < this%tolm ) exit
           end do
           
-          if ( (maxval(abs(pmj)) >= tolj) .and. (mod(this%jmax+1-m,2) /= 0) ) then
+          if ( (maxval(abs(pmj)) >= this%tolm) .and. (mod(this%jmax+1-m,2) /= 0) ) then
             mj = mj+1
             
             pmj2 = pmj1
@@ -435,7 +431,7 @@ submodule (SphericalHarmonics) vcsv_vcvv_vcvgv
         
         do m = 1, this%jmax+1
           fac = -sqrt( ( 2*m+1 ) / ( 2._dbl*m ) )
-          pmm = fac * sinx * pmm ; if (maxval(abs(pmm)) < tolm) exit
+          pmm = fac * sinx * pmm ; if (maxval(abs(pmm)) < this%tolm) exit
           
           pmj2 = 0._dbl
           pmj1 = 0._dbl
@@ -471,11 +467,11 @@ submodule (SphericalHarmonics) vcsv_vcvv_vcvgv
             do concurrent ( i1=1:4 , i2=1:step )
               cr(i1,mj) = cr(i1,mj) + pmj(i2) * symF(i2,i1)
             end do
-
-            if ( maxval(abs(pmj)) < tolj ) exit
+            
+            if ( maxval(abs(pmj)) < this%tolm ) exit
           end do
-
-          if ( (maxval(abs(pmj)) >= tolj) .and. (mod(this%jmax+1-m,2) /= 0) ) then
+          
+          if ( (maxval(abs(pmj)) >= this%tolm) .and. (mod(this%jmax+1-m,2) /= 0) ) then
             mj = mj+1
             
             pmj2 = pmj1

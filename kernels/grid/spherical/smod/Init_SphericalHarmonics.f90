@@ -19,6 +19,26 @@ submodule (SphericalHarmonics) Init_SphericalHarmonics
     this%maxj      = jmax+2
     this%nFourier  = 3*(this%maxj+1)
     this%nLegendre = (((3*(this%maxj+1)/2+1)/2+1+step)/step)*step
+    
+    if ( jmax <= 200 ) then
+      this%tolm = 1.0d-35
+    else if ( jmax <= 250 ) then
+      this%tolm = 1.0d-43
+    else if ( jmax <= 300 ) then
+      this%tolm = 1.0d-53
+    else if ( jmax <= 350 ) then
+      this%tolm = 1.0d-62
+    else if ( jmax <= 400 ) then
+      this%tolm = 1.0d-70
+    else if ( jmax <= 450 ) then
+      this%tolm = 1.0d-78
+    else if ( jmax <= 500 ) then
+      this%tolm = 1.0d-86
+    else if ( jmax <= 550 ) then
+      this%tolm = 1.0d-97
+    else if ( jmax <= 600 ) then
+      this%tolm = 1.0d-104
+    end if
 
     allocate( this%ish(this%jms2), this%roots(this%nLegendre), this%fftLege(this%nLegendre), &
             & this%amjrr(this%jms2), this%bmjrr(this%jms2) )
