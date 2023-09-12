@@ -3,9 +3,9 @@ module OceanConstants
   implicit none
   
   !Vseobecne nastavenie konstant
-  integer, parameter :: nd_ocean = 73
-  integer, parameter :: jmax_ocean = 125
-  integer, parameter :: n_iter_ocean = 100  !Nastavit na N_period pre slapy
+  integer, parameter :: nd_ocean = 121
+  integer, parameter :: jmax_ocean = 349
+  integer, parameter :: n_iter_ocean = 200  !Nastavit na N_period pre slapy
   logical, parameter :: noharm_ocean = .false.
   
   character(len=*), parameter :: grid_type_ocean    = 'chebv'
@@ -28,9 +28,8 @@ module OceanConstants
   real(kind=dbl), parameter          :: stress_dim = D_ud_ocean**3 * nu * (2*pi / period)**2
   
   real(kind=dbl), parameter :: Pr_ocean = 1._dbl
-  real(kind=dbl), parameter :: Ra_ocean = 8.0d6
-  real(kind=dbl), parameter :: Ek_ocean = 1.0d-4
-  !real(kind=dbl), parameter :: Ek_ocean = nu / rho * period / 2 / pi / D_ud_ocean**2
+  real(kind=dbl), parameter :: Ra_ocean = 1.5d8
+  real(kind=dbl), parameter :: Ek_ocean = 1.0d-5
   real(kind=dbl), parameter :: Cl_ocean = 0._dbl
   
   !Nastavovanie pociatocneho stavu
