@@ -11,6 +11,7 @@ module Solution
     contains
     
     procedure, pass :: init_sub       => init_solution_sub
+    procedure, pass :: nulify_sub     => nulify_solution_sub
     procedure, pass :: deallocate_sub => deallocate_solution_sub
     
     procedure, pass :: init_stemp_sub
@@ -44,6 +45,10 @@ module Solution
       class(T_solution), intent(inout) :: this
       integer,           intent(in)    :: nd, jmax
     end subroutine init_solution_sub
+    
+    module subroutine nulify_solution_sub(this)
+      class(T_solution), intent(inout) :: this
+    end subroutine nulify_solution_sub
     
     module subroutine deallocate_solution_sub(this)
       class(T_solution), intent(inout) :: this

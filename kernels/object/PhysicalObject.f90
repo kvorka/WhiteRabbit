@@ -35,6 +35,7 @@ module PhysicalObject
     contains
     
     procedure, pass :: init_objects_sub       => init_objects_sub
+    procedure, pass :: set_dt_sub
     procedure, pass :: vypis_sub
     procedure, pass :: deallocate_objects_sub => deallocate_objects_sub
 
@@ -99,6 +100,10 @@ module PhysicalObject
       character(len=*),           intent(in)    :: rgrid
       logical,          optional, intent(in)    :: noobj, noharm
     end subroutine init_objects_sub
+    
+    module subroutine set_dt_sub(this)
+      class(T_physicalObject), intent(inout) :: this
+    end subroutine set_dt_sub
     
     module subroutine deallocate_objects_sub(this)
       class(T_physicalObject), intent(inout) :: this

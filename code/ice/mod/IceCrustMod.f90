@@ -28,8 +28,8 @@ module IceCrustMod
     class(T_iceCrust), intent(inout) :: this
     logical, optional, intent(in)    :: notides
     type(T_iceTides)                 :: tides
-    integer                          :: i
-    real(kind=dbl)                   :: radius
+    integer                          :: i, iter
+    real(kind=dbl),    allocatable   :: stress_i(:)
     complex(kind=dbl), allocatable   :: flux_bnd(:)
    
     call this%init_ice_sub(jmax_in = jmax_ice, rheol_in = 'viscel', n_iter = n_iter_ice)
@@ -41,36 +41,56 @@ module IceCrustMod
     call this%init_eq_mech_sub( rhs=.true. , nl=.false. )
     
     call tides%init_sub()
-    call tides%deallocate_sub()
-    
-    !if ( notides ) then
-    !  open(unit=1, file='data/data_ice_tides/Temp_tides.dat', status='old', action='read')
-    !    do i = 1, this%nd+1; read(1,*) radius, this%sol%temp(3*(i-1)+1,1); end do
-    !  close(1)
-    !  
-    !else
-      open(unit=1, file='data/data_ice_tides/Temp_tides.dat', status='old', action='read')
-        do i = 1, this%nd+1; read(1,*) radius, this%sol%temp(3*(i-1)+1,1); end do
-      close(1)
-      
-      open(unit=1, file='data/data_ice_tides/tidal_heating.dat', status='old', action='read')
-        do i = 1, this%nd; read(1,*) radius, this%htide(i,:); end do
-      close(1)
-    !end if
-    
     allocate( flux_bnd(this%jms) ); flux_bnd = czero
-      
-    do
-      call this%EE_sub(flux_bnd)
-      write(*,*) c2r_fn(this%sol%u_up(4)) * this%D_ud , this%sol%u_up(6) * this%D_ud
-      if ( abs(this%sol%v_up(4) / this%sol%u_up(4)) < 1e-10 ) then 
-        exit
-      else if ( abs(this%sol%v_up(4) * this%dt / this%sol%u_up(4)) < 1e-4 ) then
-        this%dt = 5 * this%dt
-      end if
-    end do
+    allocate( stress_i(this%nd)  ); stress_i   = 0._dbl
     
-    deallocate( flux_bnd )
+      call tides%compute_sub()
+      
+      this%sol%temp(1:3*this%nd+1:3,1) = tides%sol%temp(1:3*this%nd+1:3,1)
+      this%htide                       = tides%htide
+      call this%set_dt_sub()
+      
+      iter = 0
+        do
+          call this%EE_sub(flux_bnd)
+          write(*,*) this%dt, c2r_fn(this%sol%u_up(4)) * this%D_ud
+          
+          if ( abs(this%sol%v_up(4) / this%sol%u_up(4)) < 1e-10 ) then 
+            exit
+          else if ( abs(this%sol%v_up(4) * this%dt / this%sol%u_up(4)) < 1e-2 ) then
+            this%dt = 5 * this%dt
+          end if
+        end do
+      
+      do iter = 1, 5
+        do i = 1, this%nd
+          stress_i(i) = tnorm_fn( this%jmax, this%sol%deviatoric_stress_jml2_fn(i) ) / sqrt(4*pi)
+        end do
+        
+        call tides%compute_sub( stress_prof_i = (this%viscU * this%kappaU / this%D_ud**2) * stress_i )
+        call this%sol%nulify_sub()
+        
+        this%sol%temp(1:3*this%nd+1:3,1) = tides%sol%temp(1:3*this%nd+1:3,1)
+        this%htide                       = tides%htide
+        call this%set_dt_sub()
+        
+        do
+          call this%EE_sub(flux_bnd)
+          write(*,*) this%dt, c2r_fn(this%sol%u_up(4)) * this%D_ud
+          
+          if ( abs(this%sol%v_up(4) / this%sol%u_up(4)) < 1e-10 ) then 
+            exit
+          else if ( abs(this%sol%v_up(4) * this%dt / this%sol%u_up(4)) < 1e-3 ) then
+            this%dt = 5 * this%dt
+          end if
+        end do
+      end do
+      
+    call tides%deallocate_sub()
+    deallocate( flux_bnd, stress_i )
+    
+    write(*,*)
+    write(*,*) c2r_fn(this%sol%u_up(4)) * this%D_ud , this%sol%u_up(6) * this%D_ud , c2r_fn(this%sol%u_up(11)) * this%D_ud
     
     write(*,*) 'Icy crust quasi hydrostatic' ; call vypis_iceCrust_sub(this)
     

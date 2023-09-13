@@ -18,6 +18,26 @@ submodule(Solution) Solution_init
     this%inittorr = .false.
 
   end subroutine init_solution_sub
+  
+  subroutine nulify_solution_sub(this)
+    class(T_solution), intent(inout) :: this
+
+    if ( allocated(this%temp) ) this%temp = czero
+    if ( allocated(this%torr) ) this%torr = czero
+    if ( allocated(this%mech) ) this%mech = czero
+    
+    if ( allocated(this%u_dn) ) this%u_dn = czero
+    if ( allocated(this%u_up) ) this%u_up = czero
+    if ( allocated(this%u_I2) ) this%u_I2 = czero
+    if ( allocated(this%u_C ) ) this%u_C  = czero
+    
+    if ( allocated(this%t_dn) ) this%t_dn = czero
+    if ( allocated(this%t_up) ) this%t_up = czero
+    
+    if ( allocated(this%v_up) ) this%v_up = czero
+    if ( allocated(this%v_dn) ) this%v_dn = czero
+    
+  end subroutine nulify_solution_sub
 
   subroutine deallocate_solution_sub(this)
     class(T_solution), intent(inout) :: this
