@@ -3,13 +3,12 @@ module IceTidesMod
   implicit none
     
   type, extends(T_ice), public :: T_iceTides
-    real(kind=dbl), allocatable, private :: stress_prof(:)
+    real(kind=dbl), allocatable, private :: stress_prof(:), temp_prof(:)
     
     contains
     
     procedure, public,  pass :: init_sub       => init_iceTides_sub
     procedure, public,  pass :: compute_sub    => compute_iceTides_sub
-    procedure, private, pass :: EE_temp_sub    => EE_temp_iceTides_sub
     procedure, private, pass :: EE_mech_sub    => EE_mech_iceTides_sub
     procedure, public,  pass :: visc_fn        => visc_iceTides_fn
     procedure, public,  pass :: Vdelta_fn      => Vdelta_iceTides_fn
@@ -18,9 +17,8 @@ module IceTidesMod
   end type T_iceTides
   
   private :: init_iceTides_sub, compute_iceTides_sub
-  private :: EE_temp_iceTides_sub, EE_mech_iceTides_sub
+  private :: EE_mech_iceTides_sub
   private :: Vdelta_iceTides_fn , set_layers_iceTides_sub , visc_iceTides_fn
-  private :: vypis_iceTides_sub
   
   contains
   
@@ -30,86 +28,45 @@ module IceTidesMod
     call this%init_ice_sub(jmax_in=2, rheol_in='viscel', n_iter=n_iter_tides, noharm=.true.)
       this%cf = 1._dbl ; this%andrade = .true.
     
-    call this%init_eq_temp_sub( rhs=.true. , nl=.false. )
     call this%init_eq_mech_sub( rhs=.true. , nl=.false. )
     
+    allocate( this%stress_prof(this%nd) ) ; this%stress_prof = 0._dbl
+    allocate( this%temp_prof(this%nd)   ) ; this%temp_prof   = 0._dbl
 
   end subroutine init_iceTides_sub
     
-  subroutine compute_iceTides_sub(this, stress_prof_i)
-    class(T_iceTides),           intent(inout) :: this
-    real(kind=dbl),    optional, intent(in)    :: stress_prof_i(:)
-    integer                                    :: n
-    real(kind=dbl)                             :: P, Pglobal
-    complex(kind=dbl), allocatable             :: Temp(:)
+  subroutine compute_iceTides_sub(this, stress_prof, temp_prof)
+    class(T_iceTides), intent(inout) :: this
+    real(kind=dbl),    intent(in)    :: stress_prof(:), temp_prof(:)
+    integer                          :: n
+    real(kind=dbl)                   :: P, Pglobal
     
-    call this%sol%nulify_sub()
-    Pglobal = 0._dbl
+    call this%sol%nulify_sub() ; Pglobal = 0._dbl
     
-    if ( present(stress_prof_i) ) this%stress_prof = stress_prof_i(:)
+    this%stress_prof = stress_prof(:)
+    this%temp_prof   = temp_prof(:)
     
-    allocate( Temp(this%nd+1) ) ; Temp = czero ; this%sol%temp(1:3*this%nd+1:3,1) = cone
+    this%t = 0._dbl
+    this%dt = this%period / this%n_iter ; this%htide = czero
     
     do
-      this%t = 0._dbl
-      
-      this%dt = huge(0._dbl)
-        Temp = this%sol%temp_i_fn(1)
-        call this%EE_temp_sub() ; if ( maxval( abs( this%sol%temp_i_fn(1)-Temp ) / abs(Temp) ) < 1e-6 ) exit
-      
-      this%dt = this%period / this%n_iter ; this%htide = czero
-        do
-          do n = 1, this%n_iter
-            this%t = this%t + this%dt
-              call this%EE_mech_sub()
-              call this%tidal_heating_sub()
-          end do
+      do n = 1, this%n_iter
+        this%t = this%t + this%dt
+        
+        call this%EE_mech_sub()
+        call this%tidal_heating_sub()
+      end do
           
-          P = this%rad_grid%intV_fn( real(this%htide(:,1), kind=dbl) )
-            if ( abs(P-Pglobal) / P < 1.0d-6 ) then
-              write(*,*) P ; exit
-            else
-              Pglobal    = P
-              this%htide = czero
-            end if
-        end do
+      P = this%rad_grid%intV_fn( real(this%htide(:,1), kind=dbl) )
+        if ( abs(P-Pglobal) / P < 1.0d-6 ) then
+          exit
+        else
+          Pglobal    = P
+          this%htide = czero
+        end if
     end do
-      
-    deallocate( Temp )
-    
-    !call vypis_iceTides_sub(this)
     
   end subroutine compute_iceTides_sub
-  
-    subroutine EE_temp_iceTides_sub(this)
-      class(T_iceTides), intent(inout) :: this
-      integer                          :: ijm, ir
-      complex(kind=dbl), allocatable   :: Temp1(:)
-      
-      allocate( Temp1(this%nd+1) )
-      
-      ijm = 1
-        do
-          Temp1(:) = this%sol%temp_i_fn(ijm)
-          
-          ir = 1
-            this%rtemp(ir,ijm) = cs4pi
-           
-          do concurrent ( ir = 2:this%nd )
-            this%rtemp(ir,ijm) = this%htide_fn(ir,1)
-          end do
-          
-          ir = this%nd+1
-            this%rtemp(ir,ijm) = czero
-          
-          call this%solve_temp_sub( ijmstart=ijm, ijmend=ijm, ijmstep=1, rematrix=.true., matxsol=.false. )
-          
-          if ( maxval( abs( this%sol%temp_i_fn(ijm) - Temp1 ) / abs( Temp1 ) ) < 1e-8 ) exit
-        end do
-        
-      deallocate( Temp1 )
-      
-    end subroutine EE_temp_iceTides_sub
     
     subroutine EE_mech_iceTides_sub(this)
       class(T_iceTides), intent(inout) :: this
@@ -131,26 +88,6 @@ module IceTidesMod
       end do
       
     end subroutine EE_mech_iceTides_sub
-    
-    subroutine vypis_iceTides_sub(this)
-      class(T_iceTides), intent(in) :: this
-      integer                       :: i
-    
-      open(unit=7, file='data/data_ice_tides/Temp_tides.dat', status='new', action='write')
-        do i = 1, this%nd+1
-          write(7,*) this%rad_grid%rr(i), this%sol%temp_fn(i,1)
-        end do
-      close(7)
-    
-      open(unit=7, file='data/data_ice_tides/tidal_heating.dat', status='new', action='write')
-        do i = 1, this%nd
-          write(7,*) this%rad_grid%r(i), this%htide(i,:)
-        end do
-      close(7)
-    
-      write(*,*) 'Tides initialized'
-    
-    end subroutine vypis_iceTides_sub
     
     pure complex(kind=dbl) function Vdelta_iceTides_fn(this, ir, ijm)
       class(T_iceTides), intent(in) :: this
@@ -209,14 +146,7 @@ module IceTidesMod
       integer,           intent(in) :: i
       real(kind=dbl)                :: visc, temp
       
-      temp = this%Tu + (this%Td-this%Tu) * real( this%rad_grid%c(i,-1) * this%sol%temp_fn(i  ,1) +          &
-                                               & this%rad_grid%c(i,+1) * this%sol%temp_fn(i+1,1) , kind=dbl ) / sqrt(4*pi)
-      
-      if ( allocated(this%stress_prof) ) then
-        visc = min( goldsby_visc_fn(this%diam, temp, this%stress_prof(i)), this%cutoff )
-      else
-        visc = min( goldsby_diffvisc_fn(this%diam, temp), this%cutoff )
-      end if
+      visc = min( goldsby_visc_fn(this%diam, this%temp_prof(i), this%stress_prof(i)), this%cutoff )
       
       if ( .not. this%andrade ) then
         visc_iceTides_fn = visc

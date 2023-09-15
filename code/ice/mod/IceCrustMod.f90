@@ -4,33 +4,43 @@ module IceCrustMod
   implicit none
   
   type, extends(T_ice), public :: T_iceCrust
+    type(T_iceTides), private :: tides
+    
     contains
     
     procedure, public, pass :: init_sub        => init_iceCrust_sub
     procedure, public, pass :: time_scheme_sub => iter_iceCrust_sub
+    procedure, public, pass :: solve_sub       => solve_iceCrust_sub
     
     procedure, private, pass :: EE_sub        => EE_iceCrust_sub
     procedure, private, pass :: EE_temp_sub   => EE_temp_iceCrust_sub
     procedure, private, pass :: EE_mech_sub   => EE_mech_iceCrust_sub
+    procedure, private, pass :: adjust_dt_sub => adjust_dt_iceCrust_sub
+    procedure, private, pass :: relevant_criterion_fn
+    
+    procedure, private, pass :: II_stress_fn => II_stress_iceCrust_fn
+    procedure, private, pass :: avrg_temp_fn => avrg_temp_iceCrust_fn
     
   end type T_iceCrust
   
   private :: init_iceCrust_sub
-  private :: vypis_iceCrust_sub
+  private :: iter_iceCrust_sub
+  private :: solve_iceCrust_sub
   
+  private :: vypis_iceCrust_sub
   private :: EE_iceCrust_sub
   private :: EE_temp_iceCrust_sub
   private :: EE_mech_iceCrust_sub
+  private :: adjust_dt_iceCrust_sub
+  private :: relevant_criterion_fn
+  
+  private :: II_stress_iceCrust_fn
+  private :: avrg_temp_iceCrust_fn
   
   contains
   
-  subroutine init_iceCrust_sub(this, notides)
+  subroutine init_iceCrust_sub(this)
     class(T_iceCrust), intent(inout) :: this
-    logical, optional, intent(in)    :: notides
-    type(T_iceTides)                 :: tides
-    integer                          :: i, iter
-    real(kind=dbl),    allocatable   :: stress_i(:)
-    complex(kind=dbl), allocatable   :: flux_bnd(:)
    
     call this%init_ice_sub(jmax_in = jmax_ice, rheol_in = 'viscel', n_iter = n_iter_ice)
     call this%lat_grid%init_vcvv_sub()
@@ -40,59 +50,7 @@ module IceCrustMod
     call this%init_eq_temp_sub( rhs=.true. , nl=.true.  )
     call this%init_eq_mech_sub( rhs=.true. , nl=.false. )
     
-    call tides%init_sub()
-    allocate( flux_bnd(this%jms) ); flux_bnd = czero
-    allocate( stress_i(this%nd)  ); stress_i   = 0._dbl
-    
-      call tides%compute_sub()
-      
-      this%sol%temp(1:3*this%nd+1:3,1) = tides%sol%temp(1:3*this%nd+1:3,1)
-      this%htide                       = tides%htide
-      call this%set_dt_sub()
-      
-      iter = 0
-        do
-          call this%EE_sub(flux_bnd)
-          write(*,*) this%dt, c2r_fn(this%sol%u_up(4)) * this%D_ud
-          
-          if ( abs(this%sol%v_up(4) / this%sol%u_up(4)) < 1e-10 ) then 
-            exit
-          else if ( abs(this%sol%v_up(4) * this%dt / this%sol%u_up(4)) < 1e-2 ) then
-            this%dt = 5 * this%dt
-          end if
-        end do
-      
-      do iter = 1, 5
-        do i = 1, this%nd
-          stress_i(i) = tnorm_fn( this%jmax, this%sol%deviatoric_stress_jml2_fn(i) ) / sqrt(4*pi)
-        end do
-        
-        call tides%compute_sub( stress_prof_i = (this%viscU * this%kappaU / this%D_ud**2) * stress_i )
-        call this%sol%nulify_sub()
-        
-        this%sol%temp(1:3*this%nd+1:3,1) = tides%sol%temp(1:3*this%nd+1:3,1)
-        this%htide                       = tides%htide
-        call this%set_dt_sub()
-        
-        do
-          call this%EE_sub(flux_bnd)
-          write(*,*) this%dt, c2r_fn(this%sol%u_up(4)) * this%D_ud
-          
-          if ( abs(this%sol%v_up(4) / this%sol%u_up(4)) < 1e-10 ) then 
-            exit
-          else if ( abs(this%sol%v_up(4) * this%dt / this%sol%u_up(4)) < 1e-3 ) then
-            this%dt = 5 * this%dt
-          end if
-        end do
-      end do
-      
-    call tides%deallocate_sub()
-    deallocate( flux_bnd, stress_i )
-    
-    write(*,*)
-    write(*,*) c2r_fn(this%sol%u_up(4)) * this%D_ud , this%sol%u_up(6) * this%D_ud , c2r_fn(this%sol%u_up(11)) * this%D_ud
-    
-    write(*,*) 'Icy crust quasi hydrostatic' ; call vypis_iceCrust_sub(this)
+    call this%tides%init_sub()
     
   end subroutine init_iceCrust_sub
 
@@ -110,24 +68,127 @@ module IceCrustMod
     class(T_iceCrust), intent(inout) :: this
     complex(kind=dbl), intent(in)    :: flux_bnd(:)
     integer                          :: n
-    complex(kind=dbl), allocatable   :: flux(:)
-    
-    flux = flux_bnd(1:this%jms)
     
     do n = 1, this%n_iter
-      call this%EE_sub( flux )
+      call this%EE_sub( flux_bnd )
     end do
 
     call vypis_iceCrust_sub(this)
     
-    deallocate( flux )
-    
   end subroutine iter_iceCrust_sub
   
-  subroutine EE_iceCrust_sub(this, flux)
+  subroutine solve_iceCrust_sub(this, flux)
     class(T_iceCrust), intent(inout) :: this
-    complex(kind=dbl), intent(inout) :: flux(:)
-    integer                          :: ir, ijm
+    complex(kind=dbl), intent(in)    :: flux(:)
+    integer                          :: iter, ir
+    complex(kind=dbl), allocatable   :: Temp1(:), Temp2(:)
+    
+    allocate( Temp1(this%nd+1), Temp2(this%nd+1) )
+    
+    !! Seek for conductive solution with zero rhs at first
+    this%dt = huge(0._dbl)
+      do
+        Temp1 = this%sol%temp_i_fn(1)
+        
+        ir = 1
+          this%rtemp(ir,1) = cs4pi
+        
+        do concurrent ( ir = 2:this%nd )
+          this%rtemp(ir,1) = czero
+        end do
+        
+        ir = this%nd+1
+          this%rtemp(ir,1) = czero
+        
+        call this%solve_temp_sub( ijmstart=1, ijmend=1, ijmstep=1, rematrix=.true., matxsol=.false. )
+        
+        if ( maxval(abs(this%sol%temp_i_fn(1) - Temp1)/abs(Temp1)) < 1e-8 ) exit
+      end do    
+    
+    do iter = 1, 5
+      !! Find tidal heating for given temperature rhs and stress field
+      this%dt = huge(0._dbl)
+        do
+          call this%tides%compute_sub( this%II_stress_fn(), this%avrg_temp_fn() )
+          this%htide = this%tides%htide
+          
+          Temp2 = this%sol%temp_i_fn(1)
+          
+          do
+            Temp1 = this%sol%temp_i_fn(1)
+            
+            ir = 1
+              this%rtemp(ir,1) = cs4pi
+            
+            do concurrent ( ir = 2:this%nd )
+              this%rtemp(ir,1) = this%htide_fn(ir,1) + this%ntemp(1,ir)
+            end do
+            
+            ir = this%nd+1
+              this%rtemp(ir,1) = czero
+            
+            call this%solve_temp_sub( ijmstart=1, ijmend=1, ijmstep=1, rematrix=.true., matxsol=.false. )
+            
+            if ( maxval(abs(this%sol%temp_i_fn(1) - Temp1)/abs(Temp1)) < 1e-8 ) exit
+          end do
+          
+          if ( maxval(abs(this%sol%temp_i_fn(1) - Temp2)/abs(Temp2)) < 1e-6 ) exit
+        end do
+      
+      !! Solve for hydrostatic state for given tidal heating
+      call this%set_dt_sub() ; call this%sol%nulify_sub()
+        do
+          call this%EE_sub(flux)
+          
+          if ( this%relevant_criterion_fn() < 5e-4 ) then 
+            exit
+          else
+            call this%adjust_dt_sub()
+          end if
+        end do
+        
+      !! Vypisova kontrola
+      write(*,*) this%sol%u_up(4)
+    end do
+    
+    call this%set_dt_sub()
+    
+  end subroutine solve_iceCrust_sub
+  
+    function II_stress_iceCrust_fn(this) result(II_stress)
+      class(T_iceCrust), intent(in) :: this
+      integer                       :: ir
+      real(kind=dbl), allocatable   :: II_stress(:)
+      
+      allocate( II_stress(this%nd) )
+      
+      do ir = 1, this%nd
+        II_stress(ir) = tnorm_fn( this%jmax, this%sol%deviatoric_stress_jml2_fn(ir) )
+      end do
+      
+      II_stress = II_stress * (this%viscU * this%kappaU / this%D_ud**2) / sqrt(4*pi)
+      
+    end function II_stress_iceCrust_fn
+  
+    function avrg_temp_iceCrust_fn(this) result (avrg_temp)
+      class(T_iceCrust), intent(in) :: this
+      integer                       :: ir
+      real(kind=dbl), allocatable   :: avrg_temp(:)
+      
+      allocate( avrg_temp(this%nd) )
+      
+      do ir = 1, this%nd
+        avrg_temp(ir) = this%Tu + (this%Td-this%Tu) * c2r_fn( this%rad_grid%c(ir,-1) * this%sol%temp_fn(ir  ,1) + &
+                                                            & this%rad_grid%c(ir,+1) * this%sol%temp_fn(ir+1,1)   ) / sqrt(4*pi)
+      end do
+      
+    end function avrg_temp_iceCrust_fn
+  
+  subroutine EE_iceCrust_sub(this, flux_bnd)
+    class(T_iceCrust),           intent(inout) :: this
+    complex(kind=dbl), optional, intent(in)    :: flux_bnd(:)
+    integer                                    :: ir, ijm
+    complex(kind=dbl), allocatable             :: flux(:)
     
     this%t = this%t + this%dt
     
@@ -137,6 +198,13 @@ module IceCrustMod
     end do
     !$omp end parallel do
     
+    allocate( flux(this%jms) )
+      if ( present(flux_bnd) ) then
+        flux = flux_bnd(1:this%jms)
+      else
+        flux = czero
+      end if
+      
     call this%EE_temp_sub(flux)
     call this%EE_mech_sub(flux)
     
@@ -153,6 +221,8 @@ module IceCrustMod
       this%sol%t_dn(ijm) = this%sol%u_dn(ijm) - this%Vdelta_fn(1      ,ijm)
       this%sol%t_up(ijm) = this%sol%u_up(ijm) - this%Vdelta_fn(this%nd,ijm)
     end do
+    
+    deallocate( flux )
     
   end subroutine EE_iceCrust_sub
   
@@ -230,5 +300,34 @@ module IceCrustMod
     call this%solve_mech_sub( ijmstart=2, ijmend=this%jms, ijmstep=1, rematrix=.true., matxsol=.true. )
     
   end subroutine EE_mech_iceCrust_sub
+  
+  subroutine adjust_dt_iceCrust_sub(this)
+    class(T_iceCrust), intent(inout) :: this
+    
+    if (this%dt < 0.2_dbl) then
+      if ( this%relevant_criterion_fn() < 1.0d-2 ) then
+        this%dt = 5 * this%dt
+      end if
+    else
+      this%dt = 0.98_dbl
+    end if
+    
+  end subroutine adjust_dt_iceCrust_sub
+  
+    real(kind=dbl) function relevant_criterion_fn(this)
+      class(T_iceCrust), intent(inout) :: this
+      real(kind=dbl)                   :: bottom, surface
+      
+      bottom = max( abs(this%sol%v_dn( 4) / this%sol%u_dn( 4)) , &
+                  & abs(this%sol%v_dn( 6) / this%sol%u_dn( 6)) , &
+                  & abs(this%sol%v_dn(11) / this%sol%u_dn(11))   ) * this%dt
+      
+      surface = max( abs(this%sol%v_up( 4)) / abs(this%sol%u_up( 4)) , &
+                   & abs(this%sol%v_up( 6)) / abs(this%sol%u_up( 6)) , &
+                   & abs(this%sol%v_up(11)) / abs(this%sol%u_up(11))   ) * this%dt
+                   
+      relevant_criterion_fn = surface
+      
+    end function relevant_criterion_fn
   
 end module IceCrustMod
