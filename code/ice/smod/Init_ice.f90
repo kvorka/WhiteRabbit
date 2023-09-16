@@ -58,6 +58,7 @@ submodule(IceMod) Init_ice
     this%Rad  = (this%rhoI-this%rhoW) * this%g * this%D_ud**3 / ( this%viscU * this%kappaU )
     this%Rau  = (this%rhoI          ) * this%g * this%D_ud**3 / ( this%viscU * this%kappaU )
     this%Ds   = this%alphaU * this%g * this%D_ud / this%cU
+    this%Cl   = this%g * this%D_ud * (this%rhoW-this%rhoI) * this%Td / ( this%rhoI * lI_ice * (this%Td-this%Tu) )
     
     
     call this%gravity%init_sub( gmod = gravity_ice, g = this%g, Dcrust = this%D_ud, omega = omega, exc = exc )

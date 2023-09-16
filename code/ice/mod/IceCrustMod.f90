@@ -146,9 +146,6 @@ module IceCrustMod
             call this%adjust_dt_sub()
           end if
         end do
-        
-      !! Vypisova kontrola
-      write(*,*) this%sol%u_up(4)
     end do
     
     call this%set_dt_sub()
@@ -230,6 +227,7 @@ module IceCrustMod
     class(T_iceCrust), intent(inout) :: this
     complex(kind=dbl), intent(inout) :: flux(:)
     integer                          :: ir, ijm
+    real(kind=dbl)                   :: rgrad_T
     complex(kind=dbl), allocatable   :: Temp(:), Temp1(:)
     
     ijm = 1
@@ -255,10 +253,13 @@ module IceCrustMod
     
       flux = flux * c2r_fn( -this%sol%flux_fn(1,1,1) / sqrt(4*pi) )
     
-    !$omp parallel do private (ir)
+    !$omp parallel do private (ir, rgrad_T)
     do ijm = 2, this%jms
+      rgrad_T = - ( c2r_fn( -this%sol%flux_fn(1,1,1) / sqrt(4*pi) ) / this%lambda_fn(1) )
+      
       ir = 1
-        this%rtemp(1,ijm) = -( this%sol%u_dn(ijm) + ( this%vr_fn(1,ijm) + this%Raf * flux(ijm) ) * this%dt )
+        this%rtemp(1,ijm) = -( this%sol%u_dn(ijm) + ( this%vr_fn(1,ijm) + this%Raf * flux(ijm) ) * this%dt + &
+                             & this%Cl / ( rgrad_T - this%Cl ) * this%Vdelta_fn(1,ijm)                       )
       
       do concurrent ( ir = 2:this%nd )
         this%rtemp(ir,ijm) = this%htide_fn(ir,ijm) + this%ntemp(ijm,ir)

@@ -15,17 +15,19 @@ module IceConstants
   integer, parameter :: nlay = 13
   integer, parameter :: jms4 = 15
   
+  real(kind=dbl), parameter :: D_ice     = 100.0d3
+  real(kind=dbl), parameter :: rup_ice   = 2575.0d3
+  real(kind=dbl), parameter :: rdown_ice = rup_ice - D_ice
+  
   real(kind=dbl), parameter :: r_core  = 2068160._dbl
   real(kind=dbl), parameter :: r_iceII = 2149160._dbl
-  real(kind=dbl), parameter :: rdown_ice = 2500000._dbl
-  real(kind=dbl), parameter :: rup_ice   = 2575000._dbl
   
   real(kind=dbl), parameter :: rho_ice   = 920._dbl
   real(kind=dbl), parameter :: rho_water = 1200._dbl
   real(kind=dbl), parameter :: rho_iceII = 1371._dbl  
   real(kind=dbl), parameter :: rho_core  = 2532._dbl
   
-  real(kind=dbl), parameter :: Td_ice = 262._dbl
+  real(kind=dbl), parameter :: Td_ice = 557.2_dbl - 273 * exp( (300 + 1.242 * (rup_ice-rdown_ice)/1e3 )**2 / 2270000 )
   real(kind=dbl), parameter :: Tu_ice = 90._dbl
   
   real(kind=dbl), parameter :: g_ice      = 1.35_dbl
@@ -33,7 +35,7 @@ module IceConstants
   real(kind=dbl), parameter :: cutoff_ice = 1.0d24
   
   real(kind=dbl), parameter :: lI_ice = 334000._dbl
-  real(kind=dbl), parameter :: hC_ice = 5.0d3
+  real(kind=dbl), parameter :: hC_ice = 0.0d3
   real(kind=dbl), parameter :: lambdaC_ice = 0.5_dbl
   real(kind=dbl), parameter :: mu_ice      = 3.5d9
   

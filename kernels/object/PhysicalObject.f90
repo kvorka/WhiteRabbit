@@ -20,7 +20,7 @@ module PhysicalObject
     real(kind=dbl)                 :: t, dt
     real(kind=dbl)                 :: cf, ab
     real(kind=dbl)                 :: rd, ru, r_ud, D_ud
-    real(kind=dbl)                 :: Pr, Ra, Ek, Ds, Raf, Ramu, Rad, Rau
+    real(kind=dbl)                 :: Pr, Ra, Ek, Cl, Ds, Raf, Ramu, Rad, Rau
     integer,           allocatable :: j_indx(:)
     complex(kind=dbl), allocatable :: flux_up(:), htide(:,:)
     complex(kind=dbl), allocatable :: rsph1(:,:), rsph2(:,:), rtorr(:,:), rtemp(:,:) 

@@ -9,7 +9,7 @@ submodule (PhysicalObject) ThermalMatrices
     real(kind=dbl),          intent(in)  :: a_in
     real(kind=dbl),          allocatable :: matica(:,:)
     integer                              :: i
-    real(kind=dbl)                       :: j, q
+    real(kind=dbl)                       :: j, rgrad_T
     
     allocate( matica(7,3*this%nd+1) )
     
@@ -21,11 +21,11 @@ submodule (PhysicalObject) ThermalMatrices
           matica(4, 1) = 0.5_dbl
           matica(7, 1) = 0.5_dbl
         else
-          q = -real(-this%sol%flux_fn(1,1,1), kind=dbl) / sqrt(4*pi) / this%lambda_fn(1)
-            matica(4, 1) = 0.5_dbl / q
+          rgrad_T = - ( c2r_fn( -this%sol%flux_fn(1,1,1) / sqrt(4*pi) ) / this%lambda_fn(1) )
+            matica(4, 1) = 0.5_dbl / ( rgrad_T - this%Cl )
             matica(5, 1) = -sqrt((j  )/(2*j+1)) * this%Raf * this%dt
             matica(6, 1) = +sqrt((j+1)/(2*j+1)) * this%Raf * this%dt
-            matica(7, 1) = 0.5_dbl / q      
+            matica(7, 1) = 0.5_dbl / ( rgrad_T - this%Cl )
         end if
       
       case('basic')
@@ -57,9 +57,9 @@ submodule (PhysicalObject) ThermalMatrices
           matica(1, 3*this%nd+1) = 0.5_dbl
           matica(4, 3*this%nd+1) = 0.5_dbl
         else
-          q = -real(-this%sol%flux_fn(this%nd,1,1), kind=dbl) / sqrt(4*pi) / this%lambda_fn(this%nd)
-            matica(1, 3*this%nd+1) = 0.5_dbl / q
-            matica(4, 3*this%nd+1) = 0.5_dbl / q
+          rgrad_T = - ( c2r_fn( -this%sol%flux_fn(this%nd,1,1) / sqrt(4*pi) ) / this%lambda_fn(this%nd) )
+            matica(1, 3*this%nd+1) = 0.5_dbl / rgrad_T
+            matica(4, 3*this%nd+1) = 0.5_dbl / rgrad_T
         end if
       
       case('basic')
