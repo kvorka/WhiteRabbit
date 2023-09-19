@@ -3,8 +3,6 @@ module OceanIceMod
   implicit none
   
   type, extends(T_ocean), public :: T_oceanice
-    real(kind=dbl), private :: ClRoc2
-    
     contains
     
     procedure, public, pass :: init_sub        => init_oceanice_sub
@@ -18,11 +16,11 @@ module OceanIceMod
     
     call this%init_ocean_sub() ; call this%lat_grid%init_vcsv_vcvv_vcvgv_sub()
     
-    call this%sol%init_layer_u_sub() ; this%ClRoc2 = Cl_ocean / ( this%Ra * this%Ek**2 / this%Pr )
+    call this%sol%init_layer_u_sub()
     
-    call this%init_eq_temp_sub( rhs=.true. , nl=.true. ) ; call this%prepare_mat_temp_sub( ijstart=0 )
-    call this%init_eq_torr_sub( rhs=.true. , nl=.true. ) ; call this%prepare_mat_torr_sub( ijstart=1 )
-    call this%init_eq_mech_sub( rhs=.true. , nl=.true. ) ; call this%prepare_mat_mech_sub( ijstart=1 )
+    call this%init_eq_temp_sub( rhs=.true. , nl=.true. ) ; call this%prepare_mat_temp_sub( ijstart=0 , ijend=this%jmax )
+    call this%init_eq_torr_sub( rhs=.true. , nl=.true. ) ; call this%prepare_mat_torr_sub( ijstart=1 , ijend=this%jmax )
+    call this%init_eq_mech_sub( rhs=.true. , nl=.true. ) ; call this%prepare_mat_mech_sub( ijstart=1 , ijend=this%jmax )
     
     call this%init_state_sub()
     
@@ -69,12 +67,12 @@ module OceanIceMod
     q = c2r_fn( -this%sol%flux_fn(this%nd,1,1) ) / sqrt(4*pi)
     
     do concurrent ( ijm = 2:this%jms )
-      this%rtemp(this%nd+1,ijm) = this%ClRoc2 * this%sol%t_up(ijm) + q * this%sol%u_up(ijm)
+      this%rtemp(this%nd+1,ijm) = q * ( this%sol%u_up(ijm) + this%Cl * this%sol%t_up(ijm) )
     end do
     
-    call this%solve_temp_sub( ijmstart=1 , rematrix=.false. )
-    call this%solve_torr_sub( ijmstart=2 , rematrix=.false. )
-    call this%solve_mech_sub( ijmstart=2 , rematrix=.false. )
+    call this%solve_temp_sub( ijmstart=1 , ijmend=this%jms , ijmstep=1 ,  rematrix=.false. , matxsol=.true. )
+    call this%solve_torr_sub( ijmstart=2 , ijmend=this%jms , ijmstep=1 ,  rematrix=.false. , matxsol=.true. )
+    call this%solve_mech_sub( ijmstart=2 , ijmend=this%jms , ijmstep=1 ,  rematrix=.false. , matxsol=.true. )
     
     if (this%mechanic_bnd == 'frees') call this%global_rotation_sub()
     

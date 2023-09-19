@@ -30,7 +30,7 @@ module OceanConstants
   real(kind=dbl), parameter :: Pr_ocean = 1._dbl
   real(kind=dbl), parameter :: Ra_ocean = 1.5d8
   real(kind=dbl), parameter :: Ek_ocean = 1.0d-5
-  real(kind=dbl), parameter :: Cl_ocean = 0._dbl
+  real(kind=dbl), parameter :: Kl_ocean = 0._dbl
   
   !Nastavovanie pociatocneho stavu
   logical, parameter :: init_through_file_ocean = .false.

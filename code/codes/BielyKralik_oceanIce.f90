@@ -6,8 +6,11 @@ program BielyKralik_oceanIce
     type(T_iceCrust) :: icecr
     type(T_oceanice) :: ocean
     
-    !Inicializuj vypocet
-    call icecr%init_sub(notides=.true.)
+    !Inicializuj hydrostaticku ladovu koru so slapovym zahrievanim
+    call icecr%init_sub()
+      call icecr%solve_sub()
+    
+    !Inicializuj ocean
     call ocean%init_sub()
     
     !Casova slucka

@@ -15,8 +15,6 @@ module IceCrustMod
     procedure, private, pass :: EE_sub        => EE_iceCrust_sub
     procedure, private, pass :: EE_temp_sub   => EE_temp_iceCrust_sub
     procedure, private, pass :: EE_mech_sub   => EE_mech_iceCrust_sub
-    procedure, private, pass :: adjust_dt_sub => adjust_dt_iceCrust_sub
-    procedure, private, pass :: relevant_criterion_fn
     
     procedure, private, pass :: II_stress_fn => II_stress_iceCrust_fn
     procedure, private, pass :: avrg_temp_fn => avrg_temp_iceCrust_fn
@@ -31,8 +29,6 @@ module IceCrustMod
   private :: EE_iceCrust_sub
   private :: EE_temp_iceCrust_sub
   private :: EE_mech_iceCrust_sub
-  private :: adjust_dt_iceCrust_sub
-  private :: relevant_criterion_fn
   
   private :: II_stress_iceCrust_fn
   private :: avrg_temp_iceCrust_fn
@@ -78,12 +74,12 @@ module IceCrustMod
   end subroutine iter_iceCrust_sub
   
   subroutine solve_iceCrust_sub(this, flux)
-    class(T_iceCrust), intent(inout) :: this
-    complex(kind=dbl), intent(in)    :: flux(:)
-    integer                          :: iter, ir
-    complex(kind=dbl), allocatable   :: Temp1(:), Temp2(:)
+    class(T_iceCrust),           intent(inout) :: this
+    complex(kind=dbl), optional, intent(in)    :: flux(:)
+    integer                                    :: iter, ir
+    complex(kind=dbl), allocatable             :: Temp1(:), Temp2(:), u_up1(:)
     
-    allocate( Temp1(this%nd+1), Temp2(this%nd+1) )
+    allocate( Temp1(this%nd+1), Temp2(this%nd+1), u_up1(this%jms) )
     
     !! Seek for conductive solution with zero rhs at first
     this%dt = huge(0._dbl)
@@ -105,7 +101,10 @@ module IceCrustMod
         if ( maxval(abs(this%sol%temp_i_fn(1) - Temp1)/abs(Temp1)) < 1e-8 ) exit
       end do    
     
-    do iter = 1, 5
+    do
+      !! Save latest value of shape
+      u_up1(:) = this%sol%u_up(:)
+
       !! Find tidal heating for given temperature rhs and stress field
       this%dt = huge(0._dbl)
         do
@@ -135,20 +134,41 @@ module IceCrustMod
           if ( maxval(abs(this%sol%temp_i_fn(1) - Temp2)/abs(Temp2)) < 1e-6 ) exit
         end do
       
-      !! Solve for hydrostatic state for given tidal heating
+      !! Solve for given tidal heating
       call this%set_dt_sub() ; call this%sol%nulify_sub()
         do
-          call this%EE_sub(flux)
-          
-          if ( this%relevant_criterion_fn() < 5e-4 ) then 
-            exit
+          if ( present(flux) ) then
+            call this%EE_sub(flux_bnd=flux)
           else
-            call this%adjust_dt_sub()
+            call this%EE_sub()
+          end if
+          
+          if ( max( abs( this%sol%v_up( 4) * this%dt / this%sol%u_up( 4) ) , &
+                  & abs( this%sol%v_up( 6) * this%dt / this%sol%u_up( 6) ) , &
+                  & abs( this%sol%v_up(11) * this%dt / this%sol%u_up(11) ) , &   
+                  & abs( this%sol%v_up(13) * this%dt / this%sol%u_up(13) ) , & 
+                  & abs( this%sol%v_up(15) * this%dt / this%sol%u_up(15) )   ) < 1e-4 ) then 
+            exit
+          else if ( this%dt < 0.2_dbl ) then
+              if ( max( abs( this%sol%v_up( 4) * this%dt / this%sol%u_up( 4) ) , &
+                      & abs( this%sol%v_up( 6) * this%dt / this%sol%u_up( 6) ) , &
+                      & abs( this%sol%v_up(11) * this%dt / this%sol%u_up(11) ) , &   
+                      & abs( this%sol%v_up(13) * this%dt / this%sol%u_up(13) ) , & 
+                      & abs( this%sol%v_up(15) * this%dt / this%sol%u_up(15) )   ) < 1e-3 ) this%dt = 2 * this%dt
+          else
+            this%dt = 0.48_dbl
           end if
         end do
+      
+      !! Stopping criterion
+      if ( max ( abs( (u_up1( 4)-this%sol%u_up( 4))/this%sol%u_up( 4) )  ,          &
+         &       abs( (u_up1( 6)-this%sol%u_up( 6))/this%sol%u_up( 6) )  ,          &
+         &       abs( (u_up1(11)-this%sol%u_up(11))/this%sol%u_up(11) )  ,          &
+         &       abs( (u_up1(13)-this%sol%u_up(13))/this%sol%u_up(13) )  ,          &
+         &       abs( (u_up1(15)-this%sol%u_up(15))/this%sol%u_up(15) )  ) < 1e-4 ) exit
     end do
     
-    call this%set_dt_sub()
+    deallocate( Temp1, Temp2, u_up1 ) ; call this%set_dt_sub()
     
   end subroutine solve_iceCrust_sub
   
@@ -301,34 +321,5 @@ module IceCrustMod
     call this%solve_mech_sub( ijmstart=2, ijmend=this%jms, ijmstep=1, rematrix=.true., matxsol=.true. )
     
   end subroutine EE_mech_iceCrust_sub
-  
-  subroutine adjust_dt_iceCrust_sub(this)
-    class(T_iceCrust), intent(inout) :: this
-    
-    if (this%dt < 0.2_dbl) then
-      if ( this%relevant_criterion_fn() < 1.0d-2 ) then
-        this%dt = 5 * this%dt
-      end if
-    else
-      this%dt = 0.98_dbl
-    end if
-    
-  end subroutine adjust_dt_iceCrust_sub
-  
-    real(kind=dbl) function relevant_criterion_fn(this)
-      class(T_iceCrust), intent(inout) :: this
-      real(kind=dbl)                   :: bottom, surface
-      
-      bottom = max( abs(this%sol%v_dn( 4) / this%sol%u_dn( 4)) , &
-                  & abs(this%sol%v_dn( 6) / this%sol%u_dn( 6)) , &
-                  & abs(this%sol%v_dn(11) / this%sol%u_dn(11))   ) * this%dt
-      
-      surface = max( abs(this%sol%v_up( 4)) / abs(this%sol%u_up( 4)) , &
-                   & abs(this%sol%v_up( 6)) / abs(this%sol%u_up( 6)) , &
-                   & abs(this%sol%v_up(11)) / abs(this%sol%u_up(11))   ) * this%dt
-                   
-      relevant_criterion_fn = surface
-      
-    end function relevant_criterion_fn
   
 end module IceCrustMod
