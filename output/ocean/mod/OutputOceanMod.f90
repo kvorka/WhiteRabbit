@@ -3,22 +3,21 @@ module OutputOceanMod
   use Paths
   use OutputMod
   use Vector_analysis
+  use Spherical_func
   implicit none
   
-  integer,        parameter :: n_out = 120
-  real(kind=dbl), parameter :: treshold = 0.8_dbl
-
+  integer, parameter, public :: n_out = 120
   integer, parameter, public :: jms  =    (jmax_ocean  )*(jmax_ocean+1)/2 + (jmax_ocean  )  + 1
   integer, parameter, public :: jms1 =    (jmax_ocean+1)*(jmax_ocean+2)/2 + (jmax_ocean+1)  + 1
   integer, parameter, public :: jmv  = 3*((jmax_ocean  )*(jmax_ocean+1)/2 + (jmax_ocean  )) + 1
   
   public :: nuss_curve_sub
-
+  
   public :: harm_analysis_flux_sub
   public :: harm_analysis_temp_sub
   public :: harm_analysis_rad_velc_sub
   public :: harm_analysis_zon_velc_sub
-
+  
   public :: save_spectra_velc_sub
   public :: save_spectra_temp_sub
   public :: save_spectra_flux_sub
@@ -26,54 +25,50 @@ module OutputOceanMod
   public :: get_zonal_sub
   public :: load_data_sub
   public :: save_data_sub
-
+  
   interface
-    !Nusselt number handling interface
     module subroutine nuss_curve_sub()
     end subroutine nuss_curve_sub
-
-    !Heat flux handling interface
+    
     module subroutine harm_analysis_flux_sub()
     end subroutine harm_analysis_flux_sub
-
+    
     module subroutine save_spectra_flux_sub()
     end subroutine save_spectra_flux_sub
-  
-    !Temperature handling interface
+    
     module subroutine harm_analysis_temp_sub()
     end subroutine harm_analysis_temp_sub
-
+    
     module subroutine save_spectra_temp_sub()
     end subroutine save_spectra_temp_sub
-
-    !Velocity handling interface
+    
     module subroutine harm_analysis_rad_velc_sub()
     end subroutine harm_analysis_rad_velc_sub
-
+    
     module subroutine harm_analysis_zon_velc_sub()
     end subroutine harm_analysis_zon_velc_sub
-
+    
     module subroutine save_spectra_velc_sub()
     end subroutine save_spectra_velc_sub
   end interface
   
   contains
-
+  
   subroutine get_zonal_sub(data_in, data_out)
     real(kind=dbl), intent(in)  :: data_in(:,:)
     real(kind=dbl), intent(out) :: data_out(:)
-    integer                     :: k
-
+    integer                     :: ith
+    
     data_out(1) = data_in(1,1)
-
-    do k = 1, nth-1
-      data_out(k+1) = ( data_in(1,k) + data_in(1,k+1) ) / 2
+    
+    do ith = 1, nth-1
+      data_out(ith+1) = ( data_in(1,ith) + data_in(1,ith+1) ) / 2
     end do
-
+    
     data_out(nth+1) = data_in(1,nth)
     
   end subroutine get_zonal_sub
-
+  
   subroutine load_data_sub(dim_in, file_in, data_out)
     character(len=*),  intent(in)  :: file_in
     integer,           intent(in)  :: dim_in
@@ -104,7 +99,7 @@ module OutputOceanMod
     
     deallocate( r_in, data_in )
     
-    data_out(1,:) = cmplx(0._dbl, 0._dbl, kind=dbl)
+    data_out(1,:) = czero
 
   end subroutine load_data_sub
 
