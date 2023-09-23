@@ -1,8 +1,10 @@
 module Paths
+  use Math
   implicit none
-
-  integer, parameter :: avrg_start = 5600
-  integer, parameter :: avrg_end   = 6600
+  
+  real(kind=dbl), parameter :: tNuss      = 0.01_dbl
+  integer,        parameter :: avrg_start = 5600
+  integer,        parameter :: avrg_end   = 6600
 
   character(len=*), parameter :: path_nuss = 'data/Nuss.dat'
 

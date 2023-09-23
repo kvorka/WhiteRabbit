@@ -25,9 +25,9 @@ submodule(OutputOceanMod) Velc
     do ir = 1, n_out
       call vec2scals_sub(jmax_ocean, velc120(:,ir), x, y, z); y = -y
       
-      call toGrid_sub(jmax, x, comp_x)
-      call toGrid_sub(jmax, y, comp_y)
-      call toGrid_sub(jmax, z, comp_z)
+      call harmsy_sub(jmax, x, comp_x)
+      call harmsy_sub(jmax, y, comp_y)
+      call harmsy_sub(jmax, z, comp_z)
       
       do ith = 1, nth
         do iph = 1, 2*nth
@@ -36,7 +36,7 @@ submodule(OutputOceanMod) Velc
         end do
       end do
       
-      call get_zonal_sub(comp_r, rvelc(:,ir))
+      call get_zondata_sub(comp_r, rvelc(:,ir))
     end do
     
     deallocate( velc120, x, y, z, comp_x, comp_y, comp_z, comp_r, comp_t, comp_p )
@@ -75,9 +75,9 @@ submodule(OutputOceanMod) Velc
     do ir = 1, n_out
       call vec2scals_sub(jmax_ocean, velc120(:,ir), x, y, z); y = -y
       
-      call toGrid_sub(jmax, x, comp_x)
-      call toGrid_sub(jmax, y, comp_y)
-      call toGrid_sub(jmax, z, comp_z)
+      call harmsy_sub(jmax, x, comp_x)
+      call harmsy_sub(jmax, y, comp_y)
+      call harmsy_sub(jmax, z, comp_z)
       
       do ith = 1, nth
         do iph = 1, 2*nth
@@ -86,7 +86,7 @@ submodule(OutputOceanMod) Velc
         end do
       end do
       
-      call get_zonal_sub(comp_p, zvelc(:,ir))
+      call get_zondata_sub(comp_p, zvelc(:,ir))
     end do
     
     deallocate( velc120, x, y, z, comp_x, comp_y, comp_z, comp_r, comp_t, comp_p )
@@ -121,7 +121,7 @@ submodule(OutputOceanMod) Velc
       close(7)
     end do
     
-    call out_spectra_sub('velc-averaged.spec', r_init, velc)
+    call out_spectra_3d_sub('velc-averaged.spec', r_init, velc)
     
     deallocate( r_init, velc, velc_i )
     

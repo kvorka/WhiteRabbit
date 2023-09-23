@@ -1,15 +1,12 @@
 module OutputOceanMod
   use OceanConstants
-  use Paths
   use OutputMod
-  use Vector_analysis
-  use Spherical_func
   implicit none
   
   integer, parameter, public :: n_out = 120
-  integer, parameter, public :: jms  =    (jmax_ocean  )*(jmax_ocean+1)/2 + (jmax_ocean  )  + 1
-  integer, parameter, public :: jms1 =    (jmax_ocean+1)*(jmax_ocean+2)/2 + (jmax_ocean+1)  + 1
-  integer, parameter, public :: jmv  = 3*((jmax_ocean  )*(jmax_ocean+1)/2 + (jmax_ocean  )) + 1
+  integer, parameter, public :: jms   =    (jmax_ocean  )*(jmax_ocean+1)/2 + (jmax_ocean  )  + 1
+  integer, parameter, public :: jms1  =    (jmax_ocean+1)*(jmax_ocean+2)/2 + (jmax_ocean+1)  + 1
+  integer, parameter, public :: jmv   = 3*((jmax_ocean  )*(jmax_ocean+1)/2 + (jmax_ocean  )) + 1
   
   public :: nuss_curve_sub
   
@@ -22,7 +19,6 @@ module OutputOceanMod
   public :: save_spectra_temp_sub
   public :: save_spectra_flux_sub
   
-  public :: get_zonal_sub
   public :: load_data_sub
   public :: save_data_sub
   
@@ -53,21 +49,6 @@ module OutputOceanMod
   end interface
   
   contains
-  
-  subroutine get_zonal_sub(data_in, data_out)
-    real(kind=dbl), intent(in)  :: data_in(:,:)
-    real(kind=dbl), intent(out) :: data_out(:)
-    integer                     :: ith
-    
-    data_out(1) = data_in(1,1)
-    
-    do ith = 1, nth-1
-      data_out(ith+1) = ( data_in(1,ith) + data_in(1,ith+1) ) / 2
-    end do
-    
-    data_out(nth+1) = data_in(1,nth)
-    
-  end subroutine get_zonal_sub
   
   subroutine load_data_sub(dim_in, file_in, data_out)
     character(len=*),  intent(in)  :: file_in
@@ -102,23 +83,23 @@ module OutputOceanMod
     data_out(1,:) = czero
 
   end subroutine load_data_sub
-
+  
   subroutine save_data_sub(file_in, data_in)
     character(len=*), intent(in) :: file_in
-    real(kind=dbl),   intent(in) :: data_in(:,:)
-    integer                      :: i, k
-
+    real(kind=dbl),   intent(in) :: data_in(0:,:)
+    integer                      :: ir, ith
+    
     open(unit=2, file=file_in, status='new', action='write')
     
-      do k = 0, nth
-        do i = 1, n_out
-          write(2,*) k+90, 480+i, data_in(k+1,i)
+      do ith = 0, nth
+        do ir = 1, n_out
+          write(2,*) ith+90, 480+ir, data_in(ith,ir)
         end do
       end do
-
+    
     close(2)
-
+  
   end subroutine save_data_sub
-
+  
 end module OutputOceanMod
   

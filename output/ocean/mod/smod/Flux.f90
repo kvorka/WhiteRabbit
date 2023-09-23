@@ -25,7 +25,7 @@ submodule(OutputOceanMod) Flux
     
     allocate( data_flux(2*nth,nth) ); data_flux = 0._dbl
     
-    call toGrid_sub(jmax_ocean, spectra, data_flux)
+    call harmsy_sub(jmax_ocean, spectra, data_flux)
     
     deallocate( spectra )
     
@@ -34,7 +34,7 @@ submodule(OutputOceanMod) Flux
       write(8,*) 'min: ' , minval(data_flux)
     close(8)
     
-    call out_data_sub('inp-f.dat', data_flux)
+    call out_data_2d_sub('inp-f.dat', data_flux)
     
     deallocate( data_flux )
     
@@ -63,7 +63,7 @@ submodule(OutputOceanMod) Flux
       close(7)
     end do
     
-    call out_spectra1_sub('flux-averaged.spec', flux)
+    call out_spectra_2d_sub('flux-averaged.spec', flux)
       
     deallocate( flux )
     

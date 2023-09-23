@@ -20,7 +20,7 @@ submodule(OutputOceanMod) Temp
     end do
     
     do ir = 1, n_out
-      call toGrid_sub(jmax, temp120(:,ir), map) ; call get_zonal_sub(map, temp(:,ir))
+      call harmsy_sub(jmax, temp120(:,ir), map) ; call get_zondata_sub(map, temp(:,ir))
     end do
     
     deallocate( temp120, map )
@@ -54,7 +54,7 @@ submodule(OutputOceanMod) Temp
       close(7)
     end do
     
-    call out_spectra_sub('temp-averaged.spec', r_init, temp)
+    call out_spectra_3d_sub('temp-averaged.spec', r_init, temp)
     
     deallocate( r_init, temp, temp_i )
     
