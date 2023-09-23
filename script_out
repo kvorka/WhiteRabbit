@@ -3,8 +3,8 @@ compiler=gfortran-12
 optimization=Ofast
 
 #ladova kora
-#./output/scripts/ice/getConvIce $compiler $optimization
-#./output/scripts/ice/getDataIce $compiler $optimization
+./output/scripts/ice/getConvIce $compiler $optimization
+./output/scripts/ice/getDataIce $compiler $optimization
 #./output/scripts/ice/gmtIce
 
 #ocean

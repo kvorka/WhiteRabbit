@@ -34,22 +34,38 @@ submodule (PhysicalObject) Output
         close(filenum)
       
       case ('topo')
-        open(unit=filenum, file=path//'/Topo-'//trim(adjustl(int2str_fn(this%poc)))//'.dat', status='new', action='write')
+        open(unit=filenum, file=path//'/Topo_dn-'//trim(adjustl(int2str_fn(this%poc)))//'.dat', status='new', action='write')
           do j = 1, this%jmax
             do m = 0, j
-              write(filenum,*) j, m, this%sol%t_dn(jm(j,m)) * this%D_ud, this%sol%t_up(jm(j,m)) * this%D_ud
+              write(filenum,*) j, m, this%sol%t_dn(jm(j,m)) * this%D_ud
+            end do
+          end do
+        close(filenum)
+        
+        open(unit=filenum, file=path//'/Topo_up-'//trim(adjustl(int2str_fn(this%poc)))//'.dat', status='new', action='write')
+          do j = 1, this%jmax
+            do m = 0, j
+              write(filenum,*) j, m, this%sol%t_up(jm(j,m)) * this%D_ud
             end do
           end do
         close(filenum)
       
       case('shape')
-        open(unit=7, file=path//'/Shape-'//trim(adjustl(int2str_fn(this%poc)))//'.dat', status='new', action='write')
+        open(unit=filenum, file=path//'/Shape_dn-'//trim(adjustl(int2str_fn(this%poc)))//'.dat', status='new', action='write')
           do j = 1, this%jmax
             do m = 0, j
-              write(7,*) j, m, this%sol%u_dn(jm(j,m)) * this%D_ud, this%sol%u_up(jm(j,m)) * this%D_ud
+              write(filenum,*) j, m, this%sol%u_dn(jm(j,m)) * this%D_ud
             end do
           end do
-        close(7)
+        close(filenum)
+
+        open(unit=filenum, file=path//'/Shape_up-'//trim(adjustl(int2str_fn(this%poc)))//'.dat', status='new', action='write')
+          do j = 1, this%jmax
+            do m = 0, j
+              write(filenum,*) j, m, this%sol%u_up(jm(j,m)) * this%D_ud
+            end do
+          end do
+        close(filenum)
     end select
     
   end subroutine vypis_sub

@@ -12,7 +12,9 @@ module Paths
   character(len=*), parameter :: path_ocean_velc = 'data/data_ocean_veloc/Velc-'
   character(len=*), parameter :: path_ocean_flux = 'data/data_ocean_flux/Flux-'
 
-  character(len=*), parameter :: path_ice_shape = 'data/data_ice_shape/Shape-'
-  character(len=*), parameter :: path_ice_topo  = 'data/data_ice_topo/Topo-'
+  character(len=*), parameter :: path_ice_shape_dn = 'data/data_ice_shape/Shape_dn-'
+  character(len=*), parameter :: path_ice_topo_dn  = 'data/data_ice_topo/Topo_dn-'
+  character(len=*), parameter :: path_ice_shape_up = 'data/data_ice_shape/Shape_up-'
+  character(len=*), parameter :: path_ice_topo_up  = 'data/data_ice_topo/Topo_up-'
 
 end module Paths
