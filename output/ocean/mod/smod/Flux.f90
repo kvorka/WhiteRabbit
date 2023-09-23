@@ -41,30 +41,13 @@ submodule(OutputOceanMod) Flux
   end subroutine harm_analysis_flux_sub
 
   subroutine save_spectra_flux_sub()
-    integer                        :: ij, im, in, error
-    complex(kind=dbl)              :: flux_t
     complex(kind=dbl), allocatable :: flux(:)
     
-    allocate( flux(jms) )
+    allocate( flux(jms) ) ; flux = czero
     
-    do in = avrg_start, avrg_end
-      open( unit=7, file=path_ocean_flux//trim(adjustl(int2str_fn(in)))//'.dat', status='old', action='read')
-      
-      do
-        read(7,*,iostat=error) ij, im, flux_t
-        
-        if (error /= 0) then 
-          exit
-        else
-          flux(jm(ij,im)) = flux(jm(ij,im)) + flux_t / (avrg_end-avrg_start)
-        end if
-      end do
-      
-      close(7)
-    end do
-    
+    call avrg_spectra_2d_sub(path_ocean_flux, flux)
     call out_spectra_2d_sub('flux-averaged.spec', flux)
-      
+    
     deallocate( flux )
     
   end subroutine save_spectra_flux_sub

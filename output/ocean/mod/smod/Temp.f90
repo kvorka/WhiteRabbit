@@ -37,26 +37,15 @@ submodule(OutputOceanMod) Temp
   end subroutine harm_analysis_temp_sub
   
   subroutine save_spectra_temp_sub()
-    integer                        :: in, ir
-    real(kind=dbl),    allocatable :: r_init(:)
-    complex(kind=dbl), allocatable :: temp(:,:), temp_i(:)
+    real(kind=dbl),    allocatable :: r(:)
+    complex(kind=dbl), allocatable :: temp(:,:)
     
-    allocate( r_init(nd_ocean+1), temp(jms,nd_ocean+1), temp_i(jms) ) ; temp = czero
+    allocate( r(nd_ocean+1), temp(jms,nd_ocean+1) ) ; temp = czero
     
-    do in = avrg_start, avrg_end
-      open(unit=7, file=path_ocean_temp//trim(adjustl(int2str_fn(in)))//'.dat', status='old', action='read')
-      
-      do ir = 1, nd_ocean+1
-        read(7,*) r_init(ir) , temp_i(:)
-        temp(:,ir) = temp(:,ir) + temp_i(:) / (avrg_end-avrg_start)
-      end do
-      
-      close(7)
-    end do
+    call avrg_spectra_3d_sub(path_ocean_temp, r, temp)
+    call out_spectra_3d_sub('temp-averaged.spec', r, temp)
     
-    call out_spectra_3d_sub('temp-averaged.spec', r_init, temp)
-    
-    deallocate( r_init, temp, temp_i )
+    deallocate( r, temp )
     
   end subroutine save_spectra_temp_sub
   

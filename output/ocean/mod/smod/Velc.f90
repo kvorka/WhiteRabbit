@@ -104,26 +104,15 @@ submodule(OutputOceanMod) Velc
   end subroutine harm_analysis_zon_velc_sub
   
   subroutine save_spectra_velc_sub()
-    integer                        :: in, ir
-    real(kind=dbl),    allocatable :: r_init(:), r_out(:)
-    complex(kind=dbl), allocatable :: velc(:,:), velc_i(:), velc_out(:,:)
+    real(kind=dbl),    allocatable :: r(:)
+    complex(kind=dbl), allocatable :: velc(:,:)
     
-    allocate( r_init(nd_ocean+1), velc(jmv,nd_ocean+1), velc_i(jmv) ) ; velc = czero
+    allocate( r(nd_ocean+1), velc(jmv,nd_ocean+1) ) ; velc = czero
     
-    do in = avrg_start, avrg_end
-      open( unit=7, file=path_ocean_velc//trim(adjustl(int2str_fn(in)))//'.dat', status='old', action='read' )
-      
-      do ir = 1, nd_ocean+1
-        read(7,*) r_init(ir) , velc_i(:)
-        velc(:,ir) = velc(:,ir) + velc_i(:) / (avrg_end-avrg_start)
-      end do
-      
-      close(7)
-    end do
+    call avrg_spectra_3d_sub(path_ocean_velc, r, velc)
+    call out_spectra_3d_sub('velc-averaged.spec', r, velc)
     
-    call out_spectra_3d_sub('velc-averaged.spec', r_init, velc)
-    
-    deallocate( r_init, velc, velc_i )
+    deallocate( r, velc )
     
   end subroutine save_spectra_velc_sub
   

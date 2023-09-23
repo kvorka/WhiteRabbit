@@ -28,7 +28,7 @@ submodule(OutputOceanMod) Nuss
     close(1)
     
     open(unit=8, file='nuss', status='new', action='write')
-      write(8,'(1f4.1)') sumNuss / n , sumRe / n
+      write(8,*) sumNuss / n , sumRe / n
     close(8)
     
   end subroutine nuss_curve_sub
