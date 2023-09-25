@@ -5,7 +5,6 @@ submodule (PhysicalObject) Equations_mech
   subroutine init_eq_mech_sub(this, rhs, nl)
     class(T_physicalObject), intent(inout) :: this
     logical,                 intent(in)    :: rhs, nl
-    integer                                :: j
     
     call this%sol%init_smech_sub()
     call this%mat%init_mmech_sub()
