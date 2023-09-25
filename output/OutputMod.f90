@@ -19,13 +19,9 @@ module OutputMod
     real(kind=dbl), intent(out) :: data_out(:)
     integer                     :: ith
     
-    data_out(1) = sum( data_in(:,1) ) / ( 2 * nth )
-    
-    do ith = 1, nth-1
-      data_out(ith+1) = sum( data_in(:,ith) + data_in(:,ith+1) ) / ( 2 * nth ) / 2
+    do ith = 1, nth
+      data_out(ith) = sum( data_in(:,ith) ) / ( 2 * nth )
     end do
-    
-    data_out(nth+1) = sum ( data_in(:,nth) ) / ( 2 * nth )
     
   end subroutine get_zondata_sub
   
@@ -35,17 +31,11 @@ module OutputMod
     integer                      :: ith
       
     open(unit=1, file=opt, status='new', action='write')
-      
-    ith = 1
-      write(1,*) -90, sum( data_in(:,ith) ) / ( 2 * nth )
     
-    do ith = 2, nth
-      write(1,*) ith-91, sum( data_in(:,ith) + data_in(:,ith-1) ) / ( 2 * nth ) / 2
+    do ith = 1, nth
+      write(1,*) ith-0.5, sum( data_in(:,ith) ) / ( 2 * nth )
     end do
-
-    ith = nth
-      write(1,*) +90, sum( data_in(:,ith) ) / ( 2 * nth )
-      
+    
     close(1)
 
   end subroutine out_data_1d_sub
@@ -57,31 +47,12 @@ module OutputMod
     
     open(unit=1, file=opt, status='new', action='write')
     
-    ith = nth
-      do iph = 2, 2*nth
-        write(1,*) iph-1, +90, data_in(iph,ith)
+    do ith = 1, nth
+      do iph = 1, 2*nth
+        write(1,*) iph-1.0, (ith-0.5), data_in(iph,ith)
       end do
-    
-      iph = 1
-        write(1,*) 360, +90, data_in(iph,ith)
-    
-    do ith = 2, nth
-      do iph = 2, 2*nth
-        write(1,*) iph-1, ith-91, ( data_in(iph,ith) + data_in(iph,ith-1) ) / 2
-      end do
-      
-      iph = 1
-        write(1,*) 360, ith-91, ( data_in(iph,ith) + data_in(iph,ith-1) ) / 2
     end do
     
-    ith = 1
-      do iph = 2, 2*nth
-        write(1,*) iph-1, -90, data_in(iph,ith)
-      end do
-      
-      iph = 1
-        write(1,*) 360, -90, data_in(iph,ith)
-      
     close(1)
     
   end subroutine out_data_2d_sub

@@ -86,19 +86,19 @@ module OutputOceanMod
   
   subroutine save_data_sub(file_in, data_in)
     character(len=*), intent(in) :: file_in
-    real(kind=dbl),   intent(in) :: data_in(0:,:)
+    real(kind=dbl),   intent(in) :: data_in(:,:)
     integer                      :: ir, ith
     
     open(unit=2, file=file_in, status='new', action='write')
     
-      do ith = 0, nth
+      do ith = 1, nth
         do ir = 1, n_out
-          write(2,*) ith+90, 480+ir, data_in(ith,ir)
+          write(2,*) ith-0.5+90, 480+ir, data_in(ith,ir)
         end do
       end do
     
     close(2)
-  
+    
   end subroutine save_data_sub
   
 end module OutputOceanMod

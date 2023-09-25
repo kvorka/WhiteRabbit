@@ -9,7 +9,7 @@ submodule(OutputOceanMod) Temp
     real(kind=dbl),    allocatable :: map(:,:), temp(:,:)
     complex(kind=dbl), allocatable :: temp120(:,:)
     
-    allocate( temp120(jms, n_out), map(2*nth,nth), temp(0:nth,n_out) )
+    allocate( temp120(jms,n_out), map(2*nth,nth), temp(nth,n_out) )
       
     call load_data_sub(jms, 'temp-averaged.spec', temp120)
     

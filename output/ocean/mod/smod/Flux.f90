@@ -35,6 +35,7 @@ submodule(OutputOceanMod) Flux
     close(8)
     
     call out_data_2d_sub('inp-f.dat', data_flux)
+    call out_data_1d_sub('inp-f-zon.dat', data_flux)
     
     deallocate( data_flux )
     

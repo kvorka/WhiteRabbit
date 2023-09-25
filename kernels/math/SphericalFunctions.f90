@@ -1,33 +1,32 @@
 module Spherical_func
   use Math
   implicit none
-
-  public :: ersv_fn     !er*skalar1          -> vektor2
-  public :: ervs_fn     !er*vektor1          -> skalar2
-  public :: ervv_fn     !er*vektor1          -> vektor2
-  public :: ezvv_fn     !ez*vektor1          -> vektor2
-
-  public :: ezvv_sub
   
-  public :: snorm_fn       !L2 norma skalarneho  radu
-  public :: vnorm_fn       !L2 norma vektoroveho radu
-  public :: tnorm_fn       !L2 norma tenzoroveho radu (k == 2)
-  public :: dotproduct_fn  !L2 norma skalarneho sucinu vektorov
-  public :: scalproduct_fn !L2 norma sucinu skalarov
+  public :: ersv_fn
+  public :: ervs_fn
+  public :: ervv_fn
+  public :: ezvv_sub
+  public :: ezvv_fn
+  
+  public :: snorm_fn
+  public :: vnorm_fn
+  public :: tnorm_fn
+  public :: dotproduct_fn
+  public :: scalproduct_fn
   
   public :: jm    !(j,m)     -> jm   = j*(j+1)/2+m+1
   public :: jml   !(j,m,l-j) -> jml  = 3*(j*(j+1)/2+m)+l-j
   public :: jml2  !(j,m,l-j) -> jml2 = 5*(j*(j+1)/2+m)+l-(j+2)+1
-
+  
   contains
-
-  pure integer function jm(j,m)
-    integer, intent(in) :: j, m
-
-    jm = j*(j+1)/2+m+1
-
+  
+  pure integer function jm(ij,im)
+    integer, intent(in) :: ij, im
+    
+    jm = ij*(ij+1)/2+im+1
+    
   end function jm
-
+  
   pure integer function jml(j,m,l)
     integer, intent(in) :: j, m, l
 

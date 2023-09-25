@@ -4,7 +4,7 @@ module OceanConstants
   
   !Vseobecne nastavenie konstant
   integer, parameter :: nd_ocean = 121
-  integer, parameter :: jmax_ocean = 349
+  integer, parameter :: jmax_ocean = 157
   integer, parameter :: n_iter_ocean = 200  !Nastavit na N_period pre slapy
   logical, parameter :: noharm_ocean = .false.
   

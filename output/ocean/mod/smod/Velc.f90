@@ -10,7 +10,7 @@ submodule(OutputOceanMod) Velc
     complex(kind=dbl), allocatable  :: x(:), y(:), z(:), velc120(:,:)
     
     allocate( velc120(jmv,n_out), x(jms1), y(jms1), z(jms1), comp_x(2*nth,nth), comp_y(2*nth,nth), comp_z(2*nth,nth), &
-            & comp_r(2*nth,nth), comp_t(2*nth,nth), comp_p(2*nth,nth), rvelc(0:nth,n_out)                             )
+            & comp_r(2*nth,nth), comp_t(2*nth,nth), comp_p(2*nth,nth), rvelc(nth,n_out)                               )
     
     call load_data_sub(jmv, 'velc-averaged.spec', velc120)
     
@@ -31,8 +31,8 @@ submodule(OutputOceanMod) Velc
       
       do ith = 1, nth
         do iph = 1, 2*nth
-          call vecxyz2rtp_sub( 180.5_dbl-ith, iph-1._dbl, comp_x(iph,ith), comp_y(iph,ith), comp_z(iph,ith), &
-                             &                            comp_r(iph,ith), comp_t(iph,ith), comp_p(iph,ith)  )
+          call vecxyz2rtp_sub( ith-0.5_dbl, iph-1._dbl, comp_x(iph,ith), comp_y(iph,ith), comp_z(iph,ith), &
+                             &                          comp_r(iph,ith), comp_t(iph,ith), comp_p(iph,ith)  )
         end do
       end do
       
@@ -60,7 +60,7 @@ submodule(OutputOceanMod) Velc
     complex(kind=dbl), allocatable  :: x(:), y(:), z(:), velc120(:,:)
     
     allocate( velc120(jmv,n_out), x(jms1), y(jms1), z(jms1), comp_x(2*nth,nth), comp_y(2*nth,nth), comp_z(2*nth,nth), &
-            & comp_r(2*nth,nth), comp_t(2*nth,nth), comp_p(2*nth,nth), zvelc(0:nth,n_out)                             )
+            & comp_r(2*nth,nth), comp_t(2*nth,nth), comp_p(2*nth,nth), zvelc(nth,n_out)                               )
     
     call load_data_sub(jmv, 'velc-averaged.spec', velc120)
     
@@ -81,8 +81,8 @@ submodule(OutputOceanMod) Velc
       
       do ith = 1, nth
         do iph = 1, 2*nth
-          call vecxyz2rtp_sub( 180.5_dbl-ith, iph-1._dbl, comp_x(iph,ith), comp_y(iph,ith), comp_z(iph,ith), &
-                             &                            comp_r(iph,ith), comp_t(iph,ith), comp_p(iph,ith)  )
+          call vecxyz2rtp_sub( ith-0.5_dbl, iph-1._dbl, comp_x(iph,ith), comp_y(iph,ith), comp_z(iph,ith), &
+                             &                          comp_r(iph,ith), comp_t(iph,ith), comp_p(iph,ith)  )
         end do
       end do
       

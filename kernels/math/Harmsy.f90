@@ -1,47 +1,51 @@
 module Harmsy
-  use FFT
+  use Math
   implicit none
   
   integer, parameter, public :: nth = 180
   
   contains
   
-  subroutine harmsy_sub(jmax, coef, data_out)
-    integer,                              intent(in)  :: jmax
-    complex(kind=dbl), dimension(:),      intent(in)  :: coef
-    real(kind=dbl),    dimension(:,:),    intent(out) :: data_out
-    integer                                           :: i, j, m, zn
-    real(kind=dbl)                                    :: xth, pnm(jmax+1), re(2*nth+1,2), im(2*nth+1,2)
-    complex(kind=dbl)                                 :: csum(2)
-  
-    call init_fft_sub(2*nth)
-
-    do i = 1, nth/2
-      re = 0._dbl; im = 0._dbl; xth = cos(2*(2*(nth-i)+1)*atan(1._dbl)/nth)
-
-      do m = 0, jmax
-        csum = cmplx(0._dbl, 0._dbl, kind=dbl)
-        call dpmm_sub(xth, jmax, m, pnm)
+  subroutine harmsy_sub(jmax_in, spectra_in, data_out)
+    integer,            intent(in)  :: jmax_in
+    complex(kind=dbl),  intent(in)  :: spectra_in(:)
+    real(kind=dbl),     intent(out) :: data_out(:,:)
+    integer                         :: it, ip, j, m
+    real(kind=dbl)                  :: costheta
+    real(kind=dbl),    allocatable  :: polyLege(:)
+    complex(kind=dbl), allocatable  :: sumLege(:), expphi(:), expmul(:)
+    
+    data_out = 0._dbl
+    
+    allocate( sumLege(0:jmax_in), expphi(2*nth), expmul(2*nth), polyLege(jmax_in+1) )
+    
+    do it = 1, nth
+      costheta = cos(pi/nth * (it-0.5_dbl)) ; sumLege(:) = czero
+      
+      do m = 0, jmax_in
+        call dpmm_sub( costheta, jmax_in, m, polyLege )
         
-        do j = m, jmax
-          csum(1) = csum(1) + coef(j*(j+1)/2+m+1) * pnm(j-m+1)
-          csum(2) = csum(2) + coef(j*(j+1)/2+m+1) * pnm(j-m+1) * (-1)**(j+m)
+        do j = m, jmax_in
+          sumLege(m) = sumLege(m) + spectra_in(j*(j+1)/2+m+1) * polyLege(j-m+1)
         end do
-
-        if (m == 0) then
-          re(m+1,:) = +csum%re / 2; im(m+1,:) = 0._dbl
-        else
-          re(m+1,:) = +csum%re    ; im(m+1,:) = -csum%im
-        end if
       end do
-
-      call fft_sub(re(:,1), im(:,1))
-      call fft_sub(re(:,2), im(:,2))
-        
-      data_out(:,    i  ) = 2 * re(1:2*nth,1) * sqrt( real(2*nth, kind=dbl) )
-      data_out(:,nth-i+1) = 2 * re(1:2*nth,2) * sqrt( real(2*nth, kind=dbl) )
+      
+      do ip = 1, 2*nth
+        expphi(ip) = exp( cunit * (ip-1) * pi / nth )
+        expmul(ip) = cone
+      end do
+      
+      m = 0
+        data_out(:,it) = data_out(:,it) + c2r_fn( sumLege(m) )
+      
+      do m = 1, jmax_in
+        expmul(:)      = expmul(:) * expphi(:)
+        data_out(:,it) = data_out(:,it) + 2 * c2r_fn( expmul(:) * sumLege(m) )
+      end do
     end do
-  
+      
+    deallocate( sumLege, expphi, expmul, polyLege )
+      
   end subroutine harmsy_sub
   
   subroutine dpmm_sub(x, n, m, p)
