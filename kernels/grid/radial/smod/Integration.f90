@@ -9,27 +9,25 @@ submodule(RadialGrid) Integration
     integer                         :: i
     real(kind=dbl), allocatable     :: field_help(:)
     
-    allocate(field_help(this%nd))
-    
-    if (size(field) == this%nd+1) then
-      do i = 1, this%nd
-        field_help(i) = this%c(i,-1) * field(i) + this%c(i,+1) * field(i+1)
-      end do
-    else
-      do i = 1, this%nd
-        field_help(i) = field(i)
-      end do
-    end if
-    
-    radial_integral_real_fn = 0._dbl
-    
-    do i = 2, this%nd
-      radial_integral_real_fn = radial_integral_real_fn + ( this%r(i) - this%r(i-1) ) * ( field_help(i) + field_help(i-1) )
-    end do
-    
-    radial_integral_real_fn = radial_integral_real_fn / 2
-    
-    deallocate(field_help)
+    allocate( field_help(2:this%nd) )
+      
+      if (size(field) == this%nd+1) then
+        do i = 2, this%nd
+          field_help(i) = ( ( this%c(i-1,-1) * field(i-1) + this%c(i-1,+1) * field(i  ) ) + &
+                          & ( this%c(i  ,-1) * field(i  ) + this%c(i  ,+1) * field(i+1) )   ) / 2
+        end do
+      else
+        do i = 2, this%nd
+          field_help(i) = ( field(i-1) + field(i) ) / 2
+        end do
+      end if
+      
+      radial_integral_real_fn = 0._dbl
+        do i = 2, this%nd
+          radial_integral_real_fn = radial_integral_real_fn + ( this%r(i) - this%r(i-1) ) * field_help(i)
+        end do
+      
+    deallocate( field_help )
     
   end function radial_integral_real_fn
   
@@ -39,27 +37,25 @@ submodule(RadialGrid) Integration
     integer                         :: i
     real(kind=dbl),     allocatable :: field_help(:)
     
-    allocate( field_help(this%nd) )
+    allocate( field_help(2:this%nd) )
+      
+      if ( size(field) == this%nd+1 ) then
+        do i = 2, this%nd
+          field_help(i) = (( this%c(i-1,-1) * this%rr(i-1)**2 * field(i-1) + this%c(i-1,+1) * this%rr(i  )**2 * field(i  ) ) + &
+                          &( this%c(i  ,-1) * this%rr(i  )**2 * field(i  ) + this%c(i  ,+1) * this%rr(i+1)**2 * field(i+1) )   ) / 2
+        end do
+      else
+        do i = 2, this%nd
+          field_help(i) = ( field(i-1) * this%r(i-1)**2 + field(i) * this%r(i)**2 ) / 2
+        end do
+      end if
     
-    if ( size(field) == this%nd+1 ) then
-      do i = 1, this%nd
-        field_help(i) = this%c(i,-1) * this%rr(i)**2 * field(i) + this%c(i,+1) * this%rr(i+1)**2 * field(i+1)
-      end do
-    else
-      do i = 1, this%nd
-        field_help(i) = field(i) * this%r(i)**2
-      end do
-    end if
+      volumetric_integral_real_fn = 0._dbl
+        do i = 2, this%nd
+          volumetric_integral_real_fn = volumetric_integral_real_fn + ( this%r(i) - this%r(i-1) ) * field_help(i)
+        end do
     
-    volumetric_integral_real_fn = 0._dbl
-    
-    do i = 2, this%nd
-      volumetric_integral_real_fn = volumetric_integral_real_fn + ( this%r(i) - this%r(i-1) ) * ( field_help(i) + field_help(i-1) )
-    end do
-    
-    volumetric_integral_real_fn = volumetric_integral_real_fn / 2
-    
-    deallocate(field_help)
+    deallocate( field_help )
     
   end function volumetric_integral_real_fn
   
@@ -69,27 +65,25 @@ submodule(RadialGrid) Integration
     integer                         :: i
     complex(kind=dbl),  allocatable :: field_help(:)
     
-    allocate(field_help(this%nd))
-    
-    if (size(field) == this%nd+1) then
-      do i = 1, this%nd
-        field_help(i) = this%c(i,-1) * field(i) + this%c(i,+1) * field(i+1)
-      end do
-    else
-      do i = 1, this%nd
-        field_help(i) = field(i)
-      end do
-    end if
-    
-    radial_integral_cmplx_fn = czero
-    
-    do i = 2, this%nd
-      radial_integral_cmplx_fn = radial_integral_cmplx_fn + ( this%r(i) - this%r(i-1) ) * ( field_help(i) + field_help(i-1) )
-    end do
-    
-    radial_integral_cmplx_fn = radial_integral_cmplx_fn / 2
-    
-    deallocate(field_help)
+    allocate( field_help(2:this%nd) )
+      
+      if (size(field) == this%nd+1) then
+        do i = 2, this%nd
+          field_help(i) = ( ( this%c(i-1,-1) * field(i-1) + this%c(i-1,+1) * field(i  ) ) + &
+                          & ( this%c(i  ,-1) * field(i  ) + this%c(i  ,+1) * field(i+1) )   ) / 2
+        end do
+      else
+        do i = 2, this%nd
+          field_help(i) = ( field(i-1) + field(i) ) / 2
+        end do
+      end if
+      
+      radial_integral_cmplx_fn = czero
+        do i = 2, this%nd
+          radial_integral_cmplx_fn = radial_integral_cmplx_fn + ( this%r(i) - this%r(i-1) ) * field_help(i)
+        end do
+      
+    deallocate( field_help )
     
   end function radial_integral_cmplx_fn
 
@@ -99,27 +93,25 @@ submodule(RadialGrid) Integration
     integer                         :: i
     complex(kind=dbl),  allocatable :: field_help(:)
     
-    allocate( field_help(this%nd) )
+    allocate( field_help(2:this%nd) )
+      
+      if ( size(field) == this%nd+1 ) then
+        do i = 2, this%nd
+          field_help(i) = (( this%c(i-1,-1) * this%rr(i-1)**2 * field(i-1) + this%c(i-1,+1) * this%rr(i  )**2 * field(i  ) ) + &
+                          &( this%c(i  ,-1) * this%rr(i  )**2 * field(i  ) + this%c(i  ,+1) * this%rr(i+1)**2 * field(i+1) )   ) / 2
+        end do
+      else
+        do i = 2, this%nd
+          field_help(i) = ( field(i-1) * this%r(i-1)**2 + field(i) * this%r(i)**2 ) / 2
+        end do
+      end if
+      
+      volumetric_integral_cmplx_fn = czero
+        do i = 2, this%nd
+          volumetric_integral_cmplx_fn = volumetric_integral_cmplx_fn + ( this%r(i) - this%r(i-1) ) * field_help(i)
+        end do
     
-    if (size(field) == this%nd+1) then
-      do i = 1, this%nd
-        field_help(i) = this%c(i,-1) * this%rr(i)**2 * field(i) + this%c(i,+1) * this%rr(i+1)**2 *field(i+1)
-      end do
-    else
-      do i = 1, this%nd
-        field_help(i) = field(i) * this%r(i)**2
-      end do
-    end if
-    
-    volumetric_integral_cmplx_fn = czero
-    
-    do i = 2, this%nd
-      volumetric_integral_cmplx_fn = volumetric_integral_cmplx_fn + ( this%r(i) - this%r(i-1) ) * (field_help(i) + field_help(i-1))
-    end do
-    
-    volumetric_integral_cmplx_fn = volumetric_integral_cmplx_fn / 2
-    
-    deallocate(field_help)
+    deallocate( field_help )
     
   end function volumetric_integral_cmplx_fn
   

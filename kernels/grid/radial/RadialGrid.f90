@@ -90,7 +90,7 @@ module RadialGrid
       integer,             intent(in) :: i, dimOut
       real(kind=dbl),      intent(in) :: rr1(:)
       complex(kind=dbl),   intent(in) :: field(:,:)
-      complex(kind=dbl)               :: resField(dimOut)
+      complex(kind=dbl), allocatable  :: resField(:)
     end function interpolation_fn
   end interface
   
