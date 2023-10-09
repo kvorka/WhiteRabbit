@@ -12,6 +12,7 @@ module Gravity
     contains
     
     procedure :: init_sub       => init_gravity_sub
+    procedure :: set_sub        => set_gravity_sub
     procedure :: deallocate_sub => deallocate_gravity_sub
 
     procedure :: g_fn
@@ -27,24 +28,29 @@ module Gravity
   
   contains
   
-  subroutine init_gravity_sub(this, gmod, g, Dcrust, omega, exc, nlay, subor)
+  subroutine init_gravity_sub(this, gmod, g)
+    class(T_gravity), intent(inout) :: this
+    character(len=*), intent(in)    :: gmod
+    real(kind=dbl),   intent(in)    :: g
+    
+    this%gmod = gmod
+    this%g    = g
+    
+  end subroutine init_gravity_sub
+  
+  subroutine set_gravity_sub(this, Dcrust, omega, exc, nlay, subor)
     class(T_gravity),           intent(inout) :: this
-    character(len=*),           intent(in)    :: gmod
-    real(kind=dbl),             intent(in)    :: g
     integer,          optional, intent(in)    :: nlay
     real(kind=dbl),   optional, intent(in)    :: Dcrust, omega, exc
     character(len=*), optional, intent(in)    :: subor
     integer                                   :: i
-    
-    this%gmod = gmod
-    this%g    = g
 
     if (present(Dcrust)) this%Dcrust = Dcrust
     if (present(omega) ) this%omega  = omega
     if (present(exc)   ) this%exc    = exc 
 
     if ( this%gmod == 'mod' ) then
-      this%nlay   = nlay
+      this%nlay = nlay
     
       allocate( this%rho(nlay), this%radius(nlay) )
         open(unit=1, file=subor, status='old', action='read')
@@ -56,7 +62,7 @@ module Gravity
       this%radius = this%radius * 1e3 / this%Dcrust
     end if
     
-  end subroutine init_gravity_sub
+  end subroutine set_gravity_sub
   
   pure real(kind=dbl) function g_fn(this, ri)
     class(T_gravity), intent(in) :: this

@@ -3,11 +3,11 @@ submodule (PhysicalObject) Init_object
   
   contains
 
-  subroutine init_objects_sub( this, nd, jmax, r_ud, rgrid, noobj, noharm )
+  subroutine init_objects_sub( this, nd, jmax, r_ud, rgrid, gmod, g, noobj, noharm )
     class(T_physicalObject),    intent(inout) :: this
     integer,                    intent(in)    :: nd, jmax
-    real(kind=dbl),             intent(in)    :: r_ud
-    character(len=*),           intent(in)    :: rgrid
+    real(kind=dbl),             intent(in)    :: r_ud, g
+    character(len=*),           intent(in)    :: rgrid, gmod
     logical,          optional, intent(in)    :: noobj, noharm
     integer                                   :: j, m
     
@@ -17,13 +17,13 @@ submodule (PhysicalObject) Init_object
     this%rd        = r_ud / ( 1-r_ud )
     this%ru        = 1    / ( 1-r_ud )
     this%grid_type = rgrid
-
+    
     if (present(noobj)) then
       this%noobj = noobj
     else
       this%noobj = .false.
     end if
-
+    
     if (present(noharm)) then
       this%noharm = noharm
     else if (this%noobj .eqv. .true.) then
@@ -31,36 +31,31 @@ submodule (PhysicalObject) Init_object
     else
       this%noharm = .false.
     end if
-
-    !Pomocne premenne
+    
     this%jms  =   ( this%jmax*(this%jmax+1)/2+this%jmax ) + 1
     this%jmv  = 3*( this%jmax*(this%jmax+1)/2+this%jmax ) + 1
-
+    
     if (.not. this%noobj) then
-      !Inicializuj radialny grid danej velkosti
       call this%rad_grid%init_sub(this%nd, this%r_ud / (1-this%r_ud), 1 / (1-this%r_ud), this%grid_type)
-    
-      !Inicializuj lateralny grid danej velkosti
       if (.not. this%noharm) call this%lat_grid%init_sub(this%jmax)
-    
-      !Inicializuj premenne pre riesenie
       call this%sol%init_sub(this%nd, this%jmax)
-    
-      !Inicializuj premenne pre matice
       call this%mat%init_sub(this%nd, this%jmax, this%grid_type)
+      call this%gravity%init_sub(gmod, g)
 
-      !Indexacia
       allocate( this%j_indx(this%jms) )
       do j = 0, this%jmax
         do m = 0, j
           this%j_indx(j*(j+1)/2+m+1) = j
         end do
       end do
-    end if
       
-    !Cas a casovy krok, vypis
+      this%gd = this%gravity%g_fn(this%rd)
+      this%gu = this%gravity%g_fn(this%ru)
+    end if
+    
     this%poc = 0
     this%t   = 0._dbl
+    
     call this%set_dt_sub()
     
   end subroutine init_objects_sub

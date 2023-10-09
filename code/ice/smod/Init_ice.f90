@@ -10,9 +10,11 @@ submodule(IceMod) Init_ice
     logical, optional, intent(in)    :: noharm
     
     if (present(noharm)) then
-      call this%init_objects_sub( nd = nd_ice, jmax = jmax_in, r_ud = rdown_ice / rup_ice, rgrid = grid_type_ice, noharm = noharm )
+      call this%init_objects_sub( nd = nd_ice, jmax = jmax_in, r_ud = rdown_ice / rup_ice, rgrid = grid_type_ice, &
+                                & gmod = gravity_ice, g = g_ice, noharm = noharm                                  )
     else
-      call this%init_objects_sub( nd = nd_ice, jmax = jmax_in, r_ud = rdown_ice / rup_ice, rgrid = grid_type_ice )
+      call this%init_objects_sub( nd = nd_ice, jmax = jmax_in, r_ud = rdown_ice / rup_ice, rgrid = grid_type_ice, &
+                                & gmod = gravity_ice, g = g_ice                                                   )
     end if
     
     this%n_iter = n_iter
@@ -61,7 +63,7 @@ submodule(IceMod) Init_ice
     this%Cl   = this%g * this%D_ud * (this%rhoW-this%rhoI) * this%Td / ( this%rhoI * lI_ice * (this%Td-this%Tu) )
     
     
-    call this%gravity%init_sub( gmod = gravity_ice, g = this%g, Dcrust = this%D_ud, omega = omega, exc = exc )
+    call this%gravity%set_sub( Dcrust = this%D_ud, omega = omega, exc = exc )
     call this%sol%init_layers_sub()
     
     allocate( this%htide(this%nd,jms4) ); this%htide = czero
@@ -71,7 +73,7 @@ submodule(IceMod) Init_ice
   subroutine deallocate_ice_sub(this)
     class(T_ice), intent(inout) :: this
     
-    !call this%gravity%deallocate_sub()
+    call this%gravity%deallocate_sub()
     call this%deallocate_objects_sub()
     
   end subroutine deallocate_ice_sub

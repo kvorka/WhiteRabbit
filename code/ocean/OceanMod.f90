@@ -30,30 +30,28 @@ module OceanMod
 
   subroutine init_ocean_sub(this)
     class(T_ocean), intent(inout) :: this
-
-    call this%init_objects_sub( nd = nd_ocean, jmax = jmax_ocean, r_ud = r_ud_ocean, &
-                              & rgrid = grid_type_ocean, noharm = noharm_ocean       )
     
-    call this%gravity%init_sub( gmod = gravity_ocean, g = 1 / this%ru**2 )
-
+    call this%init_objects_sub( nd = nd_ocean, jmax = jmax_ocean, r_ud = r_ud_ocean, rgrid = grid_type_ocean, &
+                              & gmod = gravity_ocean , g = (1-r_ud_ocean)**2 , noharm = noharm_ocean          )
+    
     this%n_iter = n_iter_ocean
     this%cf     = 0.6_dbl
     this%ab     = 1.5_dbl
-
+    
     this%Pr = Pr_ocean
     this%Ra = Ra_ocean
     this%Ek = Ek_ocean
     thiS%Cl = Kl_ocean
-
+    
     this%D_ud         = D_ud_ocean
     this%rheology     = rheology_ocean
     this%mechanic_bnd = mechanic_bnd_ocean
     this%thermal_bnd  = thermal_bnd_ocean
     this%scaling      = scaling_ocean
-
+    
     open(unit=11, file='data/Nuss.dat', status='new', action='write')
     open(unit=12, file='data/Laws.dat', status='new', action='write')
-
+    
   end subroutine init_ocean_sub
 
   subroutine iter_ocean_sub(this)

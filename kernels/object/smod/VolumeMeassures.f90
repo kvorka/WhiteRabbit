@@ -5,7 +5,7 @@ submodule (PhysicalObject) VolumeMeassures
   real(kind=dbl) function nuss_fn(this)
     class(T_physicalObject), intent(in) :: this
     
-    nuss_fn = real(-this%sol%flux_fn(this%nd,1,1), kind=dbl) / this%r_ud / sqrt(4*pi)
+    nuss_fn = c2r_fn( -this%sol%flux_fn(this%nd,1,1) ) / this%r_ud / sqrt(4*pi)
     
   end function nuss_fn
   

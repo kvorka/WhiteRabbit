@@ -19,7 +19,7 @@ module PhysicalObject
     integer                        :: n_iter, poc
     real(kind=dbl)                 :: t, dt
     real(kind=dbl)                 :: cf, ab
-    real(kind=dbl)                 :: rd, ru, r_ud, D_ud
+    real(kind=dbl)                 :: rd, ru, r_ud, D_ud, gd, gu
     real(kind=dbl)                 :: Pr, Ra, Ek, Cl, Ds, Raf, Ramu, Rad, Rau
     integer,           allocatable :: j_indx(:)
     complex(kind=dbl), allocatable :: flux_up(:), htide(:,:)
@@ -93,11 +93,11 @@ module PhysicalObject
   end type T_physicalObject
 
   interface
-    module subroutine init_objects_sub( this, nd, jmax, r_ud, rgrid, noobj, noharm )
+    module subroutine init_objects_sub( this, nd, jmax, r_ud, rgrid, gmod, g, noobj, noharm )
       class(T_physicalObject),    intent(inout) :: this
       integer,                    intent(in)    :: nd, jmax
-      real(kind=dbl),             intent(in)    :: r_ud
-      character(len=*),           intent(in)    :: rgrid
+      real(kind=dbl),             intent(in)    :: r_ud, g
+      character(len=*),           intent(in)    :: rgrid, gmod
       logical,          optional, intent(in)    :: noobj, noharm
     end subroutine init_objects_sub
     

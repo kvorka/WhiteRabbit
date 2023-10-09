@@ -19,10 +19,10 @@ submodule (PhysicalObject) SpheroidalViscel
       case('shape')
         matica(12, 1) = +sqrt(j    /(2*j+1)) * grid%c(1,-1)
         matica(13, 1) = -sqrt((j+1)/(2*j+1)) * grid%c(1,-1)
-        matica(14, 1) = +sqrt(j*(j-1)/((2*j-1)*(2*j+1)))     / this%Rad / this%gravity%g_fn(grid%r(1))
-        matica(15, 1) = -sqrt(1._dbl/3._dbl)                 / this%Rad / this%gravity%g_fn(grid%r(1))
-        matica(16, 1) = -sqrt(2*j*(j+1)/(3*(2*j-1)*(2*j+3))) / this%Rad / this%gravity%g_fn(grid%r(1))
-        matica(17, 1) = +sqrt((j+1)*(j+2)/((2*j+1)*(2*j+3))) / this%Rad / this%gravity%g_fn(grid%r(1))
+        matica(14, 1) = +sqrt(j*(j-1)/((2*j-1)*(2*j+1)))     / this%Rad / this%gd
+        matica(15, 1) = -sqrt(1._dbl/3._dbl)                 / this%Rad / this%gd
+        matica(16, 1) = -sqrt(2*j*(j+1)/(3*(2*j-1)*(2*j+3))) / this%Rad / this%gd
+        matica(17, 1) = +sqrt((j+1)*(j+2)/((2*j+1)*(2*j+3))) / this%Rad / this%gd
         matica(18, 1) = +sqrt(j    /(2*j+1)) * grid%c(1,+1)
         matica(19, 1) = -sqrt((j+1)/(2*j+1)) * grid%c(1,+1)
                 
@@ -102,10 +102,10 @@ submodule (PhysicalObject) SpheroidalViscel
         
         matica( 5, 6*this%nd+2) = +sqrt(j    /(2*j+1)) * grid%c(this%nd,-1)
         matica( 6, 6*this%nd+2) = -sqrt((j+1)/(2*j+1)) * grid%c(this%nd,-1)
-        matica( 7, 6*this%nd+2) = +sqrt(j*(j-1)/((2*j-1)*(2*j+1)))     / this%Rau / this%gravity%g_fn(grid%r(this%nd))
-        matica( 8, 6*this%nd+2) = -sqrt(1._dbl/3._dbl)                 / this%Rau / this%gravity%g_fn(grid%r(this%nd))
-        matica( 9, 6*this%nd+2) = -sqrt(2*j*(j+1)/(3*(2*j-1)*(2*j+3))) / this%Rau / this%gravity%g_fn(grid%r(this%nd))
-        matica(10, 6*this%nd+2) = +sqrt((j+1)*(j+2)/((2*j+1)*(2*j+3))) / this%Rau / this%gravity%g_fn(grid%r(this%nd))
+        matica( 7, 6*this%nd+2) = +sqrt(j*(j-1)/((2*j-1)*(2*j+1)))     / this%Rau / this%gu
+        matica( 8, 6*this%nd+2) = -sqrt(1._dbl/3._dbl)                 / this%Rau / this%gu
+        matica( 9, 6*this%nd+2) = -sqrt(2*j*(j+1)/(3*(2*j-1)*(2*j+3))) / this%Rau / this%gu
+        matica(10, 6*this%nd+2) = +sqrt((j+1)*(j+2)/((2*j+1)*(2*j+3))) / this%Rau / this%gu
         matica(11, 6*this%nd+2) = +sqrt(j    /(2*j+1)) * grid%c(this%nd,+1)
         matica(12, 6*this%nd+2) = -sqrt((j+1)/(2*j+1)) * grid%c(this%nd,+1)
     end select  
@@ -130,10 +130,10 @@ submodule (PhysicalObject) SpheroidalViscel
       case('shape')
         matica( 8,1) = +sqrt(j    /(2*j+1)) * this%dt / 2
         matica( 9,1) = -sqrt((j+1)/(2*j+1)) * this%dt / 2
-        matica(10,1) = +sqrt(j*(j-1)/((2*j-1)*(2*j+1)))     / this%Rad / this%gravity%g_fn(grid%r(1))
-        matica(11,1) = -sqrt(1._dbl/3._dbl)                 / this%Rad / this%gravity%g_fn(grid%r(1))
-        matica(12,1) = -sqrt(2*j*(j+1)/(3*(2*j-1)*(2*j+3))) / this%Rad / this%gravity%g_fn(grid%r(1))
-        matica(13,1) = +sqrt((j+1)*(j+2)/((2*j+1)*(2*j+3))) / this%Rad / this%gravity%g_fn(grid%r(1))
+        matica(10,1) = +sqrt(j*(j-1)/((2*j-1)*(2*j+1)))     / this%Rad / this%gd
+        matica(11,1) = -sqrt(1._dbl/3._dbl)                 / this%Rad / this%gd
+        matica(12,1) = -sqrt(2*j*(j+1)/(3*(2*j-1)*(2*j+3))) / this%Rad / this%gd
+        matica(13,1) = +sqrt((j+1)*(j+2)/((2*j+1)*(2*j+3))) / this%Rad / this%gd
         matica(14,1) = +sqrt(j    /(2*j+1)) * this%dt / 2
         matica(15,1) = -sqrt((j+1)/(2*j+1)) * this%dt / 2
         
@@ -207,10 +207,10 @@ submodule (PhysicalObject) SpheroidalViscel
         
         matica(1, 6*this%nd+2) = +sqrt(j    /(2*j+1)) * this%dt / 2
         matica(2, 6*this%nd+2) = -sqrt((j+1)/(2*j+1)) * this%dt / 2
-        matica(3, 6*this%nd+2) = +sqrt(j*(j-1)/((2*j-1)*(2*j+1)))     / this%Rau / this%gravity%g_fn(grid%r(this%nd))
-        matica(4, 6*this%nd+2) = -sqrt(1._dbl/3._dbl)                 / this%Rau / this%gravity%g_fn(grid%r(this%nd))
-        matica(5, 6*this%nd+2) = -sqrt(2*j*(j+1)/(3*(2*j-1)*(2*j+3))) / this%Rau / this%gravity%g_fn(grid%r(this%nd))
-        matica(6, 6*this%nd+2) = +sqrt((j+1)*(j+2)/((2*j+1)*(2*j+3))) / this%Rau / this%gravity%g_fn(grid%r(this%nd))
+        matica(3, 6*this%nd+2) = +sqrt(j*(j-1)/((2*j-1)*(2*j+1)))     / this%Rau / this%gu
+        matica(4, 6*this%nd+2) = -sqrt(1._dbl/3._dbl)                 / this%Rau / this%gu
+        matica(5, 6*this%nd+2) = -sqrt(2*j*(j+1)/(3*(2*j-1)*(2*j+3))) / this%Rau / this%gu
+        matica(6, 6*this%nd+2) = +sqrt((j+1)*(j+2)/((2*j+1)*(2*j+3))) / this%Rau / this%gu
         matica(7, 6*this%nd+2) = +sqrt(j    /(2*j+1)) * this%dt / 2
         matica(8, 6*this%nd+2) = -sqrt((j+1)/(2*j+1)) * this%dt / 2
         
