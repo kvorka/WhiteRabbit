@@ -9,14 +9,12 @@ submodule(IceMod) ParametersIce
     real(kind=dbl)            :: temp, lambdaI
 
     if ( this%rad_grid%r(i) < this%rad_grid%r(this%nd) - this%hC ) then
-       temp = this%Tu + (this%Td-this%Tu) * real( this%rad_grid%c(i,-1) * this%sol%temp_fn(i  ,1) + &
-                                                & this%rad_grid%c(i,+1) * this%sol%temp_fn(i+1,1)    , kind=dbl) / sqrt(4*pi)
+       temp = this%Tu + ( this%Td-this%Tu ) * c2r_fn( this%rad_grid%c(i,-1) * this%sol%temp_fn(i  ,1) + &
+                                                    & this%rad_grid%c(i,+1) * this%sol%temp_fn(i+1,1)   ) / sqrt(4*pi)
        
        lambdaI = 0.4685_dbl + 488.12_dbl / temp
-       
     else
        lambdaI = this%lambdaC
-       
     end if
      
     lambda_ice_fn = lambdaI / this%lambdaU
@@ -26,12 +24,8 @@ submodule(IceMod) ParametersIce
   pure real(kind=dbl) function cp_ice_fn(this, i)
     class(T_ice),  intent(in) :: this
     integer,       intent(in) :: i
-    real(kind=dbl)            :: temp, cI
     
-    temp = this%Tu + (this%Td-this%Tu) * real( this%sol%temp_fn(i,1), kind=dbl ) / sqrt(4*pi)
-    cI = 185._dbl + 7.037_dbl * temp
-    
-    cp_ice_fn = cI / this%cU
+    cp_ice_fn = ( 185._dbl + 7.037_dbl * ( this%Tu + (this%Td-this%Tu) * c2r_fn( this%sol%temp_fn(i,1) ) / sqrt(4*pi) ) ) / this%cU
     
   end function cp_ice_fn
   
@@ -47,16 +41,14 @@ submodule(IceMod) ParametersIce
     
     class(T_ice),  intent(in) :: this
     integer,       intent(in) :: i
-    real(kind=dbl)            :: temp, v, dv, alphaI
+    real(kind=dbl)            :: temp, v, dv
     
-    temp = this%Tu + (this%Td-this%Tu) * real( this%sol%temp_fn(i,1), kind=dbl ) / sqrt(4*pi)
+    temp = this%Tu + (this%Td-this%Tu) * c2r_fn( this%sol%temp_fn(i,1) ) / sqrt(4*pi)
     
     v  = A0 +    A3 * temp**3 +     A4 * temp**4 +     A5 * temp**5 +     A6 * temp**6 +     A7 * temp**7
     dv =      3* A3 * temp**2 + 4 * A4 * temp**3 + 5 * A5 * temp**4 + 6 * A6 * temp**5 + 7 * A7 * temp**6
     
-    alphaI = dv/v
-    
-    alpha_ice_fn = alphaI / this%alphaU
+    alpha_ice_fn = ( dv / v ) / this%alphaU
     
   end function alpha_ice_fn
   
