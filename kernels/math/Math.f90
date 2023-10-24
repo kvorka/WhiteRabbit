@@ -3,15 +3,19 @@ module Math
   implicit none
   
   integer,           parameter, public :: dbl   = real64
-  real(kind=dbl),    parameter, public :: pi    = acos(-1._dbl)
-  complex(kind=dbl), parameter, public :: cunit = cmplx(0._dbl, 1._dbl, kind=dbl)
-  complex(kind=dbl), parameter, public :: czero = cmplx(0._dbl, 0._dbl, kind=dbl)
-  complex(kind=dbl), parameter, public :: cone  = cmplx(1._dbl, 0._dbl, kind=dbl)
-  complex(kind=dbl), parameter, public :: cs4pi = cmplx(sqrt(4*pi), 0._dbl, kind=dbl)
+  real(kind=dbl),    parameter, public :: zero  = 0._dbl
+  real(kind=dbl),    parameter, public :: one   = 1._dbl
+  real(kind=dbl),    parameter, public :: pi    = acos(-one)
+  real(kind=dbl),    parameter, public :: s4pi  = sqrt(4*pi)
+  complex(kind=dbl), parameter, public :: cunit = cmplx(zero, one , kind=dbl)
+  complex(kind=dbl), parameter, public :: czero = cmplx(zero, zero, kind=dbl)
+  complex(kind=dbl), parameter, public :: cone  = cmplx(one , zero, kind=dbl)
+  complex(kind=dbl), parameter, public :: cs4pi = cmplx(s4pi, zero, kind=dbl)
   real(kind=dbl),    parameter, public :: kappa = 6.670d-11
   real(kind=dbl),    parameter, public :: rgas  = 8.31_dbl
 
   public :: int2str_fn
+  public :: i2r_fn
   public :: r2c_fn
   public :: c2r_fn
 
@@ -25,19 +29,24 @@ module Math
 
   end function int2str_fn
   
-  elemental function r2c_fn(x) result(cx)
-    real(kind=dbl),   intent(in) :: x
-    complex(kind=dbl)            :: cx
+  elemental real(kind=dbl) function i2r_fn(ix)
+    integer, intent(in) :: ix
     
-    cx = cmplx(x, 0._dbl, kind=dbl)
+    i2r_fn = real(ix, kind=dbl)
+    
+  end function i2r_fn
+  
+  elemental complex(kind=dbl) function r2c_fn(x)
+    real(kind=dbl), intent(in) :: x
+    
+    r2c_fn = cmplx(x, zero, kind=dbl)
     
   end function r2c_fn
   
-  elemental function c2r_fn(cx) result(x)
+  elemental real(kind=dbl) function c2r_fn(cx)
     complex(kind=dbl), intent(in) :: cx
-    real(kind=dbl)                :: x
     
-    x = real(cx, kind=dbl)
+    c2r_fn = real(cx, kind=dbl)
     
   end function c2r_fn
   

@@ -11,9 +11,9 @@ submodule (PhysicalObject) ThermalMatrices
     integer                              :: i
     real(kind=dbl)                       :: j, rgrad_T
     
-    allocate( matica(7,3*this%nd+1) ) ; matica = 0._dbl
+    allocate( matica(7,3*this%nd+1) ) ; matica = zero
     
-    associate(grid => this%rad_grid); j = real(j_in, kind=dbl)
+    associate(grid => this%rad_grid); j = i2r_fn(j_in)
     
     select case (this%thermal_bnd)
       case('phase')
@@ -79,9 +79,9 @@ submodule (PhysicalObject) ThermalMatrices
     integer                             :: i
     real(kind=dbl)                      :: j, q
 
-    allocate(matica(11,3*this%nd+1) ) ; matica = 0._dbl
+    allocate(matica(11,3*this%nd+1) ) ; matica = zero
     
-    associate( grid => this%rad_grid ); j = real(j_in, kind=dbl)
+    associate( grid => this%rad_grid ); j = i2r_fn(j_in)
     
     select case (this%thermal_bnd)
       case('phase')

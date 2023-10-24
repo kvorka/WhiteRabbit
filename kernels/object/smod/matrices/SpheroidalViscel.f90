@@ -11,9 +11,9 @@ submodule (PhysicalObject) SpheroidalViscel
     integer                             :: i
     real(kind=dbl)                      :: j
 
-    allocate( matica(23,6*this%nd+2) ) ; matica = 0._dbl
+    allocate( matica(23,6*this%nd+2) ) ; matica = zero
   
-    associate( grid => this%rad_grid ); j = real(j_in, kind=dbl)
+    associate( grid => this%rad_grid ); j = i2r_fn(j_in)
     
     select case (this%mechanic_bnd)
       case('shape')
@@ -122,9 +122,9 @@ submodule (PhysicalObject) SpheroidalViscel
     integer                             :: i
     real(kind=dbl)                      :: j, dr
     
-    allocate( matica(15,6*this%nd+2) ) ; matica = 0._dbl
+    allocate( matica(15,6*this%nd+2) ) ; matica = zero
     
-    associate( grid => this%rad_grid ); j = real(j_in, kind=dbl); dr = grid%r(2)-grid%r(1)
+    associate( grid => this%rad_grid ); j = i2r_fn(j_in); dr = grid%r(2)-grid%r(1)
     
     select case (this%mechanic_bnd)
       case('shape')

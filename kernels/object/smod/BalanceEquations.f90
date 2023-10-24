@@ -95,9 +95,8 @@ submodule (PhysicalObject) BalanceEquations
   real(kind=dbl) function bound_flux_fn(this)
     class(T_physicalObject), intent(in) :: this
     
-    bound_flux_fn = ( c2r_fn( -this%sol%flux_fn(this%nd,1,1) ) * this%rad_grid%r(this%nd)**2 - &
-                    & c2r_fn( -this%sol%flux_fn(      1,1,1) ) * this%rad_grid%r(      1)**2 - &
-                    & this%Ds/this%Ra * this%rad_grid%intV_fn( c2r_fn( this%htide(:,1) ) )     ) / sqrt(4*pi)
+    bound_flux_fn = c2r_fn( -this%sol%flux_fn(this%nd,1,1) * this%ru**2 + this%sol%flux_fn(1,1,1) * this%rd**2 - &
+                          & this%Ds/this%Ra * this%rad_grid%intV_fn( this%htide(:,1) )                           ) / s4pi
     
   end function bound_flux_fn
   

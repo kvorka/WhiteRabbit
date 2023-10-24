@@ -54,7 +54,7 @@ submodule (PhysicalObject) Init_object
     end if
     
     this%poc = 0
-    this%t   = 0._dbl
+    this%t   = zero
     
     call this%set_dt_sub()
     

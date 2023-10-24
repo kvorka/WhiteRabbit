@@ -19,7 +19,7 @@ submodule(PhysicalObject) Forces
     
     allocate( gdrho(this%jmv) ) ; gdrho = czero
     
-    gdrho = ersv_fn(this%jmax, this%Ra * this%alpha_fn(ir) * this%gravity%g_fn(this%rad_grid%rr(ir)) * this%sol%temp_jm_fn(ir))
+    gdrho = ersv_fn(this%jmax, this%Ra * this%alpha_fn(ir) * this%gravity%g_fn( this%rad_grid%rr(ir) ) * this%sol%temp_jm_fn(ir))
     
   end function buoy_rr_jml_fn
 
