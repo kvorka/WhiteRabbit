@@ -13,20 +13,17 @@ module Math
   complex(kind=dbl), parameter, public :: cs4pi = cmplx(s4pi, zero, kind=dbl)
   real(kind=dbl),    parameter, public :: kappa = 6.670d-11
   real(kind=dbl),    parameter, public :: rgas  = 8.31_dbl
-
-  public :: int2str_fn
-  public :: i2r_fn
-  public :: r2c_fn
-  public :: c2r_fn
-
+  
+  public :: int2str_fn, i2r_fn, r2c_fn, c2r_fn
+  
   contains
-
+  
   function int2str_fn(n) result(str)
     integer,          intent(in) :: n
     character(len=10)            :: str 
-
+    
     write(str,'(1I4)') n
-
+    
   end function int2str_fn
   
   elemental real(kind=dbl) function i2r_fn(ix)

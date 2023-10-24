@@ -3,35 +3,23 @@ module SphericalHarmonics
   use, intrinsic :: iso_c_binding
   implicit none
   include '/usr/include/fftw3.f03'
-
-  integer, parameter :: fftw_flags = FFTW_EXHAUSTIVE + FFTW_UNALIGNED + FFTW_DESTROY_INPUT
-  integer, parameter :: step       = 8
+  
+  integer, parameter :: fftw_flags = FFTW_EXHAUSTIVE + FFTW_UNALIGNED + FFTW_DESTROY_INPUT , step = 8
   
   type, public :: T_lateralGrid
     integer,                     private :: jmax, jms, jms1, jms2, jmv, jmv1, maxj, nLegendre, nFourier
     real(kind=dbl),              private :: tolm
     real(kind=dbl), allocatable, private :: roots(:), fftLege(:), ish(:), amjrr(:), bmjrr(:)
-    type(C_ptr),                 private :: fftw_06_c2r, fftw_01_r2c
-    type(C_ptr),                 private :: fftw_16_c2r, fftw_03_r2c
-    type(C_ptr),                 private :: fftw_19_c2r, fftw_04_r2c
-  
+    type(C_ptr),                 private :: fftw_06_c2r, fftw_01_r2c, fftw_16_c2r, fftw_03_r2c, fftw_19_c2r, fftw_04_r2c
+    
     contains
-  
+    
     procedure :: init_sub       => init_harmonics_sub
     procedure :: deallocate_sub => deallocate_harmonics_sub
-
-    procedure :: init_vcvv_sub
-    procedure :: vcvv_fn
-    procedure :: deallocate_fftw_vcvv_sub
-
-    procedure :: init_vcsv_vcvgv_sub
-    procedure :: vcsv_vcvgv_fn
-    procedure :: deallocate_fftw_vcsv_vcvgv_sub
-
-    procedure :: init_vcsv_vcvv_vcvgv_sub
-    procedure :: vcsv_vcvv_vcvgv_sub
-    procedure :: deallocate_fftw_vcsv_vcvv_vcvgv_sub
-
+    procedure :: init_vcvv_sub            , vcvv_fn             , deallocate_fftw_vcvv_sub
+    procedure :: init_vcsv_vcvgv_sub      , vcsv_vcvgv_fn       , deallocate_fftw_vcsv_vcvgv_sub
+    procedure :: init_vcsv_vcvv_vcvgv_sub , vcsv_vcvv_vcvgv_sub , deallocate_fftw_vcsv_vcvv_vcvgv_sub
+    
   end type T_lateralGrid
   
   interface

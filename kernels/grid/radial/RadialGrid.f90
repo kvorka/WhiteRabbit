@@ -1,7 +1,7 @@
 module RadialGrid
   use Math
   implicit none
-
+  
   type, public :: T_radialGrid
     integer                     :: nd
     real(kind=dbl)              :: volume
@@ -11,17 +11,8 @@ module RadialGrid
     
     procedure, pass :: init_sub       => init_grid_sub
     procedure, pass :: deallocate_sub => deallocate_grid_sub
-    
-    procedure, pass :: d 
-    procedure, pass :: dd
-    procedure, pass :: c 
-    procedure, pass :: cc
-    procedure, pass :: drr
-    procedure, pass :: interpolation_fn            
-    procedure, pass :: volumetric_integral_real_fn 
-    procedure, pass :: volumetric_integral_cmplx_fn
-    procedure, pass :: radial_integral_real_fn
-    procedure, pass :: radial_integral_cmplx_fn
+    procedure, pass :: d, dd, c, cc, drr, interpolation_fn, volumetric_integral_real_fn, volumetric_integral_cmplx_fn, &
+                     & radial_integral_real_fn, radial_integral_cmplx_fn
     
     generic :: intV_fn => volumetric_integral_real_fn, volumetric_integral_cmplx_fn
     generic :: intR_fn => radial_integral_real_fn    , radial_integral_cmplx_fn

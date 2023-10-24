@@ -4,8 +4,7 @@ module Vector_analysis
   use Spherical_func
   implicit none
   
-  public :: vec2scals_sub
-  public :: vecxyz2rtp_sub
+  public :: vec2scals_sub, vecxyz2rtp_sub
   
   contains
   
@@ -36,7 +35,7 @@ module Vector_analysis
           y(ijm) = cunit * ( sum1 + sum2 ) / sqrt(2._dbl)
           z(ijm) =           sum3 
       end do
-      
+    
     do im = 1, jmax_in+1
       do ij = im, jmax_in+1
         sum1 = czero ; sum2 = czero ; sum3 = czero
@@ -80,5 +79,5 @@ module Vector_analysis
     vph = -vx * sph      + vy * cph
     
   end subroutine vecxyz2rtp_sub
-     
+  
 end module Vector_analysis
