@@ -16,9 +16,9 @@ module OceanConvMod
     
     call this%init_ocean_sub() ; call this%lat_grid%init_vcsv_vcvv_vcvgv_sub()
     
-    call this%init_eq_temp_sub( rhs=.true. , nl=.true. ) ; call this%prepare_mat_temp_sub( ijstart=0 , ijend=this%jmax )
-    call this%init_eq_torr_sub( rhs=.true. , nl=.true. ) ; call this%prepare_mat_torr_sub( ijstart=1 , ijend=this%jmax )
-    call this%init_eq_mech_sub( rhs=.true. , nl=.true. ) ; call this%prepare_mat_mech_sub( ijstart=1 , ijend=this%jmax )
+    call this%init_eq_temp_sub( rhs=.true. , nl=.true. )
+    call this%init_eq_torr_sub( rhs=.true. , nl=.true. )
+    call this%init_eq_mech_sub( rhs=.true. , nl=.true. )
     
     call this%init_state_sub()
     
@@ -27,6 +27,21 @@ module OceanConvMod
   subroutine time_scheme_oceanConv_sub(this)
     class(T_oceanConv), intent(inout) :: this
     integer                           :: ir, ijm
+    real(kind=dbl)                    :: dt
+    logical                           :: changed_dt
+    
+    dt = this%velc_crit_fn()
+      if ( dt < this%dt) then
+        dt = 0.75_dbl * dt
+
+        this%ab = 1 + dt / ( 2 * this%dt )
+        this%dt = dt
+        
+        changed_dt = .true.
+      else
+        this%ab    = 1.5_dbl
+        changed_dt = .false.
+      end if
     
     ijm = 1 ; ir = 1
       this%rtemp(ir,ijm) = cs4pi
@@ -61,9 +76,9 @@ module OceanConvMod
     !$omp end do
     !$omp end parallel
 
-    call this%solve_temp_sub( ijmstart=1 , ijmend=this%jms, ijmstep=1, rematrix=.false., matxsol=.true. )
-    call this%solve_torr_sub( ijmstart=2 , ijmend=this%jms, ijmstep=1, rematrix=.false., matxsol=.true. )
-    call this%solve_mech_sub( ijmstart=2 , ijmend=this%jms, ijmstep=1, rematrix=.false., matxsol=.true. )
+    call this%solve_temp_sub( ijmstart=1 , ijmend=this%jms, ijmstep=1, rematrix=changed_dt, matxsol=.true. )
+    call this%solve_torr_sub( ijmstart=2 , ijmend=this%jms, ijmstep=1, rematrix=changed_dt, matxsol=.true. )
+    call this%solve_mech_sub( ijmstart=2 , ijmend=this%jms, ijmstep=1, rematrix=changed_dt, matxsol=.true. )
     
     if (this%mechanic_bnd == 'frees') call this%global_rotation_sub()
     

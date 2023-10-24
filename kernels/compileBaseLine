@@ -3,46 +3,37 @@
 compiler=$1
 optimization=$2
 
-#double, pi, cunit a specialne funkcie (Legendreove polynomy, C.-G. coeffs)
 $compiler -$optimization -march=native -c kernels/math/Math.f90
 $compiler -$optimization -march=native -c kernels/math/Clebsch_Legendre.f90
 $compiler -$optimization -march=native -c kernels/math/SphericalFunctions.f90
 
-#kompilacia radialneho gridu
 $compiler -$optimization -march=native -c kernels/grid/radial/RadialGrid.f90
-
 $compiler -$optimization -march=native -c kernels/grid/radial/smod/Init_RadialGrid.f90
 $compiler -$optimization -march=native -c kernels/grid/radial/smod/Differences.f90
 $compiler -$optimization -march=native -c kernels/grid/radial/smod/Integration.f90
 $compiler -$optimization -march=native -c kernels/grid/radial/smod/Interpolation.f90
 
-#kompilacia lateralneho gridu a sferickych funkcii
 $compiler -$optimization -march=native -c kernels/grid/spherical/SphericalHarmonics.f90
-
 $compiler -$optimization -march=native -c kernels/grid/spherical/smod/Init_SphericalHarmonics.f90
 $compiler -$optimization -march=native -c kernels/grid/spherical/smod/vcvv.f90
 $compiler -$optimization -march=native -c kernels/grid/spherical/smod/vcsv_vcvgv.f90
 $compiler -$optimization -march=native -c kernels/grid/spherical/smod/vcsv_vcvv_vcvgv.f90
 
-#kompilacia definicie sustav rovnic
-$compiler -$optimization -march=native -c kernels/equations/solutions/Solution.f90  #premenne pre riesenie
-
+$compiler -$optimization -march=native -c kernels/equations/solutions/Solution.f90
 $compiler -$optimization -march=native -c kernels/equations/solutions/smod/Solution_init.f90
 $compiler -$optimization -march=native -c kernels/equations/solutions/smod/Solution_singles.f90
 $compiler -$optimization -march=native -c kernels/equations/solutions/smod/Solution_radial.f90
 $compiler -$optimization -march=native -c kernels/equations/solutions/smod/Solution_spherical.f90
 
-$compiler -$optimization -march=native -c kernels/equations/matrices/mod/LU.f90      #LU rozklad
-$compiler -$optimization -march=native -c kernels/equations/matrices/mod/Matrix.f90  #typova premenna pre maticu
-$compiler -$optimization -march=native -c kernels/equations/matrices/Matrices.f90    #vektor matic
+$compiler -$optimization -march=native -c kernels/equations/matrices/mod/LU.f90
+$compiler -$optimization -march=native -c kernels/equations/matrices/mod/Matrix.f90
+$compiler -$optimization -march=native -c kernels/equations/matrices/Matrices.f90
 
-#kompilacia modelu gravitacie
-$compiler -$optimization -march=native -c kernels/gmodel/Gravity.f90          #gravitacny model
+$compiler -$optimization -march=native -c kernels/gmodel/Gravity.f90
 
-#kompilacia fyzikalneho modelu
 $compiler -$optimization -march=native -c kernels/object/PhysicalObject.f90
-
 $compiler -$optimization -march=native -c kernels/object/smod/Init_object.f90
+$compiler -$optimization -march=native -c kernels/object/smod/TimeStepping.f90
 $compiler -$optimization -march=native -c kernels/object/smod/Parameters.f90
 $compiler -$optimization -march=native -c kernels/object/smod/Variables.f90
 $compiler -$optimization -march=native -c kernels/object/smod/Forces.f90
@@ -51,25 +42,20 @@ $compiler -$optimization -march=native -c kernels/object/smod/NonLinearTerms.f90
 $compiler -$optimization -march=native -c kernels/object/smod/VolumeMeassures.f90
 $compiler -$optimization -march=native -c kernels/object/smod/BalanceEquations.f90
 $compiler -$optimization -march=native -c kernels/object/smod/Output.f90
-
 $compiler -$optimization -march=native -c kernels/object/smod/matrices/ThermalMatrices.f90
 $compiler -$optimization -march=native -c kernels/object/smod/matrices/ToroidalVisc.f90
 $compiler -$optimization -march=native -c kernels/object/smod/matrices/SpheroidalVisc.f90
 $compiler -$optimization -march=native -c kernels/object/smod/matrices/SpheroidalViscel.f90
-
 $compiler -$optimization -march=native -fopenmp -c kernels/object/smod/equations/Equations_temp.f90
 $compiler -$optimization -march=native -fopenmp -c kernels/object/smod/equations/Equations_torr.f90
 $compiler -$optimization -march=native -fopenmp -c kernels/object/smod/equations/Equations_mech.f90
 
-#kompilacia vseobecnych struktur pre ocean
 $compiler -$optimization -march=native -c code/ocean/OceanConstants.f90
 $compiler -$optimization -march=native -c code/ocean/OceanMod.f90
 
-#kompilacia vseobecnych struktur pre ladovu koru
 $compiler -$optimization -march=native -c code/ice/IceConstants.f90
 $compiler -$optimization -march=native -c code/ice/IceViscosity.f90
 $compiler -$optimization -march=native -c code/ice/IceMod.f90
-
 $compiler -$optimization -march=native -c code/ice/smod/Init_ice.f90
 $compiler -$optimization -march=native -c code/ice/smod/ParametersIce.f90
 $compiler -$optimization -march=native -c code/ice/smod/TidalHeatingIce.f90

@@ -36,6 +36,7 @@ module PhysicalObject
     
     procedure, pass :: init_objects_sub       => init_objects_sub
     procedure, pass :: set_dt_sub
+    procedure, pass :: velc_crit_fn
     procedure, pass :: vypis_sub
     procedure, pass :: deallocate_objects_sub => deallocate_objects_sub
 
@@ -104,6 +105,10 @@ module PhysicalObject
     module subroutine set_dt_sub(this)
       class(T_physicalObject), intent(inout) :: this
     end subroutine set_dt_sub
+
+    module pure real(kind=dbl) function velc_crit_fn(this)
+      class(T_physicalObject), intent(in) :: this
+    end function velc_crit_fn
     
     module subroutine deallocate_objects_sub(this)
       class(T_physicalObject), intent(inout) :: this

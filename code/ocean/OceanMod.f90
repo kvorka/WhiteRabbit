@@ -165,8 +165,17 @@ module OceanMod
       deallocate(r, spher1, spher2, torr, temp)
     end if
     
-    ab_help = this%ab ; this%ab = 1._dbl
-    call this%time_scheme_sub() ; call this%vypis_ocean_sub()
+    this%dt = min(this%dt, this%velc_crit_fn())
+      call this%prepare_mat_temp_sub( ijstart=0 , ijend=this%jmax )
+      call this%prepare_mat_torr_sub( ijstart=1 , ijend=this%jmax )
+      call this%prepare_mat_mech_sub( ijstart=1 , ijend=this%jmax )
+    
+    ab_help = this%ab
+    this%ab = 1._dbl
+    
+      call this%time_scheme_sub()
+      call this%vypis_ocean_sub()
+      
     this%ab = ab_help
     
   end subroutine init_state_ocean_sub
