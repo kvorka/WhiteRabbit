@@ -36,7 +36,7 @@ submodule (PhysicalObject) Init_object
     this%jmv  = 3*( this%jmax*(this%jmax+1)/2+this%jmax ) + 1
     
     if (.not. this%noobj) then
-      call this%rad_grid%init_sub(this%nd, this%r_ud / (1-this%r_ud), 1 / (1-this%r_ud), this%grid_type)
+      call this%rad_grid%init_sub(this%nd, this%rd, this%ru, this%grid_type)
       if (.not. this%noharm) call this%lat_grid%init_sub(this%jmax)
       call this%sol%init_sub(this%nd, this%jmax)
       call this%mat%init_sub(this%nd, this%jmax, this%grid_type)
@@ -64,7 +64,7 @@ submodule (PhysicalObject) Init_object
     class(T_physicalObject), intent(inout) :: this
     
     if (this%noobj) then
-      call this%rad_grid%init_sub(this%nd, this%r_ud / (1-this%r_ud), 1 / (1-this%r_ud), this%grid_type)
+      call this%rad_grid%init_sub(this%nd, this%rd, this%ru, this%grid_type)
       this%dt  = 0.49_dbl * ( this%rad_grid%r(2)-this%rad_grid%r(1) )**2
       call this%rad_grid%deallocate_sub()
     else

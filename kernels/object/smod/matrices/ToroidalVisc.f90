@@ -11,9 +11,9 @@ submodule (PhysicalObject) ToroidalVisc
     integer                             :: i
     real(kind=dbl)                      :: j
 
-    allocate( matica(11, 3*this%nd+1) )
+    allocate( matica(11, 3*this%nd+1) ) ; matica = 0._dbl
   
-    associate( grid => this%rad_grid ); j = real(j_in, kind=dbl); matica = 0._dbl
+    associate( grid => this%rad_grid ); j = real(j_in, kind=dbl)
     
     select case (this%mechanic_bnd)
       case('frees')
@@ -73,9 +73,9 @@ submodule (PhysicalObject) ToroidalVisc
     integer                             :: i
     real(kind=dbl)                      :: j
 
-    allocate( matica(11, 3*this%nd+1) )
+    allocate( matica(11, 3*this%nd+1) ) ; matica = 0._dbl
   
-    associate( grid => this%rad_grid ); j = real(j_in, kind=dbl); matica = 0._dbl
+    associate( grid => this%rad_grid ); j = real(j_in, kind=dbl)
     
     select case (this%mechanic_bnd)
       case('frees')
