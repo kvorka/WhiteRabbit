@@ -2,9 +2,7 @@ module Spherical_func
   use Math
   implicit none
   
-  public :: jm, jml, jml2
-  public :: ersv_fn, ervs_fn, ervv_fn, ezvv_fn, ezvv_sub
-  public :: snorm_fn, vnorm_fn, tnorm_fn, dotproduct_fn, scalproduct_fn
+  public :: jm, jml, jml2, ersv_fn, ervs_fn, ervv_fn, ezvv_fn, ezvv_sub, snorm_fn, vnorm_fn, tnorm_fn, dotproduct_fn, scalproduct_fn
   
   contains
   
@@ -38,8 +36,7 @@ module Spherical_func
     
     allocate( cjm(jm(np,np)) ) ; cjm = czero
     
-    ij = 0
-      cjm(1) = -cajml(1)
+    ij = 0 ; cjm(1) = -cajml(1)
     
     do ij = 1, np
       fac1 = +sqrt( ( ij   ) / ( 2*ij + 1._dbl ) )
@@ -61,8 +58,7 @@ module Spherical_func
     
     allocate( cjml(jml(np,np,+1)) ) ; cjml = czero
     
-    ij = 0
-      cjml(1) = -cajm(1)
+    ij = 0 ; cjml(1) = -cajm(1)
     
     do ij = 1, np
       fac1 = +sqrt( (ij  ) / ( 2*ij+1._dbl ) )
@@ -85,8 +81,7 @@ module Spherical_func
     
     allocate( cjml(jml(np,np,+1)) ) ; cjml = czero
     
-    ij = 0
-      cjml(1) = czero
+    ij = 0 ; cjml(1) = czero
     
     do ij = 1, np
       fac1 = sqrt( ( ij   ) / ( 2*ij+1._dbl ) )
@@ -102,53 +97,55 @@ module Spherical_func
   end function ervv_fn
   
   pure function ezvv_fn(np, cajml) result(cjml)
-    integer,          intent(in) :: np
-    complex(kind=dbl),intent(in) :: cajml(:)
-    complex(kind=dbl)            :: cjml(jml(np,np,+1))
-    integer                      :: j, m, jm0, jm1, jm2
-
-    cjml(1) = sqrt(2._dbl/3._dbl)*cajml(3)
-
-    j = 1
-      do m = 0, j
-        jm1 = 3*((j-1)*(j  )/2+m)
-        jm0 = 3*((j  )*(j+1)/2+m)
-        jm2 = 3*((j+1)*(j+2)/2+m)
-
-        cjml(jm0-1) =                                                                                - m*cajml(jm0-1)/(j      )
-        cjml(jm0 )  = sqrt(((j+1._dbl)*((j       )*(j       )-m*m))/(2*j+1._dbl))*cajml(jm1+1)/(j  ) - m*cajml(jm0  )/(j*(j+1)) + &
-                    & sqrt(((j       )*((j+1._dbl)*(j+1._dbl)-m*m))/(2*j+1._dbl))*cajml(jm2-1)/(j+1)
-        cjml(jm0+1) =                                                                                  m*cajml(jm0+1)/(   j+1 ) + &
-                    & sqrt(((j+2._dbl)*((j+1._dbl)*(j+1._dbl)-m*m))/(2*j+3._dbl))*cajml(jm2  )/(j+1)
+    integer,           intent(in)  :: np
+    complex(kind=dbl), intent(in)  :: cajml(:)
+    complex(kind=dbl), allocatable :: cjml(:)
+    integer                        :: ij, im, jm0, jm1, jm2
+    
+    allocate( cjml(jml(np,np,+1)) ) ; cjml = czero
+    
+    ij = 0 ; cjml(1) = sqrt(2._dbl/3._dbl) * cajml(3)
+    
+    ij = 1
+      do im = 0, ij
+        jm1 = 3 * ( (ij-1)*(ij  ) / 2 + im )
+        jm0 = 3 * ( (ij  )*(ij+1) / 2 + im )
+        jm2 = 3 * ( (ij+1)*(ij+2) / 2 + im )
+        
+        cjml(jm0-1) =                                                                      - im * cajml(jm0-1) / (ij       )
+        cjml(jm0 )  = sqrt((ij+1)*((ij  )**2-im**2)/(2*ij+1._dbl)) * cajml(jm1+1) / (ij  ) - im * cajml(jm0  ) / (ij*(ij+1)) + &
+                    & sqrt((ij  )*((ij+1)**2-im**2)/(2*ij+1._dbl)) * cajml(jm2-1) / (ij+1)
+        cjml(jm0+1) =                                                                        im * cajml(jm0+1) / (    ij+1 ) + &
+                    & sqrt((ij+2)*((ij+1)**2-im**2)/(2*ij+3._dbl)) * cajml(jm2  ) / (ij+1)
       end do
-
-    do j = 2, np-1
-      do m = 0, j
-        jm1 = 3*((j-1)*(j  )/2+m)
-        jm0 = 3*((j  )*(j+1)/2+m)
-        jm2 = 3*((j+1)*(j+2)/2+m)
-
-        cjml(jm0-1) = sqrt(((j-1._dbl)*((j       )*(j       )-m*m))/(2*j-1._dbl))*cajml(jm1  )/(j  ) - m*cajml(jm0-1)/(j      )
-        cjml(jm0  ) = sqrt(((j+1._dbl)*((j       )*(j       )-m*m))/(2*j+1._dbl))*cajml(jm1+1)/(j  ) - m*cajml(jm0  )/(j*(j+1)) + &
-                    & sqrt(((j       )*((j+1._dbl)*(j+1._dbl)-m*m))/(2*j+1._dbl))*cajml(jm2-1)/(j+1)
-        cjml(jm0+1) =                                                                                  m*cajml(jm0+1)/(   j+1 ) + &
-                    & sqrt(((j+2._dbl)*((j+1._dbl)*(j+1._dbl)-m*m))/(2*j+3._dbl))*cajml(jm2  )/(j+1)
+    
+    do ij = 2, np-1
+      do im = 0, ij
+        jm1 = 3 * ( (ij-1)*(ij  ) / 2 + im )
+        jm0 = 3 * ( (ij  )*(ij+1) / 2 + im )
+        jm2 = 3 * ( (ij+1)*(ij+2) / 2 + im )
+        
+        cjml(jm0-1) = sqrt((ij-1)*((ij  )**2-im**2)/(2*ij-1._dbl)) * cajml(jm1  ) / (ij  ) - im * cajml(jm0-1) / (ij       )
+        cjml(jm0  ) = sqrt((ij+1)*((ij  )**2-im**2)/(2*ij+1._dbl)) * cajml(jm1+1) / (ij  ) - im * cajml(jm0  ) / (ij*(ij+1)) + &
+                    & sqrt((ij  )*((ij+1)**2-im**2)/(2*ij+1._dbl)) * cajml(jm2-1) / (ij+1)
+        cjml(jm0+1) =                                                                        im * cajml(jm0+1) / (    ij+1 ) + &
+                    & sqrt((ij+2)*((ij+1)**2-im**2)/(2*ij+3._dbl)) * cajml(jm2  ) / (ij+1)
       end do
     end do
-
-    j = np
-      do m = 0, j
-        jm1 = 3*((j-1)*(j  )/2+m)
-        jm0 = 3*((j  )*(j+1)/2+m)
-        jm2 = 3*((j+1)*(j+2)/2+m)
-
-        cjml(jm0-1) = sqrt(((j-1._dbl)*((j  )*(j  )-m*m))/(2*j-1._dbl))*cajml(jm1  )/(j  ) - m*cajml(jm0-1)/(j      )
-        cjml(jm0  ) = sqrt(((j+1._dbl)*((j  )*(j  )-m*m))/(2*j+1._dbl))*cajml(jm1+1)/(j  ) - m*cajml(jm0  )/(j*(j+1))
-        cjml(jm0+1) =                                                                        m*cajml(jm0+1)/(   j+1 )
+    
+    ij = np
+      do im = 0, ij
+        jm1 = 3 * ( (ij-1)*(ij  ) / 2 + im )
+        jm0 = 3 * ( (ij  )*(ij+1) / 2 + im )
+        jm2 = 3 * ( (ij+1)*(ij+2) / 2 + im )
+        
+        cjml(jm0-1) = sqrt(((ij-1)*(ij**2-im**2))/(2*ij-1._dbl)) * cajml(jm1  ) / ij - im * cajml(jm0-1) / (ij       )
+        cjml(jm0  ) = sqrt(((ij+1)*(ij**2-im**2))/(2*ij+1._dbl)) * cajml(jm1+1) / ij - im * cajml(jm0  ) / (ij*(ij+1))
+        cjml(jm0+1) =                                                                  im * cajml(jm0+1) / (    ij+1 )
       end do
-
+    
     cjml = cunit * cjml
-
+    
   end function ezvv_fn
   
   subroutine ezvv_sub(np, fac, cajml, cjml)
@@ -156,152 +153,128 @@ module Spherical_func
     real(kind=dbl),    intent(in)    :: fac
     complex(kind=dbl), intent(in)    :: cajml(:)
     complex(kind=dbl), intent(inout) :: cjml(:,:)
-    integer                          :: j, m, ijm, jm0, jm1, jm2
+    integer                          :: ij, im, ijm, jm0, jm1, jm2
     complex(kind=dbl)                :: cfac
-
+    
     cfac = cunit * fac
-
-    j = 0
-      m = 0
+    
+    ij = 0
+      im = 0
         ijm = 1
-
+        
         cjml(1,ijm) = czero
         cjml(2,ijm) = czero
         cjml(3,ijm) = cjml(3,ijm) + sqrt(2._dbl/3._dbl) * cajml(3) * cfac
-
-    j = 1
-      do m = 0, j
+    
+    ij = 1
+      do im = 0, ij
         ijm = ijm+1
-
-        jm1 = 3*((j-1)*(j  )/2+m)
-        jm0 = 3*((j  )*(j+1)/2+m)
-        jm2 = 3*((j+1)*(j+2)/2+m)
-
-        cjml(1,ijm) = cjml(1,ijm) + (                                           -m * cajml(jm0-1) /  j          ) * cfac
-        cjml(2,ijm) = cjml(2,ijm) + ( sqrt(((j+1)*((j  )*(j  )-m*m))/(2*j+1._dbl)) * cajml(jm1+1) /  j -        &
-                                    &                                            m * cajml(jm0  ) / (j*(j+1)) + &
-                                    & sqrt(((j  )*((j+1)*(j+1)-m*m))/(2*j+1._dbl)) * cajml(jm2-1) /    (j+1)    ) * cfac
-        cjml(3,ijm) = cjml(3,ijm) + (                                            m * cajml(jm0+1) /    (j+1)  + &
-                                    & sqrt(((j+2)*((j+1)*(j+1)-m*m))/(2*j+3._dbl)) * cajml(jm2  ) /    (j+1)    ) * cfac
+        
+        jm1 = 3 * ( (ij-1)*(ij  ) / 2 + im )
+        jm0 = 3 * ( (ij  )*(ij+1) / 2 + im )
+        jm2 = 3 * ( (ij+1)*(ij+2) / 2 + im )
+        
+        cjml(1,ijm) = cjml(1,ijm) + (                                          -im * cajml(jm0-1) /  ij           ) * cfac
+        cjml(2,ijm) = cjml(2,ijm) + ( sqrt((ij+1)*((ij  )**2-im**2)/(2*ij+1._dbl)) * cajml(jm1+1) /  ij         - &
+                                    &                                           im * cajml(jm0  ) / (ij*(ij+1)) + &
+                                    & sqrt((ij  )*((ij+1)**2-im**2)/(2*ij+1._dbl)) * cajml(jm2-1) /     (ij+1)    ) * cfac
+        cjml(3,ijm) = cjml(3,ijm) + (                                           im * cajml(jm0+1) /     (ij+1)  + &
+                                    & sqrt((ij+2)*((ij+1)**2-im**2)/(2*ij+3._dbl)) * cajml(jm2  ) /     (ij+1)    ) * cfac
       end do
-
-    do j = 2, np-1
-      do m = 0, j
+    
+    do ij = 2, np-1
+      do im = 0, ij
         ijm = ijm+1
-
-        jm1 = 3*((j-1)*(j  )/2+m)
-        jm0 = 3*((j  )*(j+1)/2+m)
-        jm2 = 3*((j+1)*(j+2)/2+m)
-
-        cjml(1,ijm) = cjml(1,ijm) + ( sqrt(((j-1)*((j  )*(j  )-m*m))/(2*j-1._dbl)) * cajml(jm1  ) /  j -        &
-                                    &                                            m * cajml(jm0-1) /  j          ) * cfac
-        cjml(2,ijm) = cjml(2,ijm) + ( sqrt(((j+1)*((j  )*(j  )-m*m))/(2*j+1._dbl)) * cajml(jm1+1) /  j -        &
-                                    &                                            m * cajml(jm0  ) / (j*(j+1)) + &
-                                    & sqrt(((j  )*((j+1)*(j+1)-m*m))/(2*j+1._dbl)) * cajml(jm2-1) /    (j+1)    ) * cfac
-        cjml(3,ijm) = cjml(3,ijm) + (                                            m * cajml(jm0+1) /    (j+1) +  &
-                                    & sqrt(((j+2)*((j+1)*(j+1)-m*m))/(2*j+3._dbl)) * cajml(jm2  ) /    (j+1)    ) * cfac
+        
+        jm1 = 3 * ( (ij-1)*(ij  ) / 2 + im )
+        jm0 = 3 * ( (ij  )*(ij+1) / 2 + im )
+        jm2 = 3 * ( (ij+1)*(ij+2) / 2 + im )
+        
+        cjml(1,ijm) = cjml(1,ijm) + ( sqrt((ij-1)*((ij  )**2-im**2)/(2*ij-1._dbl)) * cajml(jm1  ) /  ij         - &
+                                    &                                           im * cajml(jm0-1) /  ij           ) * cfac
+        cjml(2,ijm) = cjml(2,ijm) + ( sqrt((ij+1)*((ij  )**2-im**2)/(2*ij+1._dbl)) * cajml(jm1+1) /  ij         - &
+                                    &                                           im * cajml(jm0  ) / (ij*(ij+1)) + &
+                                    & sqrt((ij  )*((ij+1)**2-im**2)/(2*ij+1._dbl)) * cajml(jm2-1) /     (ij+1)    ) * cfac
+        cjml(3,ijm) = cjml(3,ijm) + (                                           im * cajml(jm0+1) /     (ij+1)  + &
+                                    & sqrt((ij+2)*((ij+1)**2-im**2)/(2*ij+3._dbl)) * cajml(jm2  ) /     (ij+1)    ) * cfac
       end do
     end do
-
-    j = np
-      do m = 0, j
+    
+    ij = np
+      do im = 0, ij
         ijm = ijm+1
-
-        jm1 = 3*((j-1)*(j  )/2+m)
-        jm0 = 3*((j  )*(j+1)/2+m)
-        jm2 = 3*((j+1)*(j+2)/2+m)
-
-        cjml(1,ijm) = cjml(1,ijm) + ( sqrt(((j-1)*((j  )*(j  )-m*m))/(2*j-1._dbl)) * cajml(jm1  ) /  j -      &
-                                    &                                            m * cajml(jm0-1) /  j        ) * cfac
-        cjml(2,ijm) = cjml(2,ijm) + ( sqrt(((j+1)*((j  )*(j  )-m*m))/(2*j+1._dbl)) * cajml(jm1+1) /  j -      &
-                                    &                                            m * cajml(jm0  ) / (j*(j+1)) ) * cfac
-        cjml(3,ijm) = cjml(3,ijm) + (                                            m * cajml(jm0+1) /    (j+1)  ) * cfac
+        
+        jm1 = 3 * ( (ij-1)*(ij  ) / 2 + im )
+        jm0 = 3 * ( (ij  )*(ij+1) / 2 + im )
+        jm2 = 3 * ( (ij+1)*(ij+2) / 2 + im )
+        
+        cjml(1,ijm) = cjml(1,ijm) + ( sqrt((ij-1)*((ij  )**2-im**2)/(2*ij-1._dbl)) * cajml(jm1  ) /  ij       - &
+                                    &                                           im * cajml(jm0-1) /  ij         ) * cfac
+        cjml(2,ijm) = cjml(2,ijm) + ( sqrt((ij+1)*((ij  )**2-im**2)/(2*ij+1._dbl)) * cajml(jm1+1) /  ij       - &
+                                    &                                           im * cajml(jm0  ) / (ij*(ij+1)) ) * cfac
+        cjml(3,ijm) = cjml(3,ijm) + (                                           im * cajml(jm0+1) /     (ij+1)  ) * cfac
       end do
-
+      
   end subroutine ezvv_sub
   
   pure real(kind=dbl) function snorm_fn(np, cajm)
     integer,           intent(in) :: np
     complex(kind=dbl), intent(in) :: cajm(:)
-    integer                       :: j, m
-
-    snorm_fn = 0._dbl
-
-    do j = 0, np
-      m = 0
-        snorm_fn = snorm_fn + abs(cajm(jm(j,m)))**2
-
-      do m = 1, j
-        snorm_fn = snorm_fn + 2*abs(cajm(jm(j,m)))**2
-      end do
+    integer                       :: ij
+    
+    ij = 0
+      snorm_fn = abs( cajm(1) )**2
+    
+    do ij = 1, np
+      snorm_fn = snorm_fn + abs( cajm(jm(ij,0)) )**2 + 2 * sum( abs( cajm(jm(ij,1):jm(ij,ij)) )**2 )
     end do
-
-    snorm_fn = sqrt(snorm_fn)
-
+    
+    snorm_fn = sqrt( snorm_fn )
+    
   end function snorm_fn
   
   pure real(kind=dbl) function vnorm_fn(np, cajml)
     integer,           intent(in) :: np
     complex(kind=dbl), intent(in) :: cajml(:)
-    integer                       :: j, m, l
-
-    vnorm_fn = 0._dbl
-
-    do j = 0, np
-      m = 0
-        do l = abs(j-1)-j, +1
-          vnorm_fn = vnorm_fn + abs(cajml(jml(j,m,l)))**2
-        end do
-
-      do m = 1, j
-        do l = abs(j-1)-j, +1
-          vnorm_fn = vnorm_fn + 2*abs(cajml(jml(j,m,l)))**2
-        end do
-      end do
+    integer                       :: ij
+    
+    vnorm_fn = abs( cajml(1) )**2
+    
+    do ij = 1, np
+      vnorm_fn = vnorm_fn +     sum( abs( cajml(jml(ij,0,-1):jml(ij, 0,+1)) )**2 ) + &
+               &            2 * sum( abs( cajml(jml(ij,1,-1):jml(ij,ij,+1)) )**2 )
     end do
-
-    vnorm_fn = sqrt(vnorm_fn)
-
+    
+    vnorm_fn = sqrt( vnorm_fn )
+    
   end function vnorm_fn
   
   pure real(kind=dbl) function tnorm_fn(np, cajml2)
     integer,           intent(in) :: np
     complex(kind=dbl), intent(in) :: cajml2(:)
-    integer                       :: j, m, l
-
-    tnorm_fn = 0._dbl
-
-    do j = 0, np
-      m = 0
-        do l = abs(j-2)-j, +2
-          tnorm_fn = tnorm_fn + abs(cajml2(jml2(j,m,l)))**2
-        end do
-
-      do m = 1, j
-        do l = abs(j-2)-j, +2
-          tnorm_fn = tnorm_fn + 2*abs(cajml2(jml2(j,m,l)))**2
-        end do
-      end do
+    integer                       :: ij
+    
+    tnorm_fn = abs( cajml2(1) )**2 + sum( abs( cajml2(4:6) )**2 ) + 2 * sum( abs( cajml2(9:11) )**2 )
+    
+    do ij = 2, np
+      tnorm_fn = tnorm_fn +     sum( abs( cajml2(jml2(ij,0,-2):jml2(ij, 0,+2)) )**2 ) + &
+               &            2 * sum( abs( cajml2(jml2(ij,1,-2):jml2(ij,ij,+2)) )**2 )
     end do
-
-    tnorm_fn = sqrt(tnorm_fn)
-
+    
+    tnorm_fn = sqrt( tnorm_fn )
+    
   end function tnorm_fn
   
   pure real(kind=dbl) function scalproduct_fn(np, cajm, cbjm)
     integer,           intent(in) :: np
     complex(kind=dbl), intent(in) :: cajm(:), cbjm(:)
-    integer                       :: j, m
+    integer                       :: ij
     
-    scalproduct_fn = 0._dbl
+    scalproduct_fn = c2r_fn( cajm(1) * conjg( cbjm(1) ) )
     
-    do j = 0, np
-      m = 0
-        scalproduct_fn = scalproduct_fn + c2r_fn( cajm(jm(j,m)) * conjg(cbjm(jm(j,m))) )
-      
-      do m = 1, j
-        scalproduct_fn = scalproduct_fn +  2  * c2r_fn( cajm(jm(j,m)) * conjg(cbjm(jm(j,m))) )
-      end do
+    do ij = 1, np
+      scalproduct_fn = scalproduct_fn +     c2r_fn(      cajm(jm(ij,0))           * conjg( cbjm(jm(ij,0)) )             ) + &
+                     &                  2 * c2r_fn( sum( cajm(jm(ij,1):jm(ij,ij)) * conjg( cbjm(jm(ij,1):jm(ij,ij)) ) ) ) 
     end do
     
   end function scalproduct_fn
@@ -309,21 +282,13 @@ module Spherical_func
   pure real(kind=dbl) function dotproduct_fn(np, cajml, cbjml)
     integer,           intent(in) :: np
     complex(kind=dbl), intent(in) :: cajml(:), cbjml(:)
-    integer                       :: j, m, l
+    integer                       :: ij
     
-    dotproduct_fn = 0._dbl
+    dotproduct_fn = c2r_fn( cajml(1) * conjg(cbjml(1)) )
     
-    do j = 0, np
-      m = 0
-        do l = abs(j-1)-j, +1
-          dotproduct_fn = dotproduct_fn + c2r_fn( cajml(jml(j,m,l)) * conjg(cbjml(jml(j,m,l))) )
-        end do
-      
-      do m = 1, j
-        do l = abs(j-1)-j, +1
-          dotproduct_fn = dotproduct_fn + 2 * c2r_fn( cajml(jml(j,m,l)) * conjg(cbjml(jml(j,m,l))) )
-        end do
-      end do
+    do ij = 1, np
+      dotproduct_fn = dotproduct_fn +   c2r_fn(sum(cajml(jml(ij,0,-1):jml(ij, 0,+1))*conjg(cbjml(jml(ij,0,-1):jml(ij, 0,+1))))) + &
+                                    2 * c2r_fn(sum(cajml(jml(ij,1,-1):jml(ij,ij,+1))*conjg(cbjml(jml(ij,1,-1):jml(ij,ij,+1)))))
     end do
     
   end function dotproduct_fn
