@@ -11,20 +11,14 @@ module Gravity
     
     contains
     
-    procedure :: init_sub       => init_gravity_sub
-    procedure :: set_sub        => set_gravity_sub
-    procedure :: deallocate_sub => deallocate_gravity_sub
-
-    procedure :: g_fn
-    procedure :: V_tide_fn
-    procedure :: V_bnd_fn
-    procedure :: V_rho_fn
-    procedure :: V_rt_fn
-  
+    procedure, pass :: init_sub       => init_gravity_sub
+    procedure, pass :: set_sub        => set_gravity_sub
+    procedure, pass :: deallocate_sub => deallocate_gravity_sub
+    procedure, pass :: g_fn, V_tide_fn, V_bnd_fn, V_rho_fn, V_rt_fn
+    
   end type T_gravity
   
-  private :: init_gravity_sub
-  private :: deallocate_gravity_sub
+  private :: init_gravity_sub, deallocate_gravity_sub
   
   contains
   
@@ -33,8 +27,7 @@ module Gravity
     character(len=*), intent(in)    :: gmod
     real(kind=dbl),   intent(in)    :: g
     
-    this%gmod = gmod
-    this%g    = g
+    this%gmod = gmod ; this%g = g
     
   end subroutine init_gravity_sub
   
@@ -143,10 +136,11 @@ module Gravity
       case (2)
         select case (m)
           case (0)
-            V_tide_fn = (this%omega * ri)**2 * this%Dcrust * this%exc / this%g * r2c_fn( -sqrt(9*pi/5)*cos(phase) )
+            V_tide_fn = (this%omega * ri)**2 * this%Dcrust * this%exc / this%g * r2c_fn( -sqrt(9*pi/5) * cos(phase) )
+            
           case (2)
-            V_tide_fn = (this%omega * ri)**2 * this%Dcrust * this%exc / this%g * cmplx( +sqrt(27*pi/10)*cos(phase) ,          &
-                                                                                      & -sqrt(24*pi/ 5)*sin(phase) , kind=dbl )
+            V_tide_fn = (this%omega * ri)**2 * this%Dcrust * this%exc / this%g * cmplx( +sqrt(27*pi/10) * cos(phase) ,          &
+                                                                                      & -sqrt(24*pi/ 5) * sin(phase) , kind=dbl )
           case default
             V_tide_fn = czero
         end select
@@ -186,5 +180,5 @@ module Gravity
     if ( allocated( this%radius ) ) deallocate( this%radius )
     
   end subroutine deallocate_gravity_sub
-
+  
 end module Gravity

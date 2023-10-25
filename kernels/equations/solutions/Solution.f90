@@ -13,33 +13,13 @@ module Solution
     procedure, pass :: init_sub       => init_solution_sub
     procedure, pass :: nulify_sub     => nulify_solution_sub
     procedure, pass :: deallocate_sub => deallocate_solution_sub
-    
-    procedure, pass :: init_stemp_sub
-    procedure, pass :: init_storr_sub
-    procedure, pass :: init_smech_sub
-    procedure, pass :: init_layers_sub
-    procedure, pass :: init_layer_u_sub
-    procedure, pass :: temp_fn
-    procedure, pass :: flux_fn
-    procedure, pass :: velocity_fn
-    procedure, pass :: deviatoric_stress_fn
-    procedure, pass :: temp_i_fn
-    procedure, pass :: flux_i_fn
-    procedure, pass :: velocity_i_fn
-    procedure, pass :: deviatoric_stress_i_fn
-    procedure, pass :: temp_jm_fn
-    procedure, pass :: temp_jm_sub
-    procedure, pass :: flux_jml_fn
-    procedure, pass :: flux_jml_sub
-    procedure, pass :: flux_jml_many_sub
-    procedure, pass :: velocity_jml_fn
-    procedure, pass :: velocity_jml_sub
-    procedure, pass :: velocity_jml_many_sub
-    procedure, pass :: conv_velocity_jml_fn
-    procedure, pass :: deviatoric_stress_jml2_fn
+    procedure, pass :: init_stemp_sub, init_storr_sub, init_smech_sub, init_layers_sub, init_layer_u_sub, temp_fn, flux_fn,        &
+                     & velocity_fn, deviatoric_stress_fn, temp_i_fn, flux_i_fn, velocity_i_fn, deviatoric_stress_i_fn, temp_jm_fn, &
+                     & temp_jm_sub, flux_jml_fn, flux_jml_sub, flux_jml_many_sub, velocity_jml_fn, velocity_jml_sub,               &
+                     & velocity_jml_many_sub, conv_velocity_jml_fn, deviatoric_stress_jml2_fn
     
   end type T_solution
-
+  
   interface
     module subroutine init_solution_sub(this, nd, jmax)
       class(T_solution), intent(inout) :: this
@@ -129,7 +109,7 @@ module Solution
       integer,           intent(in)  :: ir
       complex(kind=dbl), allocatable :: flux(:)
     end function flux_jml_fn
-
+    
     module pure subroutine flux_jml_many_sub(this, ir, temp2, flux1, flux2)
       class(T_solution), intent(in)  :: this
       integer,           intent(in)  :: ir
@@ -141,7 +121,7 @@ module Solution
       integer,           intent(in)  :: ir
       complex(kind=dbl), allocatable :: velocity(:)
     end function velocity_jml_fn
-
+    
     module pure subroutine velocity_jml_many_sub(this, ir, velocity1, velocity2, velocity3)
       class(T_solution), intent(in)  :: this
       integer,           intent(in)  :: ir

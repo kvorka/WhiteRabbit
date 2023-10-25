@@ -4,16 +4,11 @@ module OutputMod
   use Vector_analysis
   implicit none
   
-  public :: get_zondata_sub
-  public :: out_data_2d_sub
-  public :: out_data_1d_sub
-  public :: out_spectra_2d_sub
-  public :: out_spectra_3d_sub
-  public :: avrg_spectra_2d_sub
-  public :: avrg_spectra_3d_sub
+  public :: get_zondata_sub, out_data_2d_sub, out_data_1d_sub, out_spectra_2d_sub, out_spectra_3d_sub, avrg_spectra_2d_sub, &
+          & avrg_spectra_3d_sub
   
   contains
-
+  
   subroutine get_zondata_sub(data_in, data_out)
     real(kind=dbl), intent(in)  :: data_in(:,:)
     real(kind=dbl), intent(out) :: data_out(:)
@@ -135,5 +130,5 @@ module OutputMod
     close(1)
     
   end subroutine out_spectra_3d_sub
-
+  
 end module OutputMod

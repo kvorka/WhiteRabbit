@@ -8,19 +8,8 @@ module OutputOceanMod
   integer, parameter, public :: jms1  =    (jmax_ocean+1)*(jmax_ocean+2)/2 + (jmax_ocean+1)  + 1
   integer, parameter, public :: jmv   = 3*((jmax_ocean  )*(jmax_ocean+1)/2 + (jmax_ocean  )) + 1
   
-  public :: nuss_curve_sub
-  
-  public :: harm_analysis_flux_sub
-  public :: harm_analysis_temp_sub
-  public :: harm_analysis_rad_velc_sub
-  public :: harm_analysis_zon_velc_sub
-  
-  public :: save_spectra_velc_sub
-  public :: save_spectra_temp_sub
-  public :: save_spectra_flux_sub
-  
-  public :: load_data_sub
-  public :: save_data_sub
+  public :: nuss_curve_sub, harm_analysis_flux_sub, harm_analysis_temp_sub, harm_analysis_rad_velc_sub,save_data_sub, &
+          & harm_analysis_zon_velc_sub, save_spectra_velc_sub, save_spectra_temp_sub, save_spectra_flux_sub, load_data_sub
   
   interface
     module subroutine nuss_curve_sub()

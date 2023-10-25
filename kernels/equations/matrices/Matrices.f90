@@ -11,13 +11,10 @@ module Matrices
     
     procedure, pass :: init_sub       => init_matrices_sub
     procedure, pass :: deallocate_sub => deallocate_matrices_sub
-
-    procedure, pass :: init_mtemp_sub
-    procedure, pass :: init_mtorr_sub
-    procedure, pass :: init_mmech_sub
+    procedure, pass :: init_mtemp_sub, init_mtorr_sub, init_mmech_sub
     
   end type T_matrices
-
+  
   contains
   
   subroutine init_matrices_sub(this, nd, jmax, grid_type)

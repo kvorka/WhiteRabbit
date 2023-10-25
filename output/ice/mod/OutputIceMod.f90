@@ -5,9 +5,7 @@ module OutputIceMod
   
   integer, parameter, public :: jms = jmax_ice * (jmax_ice+1) / 2 + jmax_ice + 1
   
-  public :: convergence_curve_ice_sub
-  public :: harm_analysis_ice_sub
-  public :: save_spectra_ice_sub
+  public :: convergence_curve_ice_sub, harm_analysis_ice_sub, save_spectra_ice_sub
   
   contains
   
