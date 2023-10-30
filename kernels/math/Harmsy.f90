@@ -96,10 +96,10 @@ module Harmsy
     
     pmm = 1._dbl
       do j = 1, m
-        pmm = - pmm * (2*j+1._dbl) / (2*j) * (1-x)**2
+        pmm = pmm * (2*j+1._dbl) / (2 * j) * (1-x)**2
       end do
     
-    p(1) = sqrt( pmm / (4*pi) )
+    p(1) = (-1)**m * sqrt( pmm / (4*pi) )
     
     if (m < n) then
       j = m+1
