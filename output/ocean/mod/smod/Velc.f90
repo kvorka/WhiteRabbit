@@ -5,101 +5,68 @@ submodule(OutputOceanMod) Velc
   
   subroutine harm_analysis_rad_velc_sub()
     integer,              parameter :: jmax = 100
-    integer                         :: ir, iph, ith, ij, im, il
-    real(kind=dbl),    allocatable  :: comp_x(:,:), comp_y(:,:), comp_z(:,:), comp_r(:,:), comp_t(:,:), comp_p(:,:), rvelc(:,:)
-    complex(kind=dbl), allocatable  :: x(:), y(:), z(:), velc120(:,:)
+    integer                         :: ir, ij
+    real(kind=dbl),    allocatable  :: velc_r_j0(:), velc_r_grid(:,:)
+    complex(kind=dbl), allocatable  :: velc120(:,:)
     
-    allocate( velc120(jmv,n_out), x(jms1), y(jms1), z(jms1), comp_x(2*nth,nth), comp_y(2*nth,nth), comp_z(2*nth,nth), &
-            & comp_r(2*nth,nth), comp_t(2*nth,nth), comp_p(2*nth,nth), rvelc(nth,n_out)                               )
+    allocate( velc120(jmv,n_out), velc_r_j0(0:jmax), velc_r_grid(nth,n_out) )
     
-    call load_data_sub(jmv, 'velc-averaged.spec', velc120)
-    
-    do ij = 0, jmax_ocean
-      do im = 0, ij
-        do il = abs(ij-1)-ij, +1
-          if( (mod(ij,2) /= 0) .or. (im /= 0) .or. (il == 0) ) velc120(jml(ij,im,il),:) = czero
+      call load_data_sub(jmv, 'velc-averaged.spec', velc120) ; velc_r_j0 = zero
+      
+      do ir = 1, n_out
+        do ij = 2, jmax, 2
+          velc_r_j0(ij) = sqrt( (ij  ) / (2*ij+1._dbl) ) * velc120(jml(ij,0,-1),ir) - &
+                        & sqrt( (ij+1) / (2*ij+1._dbl) ) * velc120(jml(ij,0,+1),ir)
         end do
+        
+        call harmsy_Pj0_sub(jmax, velc_r_j0, velc_r_grid(:,ir))
       end do
-    end do
     
-    do ir = 1, n_out
-      call vec2scals_sub(jmax_ocean, velc120(:,ir), x, y, z); y = -y
-      
-      call harmsy_sub(jmax, x, comp_x)
-      call harmsy_sub(jmax, y, comp_y)
-      call harmsy_sub(jmax, z, comp_z)
-      
-      do ith = 1, nth
-        do iph = 1, 2*nth
-          call vecxyz2rtp_sub( ith-0.5_dbl, iph-1._dbl, comp_x(iph,ith), comp_y(iph,ith), comp_z(iph,ith), &
-                             &                          comp_r(iph,ith), comp_t(iph,ith), comp_p(iph,ith)  )
-        end do
-      end do
-      
-      call get_zondata_sub(comp_r, rvelc(:,ir))
-    end do
+    deallocate( velc120, velc_r_j0 )
     
-    deallocate( velc120, x, y, z, comp_x, comp_y, comp_z, comp_r, comp_t, comp_p )
-    
-    rvelc = Ek_ocean * rvelc / Pr_ocean
+      velc_r_grid = Ek_ocean / Pr_ocean * velc_r_grid
+      
       open(unit=8, file='ocean_rvelc_grid', status='new', action='write')
-        write(8,*) 'max: ' , maxval( rvelc )
-        write(8,*) 'min: ' , minval( rvelc )
+        write(8,*) 'max: ' , maxval( velc_r_grid )
+        write(8,*) 'min: ' , minval( velc_r_grid )
       close(8)
-    
-    call save_data_sub('inp-r.dat', rvelc)
-    
-    deallocate( rvelc )
+      
+      call save_data_sub('inp-r.dat', velc_r_grid)
+      
+    deallocate( velc_r_grid )
     
   end subroutine harm_analysis_rad_velc_sub
   
   subroutine harm_analysis_zon_velc_sub()
-    integer,              parameter :: jmax = 100
-    integer                         :: ir, iph, ith, ij, im, il
-    real(kind=dbl),    allocatable  :: comp_x(:,:), comp_y(:,:), comp_z(:,:), comp_r(:,:), comp_t(:,:), comp_p(:,:), zvelc(:,:)
-    complex(kind=dbl), allocatable  :: x(:), y(:), z(:), velc120(:,:)
+    integer,           parameter   :: jmax = 100
+    integer                        :: ir, ij
+    real(kind=dbl),    allocatable :: velc_phi_j0(:), velc_phi_grid(:,:)
+    complex(kind=dbl), allocatable :: velc120(:,:)
     
-    allocate( velc120(jmv,n_out), x(jms1), y(jms1), z(jms1), comp_x(2*nth,nth), comp_y(2*nth,nth), comp_z(2*nth,nth), &
-            & comp_r(2*nth,nth), comp_t(2*nth,nth), comp_p(2*nth,nth), zvelc(nth,n_out)                               )
+    allocate( velc120(jmv,n_out), velc_phi_j0(jmax), velc_phi_grid(nth,n_out) )
     
-    call load_data_sub(jmv, 'velc-averaged.spec', velc120)
-    
-    do ij = 0, jmax_ocean
-      do im = 0, ij
-        do il = abs(ij-1)-ij, +1
-          if( (mod(ij,2) == 0) .or. (im /= 0) .or. (il /= 0) ) velc120(jml(ij,im,il),:) = czero
+      call load_data_sub(jmv, 'velc-averaged.spec', velc120) ; velc_phi_j0 = zero
+      
+      do ir = 1, n_out
+        do ij = 1, jmax, 2
+          velc_phi_j0(ij) = c2r_fn( -cunit * velc120( jml(ij,0,0) , ir ) )
         end do
+        
+        call harmsy_Pj1_sub(jmax, velc_phi_j0, velc_phi_grid(:,ir))
       end do
-    end do
     
-    do ir = 1, n_out
-      call vec2scals_sub(jmax_ocean, velc120(:,ir), x, y, z); y = -y
-      
-      call harmsy_sub(jmax, x, comp_x)
-      call harmsy_sub(jmax, y, comp_y)
-      call harmsy_sub(jmax, z, comp_z)
-      
-      do ith = 1, nth
-        do iph = 1, 2*nth
-          call vecxyz2rtp_sub( ith-0.5_dbl, iph-1._dbl, comp_x(iph,ith), comp_y(iph,ith), comp_z(iph,ith), &
-                             &                          comp_r(iph,ith), comp_t(iph,ith), comp_p(iph,ith)  )
-        end do
-      end do
-      
-      call get_zondata_sub(comp_p, zvelc(:,ir))
-    end do
+    deallocate( velc120, velc_phi_j0 )
     
-    deallocate( velc120, x, y, z, comp_x, comp_y, comp_z, comp_r, comp_t, comp_p )
-    
-    zvelc = Ek_ocean * zvelc / Pr_ocean
-      open(unit=8, file='ocean_zvelc_grid', status='new', action='write')
-        write(8,*) 'max: ' , maxval( zvelc )
-        write(8,*) 'min: ' , minval( zvelc )
+      velc_phi_grid = Ek_ocean / Pr_ocean * velc_phi_grid
+      
+      open(unit=8, file='ocean_velc_phi_extrms', status='new', action='write')
+        write(8,*) 'max: ' , maxval( velc_phi_grid )
+        write(8,*) 'min: ' , minval( velc_phi_grid )
       close(8)
-    
-    call save_data_sub('inp-p.dat', zvelc)
-    
-    deallocate( zvelc )
+      
+      call save_data_sub('inp-p.dat', velc_phi_grid)
+      
+    deallocate( velc_phi_grid )
     
   end subroutine harm_analysis_zon_velc_sub
   

@@ -4,7 +4,7 @@ module Harmsy
   
   integer, parameter, public :: nth = 180
   
-  public  :: harmsy_sub
+  public  :: harmsy_sub, harmsy_Pj0_sub, harmsy_Pj1_sub
   private :: dpmm_sub
   
   contains
@@ -50,6 +50,42 @@ module Harmsy
     deallocate( sumLege, expphi, expmul, polyLege )
       
   end subroutine harmsy_sub
+  
+  subroutine harmsy_Pj0_sub(jmax_in, spectra_in, data_out)
+    integer,         intent(in)  :: jmax_in
+    real(kind=dbl),  intent(in)  :: spectra_in(:)
+    real(kind=dbl),  intent(out) :: data_out(:)
+    integer                      :: it
+    real(kind=dbl), allocatable  :: polyLege(:)
+    
+    allocate( polyLege(jmax_in+1) )
+    
+    do it = 1, nth
+      call dpmm_sub( cos(pi/nth * (it-0.5_dbl)), jmax_in, 0, polyLege )
+      data_out(it) = sum( spectra_in(1:jmax_in+1) * polyLege(1:jmax_in+1) )
+    end do
+    
+    deallocate( polyLege )
+
+  end subroutine harmsy_Pj0_sub
+  
+  subroutine harmsy_Pj1_sub(jmax_in, spectra_in, data_out)
+    integer,         intent(in)  :: jmax_in
+    real(kind=dbl),  intent(in)  :: spectra_in(:)
+    real(kind=dbl),  intent(out) :: data_out(:)
+    integer                      :: it
+    real(kind=dbl), allocatable  :: polyLege(:)
+    
+    allocate( polyLege(jmax_in+1) )
+    
+    do it = 1, nth
+      call dpmm_sub( cos(pi/nth * (it-0.5_dbl)), jmax_in, 1, polyLege )
+      data_out(it) = sum( spectra_in(1:jmax_in) * polyLege(1:jmax_in) )
+    end do
+    
+    deallocate( polyLege )
+    
+  end subroutine harmsy_Pj1_sub
   
   subroutine dpmm_sub(x, n, m, p)
     real(kind=dbl),               intent(in)  :: x

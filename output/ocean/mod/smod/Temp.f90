@@ -4,35 +4,33 @@ submodule(OutputOceanMod) Temp
   contains
   
   subroutine harm_analysis_temp_sub()
-    integer,             parameter :: jmax = 100
-    integer                        :: ir, ij, im
-    real(kind=dbl),    allocatable :: map(:,:), temp(:,:)
+    integer,           parameter   :: jmax = 100
+    integer                        :: ir, ij
+    real(kind=dbl),    allocatable :: temp_j0(:), temp_grid(:,:)
     complex(kind=dbl), allocatable :: temp120(:,:)
     
-    allocate( temp120(jms,n_out), map(2*nth,nth), temp(nth,n_out) )
+    allocate( temp120(jms,n_out), temp_j0(0:jmax), temp_grid(nth,n_out) )
+    
+      call load_data_sub(jms, 'temp-averaged.spec', temp120) ; temp_j0 = zero
       
-    call load_data_sub(jms, 'temp-averaged.spec', temp120)
-    
-    do ij = 0, jmax_ocean
-      do im = 0, ij
-        if ( (mod(ij,2) /= 0) .or. (im /= 0) ) temp120(jm(ij,im),:) = czero
+      do ir = 1, n_out
+        do ij = 0, jmax, 2
+          temp_j0(ij) = c2r_fn( temp120( jm(ij,0) , ir ) )
+        end do
+        
+        call harmsy_Pj0_sub(jmax, temp_j0, temp_grid(:,ir))
       end do
-    end do
     
-    do ir = 1, n_out
-      call harmsy_sub(jmax, temp120(:,ir), map) ; call get_zondata_sub(map, temp(:,ir))
-    end do
+    deallocate( temp120, temp_j0 )
     
-    deallocate( temp120, map )
-    
-    open(unit=8, file='ocean_temp_grid', status='new', action='write')
-      write(8,*) 'max: ' , maxval( temp )
-      write(8,*) 'min: ' , minval( temp )
+    open(unit=8, file='ocean_temp_extrms', status='new', action='write')
+      write(8,*) 'max: ' , maxval( temp_grid )
+      write(8,*) 'min: ' , minval( temp_grid )
     close(8)
     
-    call save_data_sub('inp-t.dat', temp)
+    call save_data_sub('inp-t.dat', temp_grid)
     
-    deallocate( temp )
+    deallocate( temp_grid )
     
   end subroutine harm_analysis_temp_sub
   
