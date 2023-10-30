@@ -88,37 +88,29 @@ module Harmsy
   end subroutine harmsy_Pj1_sub
   
   subroutine dpmm_sub(x, n, m, p)
-    real(kind=dbl),               intent(in)  :: x
-    integer,                      intent(in)  :: n, m
-    real(kind=dbl), dimension(:), intent(out) :: p
-    integer                                   :: mp, j, i
-    real(kind=dbl)                            :: sth, sou, sthm
-  
-    sth = sqrt(1-x*x)
-  
-    sou  = 1._dbl
-    sthm = 1._dbl
-      do mp = 1, m
-        sou = sou*(2*mp+1._dbl)/(2*mp)
-        sthm = sthm*sth
-  
-        if (sthm < 1.0d-55) then
-          sthm = 0._dbl
-          exit
-        end if
+    real(kind=dbl), intent(in)  :: x
+    integer,        intent(in)  :: n, m
+    real(kind=dbl), intent(out) :: p(:)
+    integer                     :: j
+    real(kind=dbl)              :: pmm
+    
+    pmm = 1._dbl
+      do j = 1, m
+        pmm = - pmm * (2*j+1._dbl) / (2 * j) * (1-x)**2
       end do
-  
-    p(1) = ((-1)**m)*sqrt(sou/(4*pi))*sthm
-  
-    if (m < n) p(2) = sqrt(2*m+3._dbl)*x*p(1)
-  
-    i = 2
-    do j = m+2, n
-      i = i+1
-      p(i)= sqrt((2*j-1._dbl)*(2*j  +1._dbl)                          /(j-m)/(j+m))*x*p(i-1) - &
-          & sqrt((2*j+1._dbl)*(  j-m-1._dbl)*(j+m-1._dbl)/(2*j-3._dbl)/(j-m)/(j+m))  *p(i-2)
-    end do
-  
+    
+    p(1) = sqrt( pmm / (4*pi) )
+    
+    if (m < n) then
+      j = m+1
+        p(j-m+1) = sqrt(2*m+3._dbl) * x * p(j-m)
+        
+      do j = m+2, n
+          p(j-m+1) = sqrt((2*j-1) * (2*j  +1._dbl)                               / (j**2-m**2) ) * x * p(j-m  ) - &
+                   & sqrt((2*j+1) * (  j-m-1._dbl) * (j+m-1._dbl) / (2*j-3._dbl) / (j**2-m**2) )     * p(j-m-1)
+      end do
+    end if
+    
   end subroutine dpmm_sub
   
 end module Harmsy
