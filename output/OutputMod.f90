@@ -4,35 +4,23 @@ module OutputMod
   use Spherical_func
   implicit none
   
-  public :: get_zondata_sub, out_data_2d_sub, out_data_1d_sub, out_spectra_2d_sub, out_spectra_3d_sub, avrg_spectra_2d_sub, &
-          & avrg_spectra_3d_sub
+  public :: out_data_2d_sub, out_data_1d_sub, out_spectra_2d_sub, out_spectra_3d_sub, avrg_spectra_2d_sub, avrg_spectra_3d_sub
   
   contains
   
-  subroutine get_zondata_sub(data_in, data_out)
-    real(kind=dbl), intent(in)  :: data_in(:,:)
-    real(kind=dbl), intent(out) :: data_out(:)
-    integer                     :: ith
-    
-    do ith = 1, nth
-      data_out(ith) = sum( data_in(:,ith) ) / ( 2 * nth )
-    end do
-    
-  end subroutine get_zondata_sub
-  
   subroutine out_data_1d_sub(opt, data_in)
     character(len=*), intent(in) :: opt
-    real(kind=dbl),   intent(in) :: data_in(:,:)
+    real(kind=dbl),   intent(in) :: data_in(:)
     integer                      :: ith
       
     open(unit=1, file=opt, status='new', action='write')
     
     do ith = 1, nth
-      write(1,*) ith-0.5, sum( data_in(:,ith) ) / ( 2 * nth )
+      write(1,*) ith-0.5, data_in(ith)
     end do
     
     close(1)
-
+    
   end subroutine out_data_1d_sub
   
   subroutine out_data_2d_sub(opt, data_in)
@@ -42,15 +30,44 @@ module OutputMod
     
     open(unit=1, file=opt, status='new', action='write')
     
-    do ith = 1, nth
-      do iph = 1, 2*nth
-        write(1,*) iph-1.0, (ith-0.5), data_in(iph,ith)
-      end do
+    do concurrent ( ith = 1:nth , iph = 1:2*nth )
+      write(1,*) iph-1.0, ith-0.5, data_in(iph,ith)
     end do
     
     close(1)
     
   end subroutine out_data_2d_sub
+  
+  subroutine out_spectra_2d_sub(opt, spectra_in)
+    character(len=*),     intent(in) :: opt
+    complex(kind=dbl), intent(inout) :: spectra_in(:)
+    integer                          :: ijm
+    
+    open(unit=1, file=opt, status='new', action='write')
+    
+    do ijm = 1, size(spectra_in)
+      write(1,*) ijm, spectra_in(ijm)
+    end do
+    
+    close(1)
+    
+  end subroutine out_spectra_2d_sub
+  
+  subroutine out_spectra_3d_sub(opt, r_in, data_in)
+    character(len=*),  intent(in) :: opt
+    real(kind=dbl),    intent(in) :: r_in(:)
+    complex(kind=dbl), intent(in) :: data_in(:,:)
+    integer                       :: ir
+    
+    open(unit=1, file=opt, status='new', action='write')
+    
+    do ir = 1, size(r_in)
+      write(1,*) r_in(ir), data_in(:,ir)
+    end do
+    
+    close(1)
+    
+  end subroutine out_spectra_3d_sub
   
   subroutine avrg_spectra_2d_sub(opt, spectra_out)
     character(len=*),  intent(in)  :: opt
@@ -76,21 +93,6 @@ module OutputMod
     
   end subroutine avrg_spectra_2d_sub
   
-  subroutine out_spectra_2d_sub(opt, spectra_in)
-    character(len=*),     intent(in) :: opt
-    complex(kind=dbl), intent(inout) :: spectra_in(:)
-    integer                          :: ijm
-    
-    open(unit=1, file=opt, status='new', action='write')
-    
-    do ijm = 1, size(spectra_in)
-      write(1,*) ijm, spectra_in(ijm)
-    end do
-    
-    close(1)
-    
-  end subroutine out_spectra_2d_sub
-  
   subroutine avrg_spectra_3d_sub(opt, r_out, spectra_out)
     character(len=*),  intent(in)  :: opt
     real(kind=dbl),    intent(out) :: r_out(:)
@@ -114,21 +116,5 @@ module OutputMod
     deallocate( spectra )
     
   end subroutine avrg_spectra_3d_sub
-  
-  subroutine out_spectra_3d_sub(opt, r_in, data_in)
-    character(len=*),  intent(in) :: opt
-    real(kind=dbl),    intent(in) :: r_in(:)
-    complex(kind=dbl), intent(in) :: data_in(:,:)
-    integer                       :: ir
-    
-    open(unit=1, file=opt, status='new', action='write')
-    
-    do ir = 1, size(r_in)
-      write(1,*) r_in(ir), data_in(:,ir)
-    end do
-    
-    close(1)
-    
-  end subroutine out_spectra_3d_sub
   
 end module OutputMod

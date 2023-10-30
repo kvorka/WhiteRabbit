@@ -4,7 +4,7 @@ optimization=Ofast
 
 #ladova kora
 #./output/scripts/getConvIce $compiler $optimization
-#./output/scripts/getDataIce $compiler $optimization
+./output/scripts/getDataIce $compiler $optimization
 #./output/scripts/gmtIce
 
 #ocean

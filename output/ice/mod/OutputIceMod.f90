@@ -47,11 +47,11 @@ module OutputIceMod
   subroutine harm_analysis_ice_sub(path_in, path_out, zon)
     character(len=*),   intent(in) :: path_in, path_out
     logical,            intent(in) :: zon
-    integer                        :: ijm, error
+    integer                        :: ij, ijm, error
     complex(kind=dbl), allocatable :: spectra(:)
-    real(kind=dbl),    allocatable :: griddata(:,:)
+    real(kind=dbl),    allocatable :: spectra_j0(:), griddata_1d(:), griddata_2d(:,:)
     
-    allocate( spectra(jms) , griddata(2*nth,nth) )
+    allocate( spectra(jms) )
     
     open(unit=1, file=path_in, status='old', action='read')
       do
@@ -59,15 +59,25 @@ module OutputIceMod
       end do
     close(1)
     
-    call harmsy_sub(jmax_ice, spectra, griddata)
-    
     if (zon) then
-      call out_data_1d_sub(path_out, griddata)
+      allocate( spectra_j0(0:jmax_ice) , griddata_1d(nth) )
+        
+        do ij = 0, jmax_ice
+          spectra_j0(ij) = c2r_fn( spectra( jm(ij,0) ) )
+        end do
+
+        call harmsy_Pj0_sub(jmax_ice, spectra_j0, griddata_1d)
+        call out_data_1d_sub(path_out, griddata_1d)
+      
+      deallocate( spectra_j0 , griddata_1d, spectra )
     else
-      call out_data_2d_sub(path_out, griddata)
+      allocate( griddata_2d(2*nth,nth) )
+        
+        call harmsy_sub(jmax_ice, spectra, griddata_2d)
+        call out_data_2d_sub(path_out, griddata_2d)
+        
+      deallocate( griddata_2d, spectra )
     end if
-    
-    deallocate( spectra, griddata )
     
   end subroutine harm_analysis_ice_sub
 
