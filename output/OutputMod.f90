@@ -1,7 +1,7 @@
 module OutputMod
   use Paths
   use Harmsy
-  use Vector_analysis
+  use Spherical_func
   implicit none
   
   public :: get_zondata_sub, out_data_2d_sub, out_data_1d_sub, out_spectra_2d_sub, out_spectra_3d_sub, avrg_spectra_2d_sub, &
