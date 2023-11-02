@@ -5,25 +5,12 @@ submodule (SphericalHarmonics) vcsv_vcvv_vcvgv
 
   subroutine init_vcsv_vcvv_vcvgv_sub(this)
     class(T_lateralGrid), intent(inout) :: this
-    integer,              pointer       :: ip(:) => null()
-    real(kind=dbl),       allocatable   :: field_re(:,:,:)
-    complex(kind=dbl),    allocatable   :: field(:,:,:)
-
-    allocate(field(19,step,this%nFourier/2+1), field_re(19,step,this%nFourier))
-      this%fftw_19_c2r = fftw_plan_many_dft_c2r( 1, [this%nFourier], 19*step, field,    ip, 19*step, 1,            &
-                                               &                              field_re, ip, 19*step, 1, fftw_flags )
-    deallocate(field, field_re)
-
-    allocate(field(4,step,this%nFourier/2+1), field_re(4,step,this%nFourier))
-      this%fftw_04_r2c = fftw_plan_many_dft_r2c( 1, [this%nFourier], 4*step, field_re, ip, 4*step, 1,            &
-                                               &                             field   , ip, 4*step, 1, fftw_flags )
-    deallocate(field, field_re)
-
-    write(*,*) 'vcsv_vcvv_vcvgv initialized'
-
+    
+    call this%fourtrans%init_sub( this%nFourier )
+    
   end subroutine init_vcsv_vcvv_vcvgv_sub
 
-  subroutine vcsv_vcvv_vcvgv_sub(this, ri, q, dv_r, v, cjm)
+  pure subroutine vcsv_vcvv_vcvgv_sub(this, ri, q, dv_r, v, cjm)
     class(T_lateralGrid), intent(in)  :: this
     real(kind=dbl),       intent(in)  :: ri
     complex(kind=dbl),    intent(in)  :: dv_r(:), q(:), v(:)
@@ -204,9 +191,9 @@ submodule (SphericalHarmonics) vcsv_vcvv_vcvgv
     
     deallocate(cab, sum1, sum2, sum3)
     allocate( pmm(step), pmj(step), pmj1(step), pmj2(step), cosx(step), fftLege(step), sinx(step), symL(step,19), asymL(step,19), &
-            & sumLegendreN(19,step,0:this%nFourier/2), sumLegendreS(19,step,0:this%nFourier/2), grid(19,step,0:this%nFourier-1),  &
-            & cr(4,this%jms1), fft(4,step,0:this%nFourier-1), sumFourierN(4,step,0:this%nFourier/2), symF(step,4), asymF(step,4), &
-            & sumFourierS(4,step,0:this%nFourier/2) )
+            & sumLegendreN(19,step,0:this%maxj), sumLegendreS(19,step,0:this%maxj), grid(19,step,0:this%nFourier-1),  &
+            & cr(4,this%jms1), fft(4,step,0:this%nFourier-1), sumFourierN(4,step,0:this%jmax+1), symF(step,4), asymF(step,4), &
+            & sumFourierS(4,step,0:this%jmax+1) )
       
       cr = czero
 
@@ -333,8 +320,8 @@ submodule (SphericalHarmonics) vcsv_vcvv_vcvgv
             sumLegendreS(i1,i2,m) = ( symL(i2,i1) - asymL(i2,i1) ) 
           end do
         end do
-
-        call fftw_execute_dft_c2r(this%fftw_19_c2r, sumLegendreN, grid)
+        
+        call this%fourtrans%exec_c2r_sub(19*step, this%maxj+1, sumLegendreN, grid)
         
         do concurrent (i1=0:this%nFourier-1, i2=1:step)
           fft(1,i2,i1) = grid( 1,i2,i1) * grid( 4,i2,i1) + &    
@@ -354,9 +341,9 @@ submodule (SphericalHarmonics) vcsv_vcvv_vcvgv
                        & grid(18,i2,i1) * grid(19,i2,i1)
         end do
 
-        call fftw_execute_dft_r2c(this%fftw_04_r2c, fft, sumFourierN)
+        call this%fourtrans%exec_r2c_sub(4*step, this%maxj, fft, sumFourierN) ; sumFourierN = sumFourierN * this%nFourier
 
-        call fftw_execute_dft_c2r(this%fftw_19_c2r, sumLegendreS, grid)
+        call this%fourtrans%exec_c2r_sub(19*step, this%maxj+1, sumLegendreS, grid)
         
         do concurrent (i1=0:this%nFourier-1, i2=1:step)
           fft(1,i2,i1) = grid( 1,i2,i1) * grid( 4,i2,i1) + &    
@@ -376,7 +363,7 @@ submodule (SphericalHarmonics) vcsv_vcvv_vcvgv
                        & grid(18,i2,i1) * grid(19,i2,i1)
         end do
         
-        call fftw_execute_dft_r2c(this%fftw_04_r2c, fft, sumFourierS)
+        call this%fourtrans%exec_r2c_sub(4*step, this%maxj, fft, sumFourierS) ; sumFourierS = sumFourierS * this%nFourier
         
         pmm  = 1._dbl
         
@@ -553,9 +540,8 @@ submodule (SphericalHarmonics) vcsv_vcvv_vcvgv
   subroutine deallocate_fftw_vcsv_vcvv_vcvgv_sub(this)
     class(T_lateralGrid), intent(inout) :: this
 
-    call fftw_destroy_plan( this%fftw_19_c2r )
-    call fftw_destroy_plan( this%fftw_04_r2c )
+    call this%fourtrans%deallocate_sub()
 
   end subroutine deallocate_fftw_vcsv_vcvv_vcvgv_sub
-
+  
 end submodule vcsv_vcvv_vcvgv

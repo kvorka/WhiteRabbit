@@ -133,7 +133,7 @@ submodule (SphericalHarmonics) vcsv_vcvgv
 
     deallocate(cab, sum1, sum2, sum3)
     allocate( pmm(step), pmj(step), pmj1(step), pmj2(step), cosx(step), fftLege(step), sinx(step), &
-            & sumLegendreN(16,step,0:this%nFourier/2), sumLegendreS(16,step,0:this%nFourier/2),    &                                 
+            & sumLegendreN(16,step,0:this%maxj), sumLegendreS(16,step,0:this%maxj),                &                                 
             & cr(3,this%jms1), grid(16,step,0:this%nFourier-1), fft(3,step,0:this%nFourier-1),     & 
             & fftNC(3,step,0:this%nFourier/2), fftSC(3,step,0:this%nFourier/2)                     )
       
@@ -217,7 +217,7 @@ submodule (SphericalHarmonics) vcsv_vcvgv
           end do
         end do
 
-        call fftw_execute_dft_c2r(this%fftw_16_c2r, sumLegendreN, grid)
+        call this%fourtrans%exec_c2r_sub(16*step, this%maxj+1, sumLegendreN, grid)
         
         do concurrent (i1=0:this%nFourier-1, i2=1:step)
           fft(1,i2,i1) = grid( 1,i2,i1) * grid( 4,i2,i1) + &
@@ -236,7 +236,7 @@ submodule (SphericalHarmonics) vcsv_vcvgv
 
         call fftw_execute_dft_r2c(this%fftw_03_r2c, fft, fftNC)
 
-        call fftw_execute_dft_c2r(this%fftw_16_c2r, sumLegendreS, grid)
+        call this%fourtrans%exec_c2r_sub(16*step, this%maxj+1, sumLegendreS, grid)
         
         do concurrent (i1=0:this%nFourier-1, i2=1:step)
           fft(1,i2,i1) = grid( 1,i2,i1) * grid( 4,i2,i1) + &

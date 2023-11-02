@@ -1,5 +1,6 @@
 module SphericalHarmonics
   use Clebsch_Legendre
+  use FFT_mod
   use, intrinsic :: iso_c_binding
   implicit none
   include '/usr/include/fftw3.f03'
@@ -10,6 +11,7 @@ module SphericalHarmonics
     integer,                     private :: jmax, jms, jms1, jms2, jmv, jmv1, maxj, nLegendre, nFourier
     real(kind=dbl),              private :: tolm
     real(kind=dbl), allocatable, private :: roots(:), fftLege(:), ish(:), amjrr(:), bmjrr(:)
+    type(T_fft),                 private :: fourtrans
     type(C_ptr),                 private :: fftw_06_c2r, fftw_01_r2c, fftw_16_c2r, fftw_03_r2c, fftw_19_c2r, fftw_04_r2c
     
     contains
@@ -65,7 +67,7 @@ module SphericalHarmonics
       class(T_lateralGrid), intent(inout) :: this
     end subroutine init_vcsv_vcvv_vcvgv_sub
     
-    module subroutine vcsv_vcvv_vcvgv_sub(this, ri, q, dv_r, v, cjm)
+    module pure subroutine vcsv_vcvv_vcvgv_sub(this, ri, q, dv_r, v, cjm)
       class(T_lateralGrid), intent(in)  :: this
       real(kind=dbl),       intent(in)  :: ri
       complex(kind=dbl),    intent(in)  :: dv_r(:), q(:), v(:)
