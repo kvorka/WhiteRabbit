@@ -46,9 +46,8 @@ submodule (SphericalHarmonics) Init_SphericalHarmonics
       this%tolm = 1.0d-100
     end if
 
-    allocate( this%ish(this%jms2), this%roots(this%nLegendre), this%fftLege(this%nLegendre), &
-            & this%amjrr(this%jms2), this%bmjrr(this%jms2) )
-
+    allocate( this%roots(this%nLegendre), this%fftLege(this%nLegendre), this%amjrr(this%jms2), this%bmjrr(this%jms2) )
+    
     n = this%nLegendre
       do
         n = 2*n; xincr = 1._dbl/n
@@ -78,12 +77,6 @@ submodule (SphericalHarmonics) Init_SphericalHarmonics
         x = y;         fx = fy
         y = x + xincr; fy = lege_fn(2*this%nLegendre, y)
       end do
-
-    do m = 0, this%maxj
-      do j = m+1, this%maxj
-        this%ish(m*(this%maxj+1)-m*(m+1)/2+j+1) = sqrt((j**2-m**2) / (4*j**2-1._dbl))
-      end do
-    end do
     
     do m = 0, this%maxj
       do j = m+1, this%maxj
@@ -95,33 +88,21 @@ submodule (SphericalHarmonics) Init_SphericalHarmonics
     do i = 1, this%nLegendre
       this%fftLege(i) = (1-this%roots(i)**2) / lege_fn(2*this%nLegendre-1, this%roots(i))**2
     end do
-      
+    
+    call this%fourtrans%init_sub( this%nFourier )
+    
   end subroutine init_harmonics_sub
   
   subroutine deallocate_harmonics_sub(this)
     class(T_lateralGrid), intent(inout) :: this
     
-    call destroy_plan_sub(this%fftw_01_r2c)
-    call destroy_plan_sub(this%fftw_03_r2c)
-    call destroy_plan_sub(this%fftw_04_r2c)
-    
-    call destroy_plan_sub(this%fftw_06_c2r)
-    call destroy_plan_sub(this%fftw_16_c2r)
-    call destroy_plan_sub(this%fftw_19_c2r)
+    call this%fourtrans%deallocate_sub()
     
     if ( allocated(this%roots)   ) deallocate( this%roots   )
     if ( allocated(this%fftLege) ) deallocate( this%fftLege )
-    if ( allocated(this%ish)     ) deallocate( this%ish     )
     if ( allocated(this%amjrr)   ) deallocate( this%amjrr   )
     if ( allocated(this%bmjrr)   ) deallocate( this%bmjrr   )
     
   end subroutine deallocate_harmonics_sub
-  
-  subroutine destroy_plan_sub(plan)
-    type(C_ptr), intent(inout) :: plan
-    
-    if ( c_associated(plan) ) call fftw_destroy_plan(plan)
-    
-  end subroutine destroy_plan_sub
   
 end submodule Init_SphericalHarmonics

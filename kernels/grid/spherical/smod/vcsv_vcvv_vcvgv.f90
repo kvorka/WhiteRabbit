@@ -2,14 +2,7 @@ submodule (SphericalHarmonics) vcsv_vcvv_vcvgv
   implicit none
 
   contains
-
-  subroutine init_vcsv_vcvv_vcvgv_sub(this)
-    class(T_lateralGrid), intent(inout) :: this
-    
-    call this%fourtrans%init_sub( this%nFourier )
-    
-  end subroutine init_vcsv_vcvv_vcvgv_sub
-
+  
   pure subroutine vcsv_vcvv_vcvgv_sub(this, ri, q, dv_r, v, cjm)
     class(T_lateralGrid), intent(in)  :: this
     real(kind=dbl),       intent(in)  :: ri
@@ -191,12 +184,10 @@ submodule (SphericalHarmonics) vcsv_vcvv_vcvgv
     
     deallocate(cab, sum1, sum2, sum3)
     allocate( pmm(step), pmj(step), pmj1(step), pmj2(step), cosx(step), fftLege(step), sinx(step), symL(step,19), asymL(step,19), &
-            & sumLegendreN(19,step,0:this%maxj), sumLegendreS(19,step,0:this%maxj), grid(19,step,0:this%nFourier-1),  &
-            & cr(4,this%jms1), fft(4,step,0:this%nFourier-1), sumFourierN(4,step,0:this%jmax+1), symF(step,4), asymF(step,4), &
-            & sumFourierS(4,step,0:this%jmax+1) )
+            & sumLegendreN(19,step,0:this%maxj), sumLegendreS(19,step,0:this%maxj), grid(19,step,0:this%nFourier-1),              &
+            & cr(4,this%jms1), fft(4,step,0:this%nFourier-1), sumFourierN(4,step,0:this%jmax+1), symF(step,4), asymF(step,4),     &
+            & sumFourierS(4,step,0:this%jmax+1) ) ; cr = czero
       
-      cr = czero
-
       do i = 1, this%nLegendre, step
         cosx    = this%roots(i:i+step-1)
         sinx    = sqrt(1-cosx**2)
@@ -341,7 +332,7 @@ submodule (SphericalHarmonics) vcsv_vcvv_vcvgv
                        & grid(18,i2,i1) * grid(19,i2,i1)
         end do
 
-        call this%fourtrans%exec_r2c_sub(4*step, this%maxj, fft, sumFourierN) ; sumFourierN = sumFourierN * this%nFourier
+        call this%fourtrans%exec_r2c_sub(4*step, this%maxj, fft, sumFourierN)
 
         call this%fourtrans%exec_c2r_sub(19*step, this%maxj+1, sumLegendreS, grid)
         
@@ -363,7 +354,7 @@ submodule (SphericalHarmonics) vcsv_vcvv_vcvgv
                        & grid(18,i2,i1) * grid(19,i2,i1)
         end do
         
-        call this%fourtrans%exec_r2c_sub(4*step, this%maxj, fft, sumFourierS) ; sumFourierS = sumFourierS * this%nFourier
+        call this%fourtrans%exec_r2c_sub(4*step, this%maxj, fft, sumFourierS)
         
         pmm  = 1._dbl
         
@@ -473,7 +464,7 @@ submodule (SphericalHarmonics) vcsv_vcvv_vcvgv
     deallocate( cc, sumLegendreN, sumLegendreS, grid, fft, sumFourierN, sumFourierS, pmm, pmj, pmj1, pmj2, cosx, sinx, fftLege, &
               & symL, asymL, symF, asymF )
     
-    fac = 1 / ( 4 * this%nLegendre**2 * this%nFourier * sqrt(pi) )
+    fac = 1 / ( 4 * this%nLegendre**2 * sqrt(pi) )
     
     do mj = 1, this%jms1 
       cr(1,mj) = cr(1,mj) * fac
@@ -536,12 +527,5 @@ submodule (SphericalHarmonics) vcsv_vcvv_vcvgv
     deallocate(cr)
     
   end subroutine vcsv_vcvv_vcvgv_sub
-
-  subroutine deallocate_fftw_vcsv_vcvv_vcvgv_sub(this)
-    class(T_lateralGrid), intent(inout) :: this
-
-    call this%fourtrans%deallocate_sub()
-
-  end subroutine deallocate_fftw_vcsv_vcvv_vcvgv_sub
   
 end submodule vcsv_vcvv_vcvgv

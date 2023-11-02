@@ -39,7 +39,6 @@ module IceCrustMod
     class(T_iceCrust), intent(inout) :: this
    
     call this%init_ice_sub(jmax_in = jmax_ice, rheol_in = 'viscel', n_iter = n_iter_ice)
-    call this%lat_grid%init_vcvv_sub()
     
     this%cf = 1._dbl
 

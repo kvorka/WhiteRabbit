@@ -2,7 +2,7 @@ submodule(PhysicalObject) Forces
   implicit none
   
   contains
-
+  
   pure function buoy_rr_fn(this, ir, ijm) result(buoy)
     class(T_physicalObject), intent(in) :: this
     integer,                 intent(in) :: ir, ijm
@@ -22,7 +22,7 @@ submodule(PhysicalObject) Forces
     gdrho = ersv_fn(this%jmax, this%Ra * this%alpha_fn(ir) * this%gravity%g_fn( this%rad_grid%rr(ir) ) * this%sol%temp_jm_fn(ir))
     
   end function buoy_rr_jml_fn
-
+  
   pure function coriolis_rr_jml_fn(this, ir, v) result(coriolis)
     class(T_physicalObject),     intent(in) :: this
     integer,           optional, intent(in) :: ir
@@ -38,17 +38,17 @@ submodule(PhysicalObject) Forces
     fac = 2 / this%Ek ; coriolis = coriolis * fac
     
   end function coriolis_rr_jml_fn
-
-  subroutine coriolis_rr_jml_sub(this, v, coriolis) 
+  
+  subroutine coriolis_rr_jml_sub(this, v, coriolis)
     class(T_physicalObject), intent(in)    :: this
     complex(kind=dbl),       intent(in)    :: v(:)
     complex(kind=dbl),       intent(inout) :: coriolis(:,:)
     real(kind=dbl)                         :: fac
     
     call ezvv_sub(this%jmax, 2/this%Ek, v, coriolis)
-
+    
   end subroutine coriolis_rr_jml_sub
-
+  
   subroutine buoy_rr_jml_sub(this, ir, T, force)
     class(T_physicalObject), intent(in)    :: this
     integer,                 intent(in)    :: ir
@@ -57,7 +57,7 @@ submodule(PhysicalObject) Forces
     integer                                :: ijm, ij
     real(kind=dbl)                         :: fac, fac1, fac2
       
-    fac = this%Ra * this%alpha_fn(ir) * this%gravity%g_fn(this%rad_grid%rr(ir))
+    fac = this%Ra * this%alpha_fn(ir) * this%gravity%g_fn( this%rad_grid%rr(ir) )
     
     do ij = 1, this%jmax
       fac1 = -sqrt( (ij  ) / (2*ij+1._dbl) ) * fac
@@ -70,7 +70,7 @@ submodule(PhysicalObject) Forces
     end do
       
   end subroutine buoy_rr_jml_sub
-
+  
   subroutine global_rotation_sub(this)
     class(T_physicalObject), intent(inout) :: this
     integer                                :: ir, is, ijm

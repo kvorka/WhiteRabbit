@@ -14,7 +14,7 @@ module OceanConvMod
   subroutine init_oceanConv_sub(this)
     class(T_oceanConv), intent(inout) :: this
     
-    call this%init_ocean_sub() ; call this%lat_grid%init_vcsv_vcvv_vcvgv_sub()
+    call this%init_ocean_sub()
     
     call this%init_eq_temp_sub( rhs=.true. , nl=.true. )
     call this%init_eq_torr_sub( rhs=.true. , nl=.true. )
@@ -58,13 +58,13 @@ module OceanConvMod
       end do
     end do
     !$omp end do
-
+    
     !$omp do
     do ir = 2, this%nd
       call this%fullnl_sub(ir)
     end do
     !$omp end do
-
+    
     !$omp do collapse (2)
     do ijm = 1, this%jms
       do ir = 2, this%nd
@@ -76,7 +76,7 @@ module OceanConvMod
     end do
     !$omp end do
     !$omp end parallel
-
+    
     call this%solve_temp_sub( ijmstart=1 , ijmend=this%jms, ijmstep=1, rematrix=changed_dt, matxsol=.true. )
     call this%solve_torr_sub( ijmstart=2 , ijmend=this%jms, ijmstep=1, rematrix=changed_dt, matxsol=.true. )
     call this%solve_mech_sub( ijmstart=2 , ijmend=this%jms, ijmstep=1, rematrix=changed_dt, matxsol=.true. )

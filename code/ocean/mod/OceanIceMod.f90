@@ -14,7 +14,7 @@ module OceanIceMod
   subroutine init_oceanice_sub(this)
     class(T_oceanice), intent(inout) :: this
     
-    call this%init_ocean_sub() ; call this%lat_grid%init_vcsv_vcvv_vcvgv_sub()
+    call this%init_ocean_sub()
     
     call this%sol%init_layer_u_sub()
     
