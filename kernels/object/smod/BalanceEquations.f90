@@ -39,7 +39,7 @@ submodule (PhysicalObject) BalanceEquations
     allocate( drho(this%nd+1) )
     
       do ir = 1, this%nd+1
-        drho(ir) = this%Ra * this%alpha_fn(ir) * this%gravity%g_fn(this%rad_grid%rr(ir)) * this%sol%temp_fn(ir,ijm)
+        drho(ir) = this%buoy_rr_jm_fn(ir,ijm)
       end do
       
       press_buoy = this%rad_grid%intV_fn( drho )
@@ -54,16 +54,20 @@ submodule (PhysicalObject) BalanceEquations
     class(T_physicalObject), intent(in) :: this
     integer                             :: ir
     real(kind=dbl),         allocatable :: power_i(:)
+    complex(kind=dbl),      allocatable :: gdrho_jm(:), rvelc_jm(:)
     
-    allocate( power_i(this%nd+1) )
+    allocate( power_i(this%nd+1) , gdrho_jm(this%jms), rvelc_jm(this%jms) )
     
       do ir = 1, this%nd+1
-        power_i(ir) = dotproduct_fn( this%jmax, this%buoy_rr_jml_fn(ir), this%sol%velocity_jml_fn(ir) )
+        gdrho_jm = this%Ra * this%alpha_fn(ir) * this%gravity%g_fn( this%rad_grid%rr(ir) ) * this%sol%temp_jm_fn(ir)
+        rvelc_jm = ervs_fn(this%jmax, this%sol%velocity_jml_fn(ir))
+        
+        power_i(ir) = scalproduct_fn( this%jmax, gdrho_jm, rvelc_jm )
       end do
       
       buoyancy_power_fn = this%rad_grid%intV_fn( power_i )
     
-    deallocate( power_i )
+    deallocate( power_i, gdrho_jm, rvelc_jm )
     
   end function buoyancy_power_fn
   

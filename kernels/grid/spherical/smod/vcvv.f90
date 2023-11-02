@@ -3,15 +3,15 @@ submodule (SphericalHarmonics) vcvv
 
   contains
   
-  function vcvv_fn(this, cajml, cbjml) result(cjm)
-    class(T_lateralGrid), intent(in) :: this
-    complex(kind=dbl),    intent(in) :: cajml(:), cbjml(:)
-    complex(kind=dbl)                :: cjm(this%jms)
-    integer                          :: i, k, j, m, l, mj, i1, i2, lm
-    real(kind=dbl)                   :: cleb1, cleb2, cleb3, fac
-    real(kind=dbl),     allocatable  :: pmm(:), pmj(:), pmj1(:), pmj2(:), cosx(:), fftLege(:), fft(:,:), grid(:,:,:), sinx(:)
-    complex(kind=dbl),  allocatable  :: cc(:,:), sumLegendreN(:,:,:), sumLegendreS(:,:,:), cr(:)
-    complex(kind=dbl),  allocatable  :: symL(:,:), asymL(:,:), symF(:), asymF(:), sumFourierN(:,:), sumFourierS(:,:)
+  subroutine vcvv_sub(this, cajml, cbjml, cjm)
+    class(T_lateralGrid), intent(in)  :: this
+    complex(kind=dbl),    intent(in)  :: cajml(:), cbjml(:)
+    complex(kind=dbl),    intent(out) :: cjm(:)
+    integer                           :: i, k, j, m, l, mj, i1, i2, lm
+    real(kind=dbl)                    :: cleb1, cleb2, cleb3, fac
+    real(kind=dbl),     allocatable   :: pmm(:), pmj(:), pmj1(:), pmj2(:), cosx(:), fftLege(:), fft(:,:), grid(:,:,:), sinx(:)
+    complex(kind=dbl),  allocatable   :: cc(:,:), sumLegendreN(:,:,:), sumLegendreS(:,:,:), cr(:)
+    complex(kind=dbl),  allocatable   :: symL(:,:), asymL(:,:), symF(:), asymF(:), sumFourierN(:,:), sumFourierS(:,:)
     
     cjm = czero
     
@@ -324,6 +324,6 @@ submodule (SphericalHarmonics) vcvv
 
     deallocate(cr)
 
-  end function vcvv_fn
+  end subroutine vcvv_sub
   
 end submodule vcvv

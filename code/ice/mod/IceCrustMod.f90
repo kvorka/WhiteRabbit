@@ -307,8 +307,8 @@ module IceCrustMod
         this%rsph2(ir,ijm) = czero
       
       do concurrent ( ir = 2:this%nd )
-        this%rsph1(ir,ijm) = -sqrt((ij  )/(2*ij+1._dbl)) * this%buoy_rr_fn(ir,ijm)
-        this%rsph2(ir,ijm) = +sqrt((ij+1)/(2*ij+1._dbl)) * this%buoy_rr_fn(ir,ijm)
+        this%rsph1(ir,ijm) = -sqrt((ij  )/(2*ij+1._dbl)) * this%buoy_rr_jm_fn(ir,ijm)
+        this%rsph2(ir,ijm) = +sqrt((ij+1)/(2*ij+1._dbl)) * this%buoy_rr_jm_fn(ir,ijm)
       end do
       
       ir = this%nd+1

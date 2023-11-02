@@ -86,11 +86,19 @@ module OceanTidesMod
     end do
     !$omp end do
     
-    !if ( this%noharm ) then
-      !this%nmech(:,i) = 2 * coriolis_fn(this,i)
-    !else
-      !this%nmech(:,i) = 2 * coriolis_fn(this,i) + vgradv_fn(this,i)
-    !end if
+    if ( this%noharm ) then
+      !$omp parallel do
+      do ir = 2, this%nd
+        call this%coriolis_sub(ir)
+      end do
+      !$omp end parallel do
+    else
+      !$omp parallel do
+      do ir = 2, this%nd
+        call this%coriolis_vgradv_sub(ir)
+      end do
+      !$omp end parallel do
+    end if
     
     !$omp do collapse (2)
     do ijm = 1, this%jms
@@ -123,6 +131,9 @@ module OceanTidesMod
       end if
     end do
     !$omp end parallel do
+    
+    call this%solve_torr_sub( ijmstart=2 , ijmend=this%jms, ijmstep=1, rematrix=.false., matxsol=.true. )
+    call this%solve_mech_sub( ijmstart=2 , ijmend=this%jms, ijmstep=1, rematrix=.false., matxsol=.true. )
     
   end subroutine time_scheme_oceanTides_sub
   

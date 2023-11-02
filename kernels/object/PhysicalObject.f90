@@ -29,12 +29,12 @@ module PhysicalObject
     procedure, pass :: init_objects_sub       => init_objects_sub
     procedure, pass :: deallocate_objects_sub => deallocate_objects_sub
     procedure, pass :: lambda_fn, cp_fn, visc_fn, alpha_fn, set_dt_sub, velc_crit_fn, vypis_sub, htide_fn, qr_fn, vr_fn, qr_jm_fn, &
-                     & vr_jm_fn, dv_dr_rrjml_fn, dv_dr_rr_jml_sub, mgradT_rrjml_fn, mgradT_rr_jml_sub, buoy_rr_fn, buoy_rr_jml_fn, &
-                     & buoy_rr_jml_sub, coriolis_rr_jml_fn, coriolis_rr_jml_sub, global_rotation_sub, vgradT_fn, vgradv_fn,        &
-                     & fullnl_sub, matica_temp_fn, matica_mech_fn, matica_torr_fn, init_eq_temp_sub, init_eq_mech_sub,             &
-                     & init_eq_torr_sub, prepare_mat_mech_sub, prepare_mat_temp_sub, prepare_mat_torr_sub, solve_temp_sub,         &
-                     & solve_torr_sub, solve_mech_sub, nuss_fn, reynolds_fn, nonzon_reynolds_fn, volume_heating_fn, laws_mech_fn,  &
-                     & laws_temp_fn, laws_force_fn
+                     & vr_jm_fn, dv_dr_rrjml_fn, dv_dr_rr_jml_sub, mgradT_rrjml_fn, mgradT_rr_jml_sub, buoy_rr_jm_fn,              &
+                     & buoy_rr_jml_sub, coriolis_rr_jml_sub, global_rotation_sub, vgradT_fn, fullnl_sub, matica_temp_fn,           &
+                     & matica_mech_fn, matica_torr_fn, init_eq_temp_sub, init_eq_mech_sub, init_eq_torr_sub, prepare_mat_mech_sub, &
+                     & prepare_mat_temp_sub, prepare_mat_torr_sub, solve_temp_sub, solve_torr_sub, solve_mech_sub, nuss_fn,        &
+                     & reynolds_fn, nonzon_reynolds_fn, volume_heating_fn, laws_mech_fn, laws_temp_fn, laws_force_fn,              &
+                     & coriolis_vgradv_sub, coriolis_sub
     
   end type T_physicalObject
   
@@ -137,24 +137,11 @@ module PhysicalObject
       complex(kind=dbl),       intent(out) :: T(:), gradT(:)
     end subroutine mgradT_rr_jml_sub
     
-    module pure function buoy_rr_fn(this, ir, ijm) result(buoy)
+    module pure function buoy_rr_jm_fn(this, ir, ijm) result(buoy)
       class(T_physicalObject), intent(in) :: this
       integer,                 intent(in) :: ir, ijm
       complex(kind=dbl)                   :: buoy
-    end function buoy_rr_fn
-    
-    module pure function buoy_rr_jml_fn(this, ir) result(gdrho)
-      class(T_physicalObject), intent(in)  :: this
-      integer,                 intent(in)  :: ir
-      complex(kind=dbl),       allocatable :: gdrho(:)
-    end function buoy_rr_jml_fn
-    
-    module pure function coriolis_rr_jml_fn(this, ir, v) result(coriolis)
-      class(T_physicalObject),     intent(in)  :: this
-      integer,           optional, intent(in)  :: ir
-      complex(kind=dbl), optional, intent(in)  :: v(:)
-      complex(kind=dbl),           allocatable :: coriolis(:)
-    end function coriolis_rr_jml_fn
+    end function buoy_rr_jm_fn
     
     module subroutine coriolis_rr_jml_sub(this, v, coriolis)
       class(T_physicalObject), intent(in)    :: this
@@ -176,7 +163,7 @@ module PhysicalObject
     module function vgradT_fn(this, i) result(vgradT)
       class(T_physicalObject), intent(in) :: this
       integer,                 intent(in) :: i
-      complex(kind=dbl)                   :: vgradT(this%jms)
+      complex(kind=dbl),      allocatable :: vgradT(:)
     end function vgradT_fn
     
     module function vgradv_fn(this, i) result(vgradv)
@@ -189,6 +176,16 @@ module PhysicalObject
       class(T_physicalObject), intent(inout) :: this
       integer,                 intent(in)    :: i
     end subroutine fullnl_sub
+
+    module subroutine coriolis_vgradv_sub(this, i)
+      class(T_physicalObject), intent(inout) :: this
+      integer,                 intent(in)    :: i
+    end subroutine coriolis_vgradv_sub
+
+    module subroutine coriolis_sub(this, i)
+      class(T_physicalObject), intent(inout) :: this
+      integer,                 intent(in)    :: i
+    end subroutine coriolis_sub
     
     module pure function matica_temp_fn(this, j_in, a_in) result(matica)
       class(T_physicalObject), intent(in) :: this

@@ -3,11 +3,11 @@ submodule (SphericalHarmonics) vcsv_vcvgv
 
   contains
   
-  function vcsv_vcvgv_fn(this, ri, dv_r, v) result(cjml)
+  subroutine vcsv_vcvgv_sub(this, ri, dv_r, v, cjm)
     class(T_lateralGrid), intent(in)  :: this
     real(kind=dbl),       intent(in)  :: ri
     complex(kind=dbl),    intent(in)  :: dv_r(:), v(:)
-    complex(kind=dbl)                 :: cjml(this%jmv)
+    complex(kind=dbl),    intent(out) :: cjm(:,:)
     integer                           :: i, j, m, l, ijm, lm, ijml, i1, i2, mj, s, iL, lm1, lm2
     real(kind=dbl)                    :: fac, cleb1, cleb2, cleb3
     real(kind=dbl),       allocatable :: gc(:), pmm(:), pmj(:), pmj1(:), pmj2(:), cosx(:), fftLege(:), sinx(:)
@@ -473,50 +473,50 @@ submodule (SphericalHarmonics) vcsv_vcvgv
     
     j = 0
       m = 0
-        ijml = -1
-        lm   = m*(this%maxj)-m*(m+1)/2+j+1
-        lm2  = lm+this%maxj-m
+        ijm = 1
+        lm  = m*(this%maxj)-m*(m+1)/2+j+1
+        lm2 = lm+this%maxj-m
         
-        cjml(ijml+2) =        cr(1,lm2 )   * cleb1_fn(j+1,m+1,1,-1,j,m) + &
-                     &        cr(3,lm+1)   * cleb1_fn(j+1,m+0,1, 0,j,m) + &
-                     & conjg( cr(1,lm2 ) ) * cleb1_fn(j+1,m-1,1,+1,j,m) ; cjml(ijml+2)%im = 0._dbl
+        cjm(3,ijm) =        cr(1,lm2 )   * cleb1_fn(j+1,m+1,1,-1,j,m) + &
+                   &        cr(3,lm+1)   * cleb1_fn(j+1,m+0,1, 0,j,m) + &
+                   & conjg( cr(1,lm2 ) ) * cleb1_fn(j+1,m-1,1,+1,j,m) ; cjm(3,ijm)%im = 0._dbl
 
     do j = 1, this%jmax
       m = 0
-        ijml = ijml+3
-        lm   = m*(this%maxj)-m*(m+1)/2+j+1
-        lm2  = lm+this%maxj-m-1
+        ijm = ijm+1
+        lm  = m*(this%maxj)-m*(m+1)/2+j+1
+        lm2 = lm+this%maxj-m-1
         
-        cjml(ijml  ) =        cr(1,lm2-1)  * cleb1_fn(j-1,m+1,1,-1,j,m) + &
-                     &        cr(3,lm -1)  * cleb1_fn(j-1,m+0,1, 0,j,m) + &
-                     & conjg( cr(1,lm2-1) )* cleb1_fn(j-1,m-1,1,+1,j,m)   ; cjml(ijml  )%im = 0._dbl
-        cjml(ijml+1) =        cr(1,lm2  )  * cleb1_fn(j  ,m+1,1,-1,j,m) + &
-                     &        cr(3,lm   )  * cleb1_fn(j  ,m+0,1, 0,j,m) + &
-                     & conjg( cr(1,lm2  ) )* cleb1_fn(j  ,m-1,1,+1,j,m)   ; cjml(ijml+1)%re = 0._dbl
-        cjml(ijml+2) =        cr(1,lm2+1)  * cleb1_fn(j+1,m+1,1,-1,j,m) + &
-                     &        cr(3,lm +1)  * cleb1_fn(j+1,m+0,1, 0,j,m) + &
-                     & conjg( cr(1,lm2+1) )* cleb1_fn(j+1,m-1,1,+1,j,m)   ; cjml(ijml+2)%im = 0._dbl
-        
+        cjm(1,ijm) =        cr(1,lm2-1)   * cleb1_fn(j-1,m+1,1,-1,j,m) + &
+                   &        cr(3,lm -1)   * cleb1_fn(j-1,m+0,1, 0,j,m) + &
+                   & conjg( cr(1,lm2-1) ) * cleb1_fn(j-1,m-1,1,+1,j,m) ; cjm(1,ijm)%im = 0._dbl
+        cjm(2,ijm) =        cr(1,lm2  )   * cleb1_fn(j  ,m+1,1,-1,j,m) + &
+                   &        cr(3,lm   )   * cleb1_fn(j  ,m+0,1, 0,j,m) + &
+                   & conjg( cr(1,lm2  ) ) * cleb1_fn(j  ,m-1,1,+1,j,m) ; cjm(2,ijm)%re = 0._dbl
+        cjm(3,ijm) =        cr(1,lm2+1)   * cleb1_fn(j+1,m+1,1,-1,j,m) + &
+                   &        cr(3,lm +1)   * cleb1_fn(j+1,m+0,1, 0,j,m) + &
+                   & conjg( cr(1,lm2+1) ) * cleb1_fn(j+1,m-1,1,+1,j,m) ; cjm(3,ijm)%im = 0._dbl
+
       do m = 1, j
-        ijml = ijml+3
-        lm   = m*(this%maxj)-m*(m+1)/2+j+1
-        lm1  = lm - this%maxj + m
-        lm2  = lm + this%maxj - m - 1
+        ijm = ijm+1
+        lm  = m*(this%maxj)-m*(m+1)/2+j+1
+        lm1 = lm - this%maxj + m
+        lm2 = lm + this%maxj - m - 1
         
-        cjml(ijml  ) = cr(1,lm2-1) * cleb1_fn(j-1,m+1,1,-1,j,m) + &
-                     & cr(3,lm -1) * cleb1_fn(j-1,m+0,1, 0,j,m) - &
-                     & cr(2,lm1-1) * cleb1_fn(j-1,m-1,1,+1,j,m)
-        cjml(ijml+1) = cr(1,lm2  ) * cleb1_fn(j  ,m+1,1,-1,j,m) + &
-                     & cr(3,lm   ) * cleb1_fn(j  ,m+0,1, 0,j,m) - &
-                     & cr(2,lm1  ) * cleb1_fn(j  ,m-1,1,+1,j,m)
-        cjml(ijml+2) = cr(1,lm2+1) * cleb1_fn(j+1,m+1,1,-1,j,m) + &
-                     & cr(3,lm +1) * cleb1_fn(j+1,m+0,1, 0,j,m) - &
-                     & cr(2,lm1+1) * cleb1_fn(j+1,m-1,1,+1,j,m)
+        cjm(1,ijm) = cr(1,lm2-1) * cleb1_fn(j-1,m+1,1,-1,j,m) + &
+                   & cr(3,lm -1) * cleb1_fn(j-1,m+0,1, 0,j,m) - &
+                   & cr(2,lm1-1) * cleb1_fn(j-1,m-1,1,+1,j,m)
+        cjm(2,ijm) = cr(1,lm2  ) * cleb1_fn(j  ,m+1,1,-1,j,m) + &
+                   & cr(3,lm   ) * cleb1_fn(j  ,m+0,1, 0,j,m) - &
+                   & cr(2,lm1  ) * cleb1_fn(j  ,m-1,1,+1,j,m)
+        cjm(3,ijm) = cr(1,lm2+1) * cleb1_fn(j+1,m+1,1,-1,j,m) + &
+                   & cr(3,lm +1) * cleb1_fn(j+1,m+0,1, 0,j,m) - &
+                   & cr(2,lm1+1) * cleb1_fn(j+1,m-1,1,+1,j,m)
       end do
     end do
-
+    
     deallocate(cr)
-
-  end function vcsv_vcvgv_fn
+    
+  end subroutine vcsv_vcvgv_sub
   
 end submodule vcsv_vcvgv

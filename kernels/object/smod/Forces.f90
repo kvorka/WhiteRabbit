@@ -3,49 +3,26 @@ submodule(PhysicalObject) Forces
   
   contains
   
-  pure function buoy_rr_fn(this, ir, ijm) result(buoy)
+  pure complex(kind=dbl) function buoy_rr_jm_fn(this, ir, ijm)
     class(T_physicalObject), intent(in) :: this
     integer,                 intent(in) :: ir, ijm
-    complex(kind=dbl)                   :: buoy
     
-    buoy = this%Ra * this%alpha_fn(ir) * this%gravity%g_fn( this%rad_grid%rr(ir) ) * this%sol%temp_fn(ir,ijm)
+    buoy_rr_jm_fn = this%Ra * this%alpha_fn(ir) * this%gravity%g_fn( this%rad_grid%rr(ir) ) * this%sol%temp_fn(ir,ijm)
     
-  end function buoy_rr_fn
-  
-  pure function buoy_rr_jml_fn(this, ir) result(gdrho)
-    class(T_physicalObject), intent(in)  :: this
-    integer,                 intent(in)  :: ir
-    complex(kind=dbl),       allocatable :: gdrho(:)
-    
-    allocate( gdrho(this%jmv) ) ; gdrho = czero
-    
-    gdrho = ersv_fn(this%jmax, this%Ra * this%alpha_fn(ir) * this%gravity%g_fn( this%rad_grid%rr(ir) ) * this%sol%temp_jm_fn(ir))
-    
-  end function buoy_rr_jml_fn
-  
-  pure function coriolis_rr_jml_fn(this, ir, v) result(coriolis)
-    class(T_physicalObject),     intent(in) :: this
-    integer,           optional, intent(in) :: ir
-    complex(kind=dbl), optional, intent(in) :: v(:)
-    real(kind=dbl)                          :: fac
-    complex(kind=dbl), allocatable          :: coriolis(:)
-    
-    allocate( coriolis(this%jmv) ) ; coriolis = czero
-    
-    if ( present(ir) ) coriolis = ezvv_fn( this%jmax, this%sol%velocity_jml_fn(ir) )
-    if ( present(v)  ) coriolis = ezvv_fn( this%jmax, v )
-    
-    fac = 2 / this%Ek ; coriolis = coriolis * fac
-    
-  end function coriolis_rr_jml_fn
+  end function buoy_rr_jm_fn
   
   subroutine coriolis_rr_jml_sub(this, v, coriolis)
     class(T_physicalObject), intent(in)    :: this
     complex(kind=dbl),       intent(in)    :: v(:)
     complex(kind=dbl),       intent(inout) :: coriolis(:,:)
-    real(kind=dbl)                         :: fac
     
-    call ezvv_sub(this%jmax, 2/this%Ek, v, coriolis)
+    select case (this%scaling)
+      case ('christ')
+        call ezvv_sub(this%jmax, 2._dbl, v, coriolis)
+      
+      case('default')
+        call ezvv_sub(this%jmax, 2/this%Ek, v, coriolis)
+    end select
     
   end subroutine coriolis_rr_jml_sub
   

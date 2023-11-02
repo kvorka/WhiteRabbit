@@ -165,7 +165,7 @@ module OceanMod
       deallocate(r, spher1, spher2, torr, temp)
     end if
     
-    this%dt = min(this%dt, this%velc_crit_fn())
+    !this%dt = min(this%dt, this%velc_crit_fn())
       call this%prepare_mat_temp_sub( ijstart=0 , ijend=this%jmax )
       call this%prepare_mat_torr_sub( ijstart=1 , ijend=this%jmax )
       call this%prepare_mat_mech_sub( ijstart=1 , ijend=this%jmax )
