@@ -16,6 +16,9 @@ module FFT_mod
     procedure, pass, public :: exec_c2r_sub   => fft_c2r_exec_sub
     procedure, pass, public :: deallocate_sub => fft_deallocate_sub
     
+    procedure, pass, private :: fft_r2c_sub
+    procedure, pass, private :: fft_c2r_sub
+    
   end type T_fft
   
   integer,        parameter :: imm = -2e4
@@ -49,8 +52,46 @@ module FFT_mod
   pure subroutine fft_r2c_exec_sub(this, m, np, x, cx)
     class(T_fft),      intent(in)    :: this
     integer,           intent(in)    :: m, np
+    real(kind=dbl),    intent(inout) :: x(m,this%n)
+    complex(kind=dbl), intent(out)   :: cx(m,np)
+    integer                          :: i1, i2
+    
+    call this%fft_r2c_sub( m, x )
+    
+    do concurrent ( i1 = 1:m )
+      cx(i1,1)%re = x(i1,1)
+      cx(i1,1)%im = 0._dbl
+    end do
+    
+    do concurrent ( i2 = 2:np, i1 = 1:m )
+      cx(i1,i2)%re = x(i1,2*i2-1)
+      cx(i1,i2)%im = x(i1,2*i2  )
+    end do
+    
+  end subroutine fft_r2c_exec_sub
+  
+  pure subroutine fft_c2r_exec_sub(this, m, np, cx, x)
+    class(T_fft),      intent(in)  :: this
+    integer,           intent(in)  :: m, np
+    complex(kind=dbl), intent(in)  :: cx(m,np)
+    real(kind=dbl),    intent(out) :: x(m,this%n)
+    integer                        :: i1, i2
+    
+    x = 0._dbl
+    
+    do concurrent (i2 = 1:np, i1 = 1:m)
+      x(i1,2*i2-1) = cx(i1,i2)%re
+      x(i1,2*i2  ) = cx(i1,i2)%im
+    end do
+    
+    call this%fft_c2r_sub( m,  x )
+    
+  end subroutine fft_c2r_exec_sub
+  
+  pure subroutine fft_r2c_sub(this, m, x)
+    class(T_fft),      intent(in)    :: this
+    integer,           intent(in)    :: m
     real(kind=dbl),    intent(inout) :: x(m,2,0:this%n/2-1)
-    complex(kind=dbl), intent(out)   :: cx(m,0:np-1)
     integer                          :: iv, i, ii, isj, j, isj2
     real(kind=dbl)                   :: scal, temp, addre, addim, subim, subre, tempre, tempim
     real(kind=dbl),    allocatable   :: y(:,:)
@@ -132,47 +173,15 @@ module FFT_mod
        end do
     end if
     
-    do concurrent ( j = 1:m )
-      cx(j,0)%re = x(j,1,0)
-      cx(j,0)%im = 0._dbl
-    end do
-    
-    do i = 1, np-1
-      do concurrent ( j = 1:m )
-        cx(j,i)%re = x(j,1,i)
-      end do
-      
-      do concurrent ( j = 1:m )
-        cx(j,i)%im = x(j,2,i)
-      end do
-    end do
-    
-  end subroutine fft_r2c_exec_sub
+  end subroutine fft_r2c_sub
   
-  pure subroutine fft_c2r_exec_sub(this, m, np, cx, x)
-    class(T_fft),      intent(in)  :: this
-    integer,           intent(in)  :: m, np
-    complex(kind=dbl), intent(in)  :: cx(m,0:np-1)
-    real(kind=dbl),    intent(out) :: x(m,2,0:this%n/2-1)
-    integer                        :: iv, i, ii, isj, j, isj2
-    real(kind=dbl)                 :: temp, tempre1, tempim1, tempre2, tempim2
-    real(kind=dbl),    allocatable :: y(:,:)
-    
-    x = 0._dbl
-    
-    do concurrent ( j = 1:m )
-      x(j,1,0) = cx(j,0)%re
-    end do
-    
-    do i = 1, np-1
-      do concurrent ( j = 1:m )
-        x(j,1,i) = cx(j,i)%re
-      end do
-      
-      do concurrent ( j = 1:m )
-        x(j,2,i) = cx(j,i)%im
-      end do
-    end do
+  pure subroutine fft_c2r_sub(this, m, x)
+    class(T_fft),      intent(in)    :: this
+    integer,           intent(in)    :: m
+    real(kind=dbl),    intent(inout) :: x(m,2,0:this%n/2-1)
+    integer                          :: iv, i, ii, isj, j, isj2
+    real(kind=dbl)                   :: temp, tempre1, tempim1, tempre2, tempim2
+    real(kind=dbl),    allocatable   :: y(:,:)
     
     do concurrent ( iv = 1:m )
       temp      = x(iv,1,0)
@@ -248,7 +257,7 @@ module FFT_mod
     
     deallocate( y )
     
-  end subroutine fft_c2r_exec_sub
+  end subroutine fft_c2r_sub
   
   subroutine fft_deallocate_sub(this)
     class(T_fft), intent(inout) :: this
