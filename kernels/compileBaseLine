@@ -7,6 +7,7 @@ $compiler -$optimization -march=native -c kernels/math/Math.f90
 $compiler -$optimization -march=native -c kernels/math/Clebsch_Legendre.f90
 $compiler -$optimization -march=native -c kernels/math/SphericalFunctions.f90
 $compiler -$optimization -march=native -c kernels/math/FFT.f90
+$compiler -$optimization -march=native -c kernels/math/LU.f90
 
 $compiler -$optimization -march=native -c kernels/grid/radial/RadialGrid.f90
 $compiler -$optimization -march=native -c kernels/grid/radial/smod/Init_RadialGrid.f90
@@ -26,8 +27,7 @@ $compiler -$optimization -march=native -c kernels/equations/solutions/smod/Solut
 $compiler -$optimization -march=native -c kernels/equations/solutions/smod/Solution_radial.f90
 $compiler -$optimization -march=native -c kernels/equations/solutions/smod/Solution_spherical.f90
 
-$compiler -$optimization -march=native -c kernels/equations/matrices/mod/LU.f90
-$compiler -$optimization -march=native -c kernels/equations/matrices/mod/Matrix.f90
+$compiler -$optimization -march=native -c kernels/equations/matrices/Matrix.f90
 $compiler -$optimization -march=native -c kernels/equations/matrices/Matrices.f90
 
 $compiler -$optimization -march=native -c kernels/gmodel/Gravity.f90
