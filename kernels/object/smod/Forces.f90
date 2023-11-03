@@ -20,7 +20,7 @@ submodule(PhysicalObject) Forces
       case ('christ')
         call ezvv_sub(this%jmax, 2._dbl, v, coriolis)
       
-      case('default')
+      case('basics')
         call ezvv_sub(this%jmax, 2/this%Ek, v, coriolis)
     end select
     
