@@ -28,8 +28,8 @@ module OceanConstants
   real(kind=dbl), parameter          :: stress_dim = D_ud_ocean**3 * nu * (2*pi / period)**2
   
   real(kind=dbl), parameter :: Pr_ocean = 1._dbl
-  real(kind=dbl), parameter :: Ra_ocean = 1.5d8
-  real(kind=dbl), parameter :: Ek_ocean = 1.0d-5
+  real(kind=dbl), parameter :: Ra_ocean = 7.0d6
+  real(kind=dbl), parameter :: Ek_ocean = 1.0d-4
   real(kind=dbl), parameter :: Kl_ocean = 0._dbl
   
   !Nastavovanie pociatocneho stavu
