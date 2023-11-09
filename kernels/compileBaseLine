@@ -18,8 +18,8 @@ $compiler -$optimization -march=native -c kernels/grid/radial/smod/Interpolation
 $compiler -$optimization -march=native -c kernels/grid/spherical/SphericalHarmonics.f90
 $compiler -$optimization -march=native -c kernels/grid/spherical/smod/Init_SphericalHarmonics.f90
 $compiler -$optimization -march=native -c kernels/grid/spherical/smod/vcvv.f90
-$compiler -$optimization -march=native -c kernels/grid/spherical/smod/vcsv_vcvgv.f90
-$compiler -$optimization -march=native -c kernels/grid/spherical/smod/vcsv_vcvv_vcvgv.f90
+$compiler -$optimization -march=native -c kernels/grid/spherical/smod/vcvgv.f90
+$compiler -$optimization -march=native -c kernels/grid/spherical/smod/vcvv_vcvgv.f90
 
 $compiler -$optimization -march=native -c kernels/equations/solutions/Solution.f90
 $compiler -$optimization -march=native -c kernels/equations/solutions/smod/Solution_init.f90

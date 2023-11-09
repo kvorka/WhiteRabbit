@@ -46,7 +46,7 @@ submodule (PhysicalObject) NonLinearTerms
     
     allocate( v(this%jmv) , dv(this%jmv) ) ; call this%dv_dr_rr_jml_sub(i, v, dv)
     
-    allocate( nlm(3,this%jms) ) ; call this%lat_grid%vcsv_vcvgv_sub(this%rad_grid%rr(i), dv, v, nlm)
+    allocate( nlm(3,this%jms) ) ; call this%lat_grid%vcvgv_sub(this%rad_grid%rr(i), dv, v, nlm)
     
     deallocate( dv )
     
@@ -80,7 +80,7 @@ submodule (PhysicalObject) NonLinearTerms
     allocate( v(this%jmv) , dv(this%jmv) ) ; call this%dv_dr_rr_jml_sub(i, v, dv)
     allocate( T(this%jms) , dT(this%jmv) ) ; call this%mgradT_rr_jml_sub(i, T, dT)
     
-    allocate( nlm(4,this%jms) ) ; call this%lat_grid%vcsv_vcvv_vcvgv_sub(this%rad_grid%rr(i), dT, dv, v, nlm)
+    allocate( nlm(4,this%jms) ) ; call this%lat_grid%vcvv_vcvgv_sub(this%rad_grid%rr(i), dT, dv, v, nlm)
     
     deallocate( dv, dT )
     

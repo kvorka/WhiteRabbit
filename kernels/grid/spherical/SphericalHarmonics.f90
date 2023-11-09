@@ -15,7 +15,7 @@ module SphericalHarmonics
     
     procedure :: init_sub       => init_harmonics_sub
     procedure :: deallocate_sub => deallocate_harmonics_sub
-    procedure :: vcvv_sub, vcsv_vcvgv_sub, vcsv_vcvv_vcvgv_sub
+    procedure :: vcvv_sub, vcvgv_sub, vcvv_vcvgv_sub
     
   end type T_lateralGrid
   
@@ -35,19 +35,19 @@ module SphericalHarmonics
       complex(kind=dbl),    intent(out) :: cjm(:)
     end subroutine vcvv_sub
     
-    module subroutine vcsv_vcvgv_sub(this, ri, dv_r, v, cjm)
+    module subroutine vcvgv_sub(this, ri, dv_r, v, cjm)
       class(T_lateralGrid), intent(in)  :: this
       real(kind=dbl),       intent(in)  :: ri
       complex(kind=dbl),    intent(in)  :: v(:), dv_r(:)
       complex(kind=dbl),    intent(out) :: cjm(:,:)
-    end subroutine vcsv_vcvgv_sub
+    end subroutine vcvgv_sub
     
-    module pure subroutine vcsv_vcvv_vcvgv_sub(this, ri, q, dv_r, v, cjm)
+    module pure subroutine vcvv_vcvgv_sub(this, ri, q, dv_r, v, cjm)
       class(T_lateralGrid), intent(in)  :: this
       real(kind=dbl),       intent(in)  :: ri
       complex(kind=dbl),    intent(in)  :: dv_r(:), q(:), v(:)
       complex(kind=dbl),    intent(out) :: cjm(:,:)
-    end subroutine vcsv_vcvv_vcvgv_sub
+    end subroutine vcvv_vcvgv_sub
   end interface
   
 end module SphericalHarmonics

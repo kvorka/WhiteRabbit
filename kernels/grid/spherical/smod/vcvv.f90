@@ -1,19 +1,17 @@
 submodule (SphericalHarmonics) vcvv
   implicit none
-
+  
   contains
   
   subroutine vcvv_sub(this, cajml, cbjml, cjm)
     class(T_lateralGrid), intent(in)  :: this
     complex(kind=dbl),    intent(in)  :: cajml(:), cbjml(:)
     complex(kind=dbl),    intent(out) :: cjm(:)
-    integer                           :: i, k, j, m, l, mj, i1, i2, lm
+    integer                           :: i, k, j, m, l, mj, lmj, i1, i2
     real(kind=dbl)                    :: cleb1, cleb2, cleb3, fac
     real(kind=dbl),     allocatable   :: pmm(:), pmj(:), pmj1(:), pmj2(:), cosx(:), fftLege(:), fft(:,:), grid(:,:,:), sinx(:)
     complex(kind=dbl),  allocatable   :: cc(:,:), sumLegendreN(:,:,:), sumLegendreS(:,:,:), cr(:)
     complex(kind=dbl),  allocatable   :: symL(:,:), asymL(:,:), symF(:), asymF(:), sumFourierN(:,:), sumFourierS(:,:)
-    
-    cjm = czero
     
     allocate( cc(6,this%jms2) ); cc = czero
     
@@ -24,49 +22,49 @@ submodule (SphericalHarmonics) vcvv
           
           if ( m == 0 ) then
             do l = abs(j-1), min(this%jmax, j+1)
-              lm = 3*(l*(l+1)/2+m+1)+j-l
+              lmj = 3*(l*(l+1)/2+m+1)+j-l
               
               cleb1 = cleb1_fn(j,m,1,-1,l,m-1) * (-1)**(l+j)
               cleb2 = cleb1_fn(j,m,1,+1,l,m+1)
               cleb3 = cleb1_fn(j,m,1, 0,l,m  )
               
-              cc(1,mj) = cc(1,mj) + conjg( cajml(lm  ) ) * cleb1
-              cc(2,mj) = cc(2,mj) +        cajml(lm  )   * cleb2
-              cc(3,mj) = cc(3,mj) +        cajml(lm-3)   * cleb3
-              cc(4,mj) = cc(4,mj) + conjg( cbjml(lm  ) ) * cleb1
-              cc(5,mj) = cc(5,mj) +        cbjml(lm  )   * cleb2
-              cc(6,mj) = cc(6,mj) +        cbjml(lm-3)   * cleb3
+              cc(1,mj) = cc(1,mj) + conjg( cajml(lmj  ) ) * cleb1
+              cc(2,mj) = cc(2,mj) +        cajml(lmj  )   * cleb2
+              cc(3,mj) = cc(3,mj) +        cajml(lmj-3)   * cleb3
+              cc(4,mj) = cc(4,mj) + conjg( cbjml(lmj  ) ) * cleb1
+              cc(5,mj) = cc(5,mj) +        cbjml(lmj  )   * cleb2
+              cc(6,mj) = cc(6,mj) +        cbjml(lmj-3)   * cleb3
             end do
           else
             do l = abs(j-1), min(this%jmax, j+1)
-              lm = 3*(l*(l+1)/2+m-1)+j-l
+              lmj = 3*(l*(l+1)/2+m-1)+j-l
               
               if (l > m+0) then
                 cleb1 = cleb1_fn(j,m,1,-1,l,m-1)
                 cleb2 = cleb1_fn(j,m,1,+1,l,m+1)
                 cleb3 = cleb1_fn(j,m,1, 0,l,m  )
                 
-                cc(1,mj) = cc(1,mj) + cajml(lm  ) * cleb1
-                cc(2,mj) = cc(2,mj) + cajml(lm+6) * cleb2
-                cc(3,mj) = cc(3,mj) + cajml(lm+3) * cleb3
-                cc(4,mj) = cc(4,mj) + cbjml(lm  ) * cleb1
-                cc(5,mj) = cc(5,mj) + cbjml(lm+6) * cleb2
-                cc(6,mj) = cc(6,mj) + cbjml(lm+3) * cleb3
+                cc(1,mj) = cc(1,mj) + cajml(lmj  ) * cleb1
+                cc(2,mj) = cc(2,mj) + cajml(lmj+6) * cleb2
+                cc(3,mj) = cc(3,mj) + cajml(lmj+3) * cleb3
+                cc(4,mj) = cc(4,mj) + cbjml(lmj  ) * cleb1
+                cc(5,mj) = cc(5,mj) + cbjml(lmj+6) * cleb2
+                cc(6,mj) = cc(6,mj) + cbjml(lmj+3) * cleb3
                 
               else if (l > m-1) then
                 cleb1 = cleb1_fn(j,m,1,-1,l,m-1)
                 cleb3 = cleb1_fn(j,m,1, 0,l,m  )
                 
-                cc(1,mj) = cc(1,mj) + cajml(lm  ) * cleb1
-                cc(3,mj) = cc(3,mj) + cajml(lm+3) * cleb3
-                cc(4,mj) = cc(4,mj) + cbjml(lm  ) * cleb1
-                cc(6,mj) = cc(6,mj) + cbjml(lm+3) * cleb3
+                cc(1,mj) = cc(1,mj) + cajml(lmj  ) * cleb1
+                cc(3,mj) = cc(3,mj) + cajml(lmj+3) * cleb3
+                cc(4,mj) = cc(4,mj) + cbjml(lmj  ) * cleb1
+                cc(6,mj) = cc(6,mj) + cbjml(lmj+3) * cleb3
                 
               else
                 cleb1 = cleb1_fn(j,m,1,-1,l,m-1)
                 
-                cc(1,mj) = cc(1,mj) + cajml(lm) * cleb1
-                cc(4,mj) = cc(4,mj) + cbjml(lm) * cleb1
+                cc(1,mj) = cc(1,mj) + cajml(lmj) * cleb1
+                cc(4,mj) = cc(4,mj) + cbjml(lmj) * cleb1
               end if
             end do
           end if
@@ -79,10 +77,10 @@ submodule (SphericalHarmonics) vcvv
         end do
       end do
     
-    allocate( pmm(step), pmj(step), pmj1(step), pmj2(step), cosx(step), fftLege(step), sumLegendreN(6,step,0:this%maxj), &
-            & sumLegendreS(6,step,0:this%maxj), fft(step,0:this%nFourier-1), grid(6,step,0:this%nFourier-1),             &
-            & sumFourierN(step,0:this%jmax+1), sumFourierS(step,0:this%jmax+1), sinx(step), cr(this%jms1), &
-            & symF(step), asymF(step), symL(step,6), asymL(step,6)) ; cr = czero
+    allocate( pmm(step), pmj(step), pmj1(step), pmj2(step), cosx(step), sinx(step), fftLege(step), symL(step,6), asymL(step,6),  & 
+            & sumLegendreN(6,step,0:this%maxj), sumLegendreS(6,step,0:this%maxj), grid(6,step,0:this%nFourier-1), cr(this%jms1), &
+            & fft(step,0:this%nFourier-1), sumFourierN(step,0:this%jmax+1), sumFourierS(step,0:this%jmax+1), symF(step),         &
+            & asymF(step) ) ; cr = czero
     
     do i = 1, this%nLegendre, step
       cosx    = this%roots(i:i+step-1)
@@ -149,8 +147,7 @@ submodule (SphericalHarmonics) vcvv
         end do
         
       do m = 1, this%maxj
-        fac = -sqrt( ( 2*m+1 ) / ( 2._dbl*m ) )
-        pmm = fac * sinx * pmm ; if (maxval(abs(pmm)) < this%tolm) exit
+        fac = -sqrt( ( 2*m+1 ) / ( 2._dbl*m ) ) ; pmm = fac * sinx * pmm ; if (maxval(abs(pmm)) < this%tolm) exit
         
         pmj2 = 0._dbl
         pmj1 = 0._dbl
@@ -207,15 +204,23 @@ submodule (SphericalHarmonics) vcvv
       end do
       
       call this%fourtrans%exec_c2r_sub(6*step, this%maxj+1, sumLegendreN, grid)
-        do concurrent ( i1=0:this%nFourier-1, i2=1:step )
-          fft(i2,i1) = grid(1,i2,i1) * grid(4,i2,i1) + grid(2,i2,i1) * grid(5,i2,i1) + grid(3,i2,i1) * grid(6,i2,i1)
-        end do
+      
+      do concurrent ( i1=0:this%nFourier-1, i2=1:step )
+        fft(i2,i1) = grid(1,i2,i1) * grid(4,i2,i1) + &
+                   & grid(2,i2,i1) * grid(5,i2,i1) + &
+                   & grid(3,i2,i1) * grid(6,i2,i1)
+      end do
+      
       call this%fourtrans%exec_r2c_sub(step, this%maxj, fft, sumFourierN)
       
       call this%fourtrans%exec_c2r_sub(6*step, this%maxj+1, sumLegendreS, grid)
-        do concurrent ( i1=0:this%nFourier-1, i2=1:step )
-          fft(i2,i1) = grid(1,i2,i1) * grid(4,i2,i1) + grid(2,i2,i1) * grid(5,i2,i1) + grid(3,i2,i1) * grid(6,i2,i1)
-        end do
+      
+      do concurrent ( i1=0:this%nFourier-1, i2=1:step )
+        fft(i2,i1) = grid(1,i2,i1) * grid(4,i2,i1) + &
+                   & grid(2,i2,i1) * grid(5,i2,i1) + &
+                   & grid(3,i2,i1) * grid(6,i2,i1)
+      end do
+      
       call this%fourtrans%exec_r2c_sub(step, this%maxj, fft, sumFourierS)
       
       pmm  = 1._dbl
@@ -262,8 +267,7 @@ submodule (SphericalHarmonics) vcvv
         end if
         
       do m = 1, this%jmax+1
-        fac = -sqrt( ( 2*m+1 ) / ( 2._dbl*m ) )
-        pmm = fac * sinx * pmm
+        fac = -sqrt( ( 2*m+1 ) / ( 2._dbl*m ) ) ; pmm = fac * sinx * pmm
         
         pmj2 = 0._dbl
         pmj1 = 0._dbl
@@ -306,24 +310,24 @@ submodule (SphericalHarmonics) vcvv
         end if
       end do
     end do
-
+    
     deallocate( cc, fft, sumFourierN, sumFourierS, pmm, pmj, pmj1, pmj2, cosx, sinx, sumLegendreN, sumLegendreS, &
-              &fftLege, grid, symL, asymL, symF, asymF )
-
+              & fftLege, grid, symL, asymL, symF, asymF )
+    
     fac = 1 / (16 * this%nLegendre**2 * sqrt(pi) )
-
+    
     do j = 0, this%jmax
       m = 0
         cjm(j*(j+1)/2+m+1)%re = cr(m*(this%maxj)-m*(m+1)/2+j+1)%re * fac
         cjm(j*(j+1)/2+m+1)%im = 0._dbl
-
+      
       do m = 1, j
         cjm(j*(j+1)/2+m+1) = cr(m*(this%maxj)-m*(m+1)/2+j+1) * fac
       end do
     end do
-
+    
     deallocate(cr)
-
+    
   end subroutine vcvv_sub
   
 end submodule vcvv
