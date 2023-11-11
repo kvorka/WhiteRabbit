@@ -314,19 +314,19 @@ module PhysicalObject
       logical,                 intent(in)           :: rematrix, matxsol
     end subroutine solve_mech_sub
     
-    module real(kind=dbl) function nuss_fn(this)
+    module pure real(kind=dbl) function nuss_fn(this)
       class(T_physicalObject), intent(in) :: this
     end function nuss_fn
     
-    module real(kind=dbl) function reynolds_fn(this)
+    module pure real(kind=dbl) function reynolds_fn(this)
       class(T_physicalObject), intent(in) :: this
     end function reynolds_fn
     
-    module real(kind=dbl) function nonzon_reynolds_fn(this)
+    module pure real(kind=dbl) function nonzon_reynolds_fn(this)
       class(T_physicalObject), intent(in) :: this
     end function nonzon_reynolds_fn
     
-    module real(kind=dbl) function volume_heating_fn(this)
+    module pure real(kind=dbl) function volume_heating_fn(this)
       class(T_physicalObject), intent(in) :: this
     end function volume_heating_fn
     

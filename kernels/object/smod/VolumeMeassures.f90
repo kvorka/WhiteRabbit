@@ -1,15 +1,14 @@
 submodule (PhysicalObject) VolumeMeassures
-  implicit none
-  contains
+  implicit none ; contains
   
-  real(kind=dbl) function nuss_fn(this)
+  module pure real(kind=dbl) function nuss_fn(this)
     class(T_physicalObject), intent(in) :: this
     
     nuss_fn = c2r_fn( -this%sol%flux_fn(this%nd,1,1) ) / this%r_ud / sqrt(4*pi)
     
   end function nuss_fn
   
-  real(kind=dbl) function reynolds_fn(this)
+  module pure real(kind=dbl) function reynolds_fn(this)
     class(T_physicalObject), intent(in) :: this
     integer                             :: ir
     real(kind=dbl),         allocatable :: field_vals(:)
@@ -26,7 +25,7 @@ submodule (PhysicalObject) VolumeMeassures
     
   end function reynolds_fn
   
-  real(kind=dbl) function nonzon_reynolds_fn(this)
+  module pure real(kind=dbl) function nonzon_reynolds_fn(this)
     class(T_physicalObject), intent(in) :: this
     integer                             :: ir
     real(kind=dbl),         allocatable :: field_vals(:)
@@ -43,7 +42,7 @@ submodule (PhysicalObject) VolumeMeassures
     
   end function nonzon_reynolds_fn
   
-  real(kind=dbl) function volume_heating_fn(this)
+  module pure real(kind=dbl) function volume_heating_fn(this)
     class(T_physicalObject), intent(in) :: this
     integer                             :: ir
     real(kind=dbl),         allocatable :: field_vals(:)
