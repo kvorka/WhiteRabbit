@@ -1,6 +1,7 @@
 #!/bin/bash
 compiler=gfortran-12
 optimization=Ofast
+arch=march=native
 
 #vyber z moznosti
 code_ice="ice"
@@ -17,7 +18,7 @@ rm -r -f data || true
 mkdir data
 
 #kompilacia zakladov programu
-./kernels/compileBaseLine $compiler $optimization
+./kernels/compileBaseLine $compiler $optimization $arch
 
 if [ "$code_type" = "$code_oceanIce" ]; then
 mkdir data/data_ice_topo

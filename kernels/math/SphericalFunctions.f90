@@ -6,28 +6,28 @@ module Spherical_func
   
   contains
   
-  pure integer function jm(ij, im)
+  module pure integer function jm(ij, im)
     integer, intent(in) :: ij, im
     
     jm = ij*(ij+1)/2+im+1
     
   end function jm
   
-  pure integer function jml(ij, im, il)
+  module pure integer function jml(ij, im, il)
     integer, intent(in) :: ij, im, il
     
     jml = 3*(ij*(ij+1)/2+im)+il
     
   end function jml
   
-  pure integer function jml2(ij, im, il)
+  module pure integer function jml2(ij, im, il)
     integer, intent(in) :: ij, im, il
     
     jml2 = 5*(ij*(ij+1)/2+im)+il-1
     
   end function jml2
   
-  pure function ervs_fn(np, cajml) result(cjm)
+  module pure function ervs_fn(np, cajml) result(cjm)
     integer,           intent(in)  :: np
     complex(kind=dbl), intent(in)  :: cajml(:)
     complex(kind=dbl), allocatable :: cjm(:)
@@ -49,7 +49,7 @@ module Spherical_func
     
   end function ervs_fn
   
-  pure function ersv_fn(np, cajm) result(cjml)
+  module pure function ersv_fn(np, cajm) result(cjml)
     integer,           intent(in)  :: np
     complex(kind=dbl), intent(in)  :: cajm(:)
     complex(kind=dbl), allocatable :: cjml(:)
@@ -72,7 +72,7 @@ module Spherical_func
     
   end function ersv_fn
   
-  pure function ervv_fn(np, cajml) result(cjml)
+  module pure function ervv_fn(np, cajml) result(cjml)
     integer,           intent(in)  :: np
     complex(kind=dbl), intent(in)  :: cajml(:)
     complex(kind=dbl), allocatable :: cjml(:)
@@ -96,7 +96,7 @@ module Spherical_func
     
   end function ervv_fn
   
-  pure function ezvv_fn(np, cajml) result(cjml)
+  module pure function ezvv_fn(np, cajml) result(cjml)
     integer,           intent(in)  :: np
     complex(kind=dbl), intent(in)  :: cajml(:)
     complex(kind=dbl), allocatable :: cjml(:)
@@ -148,7 +148,7 @@ module Spherical_func
     
   end function ezvv_fn
   
-  pure subroutine ezvv_sub(np, fac, cajml, cjml)
+  module pure subroutine ezvv_sub(np, fac, cajml, cjml)
     integer,           intent(in)    :: np
     real(kind=dbl),    intent(in)    :: fac
     complex(kind=dbl), intent(in)    :: cajml(:)
@@ -217,7 +217,7 @@ module Spherical_func
       
   end subroutine ezvv_sub
   
-  pure real(kind=dbl) function snorm_fn(np, cajm)
+  module pure real(kind=dbl) function snorm_fn(np, cajm)
     integer,           intent(in) :: np
     complex(kind=dbl), intent(in) :: cajm(:)
     integer                       :: ij
@@ -233,7 +233,7 @@ module Spherical_func
     
   end function snorm_fn
   
-  pure real(kind=dbl) function vnorm_fn(np, cajml)
+  module pure real(kind=dbl) function vnorm_fn(np, cajml)
     integer,           intent(in) :: np
     complex(kind=dbl), intent(in) :: cajml(:)
     integer                       :: ij
@@ -249,7 +249,7 @@ module Spherical_func
     
   end function vnorm_fn
   
-  pure real(kind=dbl) function tnorm_fn(np, cajml2)
+  module pure real(kind=dbl) function tnorm_fn(np, cajml2)
     integer,           intent(in) :: np
     complex(kind=dbl), intent(in) :: cajml2(:)
     integer                       :: ij
@@ -265,7 +265,7 @@ module Spherical_func
     
   end function tnorm_fn
   
-  pure real(kind=dbl) function scalproduct_fn(np, cajm, cbjm)
+  module pure real(kind=dbl) function scalproduct_fn(np, cajm, cbjm)
     integer,           intent(in) :: np
     complex(kind=dbl), intent(in) :: cajm(:), cbjm(:)
     integer                       :: ij
@@ -279,7 +279,7 @@ module Spherical_func
     
   end function scalproduct_fn
   
-  pure real(kind=dbl) function dotproduct_fn(np, cajml, cbjml)
+  module pure real(kind=dbl) function dotproduct_fn(np, cajml, cbjml)
     integer,           intent(in) :: np
     complex(kind=dbl), intent(in) :: cajml(:), cbjml(:)
     integer                       :: ij

@@ -8,7 +8,7 @@ module Vector_analysis
   
   contains
   
-  subroutine vec2scals_sub(jmax_in, vec, x, y, z)
+  module pure subroutine vec2scals_sub(jmax_in, vec, x, y, z)
     integer,           intent(in)  :: jmax_in
     complex(kind=dbl), intent(in)  :: vec(:)
     complex(kind=dbl), intent(out) :: x(:), y(:), z(:)
@@ -64,7 +64,7 @@ module Vector_analysis
     
   end subroutine vec2scals_sub
   
-  subroutine vecxyz2rtp_sub(theta, phi, vx, vy, vz, vr, vth, vph)
+  module pure subroutine vecxyz2rtp_sub(theta, phi, vx, vy, vz, vr, vth, vph)
     real(kind=dbl), intent(in)  :: theta, phi, vx, vy, vz
     real(kind=dbl), intent(out) :: vr, vth, vph
     real(kind=dbl)              :: cph, sph, ct, st

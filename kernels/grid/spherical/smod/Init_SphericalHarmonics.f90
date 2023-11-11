@@ -1,9 +1,7 @@
 submodule (SphericalHarmonics) Init_SphericalHarmonics
-  implicit none
+  implicit none ; contains
   
-  contains
-  
-  subroutine init_harmonics_sub(this, jmax)
+  module pure subroutine init_harmonics_sub(this, jmax)
     class(T_lateralGrid), intent(inout) :: this
     integer,              intent(in)    :: jmax
     integer                             :: i, k, j, m, n, ncnt
@@ -93,7 +91,7 @@ submodule (SphericalHarmonics) Init_SphericalHarmonics
     
   end subroutine init_harmonics_sub
   
-  subroutine deallocate_harmonics_sub(this)
+  module pure subroutine deallocate_harmonics_sub(this)
     class(T_lateralGrid), intent(inout) :: this
     
     call this%fourtrans%deallocate_sub()

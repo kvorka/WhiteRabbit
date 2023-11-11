@@ -20,12 +20,12 @@ module SphericalHarmonics
   end type T_lateralGrid
   
   interface
-    module subroutine init_harmonics_sub(this, jmax)
+    module pure subroutine init_harmonics_sub(this, jmax)
       class(T_lateralGrid), intent(inout) :: this
       integer,              intent(in)    :: jmax
     end subroutine init_harmonics_sub
     
-    module subroutine deallocate_harmonics_sub(this)
+    module pure subroutine deallocate_harmonics_sub(this)
       class(T_lateralGrid), intent(inout) :: this
     end subroutine deallocate_harmonics_sub
     

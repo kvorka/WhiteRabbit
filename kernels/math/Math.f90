@@ -18,7 +18,7 @@ module Math
   
   contains
   
-  function int2str_fn(n) result(str)
+  module pure function int2str_fn(n) result(str)
     integer,          intent(in) :: n
     character(len=10)            :: str 
     
@@ -26,21 +26,21 @@ module Math
     
   end function int2str_fn
   
-  elemental real(kind=dbl) function i2r_fn(ix)
+  module elemental real(kind=dbl) function i2r_fn(ix)
     integer, intent(in) :: ix
     
     i2r_fn = real(ix, kind=dbl)
     
   end function i2r_fn
   
-  elemental complex(kind=dbl) function r2c_fn(x)
+  module elemental complex(kind=dbl) function r2c_fn(x)
     real(kind=dbl), intent(in) :: x
     
     r2c_fn = cmplx(x, zero, kind=dbl)
     
   end function r2c_fn
   
-  elemental real(kind=dbl) function c2r_fn(cx)
+  module elemental real(kind=dbl) function c2r_fn(cx)
     complex(kind=dbl), intent(in) :: cx
     
     c2r_fn = real(cx, kind=dbl)

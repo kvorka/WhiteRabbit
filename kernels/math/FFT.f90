@@ -11,13 +11,13 @@ module FFT_mod
     
     contains
     
-    procedure, pass, public :: init_sub       => fft_init_sub
-    procedure, pass, public :: exec_r2c_sub   => fft_r2c_exec_sub
-    procedure, pass, public :: exec_c2r_sub   => fft_c2r_exec_sub
-    procedure, pass, public :: deallocate_sub => fft_deallocate_sub
+    procedure :: init_sub       => fft_init_sub
+    procedure :: exec_r2c_sub   => fft_r2c_exec_sub
+    procedure :: exec_c2r_sub   => fft_c2r_exec_sub
+    procedure :: deallocate_sub => fft_deallocate_sub
     
-    procedure, pass, private :: fft_r2c_sub
-    procedure, pass, private :: fft_c2r_sub
+    procedure, private :: fft_r2c_sub
+    procedure, private :: fft_c2r_sub
     
   end type T_fft
   
@@ -34,10 +34,10 @@ module FFT_mod
   
   contains
   
-  subroutine fft_init_sub(this, n)
-    class(T_fft),   intent(out) :: this
-    integer,        intent(in)  :: n
-    integer                     :: i
+  module pure subroutine fft_init_sub(this, n)
+    class(T_fft),   intent(inout) :: this
+    integer,        intent(in)    :: n
+    integer                       :: i
     
     this%n = n
       allocate( this%it(n/2)  ) ; this%it = 0
@@ -52,7 +52,7 @@ module FFT_mod
     
   end subroutine fft_init_sub
   
-  pure subroutine fft_r2c_exec_sub(this, m, np, x, cx)
+  module pure subroutine fft_r2c_exec_sub(this, m, np, x, cx)
     class(T_fft),      intent(in)    :: this
     integer,           intent(in)    :: m, np
     real(kind=dbl),    intent(inout) :: x(m,this%n)
@@ -73,7 +73,7 @@ module FFT_mod
     
   end subroutine fft_r2c_exec_sub
   
-  pure subroutine fft_c2r_exec_sub(this, m, np, cx, x)
+  module pure subroutine fft_c2r_exec_sub(this, m, np, cx, x)
     class(T_fft),      intent(in)  :: this
     integer,           intent(in)  :: m, np
     complex(kind=dbl), intent(in)  :: cx(m,np)
@@ -91,7 +91,7 @@ module FFT_mod
     
   end subroutine fft_c2r_exec_sub
   
-  pure subroutine fft_r2c_sub(this, m, x)
+  module pure subroutine fft_r2c_sub(this, m, x)
     class(T_fft),      intent(in)    :: this
     integer,           intent(in)    :: m
     real(kind=dbl),    intent(inout) :: x(m,2,0:this%n/2-1)
@@ -178,7 +178,7 @@ module FFT_mod
     
   end subroutine fft_r2c_sub
   
-  pure subroutine fft_c2r_sub(this, m, x)
+  module pure subroutine fft_c2r_sub(this, m, x)
     class(T_fft),      intent(in)    :: this
     integer,           intent(in)    :: m
     real(kind=dbl),    intent(inout) :: x(m,2,0:this%n/2-1)
@@ -262,7 +262,7 @@ module FFT_mod
     
   end subroutine fft_c2r_sub
   
-  subroutine fft_deallocate_sub(this)
+  module pure subroutine fft_deallocate_sub(this)
     class(T_fft), intent(inout) :: this
     
     if ( allocated( this%it ) ) deallocate( this%it )
@@ -270,7 +270,7 @@ module FFT_mod
     
   end subroutine fft_deallocate_sub
   
-  subroutine fxzini(n, it, t)
+  module pure subroutine fxzini(n, it, t)
     integer,        intent(in)  :: n
     integer,        intent(out) :: it(n)
     real(kind=dbl), intent(out) :: t(2,0:n-1)
@@ -292,10 +292,6 @@ module FFT_mod
           end if
         end do
       end do
-    
-    if ( j /= 1 ) then
-      write(*,*) "*** error in fft init: n /= (2**P)*(3**Q)*(5**R)" ; stop
-    end if
     
     itw = 0 ; k = n ; l = 1
       do ipc = 4, 1, -1
@@ -371,11 +367,11 @@ module FFT_mod
         end if
       end do
       
-    deallocate( itw , iw )
+    deallocate( ipn, itc, itw , iw )
     
   end subroutine fxzini
   
-  pure recursive subroutine fxztal(m, k, l, x, t, ic, itsum, is, j1, it1)
+  module pure recursive subroutine fxztal(m, k, l, x, t, ic, itsum, is, j1, it1)
     integer,        intent(in)    :: m, k, l, ic, itsum, is, j1, it1
     real(kind=dbl), intent(in)    :: t(2,0:*)
     real(kind=dbl), intent(inout) :: x(m,2,0:*)
@@ -423,7 +419,7 @@ module FFT_mod
     
   end subroutine fxztal
   
-  pure subroutine fxzm2a(m, k, l, x, t)
+  module pure subroutine fxzm2a(m, k, l, x, t)
     integer,     intent(in)    :: m, k, l
     real(kind=dbl), intent(in)    :: t(2,0:*)
     real(kind=dbl), intent(inout) :: x(m,2,l/2,0:1,0:k-1)
@@ -441,7 +437,7 @@ module FFT_mod
   
   end subroutine fxzm2a
   
-  pure subroutine fxzm2b(m, l, x)
+  module pure subroutine fxzm2b(m, l, x)
     integer,        intent(in)    :: m, l
     real(kind=dbl), intent(inout) :: x(m,2,l/2,0:1)
     integer                       :: i, iv
@@ -453,7 +449,7 @@ module FFT_mod
     
   end subroutine fxzm2b
   
-  pure subroutine fxzm3a(m, k, l, x, t)
+  module pure subroutine fxzm3a(m, k, l, x, t)
     integer,        intent(in)    :: m, k, l
     real(kind=dbl), intent(in)    :: t(2,0:*)
     real(kind=dbl), intent(inout) :: x(m,2,l/3,0:2,0:k-1)
@@ -484,7 +480,7 @@ module FFT_mod
     
   end subroutine fxzm3a
   
-  pure subroutine fxzm3b(m, l, x)
+  module pure subroutine fxzm3b(m, l, x)
     integer,        intent(in)    :: m, l
     real(kind=dbl), intent(inout) :: x(m,2,l/3,0:2)
     integer                       :: i, iv
@@ -502,7 +498,7 @@ module FFT_mod
     
   end subroutine fxzm3b
   
-  pure subroutine fxzm4a(m, k, l, x, t)
+  module pure subroutine fxzm4a(m, k, l, x, t)
     integer,        intent(in)    :: m, k, l
     REAL(kind=dbl), intent(in)    :: t(2,0:*)
     real(kind=dbl), intent(inout) :: x(m,2,l/4,0:3,0:k-1)
@@ -536,7 +532,7 @@ module FFT_mod
     
   end subroutine fxzm4a
   
-  pure subroutine fxzm4b(m, l, x)
+  module pure subroutine fxzm4b(m, l, x)
     integer,        intent(in)    :: m, l
     real(kind=dbl), intent(inout) :: x(m,2,l/4,0:3)
     integer                       :: i, iv
@@ -556,7 +552,7 @@ module FFT_mod
   
   end subroutine fxzm4b
   
-  pure subroutine fxzm5a(m, k, l, x, t)
+  module pure subroutine fxzm5a(m, k, l, x, t)
     integer,        intent(in)    :: m, k, l
     real(kind=dbl), intent(in)    :: t(2,0:*)
     real(kind=dbl), intent(inout) :: x(m,2,l/5,0:4,0:k-1)
@@ -602,7 +598,7 @@ module FFT_mod
   
   end subroutine fxzm5a
   
-  pure subroutine fxzm5b(m, l, x)
+  module pure subroutine fxzm5b(m, l, x)
     integer,        intent(in)    :: m, l
     real(kind=dbl), intent(inout) :: x(m,2,l/5,0:4)
     integer                       :: i, iv
