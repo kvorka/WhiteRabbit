@@ -1,9 +1,7 @@
 submodule (RadialGrid) Differences
-  implicit none
+  implicit none ; contains
   
-  contains
-  
-  pure real(kind=dbl) function d(this, i, p)
+  module pure real(kind=dbl) function d(this, i, p)
     class(T_radialGrid), intent(in) :: this
     integer,             intent(in) :: i, p
     
@@ -85,8 +83,8 @@ submodule (RadialGrid) Differences
     end if
 
   end function d
-
-  pure real(kind=dbl) function c(this, i, p)
+  
+  module pure real(kind=dbl) function c(this, i, p)
     class(T_radialGrid), intent(in) :: this
     integer,             intent(in) :: i, p
     
@@ -100,8 +98,8 @@ submodule (RadialGrid) Differences
     end select
     
   end function c
-
-  pure real(kind=dbl) function dd(this, i, p)
+  
+  module pure real(kind=dbl) function dd(this, i, p)
     class(T_radialGrid), intent(in) :: this
     integer,             intent(in) :: i, p
     
@@ -183,8 +181,8 @@ submodule (RadialGrid) Differences
     end if
 
   end function dd
-
-  pure real(kind=dbl) function cc(this, i, p)
+  
+  module pure real(kind=dbl) function cc(this, i, p)
     class(T_radialGrid), intent(in) :: this
     integer,             intent(in) :: i, p
     
@@ -198,8 +196,8 @@ submodule (RadialGrid) Differences
     end select
     
   end function cc
-
-  pure real(kind=dbl) function drr(this, i, p)
+  
+  module pure real(kind=dbl) function drr(this, i, p)
     class(T_radialGrid), intent(in) :: this
     integer,             intent(in) :: i, p
     
@@ -217,5 +215,5 @@ submodule (RadialGrid) Differences
     end select
     
   end function drr
-
+  
 end submodule Differences

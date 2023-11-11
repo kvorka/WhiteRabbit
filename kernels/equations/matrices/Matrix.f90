@@ -6,20 +6,20 @@ module Matrix
     integer                     :: n, ns, nu
     real(kind=dbl), allocatable :: M(:,:), U(:,:), L(:,:)
     integer,        allocatable :: I(:)
-
+    
     contains
-
-    procedure, public, pass :: init_sub       => initMatrix_sub
-    procedure, public, pass :: fill_sub       => fillMatrix_sub
-    procedure, public, pass :: luSolve_sub    => luSolutionMatrix_sub
-    procedure, public, pass :: multipl_fn     => matrixMultiple_fn
-    procedure, public, pass :: deallocate_sub => deallocateMatrix_sub
-
+    
+    procedure :: init_sub       => initMatrix_sub
+    procedure :: fill_sub       => fillMatrix_sub
+    procedure :: luSolve_sub    => luSolutionMatrix_sub
+    procedure :: multipl_fn     => matrixMultiple_fn
+    procedure :: deallocate_sub => deallocateMatrix_sub
+    
   end type T_matrix
-
+  
   contains
   
-  subroutine initMatrix_sub(this, n, ns, nu)
+  module pure subroutine initMatrix_sub(this, n, ns, nu)
     class(T_matrix), intent(inout) :: this
     integer,         intent(in)    :: n, ns, nu
 
@@ -29,8 +29,8 @@ module Matrix
     this%M = 0._dbl; this%U = 0._dbl; this%L = 0._dbl; this%I = 0
 
   end subroutine initMatrix_sub
-
-  subroutine fillMatrix_sub(this, matrixU, matrixM)
+  
+  module pure subroutine fillMatrix_sub(this, matrixU, matrixM)
     class(T_matrix), intent(inout) :: this
     real(kind=dbl),  intent(in)    :: matrixU(:,:), matrixM(:,:)
 
@@ -39,7 +39,7 @@ module Matrix
 
   end subroutine fillMatrix_sub
   
-  subroutine luSolutionMatrix_sub(this, b)
+  module pure subroutine luSolutionMatrix_sub(this, b)
     class(T_matrix),   intent(in)    :: this
     complex(kind=dbl), intent(inout) :: b(:)
     integer                          :: i, j, k, ldu
@@ -63,8 +63,8 @@ module Matrix
     end do
 
   end subroutine luSolutionMatrix_sub
-
-  pure complex(kind=dbl) function matrixMultiple_fn(this, i, vector)
+  
+  module pure complex(kind=dbl) function matrixMultiple_fn(this, i, vector)
     class(T_matrix),   intent(in) :: this
     integer,           intent(in) :: i
     complex(kind=dbl), intent(in) :: vector(:)
@@ -78,12 +78,12 @@ module Matrix
     matrixMultiple_fn = sum( this%M( indM1 : indM2, i ) * vector( indV1 : indV2 ) )
 
   end function matrixMultiple_fn
-
-  subroutine deallocateMatrix_sub(this)
+  
+  module pure subroutine deallocateMatrix_sub(this)
     class(T_matrix), intent(inout) :: this
 
     deallocate(this%M, this%U, this%L, this%I)
 
   end subroutine deallocateMatrix_sub
-
+  
 end module Matrix

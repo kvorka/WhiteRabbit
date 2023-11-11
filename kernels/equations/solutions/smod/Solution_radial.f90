@@ -1,8 +1,7 @@
 submodule(Solution) Solution_radial
-
-  contains
-
-  pure function temp_i_fn(this, ijm) result(temp)
+  implicit none ; contains
+  
+  module pure function temp_i_fn(this, ijm) result(temp)
     class(T_solution), intent(in)  :: this
     integer,           intent(in)  :: ijm
     integer                        :: ir, is
@@ -18,7 +17,7 @@ submodule(Solution) Solution_radial
     
   end function temp_i_fn
   
-  pure function flux_i_fn(this, il, ijm) result(flux)
+  module pure function flux_i_fn(this, il, ijm) result(flux)
     class(T_solution), intent(in)  :: this
     integer,           intent(in)  :: il, ijm
     integer                        :: ir, is
@@ -44,8 +43,8 @@ submodule(Solution) Solution_radial
     end if
     
   end function flux_i_fn
-
-  pure function velocity_i_fn(this, il, ijm) result(velocity)
+  
+  module pure function velocity_i_fn(this, il, ijm) result(velocity)
     class(T_solution), intent(in)  :: this
     integer,           intent(in)  :: il, ijm
     integer                        :: ir, is
@@ -57,33 +56,33 @@ submodule(Solution) Solution_radial
       case (-1)
         if ( this%initsfer ) then
           do concurrent ( ir = 1:this%nd+1 )
-            is = 6*(i-1)+1 ; velocity(ir) = this%mech(is,ijm)
+            is = 6*(ir-1)+1 ; velocity(ir) = this%mech(is,ijm)
           end do
         end if
       
       case (0)
         if ( this%inittorr ) then
           do concurrent ( ir = 1:this%nd+1 )
-            is = 3*(i-1)+1 ; velocity(ir) = this%torr(is,ijm)
+            is = 3*(ir-1)+1 ; velocity(ir) = this%torr(is,ijm)
           end do
         end if
       
       case (+1)
         if ( this%initsfer ) then
           do concurrent ( ir = 1:this%nd+1 )
-            is = 6*(i-1)+1 ; velocity(ir) = this%mech(is+1,ijm)
+            is = 6*(ir-1)+1 ; velocity(ir) = this%mech(is+1,ijm)
           end do
         end if
     end select
-
+    
   end function velocity_i_fn
-
-  pure function deviatoric_stress_i_fn(this, il, ijm) result(dstress)
+  
+  module pure function deviatoric_stress_i_fn(this, il, ijm) result(dstress)
     class(T_solution), intent(in)  :: this
     integer,           intent(in)  :: il, ijm
     integer                        :: ir, is
     complex(kind=dbl), allocatable :: dstress(:)
-
+    
     allocate( dstress(this%nd) ) ; dstress = czero
     
     if ( ijm >= 2 ) then
@@ -124,7 +123,7 @@ submodule(Solution) Solution_radial
           end if
       end select
     end if
-
+    
   end function deviatoric_stress_i_fn
 
 end submodule Solution_radial

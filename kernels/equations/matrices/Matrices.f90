@@ -9,15 +9,15 @@ module Matrices
     
     contains
     
-    procedure, pass :: init_sub       => init_matrices_sub
-    procedure, pass :: deallocate_sub => deallocate_matrices_sub
-    procedure, pass :: init_mtemp_sub, init_mtorr_sub, init_mmech_sub
+    procedure :: init_sub       => init_matrices_sub
+    procedure :: deallocate_sub => deallocate_matrices_sub
+    procedure :: init_mtemp_sub, init_mtorr_sub, init_mmech_sub
     
   end type T_matrices
   
   contains
   
-  subroutine init_matrices_sub(this, nd, jmax, grid_type)
+  module pure subroutine init_matrices_sub(this, nd, jmax, grid_type)
     class(T_matrices), intent(inout) :: this
     integer,           intent(in)    :: nd, jmax
     character(len=*),  intent(in)    :: grid_type
@@ -28,7 +28,7 @@ module Matrices
     
   end subroutine init_matrices_sub
   
-  subroutine init_mtemp_sub(this)
+  module pure subroutine init_mtemp_sub(this)
     class(T_matrices), intent(inout) :: this
     integer                          :: j
     
@@ -48,7 +48,7 @@ module Matrices
     
   end subroutine init_mtemp_sub
   
-  subroutine init_mtorr_sub(this)
+  module pure subroutine init_mtorr_sub(this)
     class(T_matrices), intent(inout) :: this
     integer                          :: j
     
@@ -68,7 +68,7 @@ module Matrices
     
   end subroutine init_mtorr_sub
   
-  subroutine init_mmech_sub(this)
+  module pure subroutine init_mmech_sub(this)
     class(T_matrices), intent(inout) :: this
     integer                          :: j
     
@@ -88,7 +88,7 @@ module Matrices
       
   end subroutine init_mmech_sub
   
-  subroutine deallocate_matrices_sub(this)
+  module pure subroutine deallocate_matrices_sub(this)
     class(T_matrices), intent(inout) :: this
     integer                          :: j
     

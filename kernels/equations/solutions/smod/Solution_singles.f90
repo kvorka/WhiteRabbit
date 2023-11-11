@@ -1,9 +1,7 @@
 submodule(Solution) Solution_singles
-  implicit none
+  implicit none ; contains
   
-  contains
-  
-  pure complex(kind=dbl) function temp_fn(this, ir, ijm)
+  module pure complex(kind=dbl) function temp_fn(this, ir, ijm)
     class(T_solution), intent(in) :: this
     integer,           intent(in) :: ir, ijm
     integer                       :: is
@@ -16,27 +14,23 @@ submodule(Solution) Solution_singles
     
   end function temp_fn
   
-  pure complex(kind=dbl) function flux_fn(this, ir, il, ijm)
+  module pure complex(kind=dbl) function flux_fn(this, ir, il, ijm)
     class(T_solution), intent(in) :: this
     integer,           intent(in) :: ir, il, ijm
     integer                       :: is
     
-    flux_fn = czero
-    
-    is = 3*(ir-1)+1
+    flux_fn = czero ; is = 3*(ir-1)+1
     
     select case (il)
       case (-1)
         if ( this%inittemp ) flux_fn = this%temp(is+1,ijm)
-      case ( 0)
-        flux_fn = czero
       case (+1)
         if ( this%inittemp ) flux_fn = this%temp(is+2,ijm)
     end select
     
   end function flux_fn
   
-  pure complex(kind=dbl) function velocity_fn(this, ir, il, ijm)
+  module pure complex(kind=dbl) function velocity_fn(this, ir, il, ijm)
     class(T_solution), intent(in) :: this
     integer,           intent(in) :: ir, ijm, il
     integer                       :: isp, ist
@@ -59,7 +53,7 @@ submodule(Solution) Solution_singles
     
   end function velocity_fn
   
-  pure complex(kind=dbl) function deviatoric_stress_fn(this, ir, il, ijm)
+  module pure complex(kind=dbl) function deviatoric_stress_fn(this, ir, il, ijm)
     class(T_solution), intent(in) :: this
     integer,           intent(in) :: ir, ijm, il
     integer                       :: isp, ist

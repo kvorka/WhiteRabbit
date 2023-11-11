@@ -1,9 +1,7 @@
 submodule (RadialGrid) Init_RadialGrid
-  implicit none
+  implicit none ; contains
   
-  contains
-  
-  subroutine init_grid_sub(this, nr, rd, ru, grid_type)
+  module pure subroutine init_grid_sub(this, nr, rd, ru, grid_type)
     class(T_radialGrid), intent(inout) :: this
     integer,             intent(in)    :: nr
     real(kind=dbl),      intent(in)    :: rd, ru
@@ -28,7 +26,7 @@ submodule (RadialGrid) Init_RadialGrid
     
   end subroutine init_grid_sub
   
-  subroutine deallocate_grid_sub(this)
+  module pure subroutine deallocate_grid_sub(this)
     class(T_radialGrid), intent(inout) :: this
     
     if ( allocated(this%r)  ) deallocate( this%r  )

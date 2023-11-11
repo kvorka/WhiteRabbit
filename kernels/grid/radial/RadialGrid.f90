@@ -9,10 +9,10 @@ module RadialGrid
     
     contains
     
-    procedure, pass :: init_sub       => init_grid_sub
-    procedure, pass :: deallocate_sub => deallocate_grid_sub
-    procedure, pass :: d, dd, c, cc, drr, interpolation_fn, volumetric_integral_real_fn, volumetric_integral_cmplx_fn, &
-                     & radial_integral_real_fn, radial_integral_cmplx_fn
+    procedure :: init_sub       => init_grid_sub
+    procedure :: deallocate_sub => deallocate_grid_sub
+    procedure :: d, dd, c, cc, drr, interpolation_fn, volumetric_integral_real_fn, volumetric_integral_cmplx_fn, &
+               & radial_integral_real_fn, radial_integral_cmplx_fn
     
     generic :: intV_fn => volumetric_integral_real_fn, volumetric_integral_cmplx_fn
     generic :: intR_fn => radial_integral_real_fn    , radial_integral_cmplx_fn
@@ -20,14 +20,14 @@ module RadialGrid
   end type T_radialGrid
   
   interface
-    module subroutine init_grid_sub(this, nr, rd, ru, grid_type)
+    module pure subroutine init_grid_sub(this, nr, rd, ru, grid_type)
       class(T_radialGrid), intent(inout) :: this
       integer,             intent(in)    :: nr
       real(kind=dbl),      intent(in)    :: rd, ru
       character(len=5),    intent(in)    :: grid_type
     end subroutine init_grid_sub
     
-    module subroutine deallocate_grid_sub(this)
+    module pure subroutine deallocate_grid_sub(this)
       class(T_radialGrid), intent(inout) :: this
     end subroutine deallocate_grid_sub
     

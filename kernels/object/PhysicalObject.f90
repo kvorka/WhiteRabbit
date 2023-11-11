@@ -30,7 +30,7 @@ module PhysicalObject
     procedure, pass :: deallocate_objects_sub => deallocate_objects_sub
     procedure, pass :: lambda_fn, cp_fn, visc_fn, alpha_fn, set_dt_sub, velc_crit_fn, vypis_sub, htide_fn, qr_fn, vr_fn, qr_jm_fn, &
                      & vr_jm_fn, dv_dr_rrjml_fn, dv_dr_rr_jml_sub, mgradT_rrjml_fn, mgradT_rr_jml_sub, buoy_rr_jm_fn,              &
-                     & buoy_rr_jml_sub, coriolis_rr_jml_sub, global_rotation_sub, vgradT_fn, fullnl_sub, matica_temp_fn,           &
+                     & buoy_rr_jml_sub, coriolis_rr_jml_sub, global_rotation_sub, mvgradT_sub, fullnl_sub, matica_temp_fn,         &
                      & matica_mech_fn, matica_torr_fn, init_eq_temp_sub, init_eq_mech_sub, init_eq_torr_sub, prepare_mat_mech_sub, &
                      & prepare_mat_temp_sub, prepare_mat_torr_sub, solve_temp_sub, solve_torr_sub, solve_mech_sub, nuss_fn,        &
                      & reynolds_fn, nonzon_reynolds_fn, volume_heating_fn, laws_mech_fn, laws_temp_fn, laws_force_fn,              &
@@ -125,16 +125,17 @@ module PhysicalObject
       complex(kind=dbl),       allocatable :: gradT(:)
     end function mgradT_rrjml_fn
     
-    module subroutine dv_dr_rr_jml_sub(this, ir, v, dv)
+    module pure subroutine dv_dr_rr_jml_sub(this, ir, v, dv)
       class(T_physicalObject), intent(in)  :: this
       integer,                 intent(in)  :: ir
       complex(kind=dbl),       intent(out) :: dv(:), v(:)
     end subroutine dv_dr_rr_jml_sub
     
-    module subroutine mgradT_rr_jml_sub(this, ir, T, gradT)
-      class(T_physicalObject), intent(in)  :: this
-      integer,                 intent(in)  :: ir
-      complex(kind=dbl),       intent(out) :: T(:), gradT(:)
+    module pure subroutine mgradT_rr_jml_sub(this, ir, T, gradT)
+      class(T_physicalObject),     intent(in)  :: this
+      integer,                     intent(in)  :: ir
+      complex(kind=dbl), optional, intent(out) :: T(:)
+      complex(kind=dbl),           intent(out) :: gradT(:)
     end subroutine mgradT_rr_jml_sub
     
     module pure function buoy_rr_jm_fn(this, ir, ijm) result(buoy)
@@ -143,46 +144,40 @@ module PhysicalObject
       complex(kind=dbl)                   :: buoy
     end function buoy_rr_jm_fn
     
-    module subroutine coriolis_rr_jml_sub(this, v, coriolis)
+    module pure subroutine coriolis_rr_jml_sub(this, v, coriolis)
       class(T_physicalObject), intent(in)    :: this
       complex(kind=dbl),       intent(in)    :: v(:)
       complex(kind=dbl),       intent(inout) :: coriolis(:,:)
     end subroutine coriolis_rr_jml_sub
     
-    module subroutine buoy_rr_jml_sub(this, ir, T, force)
+    module pure subroutine buoy_rr_jml_sub(this, ir, T, force)
       class(T_physicalObject), intent(in)    :: this
       integer,                 intent(in)    :: ir
       complex(kind=dbl),       intent(in)    :: T(:)
       complex(kind=dbl),       intent(inout) :: force(:,:)
     end subroutine buoy_rr_jml_sub
     
-    module subroutine global_rotation_sub(this)
+    module pure subroutine global_rotation_sub(this)
       class(T_physicalObject), intent(inout) :: this
     end subroutine global_rotation_sub
     
-    module function vgradT_fn(this, i) result(vgradT)
-      class(T_physicalObject), intent(in) :: this
-      integer,                 intent(in) :: i
-      complex(kind=dbl),      allocatable :: vgradT(:)
-    end function vgradT_fn
+    module pure subroutine mvgradT_sub(this, i, mvgradT)
+      class(T_physicalObject), intent(in)  :: this
+      integer,                 intent(in)  :: i
+      complex(kind=dbl),       intent(out) :: mvgradT(:)
+    end subroutine mvgradT_sub
     
-    module function vgradv_fn(this, i) result(vgradv)
-      class(T_physicalObject), intent(in) :: this
-      integer,                 intent(in) :: i
-      complex(kind=dbl)                   :: vgradv(this%jmv)
-    end function vgradv_fn
-    
-    module subroutine fullnl_sub(this, i)
+    module pure subroutine fullnl_sub(this, i)
       class(T_physicalObject), intent(inout) :: this
       integer,                 intent(in)    :: i
     end subroutine fullnl_sub
 
-    module subroutine coriolis_vgradv_sub(this, i)
+    module pure subroutine coriolis_vgradv_sub(this, i)
       class(T_physicalObject), intent(inout) :: this
       integer,                 intent(in)    :: i
     end subroutine coriolis_vgradv_sub
 
-    module subroutine coriolis_sub(this, i)
+    module pure subroutine coriolis_sub(this, i)
       class(T_physicalObject), intent(inout) :: this
       integer,                 intent(in)    :: i
     end subroutine coriolis_sub

@@ -3,7 +3,6 @@ module Gravity
   implicit none
   
   type, public :: T_gravity
-    
     character(len=3),            private :: gmod
     integer,                     private :: nlay
     real(kind=dbl),              private :: Dcrust, g, exc, omega
@@ -11,10 +10,10 @@ module Gravity
     
     contains
     
-    procedure, pass :: init_sub       => init_gravity_sub
-    procedure, pass :: set_sub        => set_gravity_sub
-    procedure, pass :: deallocate_sub => deallocate_gravity_sub
-    procedure, pass :: g_fn, V_tide_fn, V_bnd_fn, V_rho_fn, V_rt_fn
+    procedure :: init_sub       => init_gravity_sub
+    procedure :: set_sub        => set_gravity_sub
+    procedure :: deallocate_sub => deallocate_gravity_sub
+    procedure :: g_fn, V_tide_fn, V_bnd_fn, V_rho_fn, V_rt_fn
     
   end type T_gravity
   
@@ -22,7 +21,7 @@ module Gravity
   
   contains
   
-  subroutine init_gravity_sub(this, gmod, g)
+  module pure subroutine init_gravity_sub(this, gmod, g)
     class(T_gravity), intent(inout) :: this
     character(len=*), intent(in)    :: gmod
     real(kind=dbl),   intent(in)    :: g
@@ -31,7 +30,7 @@ module Gravity
     
   end subroutine init_gravity_sub
   
-  subroutine set_gravity_sub(this, Dcrust, omega, exc, nlay, subor)
+  module subroutine set_gravity_sub(this, Dcrust, omega, exc, nlay, subor)
     class(T_gravity),           intent(inout) :: this
     integer,          optional, intent(in)    :: nlay
     real(kind=dbl),   optional, intent(in)    :: Dcrust, omega, exc
@@ -57,7 +56,7 @@ module Gravity
     
   end subroutine set_gravity_sub
   
-  pure real(kind=dbl) function g_fn(this, ri)
+  module pure real(kind=dbl) function g_fn(this, ri)
     class(T_gravity), intent(in) :: this
     real(kind=dbl),   intent(in) :: ri
     integer                      :: i, ii
@@ -100,7 +99,7 @@ module Gravity
     
   end function g_fn
   
-  pure complex(kind=dbl) function V_bnd_fn(this, j, m, ri, rb, drho, ujm)
+  module pure complex(kind=dbl) function V_bnd_fn(this, j, m, ri, rb, drho, ujm)
     class(T_gravity),  intent(in) :: this
     integer,           intent(in) :: j, m
     real(kind=dbl),    intent(in) :: ri, rb, drho
@@ -116,7 +115,7 @@ module Gravity
     
   end function V_bnd_fn
     
-  pure complex(kind=dbl) function V_rho_fn(this, j, m, ri, field, rad_grid)
+  module pure complex(kind=dbl) function V_rho_fn(this, j, m, ri, field, rad_grid)
     class(T_gravity),    intent(in) :: this
     integer,             intent(in) :: j, m
     real(kind=dbl),      intent(in) :: ri
@@ -127,7 +126,7 @@ module Gravity
   
   end function V_rho_fn  
   
-  pure complex(kind=dbl) function V_tide_fn(this, j, m, ri, phase)
+  module pure complex(kind=dbl) function V_tide_fn(this, j, m, ri, phase)
     class(T_gravity), intent(in) :: this
     integer,          intent(in) :: j, m
     real(kind=dbl),   intent(in) :: ri, phase
@@ -151,7 +150,7 @@ module Gravity
         
   end function V_tide_fn
   
-  pure complex(kind=dbl) function V_rt_fn(this, j, m, ri)
+  module pure complex(kind=dbl) function V_rt_fn(this, j, m, ri)
     class(T_gravity), intent(in) :: this
     integer,          intent(in) :: j, m
     real(kind=dbl),   intent(in) :: ri
@@ -173,7 +172,7 @@ module Gravity
     
   end function V_rt_fn
   
-  subroutine deallocate_gravity_sub(this)
+  module pure subroutine deallocate_gravity_sub(this)
     class(T_gravity), intent(inout) :: this
     
     if ( allocated( this%rho    ) ) deallocate( this%rho    )

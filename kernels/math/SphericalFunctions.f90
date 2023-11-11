@@ -148,7 +148,7 @@ module Spherical_func
     
   end function ezvv_fn
   
-  subroutine ezvv_sub(np, fac, cajml, cjml)
+  pure subroutine ezvv_sub(np, fac, cajml, cjml)
     integer,           intent(in)    :: np
     real(kind=dbl),    intent(in)    :: fac
     complex(kind=dbl), intent(in)    :: cajml(:)

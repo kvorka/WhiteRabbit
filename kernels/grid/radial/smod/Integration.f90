@@ -1,9 +1,7 @@
 submodule(RadialGrid) Integration
-  implicit none
-
-  contains
-
-  pure real(kind=dbl) function radial_integral_real_fn(this, field)
+  implicit none ; contains
+  
+  module pure real(kind=dbl) function radial_integral_real_fn(this, field)
     class(T_radialGrid), intent(in) :: this
     real(kind=dbl),      intent(in) :: field(:)
     integer                         :: i
@@ -31,7 +29,7 @@ submodule(RadialGrid) Integration
     
   end function radial_integral_real_fn
   
-  pure real(kind=dbl) function volumetric_integral_real_fn(this, field)
+  module pure real(kind=dbl) function volumetric_integral_real_fn(this, field)
     class(T_radialGrid), intent(in) :: this
     real(kind=dbl),      intent(in) :: field(:)
     integer                         :: i
@@ -59,7 +57,7 @@ submodule(RadialGrid) Integration
     
   end function volumetric_integral_real_fn
   
-  pure complex(kind=dbl) function radial_integral_cmplx_fn(this, field)
+  module pure complex(kind=dbl) function radial_integral_cmplx_fn(this, field)
     class(T_radialGrid), intent(in) :: this
     complex(kind=dbl),   intent(in) :: field(:)
     integer                         :: i
@@ -86,8 +84,8 @@ submodule(RadialGrid) Integration
     deallocate( field_help )
     
   end function radial_integral_cmplx_fn
-
-  pure complex(kind=dbl) function volumetric_integral_cmplx_fn(this, field)
+  
+  module pure complex(kind=dbl) function volumetric_integral_cmplx_fn(this, field)
     class(T_radialGrid), intent(in) :: this
     complex(kind=dbl),   intent(in) :: field(:)
     integer                         :: i

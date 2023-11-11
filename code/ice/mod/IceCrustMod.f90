@@ -210,7 +210,7 @@ module IceCrustMod
     
     !$omp parallel do
     do ir = 2, this%nd
-      this%ntemp(:,ir) = -this%vgradT_fn(ir)
+      call this%mvgradT_sub(ir, this%ntemp(:,ir))
     end do
     !$omp end parallel do
     

@@ -79,7 +79,7 @@ submodule(PhysicalObject) Variables
     
   end function mgradT_rrjml_fn
 
-  subroutine dv_dr_rr_jml_sub(this, ir, v, dv)
+  pure subroutine dv_dr_rr_jml_sub(this, ir, v, dv)
     class(T_physicalObject), intent(in)  :: this
     integer,                 intent(in)  :: ir
     complex(kind=dbl),       intent(out) :: dv(:), v(:)
@@ -103,24 +103,29 @@ submodule(PhysicalObject) Variables
     
   end subroutine dv_dr_rr_jml_sub
 
-  subroutine mgradT_rr_jml_sub(this, ir, T, gradT)
-    class(T_physicalObject), intent(in)  :: this
-    integer,                 intent(in)  :: ir
-    complex(kind=dbl),       intent(out) :: T(:), gradT(:)
-    integer                              :: ijml
-    real(kind=dbl)                       :: fac1, fac2
-    complex(kind=dbl), allocatable       :: flux1(:), flux2(:)
+  pure subroutine mgradT_rr_jml_sub(this, ir, T, gradT)
+    class(T_physicalObject),     intent(in)  :: this
+    integer,                     intent(in)  :: ir
+    complex(kind=dbl), optional, intent(out) :: T(:)
+    complex(kind=dbl),           intent(out) :: gradT(:)
+    integer                                  :: ijml
+    real(kind=dbl)                           :: fac1, fac2
+    complex(kind=dbl), allocatable           :: flux1(:), flux2(:)
     
     fac1 = this%rad_grid%cc(ir,-1) / this%lambda_fn(ir-1)
     fac2 = this%rad_grid%cc(ir,+1) / this%lambda_fn(ir  )
     
     allocate( flux1(this%jmv), flux2(this%jmv) )
     
-      call this%sol%flux_jml_many_sub(ir-1, T, flux1, flux2)
-      
-      do concurrent ( ijml = 1:this%jmv )
-        gradT(ijml) = fac1 * flux1(ijml) + fac2 * flux2(ijml)
-      end do
+    if ( present(T) ) then
+      call this%sol%flux_jml_many_sub(ir=ir-1, temp2=T, flux1=flux1, flux2=flux2)
+    else
+      call this%sol%flux_jml_many_sub(ir=ir-1, flux1=flux1, flux2=flux2)
+    end if
+    
+    do concurrent ( ijml = 1:this%jmv )
+      gradT(ijml) = fac1 * flux1(ijml) + fac2 * flux2(ijml)
+    end do
     
     deallocate( flux1, flux2 )
     

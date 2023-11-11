@@ -29,13 +29,13 @@ module SphericalHarmonics
       class(T_lateralGrid), intent(inout) :: this
     end subroutine deallocate_harmonics_sub
     
-    module subroutine vcvv_sub(this, cajml, cbjml, cjm)
+    module pure subroutine vcvv_sub(this, cajml, cbjml, cjm)
       class(T_lateralGrid), intent(in)  :: this
       complex(kind=dbl),    intent(in)  :: cajml(:), cbjml(:)
       complex(kind=dbl),    intent(out) :: cjm(:)
     end subroutine vcvv_sub
     
-    module subroutine vcvgv_sub(this, ri, dv_r, v, cjm)
+    module pure subroutine vcvgv_sub(this, ri, dv_r, v, cjm)
       class(T_lateralGrid), intent(in)  :: this
       real(kind=dbl),       intent(in)  :: ri
       complex(kind=dbl),    intent(in)  :: v(:), dv_r(:)

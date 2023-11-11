@@ -1,9 +1,7 @@
 submodule(Solution) Solution_init
-  implicit none
-
-  contains
-
-  subroutine init_solution_sub(this, nd, jmax)
+  implicit none ; contains
+  
+  module pure subroutine init_solution_sub(this, nd, jmax)
     class(T_solution), intent(inout) :: this
     integer,           intent(in)    :: nd, jmax
     
@@ -16,12 +14,12 @@ submodule(Solution) Solution_init
     this%inittemp = .false.
     this%initsfer = .false.
     this%inittorr = .false.
-
+    
   end subroutine init_solution_sub
   
-  subroutine nulify_solution_sub(this)
+  module pure subroutine nulify_solution_sub(this)
     class(T_solution), intent(inout) :: this
-
+    
     if ( allocated(this%temp) ) this%temp = czero
     if ( allocated(this%torr) ) this%torr = czero
     if ( allocated(this%mech) ) this%mech = czero
@@ -38,10 +36,10 @@ submodule(Solution) Solution_init
     if ( allocated(this%v_dn) ) this%v_dn = czero
     
   end subroutine nulify_solution_sub
-
-  subroutine deallocate_solution_sub(this)
+  
+  module pure subroutine deallocate_solution_sub(this)
     class(T_solution), intent(inout) :: this
-
+    
     if ( allocated(this%temp) ) deallocate( this%temp )
     if ( allocated(this%torr) ) deallocate( this%torr )
     if ( allocated(this%mech) ) deallocate( this%mech )
@@ -56,10 +54,10 @@ submodule(Solution) Solution_init
     
     if ( allocated(this%v_up) ) deallocate( this%v_up )
     if ( allocated(this%v_dn) ) deallocate( this%v_dn )
-
+    
   end subroutine deallocate_solution_sub
-
-  subroutine init_stemp_sub(this)
+  
+  module pure subroutine init_stemp_sub(this)
     class(T_solution), intent(inout) :: this
     
     allocate( this%temp(3*this%nd+1, this%jms) )
@@ -68,8 +66,8 @@ submodule(Solution) Solution_init
     this%temp     = czero
     
   end subroutine init_stemp_sub
-
-  subroutine init_storr_sub(this)
+  
+  module pure subroutine init_storr_sub(this)
     class(T_solution), intent(inout) :: this
       
     allocate( this%torr(3*this%nd+1, this%jms) )
@@ -78,8 +76,8 @@ submodule(Solution) Solution_init
     this%torr = czero
     
   end subroutine init_storr_sub
-
-  subroutine init_smech_sub(this)
+  
+  module pure subroutine init_smech_sub(this)
     class(T_solution), intent(inout) :: this
     
     allocate( this%mech(6*this%nd+2,this%jms) )
@@ -88,8 +86,8 @@ submodule(Solution) Solution_init
     this%mech     = czero
     
   end subroutine init_smech_sub
-
-  subroutine init_layers_sub(this)
+  
+  module pure subroutine init_layers_sub(this)
     class(T_solution), intent(inout) :: this
     
     allocate( this%u_up(this%jms) ); this%u_up = czero
@@ -104,13 +102,13 @@ submodule(Solution) Solution_init
     allocate( this%v_dn(this%jms) ); this%v_dn = czero
     
   end subroutine init_layers_sub
-
-  subroutine init_layer_u_sub(this)
+  
+  module pure subroutine init_layer_u_sub(this)
     class(T_solution), intent(inout) :: this
     
     allocate( this%t_up(this%jms) ); this%t_up = czero
     allocate( this%u_up(this%jms) ); this%u_up = czero
     
   end subroutine init_layer_u_sub
-
+  
 end submodule Solution_init
