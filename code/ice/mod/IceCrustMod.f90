@@ -8,30 +8,20 @@ module IceCrustMod
     
     contains
     
-    procedure, public, pass :: init_sub        => init_iceCrust_sub
-    procedure, public, pass :: time_scheme_sub => iter_iceCrust_sub
-    procedure, public, pass :: solve_sub       => solve_iceCrust_sub
+    procedure :: init_sub        => init_iceCrust_sub
+    procedure :: time_scheme_sub => iter_iceCrust_sub
+    procedure :: solve_sub       => solve_iceCrust_sub
     
-    procedure, private, pass :: EE_sub        => EE_iceCrust_sub
-    procedure, private, pass :: EE_temp_sub   => EE_temp_iceCrust_sub
-    procedure, private, pass :: EE_mech_sub   => EE_mech_iceCrust_sub
-    
-    procedure, private, pass :: II_stress_fn => II_stress_iceCrust_fn
-    procedure, private, pass :: avrg_temp_fn => avrg_temp_iceCrust_fn
+    procedure, private :: EE_sub        => EE_iceCrust_sub
+    procedure, private :: EE_temp_sub   => EE_temp_iceCrust_sub
+    procedure, private :: EE_mech_sub   => EE_mech_iceCrust_sub
+    procedure, private :: II_stress_fn => II_stress_iceCrust_fn
+    procedure, private :: avrg_temp_fn => avrg_temp_iceCrust_fn
     
   end type T_iceCrust
   
-  private :: init_iceCrust_sub
-  private :: iter_iceCrust_sub
-  private :: solve_iceCrust_sub
-  
-  private :: vypis_iceCrust_sub
-  private :: EE_iceCrust_sub
-  private :: EE_temp_iceCrust_sub
-  private :: EE_mech_iceCrust_sub
-  
-  private :: II_stress_iceCrust_fn
-  private :: avrg_temp_iceCrust_fn
+  private :: init_iceCrust_sub, iter_iceCrust_sub, solve_iceCrust_sub, vypis_iceCrust_sub, EE_iceCrust_sub, EE_temp_iceCrust_sub, &
+           & EE_mech_iceCrust_sub, II_stress_iceCrust_fn, avrg_temp_iceCrust_fn
   
   contains
   

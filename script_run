@@ -31,18 +31,18 @@ mkdir data/data_ocean_veloc
 mkdir data/data_ocean_flux
 
 #kompilacia modelu oceana a ladovej kory
-$compiler -$optimization -march=native          -c code/ice/mod/IceTidesMod.f90
-$compiler -$optimization -march=native -fopenmp -c code/ice/mod/IceCrustMod.f90
-$compiler -$optimization -march=native -fopenmp -c code/ocean/mod/OceanIceMod.f90
+$compiler -$optimization -$arch            -c code/ice/mod/IceTidesMod.f90
+$compiler -$optimization -$arch -$parallel -c code/ice/mod/IceCrustMod.f90
+$compiler -$optimization -$arch -$parallel -c code/ocean/mod/OceanIceMod.f90
 
-$compiler -$optimization -march=native -fopenmp code/codes/BielyKralik_oceanIce.f90 *.o -o Test_oceanIce
+$compiler -$optimization -$arch -$parallel code/codes/BielyKralik_oceanIce.f90 *.o -o Test_oceanIce
 fi
 
 if [ "$code_type" = "$code_tides" ]; then
 #kompilacia modelu oceanskych slapov
-$compiler -$optimization -march=native -fopenmp -c code/ocean/mod/OceanTidesMod.f90
+$compiler -$optimization -$arch -$parallel -c code/ocean/mod/OceanTidesMod.f90
 
-$compiler -$optimization -march=native -fopenmp code/codes/BielyKralik_tidesOcean.f90 *.o -o Test_tides
+$compiler -$optimization -$arch -$parallel code/codes/BielyKralik_tidesOcean.f90 *.o -o Test_tides
 fi
 
 #kompilacia rychlostneho testu
@@ -51,9 +51,9 @@ mkdir data/data_ocean_temp
 mkdir data/data_ocean_veloc
 mkdir data/data_ocean_flux
 
-$compiler -$optimization -march=native -fopenmp -c code/ocean/mod/OceanConvMod.f90
+$compiler -$optimization -$arch -$parallel -c code/ocean/mod/OceanConvMod.f90
 
-$compiler -$optimization -march=native -fopenmp code/codes/BielyKralik_speedTest.f90 *.o -o Test_speed
+$compiler -$optimization -$arch -$parallel code/codes/BielyKralik_speedTest.f90 *.o -o Test_speed
 fi
 
 #kompilacia modelu oceanskej konvekcie
@@ -62,9 +62,9 @@ mkdir data/data_ocean_temp
 mkdir data/data_ocean_veloc
 mkdir data/data_ocean_flux
 
-$compiler -$optimization -march=native -fopenmp -c code/ocean/mod/OceanConvMod.f90
+$compiler -$optimization -$arch -$parallel -c code/ocean/mod/OceanConvMod.f90
 
-$compiler -$optimization -march=native -fopenmp code/codes/BielyKralik_oceanConv.f90 *.o -o Test_convection
+$compiler -$optimization -$arch -$parallel code/codes/BielyKralik_oceanConv.f90 *.o -o Test_convection
 fi
 
 if [ "$code_type" = "$code_ice" ]; then
@@ -73,10 +73,10 @@ mkdir data/data_ice_shape
 mkdir data/data_ice_tides
 
 #kompilacia modelu ladovej kory
-$compiler -$optimization -march=native          -c code/ice/mod/IceTidesMod.f90
-$compiler -$optimization -march=native -fopenmp -c code/ice/mod/IceCrustMod.f90
+$compiler -$optimization -$arch -$parallel -c code/ice/mod/IceTidesMod.f90
+$compiler -$optimization -$arch -$parallel -c code/ice/mod/IceCrustMod.f90
 
-$compiler -$optimization -march=native -fopenmp code/codes/BielyKralik_Ice.f90 *.o -o Test_ice
+$compiler -$optimization -$arch -$parallel code/codes/BielyKralik_Ice.f90 *.o -o Test_ice
 fi
 
 #cistenie

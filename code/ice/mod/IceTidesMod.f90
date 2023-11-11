@@ -7,18 +7,18 @@ module IceTidesMod
     
     contains
     
-    procedure, public,  pass :: init_sub       => init_iceTides_sub
-    procedure, public,  pass :: compute_sub    => compute_iceTides_sub
-    procedure, private, pass :: EE_mech_sub    => EE_mech_iceTides_sub
-    procedure, public,  pass :: visc_fn        => visc_iceTides_fn
-    procedure, public,  pass :: Vdelta_fn      => Vdelta_iceTides_fn
-    procedure, public,  pass :: set_layers_sub => set_layers_iceTides_sub
+    procedure :: init_sub       => init_iceTides_sub
+    procedure :: compute_sub    => compute_iceTides_sub
+    procedure :: visc_fn        => visc_iceTides_fn
+    procedure :: Vdelta_fn      => Vdelta_iceTides_fn
+    procedure :: set_layers_sub => set_layers_iceTides_sub
+    
+    procedure, private :: EE_mech_sub    => EE_mech_iceTides_sub
     
   end type T_iceTides
   
-  private :: init_iceTides_sub, compute_iceTides_sub
-  private :: EE_mech_iceTides_sub
-  private :: Vdelta_iceTides_fn , set_layers_iceTides_sub , visc_iceTides_fn
+  private :: init_iceTides_sub, compute_iceTides_sub, EE_mech_iceTides_sub, Vdelta_iceTides_fn, set_layers_iceTides_sub, &
+           & visc_iceTides_fn
   
   contains
   
