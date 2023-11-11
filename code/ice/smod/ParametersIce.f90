@@ -1,9 +1,7 @@
 submodule(IceMod) ParametersIce
-  implicit none
-
-  contains
+  implicit none ; contains
   
-  pure real(kind=dbl) function lambda_ice_fn(this, i)
+  module pure real(kind=dbl) function lambda_ice_fn(this, i)
     class(T_ice),  intent(in) :: this
     integer,       intent(in) :: i
     real(kind=dbl)            :: temp, lambdaI
@@ -21,7 +19,7 @@ submodule(IceMod) ParametersIce
     
   end function lambda_ice_fn
   
-  pure real(kind=dbl) function cp_ice_fn(this, i)
+  module pure real(kind=dbl) function cp_ice_fn(this, i)
     class(T_ice),  intent(in) :: this
     integer,       intent(in) :: i
     
@@ -29,7 +27,7 @@ submodule(IceMod) ParametersIce
     
   end function cp_ice_fn
   
-  pure real(kind=dbl) function alpha_ice_fn(this, i)
+  module pure real(kind=dbl) function alpha_ice_fn(this, i)
     real(kind=dbl), parameter :: A0 = 128.2147_dbl
     real(kind=dbl), parameter :: A1 = 0._dbl
     real(kind=dbl), parameter :: A2 = 0._dbl
@@ -52,7 +50,7 @@ submodule(IceMod) ParametersIce
     
   end function alpha_ice_fn
   
-  pure real(kind=dbl) function visc_ice_fn(this, i)
+  module pure real(kind=dbl) function visc_ice_fn(this, i)
     class(T_ice),      intent(in) :: this
     integer,           intent(in) :: i
     real(kind=dbl)                :: temp, stress, visc
@@ -73,5 +71,5 @@ submodule(IceMod) ParametersIce
     visc_ice_fn = visc_ice_fn / this%viscU
     
   end function visc_ice_fn
-      
+  
 end submodule ParametersIce

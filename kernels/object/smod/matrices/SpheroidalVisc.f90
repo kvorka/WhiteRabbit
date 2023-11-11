@@ -1,9 +1,7 @@
 submodule (PhysicalObject) SpheroidalVisc
-  implicit none
+  implicit none ; contains
   
-  contains
-  
-  pure function matica_mech_chb_viscos_fn(this, j_in, a_in) result(matica)
+  module pure function matica_mech_chb_viscos_fn(this, j_in, a_in) result(matica)
     class(T_physicalObject), intent(in) :: this
     integer,                 intent(in) :: j_in
     real(kind=dbl),          intent(in) :: a_in
@@ -147,8 +145,8 @@ submodule (PhysicalObject) SpheroidalVisc
     end associate
     
   end function matica_mech_chb_viscos_fn
-
-  pure function matica_mech_chb_christ_viscos_fn(this, j_in, a_in) result(matica)
+  
+  module pure function matica_mech_chb_christ_viscos_fn(this, j_in, a_in) result(matica)
     class(T_physicalObject), intent(in) :: this
     integer,                 intent(in) :: j_in
     real(kind=dbl),          intent(in) :: a_in
@@ -293,7 +291,7 @@ submodule (PhysicalObject) SpheroidalVisc
     
   end function matica_mech_chb_christ_viscos_fn
   
-  pure function matica_mech_hom_viscos_fn(this, j_in, a_in) result(matica)
+  module pure function matica_mech_hom_viscos_fn(this, j_in, a_in) result(matica)
     class(T_physicalObject), intent(in) :: this
     integer,                 intent(in) :: j_in
     real(kind=dbl),          intent(in) :: a_in

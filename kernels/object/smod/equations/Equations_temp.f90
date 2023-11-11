@@ -1,8 +1,7 @@
 submodule (PhysicalObject) Equations_temp
-  implicit none
-  contains
-
-  subroutine init_eq_temp_sub(this, rhs, nl)
+  implicit none ; contains
+  
+  module subroutine init_eq_temp_sub(this, rhs, nl)
     class(T_physicalObject), intent(inout) :: this
     logical,                 intent(in)    :: rhs, nl
     
@@ -20,8 +19,8 @@ submodule (PhysicalObject) Equations_temp
     end if
     
   end subroutine init_eq_temp_sub
-
-  subroutine prepare_mat_temp_sub(this, ijstart, ijend)
+  
+  module subroutine prepare_mat_temp_sub(this, ijstart, ijend)
     class(T_physicalObject), intent(inout) :: this
     integer,                 intent(in)    :: ijstart, ijend
     integer                                :: ij
@@ -33,8 +32,8 @@ submodule (PhysicalObject) Equations_temp
     !$omp end parallel do
     
   end subroutine prepare_mat_temp_sub
-
-  subroutine solve_temp_sub(this, ijmstart, ijmend, ijmstep, rematrix, matxsol)
+  
+  module subroutine solve_temp_sub(this, ijmstart, ijmend, ijmstep, rematrix, matxsol)
     class(T_physicalObject), intent(inout) :: this
     integer,                 intent(in)    :: ijmstart, ijmend, ijmstep
     logical,                 intent(in)    :: rematrix, matxsol

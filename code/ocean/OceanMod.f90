@@ -6,14 +6,14 @@ module OceanMod
   type, extends(T_physicalObject), abstract, public :: T_ocean
     contains
     
-    procedure, pass :: init_ocean_sub
-    procedure, pass :: speed_sub
-    procedure, pass :: set_boundary_deformation_sub
-
-    procedure, pass :: vypis_ocean_sub => vypis_ocean_sub
-    procedure, pass :: iter_sub        => iter_ocean_sub
-    procedure, pass :: init_state_sub  => init_state_ocean_sub
-    procedure, pass :: deallocate_sub  => deallocate_ocean_sub
+    procedure :: init_ocean_sub
+    procedure :: speed_sub
+    procedure :: set_boundary_deformation_sub
+    
+    procedure :: vypis_ocean_sub => vypis_ocean_sub
+    procedure :: iter_sub        => iter_ocean_sub
+    procedure :: init_state_sub  => init_state_ocean_sub
+    procedure :: deallocate_sub  => deallocate_ocean_sub
 
     procedure(time_scheme_abstract), deferred, pass :: time_scheme_sub
 
@@ -53,7 +53,7 @@ module OceanMod
     open(unit=12, file='data/Laws.dat', status='new', action='write')
     
   end subroutine init_ocean_sub
-
+  
   subroutine iter_ocean_sub(this)
     class(T_ocean), intent(inout) :: this
     integer                       :: k
@@ -76,7 +76,7 @@ module OceanMod
     call this%vypis_ocean_sub()
     
   end subroutine iter_ocean_sub
-
+  
   subroutine speed_sub(this)
     class(T_ocean), intent(inout) :: this
     integer                       :: k
@@ -87,7 +87,7 @@ module OceanMod
     end do
     
   end subroutine speed_sub
-
+  
   subroutine vypis_ocean_sub(this)
     class(T_ocean), intent(inout) :: this
 
@@ -101,11 +101,11 @@ module OceanMod
     this%poc = this%poc + 1
 
   end subroutine vypis_ocean_sub
-
+  
   subroutine init_state_ocean_sub(this)
     class(T_ocean), intent(inout) :: this
     integer                           :: i, j, m, jm_int, ndI1, jmsI, jmvI
-    real(kind=dbl)                    :: ab_help
+    real(kind=dbl)                    :: ab_help, re, im
     real(kind=dbl),    allocatable    :: r(:)
     complex(kind=dbl), allocatable    :: velc(:), temp(:,:), spher1(:,:), torr(:,:), spher2(:,:)
 
@@ -118,11 +118,11 @@ module OceanMod
             if ((j == 0) .and. (m == 0)) then
               this%sol%temp(3*(i-1)+1,jm_int)%re = (this%rad_grid%r(this%nd)/this%rad_grid%rr(i)-1)*this%rad_grid%r(1)*sqrt(4*pi)
             else if (m == 0) then
-              call random_number( this%sol%temp(3*(i-1)+1, jm_int)%re )
-              this%sol%temp(3*(i-1)+1, jm_int)%re = this%sol%temp(3*(i-1)+1, jm_int)%re / 1e3
+              call random_number( re )
+              this%sol%temp(3*(i-1)+1, jm_int)%re = re / 1e3
             else
-              call random_number( this%sol%temp(3*(i-1)+1, jm_int)%re ); call random_number( this%sol%temp(3*(i-1)+1, jm_int)%im )
-              this%sol%temp(3*(i-1)+1, jm_int) = this%sol%temp(3*(i-1)+1, jm_int) / 1e3
+              call random_number( re ); call random_number( im )
+              this%sol%temp(3*(i-1)+1, jm_int) = cmplx(re, im, kind=dbl) / 1e3
             end if
 
           end do
@@ -179,7 +179,7 @@ module OceanMod
     this%ab = ab_help
     
   end subroutine init_state_ocean_sub
-
+  
   subroutine set_boundary_deformation_sub(this, u_up, t_up)
     class(T_ocean),    intent(inout) :: this
     complex(kind=dbl), intent(in)    :: u_up(:), t_up(:)
@@ -199,5 +199,5 @@ module OceanMod
     call this%deallocate_objects_sub()
 
   end subroutine deallocate_ocean_sub
-
+  
 end module OceanMod

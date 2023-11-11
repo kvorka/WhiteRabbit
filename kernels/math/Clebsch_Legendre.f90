@@ -6,7 +6,7 @@ module Clebsch_Legendre
   
   contains
   
-  module pure real(kind=dbl) function xnode_fn(nL, x, y, fx, fy)
+  pure real(kind=dbl) function xnode_fn(nL, x, y, fx, fy)
     integer,        intent(in) :: nL
     real(kind=dbl), intent(in) :: x, y, fx, fy
     real(kind=dbl)             :: x1, fx1, x2, fx2, t, ft
@@ -34,7 +34,7 @@ module Clebsch_Legendre
     
   end function xnode_fn
   
-  module pure real(kind=dbl) function lege_fn(deg, x)
+  pure real(kind=dbl) function lege_fn(deg, x)
     integer,        intent(in) :: deg
     real(kind=dbl), intent(in) :: x
     real(kind=dbl)             :: p1, p2
@@ -50,7 +50,7 @@ module Clebsch_Legendre
     
   end function lege_fn
   
-  module pure real(kind=dbl) function cleb1_fn(j1, m1, j2, m2, j, m)
+  pure real(kind=dbl) function cleb1_fn(j1, m1, j2, m2, j, m)
     integer, intent(in) :: j1, m1, j2, m2, j, m
     
     select case (m2)

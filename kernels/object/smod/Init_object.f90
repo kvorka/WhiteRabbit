@@ -1,9 +1,7 @@
 submodule (PhysicalObject) Init_object
-  implicit none
+  implicit none ; contains
   
-  contains
-
-  subroutine init_objects_sub( this, nd, jmax, r_ud, rgrid, gmod, g, noobj, noharm )
+  module subroutine init_objects_sub( this, nd, jmax, r_ud, rgrid, gmod, g, noobj, noharm )
     class(T_physicalObject),    intent(inout) :: this
     integer,                    intent(in)    :: nd, jmax
     real(kind=dbl),             intent(in)    :: r_ud, g
@@ -60,7 +58,7 @@ submodule (PhysicalObject) Init_object
     
   end subroutine init_objects_sub
   
-  subroutine set_dt_sub(this)
+  module subroutine set_dt_sub(this)
     class(T_physicalObject), intent(inout) :: this
     
     if (this%noobj) then
@@ -73,7 +71,7 @@ submodule (PhysicalObject) Init_object
     
   end subroutine set_dt_sub
   
-  subroutine deallocate_objects_sub(this)
+  module subroutine deallocate_objects_sub(this)
     class(T_physicalObject), intent(inout) :: this
     
     if ( allocated(this%j_indx)  ) deallocate( this%j_indx  )

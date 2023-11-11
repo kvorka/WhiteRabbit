@@ -1,9 +1,7 @@
 submodule(PhysicalObject) Forces
-  implicit none
+  implicit none ; contains
   
-  contains
-  
-  pure complex(kind=dbl) function buoy_rr_jm_fn(this, ir, ijm)
+  module pure complex(kind=dbl) function buoy_rr_jm_fn(this, ir, ijm)
     class(T_physicalObject), intent(in) :: this
     integer,                 intent(in) :: ir, ijm
     
@@ -11,7 +9,7 @@ submodule(PhysicalObject) Forces
     
   end function buoy_rr_jm_fn
   
-  pure subroutine coriolis_rr_jml_sub(this, v, coriolis)
+  module pure subroutine coriolis_rr_jml_sub(this, v, coriolis)
     class(T_physicalObject), intent(in)    :: this
     complex(kind=dbl),       intent(in)    :: v(:)
     complex(kind=dbl),       intent(inout) :: coriolis(:,:)
@@ -26,7 +24,7 @@ submodule(PhysicalObject) Forces
     
   end subroutine coriolis_rr_jml_sub
   
-  pure subroutine buoy_rr_jml_sub(this, ir, T, force)
+  module pure subroutine buoy_rr_jml_sub(this, ir, T, force)
     class(T_physicalObject), intent(in)    :: this
     integer,                 intent(in)    :: ir
     complex(kind=dbl),       intent(in)    :: T(:)
@@ -48,7 +46,7 @@ submodule(PhysicalObject) Forces
       
   end subroutine buoy_rr_jml_sub
   
-  pure subroutine global_rotation_sub(this)
+  module pure subroutine global_rotation_sub(this)
     class(T_physicalObject), intent(inout) :: this
     integer                                :: ir, is, ijm
     real(kind=dbl)                         :: coeff

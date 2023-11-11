@@ -1,9 +1,7 @@
 submodule(IceMod) GravDeformIce
-  implicit none
+  implicit none ; contains
   
-  contains
-
-  pure complex(kind=dbl) function Vdelta_ice_fn(this, ir, ijm)
+  module pure complex(kind=dbl) function Vdelta_ice_fn(this, ir, ijm)
     class(T_ice),       intent(in) :: this
     integer,            intent(in) :: ir, ijm
     integer                        :: k, j, m
@@ -39,7 +37,7 @@ submodule(IceMod) GravDeformIce
     
   end function Vdelta_ice_fn
   
-  subroutine set_layers_ice_sub(this)
+  module subroutine set_layers_ice_sub(this)
     class(T_ice),      intent(inout) :: this
     integer                          :: i, j, m, jm_int
     real(kind=dbl)                   :: a11, a12, a21, a22, det
@@ -94,5 +92,5 @@ submodule(IceMod) GravDeformIce
     end associate
     
   end subroutine set_layers_ice_sub
-
+  
 end submodule GravDeformIce

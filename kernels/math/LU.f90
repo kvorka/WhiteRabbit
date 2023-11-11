@@ -6,7 +6,7 @@ module LU
   
   contains
   
-  module pure subroutine ludecomposition_sub(n, ld, lu, Upper, Lower, Indx)
+  pure subroutine ludecomposition_sub(n, ld, lu, Upper, Lower, Indx)
     integer,        intent(in)    :: n, ld, lu
     real(kind=dbl), intent(inout) :: Upper(:,:)
     real(kind=dbl), intent(out)   :: Lower(:,:)
@@ -40,7 +40,7 @@ module LU
     
   end subroutine ludecomposition_sub
   
-  module pure subroutine lusolution_sub(n, ld, lu, Upper, Lower, Indx, b)
+  pure subroutine lusolution_sub(n, ld, lu, Upper, Lower, Indx, b)
     integer,           intent(in)    :: n, ld, lu
     real(kind=dbl),    intent(in)    :: Upper(:,:), Lower(:,:)
     integer,           intent(in)    :: Indx(:)
@@ -67,7 +67,7 @@ module LU
     
   end subroutine lusolution_sub
   
-  module pure complex(kind=dbl) function multipl1_fn(i, n, ld, lu, a, x)
+  pure complex(kind=dbl) function multipl1_fn(i, n, ld, lu, a, x)
     integer,           intent(in) :: i, n, ld, lu
     real(kind=dbl),    intent(in) :: a(:,:)
     complex(kind=dbl), intent(in) :: x(:)

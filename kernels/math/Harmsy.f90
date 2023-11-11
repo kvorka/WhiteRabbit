@@ -9,7 +9,7 @@ module Harmsy
   
   contains
   
-  module subroutine harmsy_sub(jmax_in, spectra_in, data_out)
+  subroutine harmsy_sub(jmax_in, spectra_in, data_out)
     integer,            intent(in)  :: jmax_in
     complex(kind=dbl),  intent(in)  :: spectra_in(:)
     real(kind=dbl),     intent(out) :: data_out(:,:)
@@ -51,7 +51,7 @@ module Harmsy
       
   end subroutine harmsy_sub
   
-  module subroutine harmsy_Pj0_sub(jmax_in, spectra_in, data_out)
+  subroutine harmsy_Pj0_sub(jmax_in, spectra_in, data_out)
     integer,         intent(in)  :: jmax_in
     real(kind=dbl),  intent(in)  :: spectra_in(:)
     real(kind=dbl),  intent(out) :: data_out(:)
@@ -69,7 +69,7 @@ module Harmsy
 
   end subroutine harmsy_Pj0_sub
   
-  module subroutine harmsy_Pj1_sub(jmax_in, spectra_in, data_out)
+  subroutine harmsy_Pj1_sub(jmax_in, spectra_in, data_out)
     integer,         intent(in)  :: jmax_in
     real(kind=dbl),  intent(in)  :: spectra_in(:)
     real(kind=dbl),  intent(out) :: data_out(:)
@@ -87,7 +87,7 @@ module Harmsy
     
   end subroutine harmsy_Pj1_sub
   
-  module subroutine dpmm_sub(x, n, m, p)
+  subroutine dpmm_sub(x, n, m, p)
     real(kind=dbl), intent(in)  :: x
     integer,        intent(in)  :: n, m
     real(kind=dbl), intent(out) :: p(:)

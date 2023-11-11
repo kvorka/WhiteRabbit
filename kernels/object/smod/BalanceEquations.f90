@@ -1,8 +1,7 @@
 submodule (PhysicalObject) BalanceEquations
-  implicit none
-  contains
+  implicit none ; contains
   
-  real(kind=dbl) function laws_mech_fn(this)
+  module real(kind=dbl) function laws_mech_fn(this)
     class(T_physicalObject), intent(in) :: this
     
     select case( this%mechanic_bnd )
@@ -14,7 +13,7 @@ submodule (PhysicalObject) BalanceEquations
     
   end function laws_mech_fn
   
-  real(kind=dbl) function laws_temp_fn(this)
+  module real(kind=dbl) function laws_temp_fn(this)
     class(T_physicalObject), intent(in) :: this
     
     select case( this%thermal_bnd )
@@ -26,7 +25,7 @@ submodule (PhysicalObject) BalanceEquations
     
   end function laws_temp_fn
   
-  real(kind=dbl) function laws_force_fn(this, ijm)
+  module real(kind=dbl) function laws_force_fn(this, ijm)
     class(T_physicalObject), intent(in) :: this
     integer,                 intent(in) :: ijm
     integer                             :: ir
@@ -50,7 +49,7 @@ submodule (PhysicalObject) BalanceEquations
     
   end function laws_force_fn
   
-  real(kind=dbl) function buoyancy_power_fn(this)
+  module real(kind=dbl) function buoyancy_power_fn(this)
     class(T_physicalObject), intent(in) :: this
     integer                             :: ir
     real(kind=dbl),         allocatable :: power_i(:)
@@ -71,7 +70,7 @@ submodule (PhysicalObject) BalanceEquations
     
   end function buoyancy_power_fn
   
-  real(kind=dbl) function heating_power_fn(this)
+  module real(kind=dbl) function heating_power_fn(this)
     class(T_physicalObject),       intent(in) :: this
     integer                                   :: ir
     real(kind=dbl),               allocatable :: power_i(:)
@@ -88,7 +87,7 @@ submodule (PhysicalObject) BalanceEquations
     
   end function heating_power_fn
   
-  real(kind=dbl) function bound_power_fn(this)
+  module real(kind=dbl) function bound_power_fn(this)
     class(T_physicalObject), intent(in) :: this
       
     bound_power_fn = this%Rad * this%gd * this%rd**2 * scalproduct_fn(this%jmax, this%sol%t_dn, this%vr_jm_fn(1)) - &
@@ -96,7 +95,7 @@ submodule (PhysicalObject) BalanceEquations
     
   end function bound_power_fn
   
-  real(kind=dbl) function bound_flux_fn(this)
+  module real(kind=dbl) function bound_flux_fn(this)
     class(T_physicalObject), intent(in) :: this
     
     bound_flux_fn = c2r_fn( -this%sol%flux_fn(this%nd,1,1) * this%ru**2 + this%sol%flux_fn(1,1,1) * this%rd**2 - &
@@ -104,7 +103,7 @@ submodule (PhysicalObject) BalanceEquations
     
   end function bound_flux_fn
   
-  real(kind=dbl) function advected_heat_fn(this)
+  module real(kind=dbl) function advected_heat_fn(this)
     class(T_physicalObject), intent(in)  :: this
     integer                              :: ir
     real(kind=dbl),          allocatable :: heat(:)

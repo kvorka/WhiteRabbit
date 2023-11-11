@@ -19,7 +19,7 @@ module Matrix
   
   contains
   
-  module pure subroutine initMatrix_sub(this, n, ns, nu)
+  pure subroutine initMatrix_sub(this, n, ns, nu)
     class(T_matrix), intent(inout) :: this
     integer,         intent(in)    :: n, ns, nu
 
@@ -30,7 +30,7 @@ module Matrix
 
   end subroutine initMatrix_sub
   
-  module pure subroutine fillMatrix_sub(this, matrixU, matrixM)
+  pure subroutine fillMatrix_sub(this, matrixU, matrixM)
     class(T_matrix), intent(inout) :: this
     real(kind=dbl),  intent(in)    :: matrixU(:,:), matrixM(:,:)
 
@@ -39,7 +39,7 @@ module Matrix
 
   end subroutine fillMatrix_sub
   
-  module pure subroutine luSolutionMatrix_sub(this, b)
+  pure subroutine luSolutionMatrix_sub(this, b)
     class(T_matrix),   intent(in)    :: this
     complex(kind=dbl), intent(inout) :: b(:)
     integer                          :: i, j, k, ldu
@@ -64,7 +64,7 @@ module Matrix
 
   end subroutine luSolutionMatrix_sub
   
-  module pure complex(kind=dbl) function matrixMultiple_fn(this, i, vector)
+  pure complex(kind=dbl) function matrixMultiple_fn(this, i, vector)
     class(T_matrix),   intent(in) :: this
     integer,           intent(in) :: i
     complex(kind=dbl), intent(in) :: vector(:)
@@ -79,7 +79,7 @@ module Matrix
 
   end function matrixMultiple_fn
   
-  module pure subroutine deallocateMatrix_sub(this)
+  pure subroutine deallocateMatrix_sub(this)
     class(T_matrix), intent(inout) :: this
 
     deallocate(this%M, this%U, this%L, this%I)

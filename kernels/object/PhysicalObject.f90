@@ -138,10 +138,9 @@ module PhysicalObject
       complex(kind=dbl),           intent(out) :: gradT(:)
     end subroutine mgradT_rr_jml_sub
     
-    module pure function buoy_rr_jm_fn(this, ir, ijm) result(buoy)
+    module pure complex(kind=dbl) function buoy_rr_jm_fn(this, ir, ijm)
       class(T_physicalObject), intent(in) :: this
       integer,                 intent(in) :: ir, ijm
-      complex(kind=dbl)                   :: buoy
     end function buoy_rr_jm_fn
     
     module pure subroutine coriolis_rr_jml_sub(this, v, coriolis)

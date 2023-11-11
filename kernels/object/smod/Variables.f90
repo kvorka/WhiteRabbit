@@ -1,9 +1,7 @@
 submodule(PhysicalObject) Variables
-  implicit none
-
-  contains
-
-  pure complex(kind=dbl) function htide_fn(this, ir, ijm)
+  implicit none ; contains
+  
+  module pure complex(kind=dbl) function htide_fn(this, ir, ijm)
     class(T_physicalObject), intent(in) :: this
     integer,                 intent(in) :: ir, ijm
     
@@ -11,8 +9,8 @@ submodule(PhysicalObject) Variables
                                  & this%rad_grid%cc(ir,+1) * this%htide(ir  ,ijm)   ) / this%cp_fn(ir)
     
   end function htide_fn
-
-  pure complex(kind=dbl) function vr_fn(this, ir, ijm)
+  
+  module pure complex(kind=dbl) function vr_fn(this, ir, ijm)
     class(T_physicalObject), intent(in) :: this
     integer,                 intent(in) :: ir, ijm
     real(kind=dbl)                      :: j, cj1, cj2, cr1, cr2
@@ -26,8 +24,8 @@ submodule(PhysicalObject) Variables
           & cr2 * ( cj1 * this%sol%velocity_fn(ir+1,-1,ijm) - cj2 * this%sol%velocity_fn(ir+1,+1,ijm) )
     
   end function vr_fn
-
-  pure complex(kind=dbl) function qr_fn(this, ir, ijm)
+  
+  module pure complex(kind=dbl) function qr_fn(this, ir, ijm)
     class(T_physicalObject), intent(in) :: this
     integer,                 intent(in) :: ir, ijm
     real(kind=dbl)                      :: j
@@ -37,8 +35,8 @@ submodule(PhysicalObject) Variables
     qr_fn = sqrt( j / (2*j+1) ) * this%sol%flux_fn(ir,-1,ijm) - sqrt( (j+1) / (2*j+1) ) * this%sol%flux_fn(ir,+1,ijm)
     
   end function qr_fn
-
-  pure function qr_jm_fn(this, ir) result(qr)
+  
+  module pure function qr_jm_fn(this, ir) result(qr)
     class(T_physicalObject), intent(in) :: this
     integer,                 intent(in) :: ir
     complex(kind=dbl),      allocatable :: qr(:)
@@ -47,7 +45,7 @@ submodule(PhysicalObject) Variables
     
   end function qr_jm_fn
   
-  pure function vr_jm_fn(this, ir) result(vr)
+  module pure function vr_jm_fn(this, ir) result(vr)
     class(T_physicalObject), intent(in) :: this
     integer,                 intent(in) :: ir
     complex(kind=dbl),      allocatable :: vr(:)
@@ -56,8 +54,8 @@ submodule(PhysicalObject) Variables
                                   &                     this%rad_grid%c(ir,+1) * this%sol%velocity_jml_fn(ir+1)   )
     
   end function vr_jm_fn
-
-  pure function dv_dr_rrjml_fn(this, ir, v) result(dv)
+  
+  module pure function dv_dr_rrjml_fn(this, ir, v) result(dv)
     class(T_physicalObject), intent(in) :: this
     integer,                 intent(in) :: ir
     complex(kind=dbl),       intent(in) :: v(:)
@@ -68,8 +66,8 @@ submodule(PhysicalObject) Variables
                                   & this%rad_grid%drr(ir,+1) * this%sol%velocity_jml_fn(ir+1)
     
   end function dv_dr_rrjml_fn
-
-  pure function mgradT_rrjml_fn(this, ir) result(gradT)
+  
+  module pure function mgradT_rrjml_fn(this, ir) result(gradT)
     class(T_physicalObject), intent(in) :: this
     integer,                 intent(in) :: ir
     complex(kind=dbl),      allocatable :: gradT(:)
@@ -78,8 +76,8 @@ submodule(PhysicalObject) Variables
                                         & this%rad_grid%cc(ir,+1) * this%sol%flux_jml_fn(ir  ) / this%lambda_fn(ir)
     
   end function mgradT_rrjml_fn
-
-  pure subroutine dv_dr_rr_jml_sub(this, ir, v, dv)
+  
+  module pure subroutine dv_dr_rr_jml_sub(this, ir, v, dv)
     class(T_physicalObject), intent(in)  :: this
     integer,                 intent(in)  :: ir
     complex(kind=dbl),       intent(out) :: dv(:), v(:)
@@ -102,8 +100,8 @@ submodule(PhysicalObject) Variables
     deallocate( v1, v2 )
     
   end subroutine dv_dr_rr_jml_sub
-
-  pure subroutine mgradT_rr_jml_sub(this, ir, T, gradT)
+  
+  module pure subroutine mgradT_rr_jml_sub(this, ir, T, gradT)
     class(T_physicalObject),     intent(in)  :: this
     integer,                     intent(in)  :: ir
     complex(kind=dbl), optional, intent(out) :: T(:)

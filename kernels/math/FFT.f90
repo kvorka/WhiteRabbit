@@ -34,7 +34,7 @@ module FFT_mod
   
   contains
   
-  module pure subroutine fft_init_sub(this, n)
+  pure subroutine fft_init_sub(this, n)
     class(T_fft),   intent(inout) :: this
     integer,        intent(in)    :: n
     integer                       :: i
@@ -52,7 +52,7 @@ module FFT_mod
     
   end subroutine fft_init_sub
   
-  module pure subroutine fft_r2c_exec_sub(this, m, np, x, cx)
+  pure subroutine fft_r2c_exec_sub(this, m, np, x, cx)
     class(T_fft),      intent(in)    :: this
     integer,           intent(in)    :: m, np
     real(kind=dbl),    intent(inout) :: x(m,this%n)
@@ -73,7 +73,7 @@ module FFT_mod
     
   end subroutine fft_r2c_exec_sub
   
-  module pure subroutine fft_c2r_exec_sub(this, m, np, cx, x)
+  pure subroutine fft_c2r_exec_sub(this, m, np, cx, x)
     class(T_fft),      intent(in)  :: this
     integer,           intent(in)  :: m, np
     complex(kind=dbl), intent(in)  :: cx(m,np)
@@ -91,7 +91,7 @@ module FFT_mod
     
   end subroutine fft_c2r_exec_sub
   
-  module pure subroutine fft_r2c_sub(this, m, x)
+  pure subroutine fft_r2c_sub(this, m, x)
     class(T_fft),      intent(in)    :: this
     integer,           intent(in)    :: m
     real(kind=dbl),    intent(inout) :: x(m,2,0:this%n/2-1)
@@ -178,7 +178,7 @@ module FFT_mod
     
   end subroutine fft_r2c_sub
   
-  module pure subroutine fft_c2r_sub(this, m, x)
+  pure subroutine fft_c2r_sub(this, m, x)
     class(T_fft),      intent(in)    :: this
     integer,           intent(in)    :: m
     real(kind=dbl),    intent(inout) :: x(m,2,0:this%n/2-1)
@@ -262,7 +262,7 @@ module FFT_mod
     
   end subroutine fft_c2r_sub
   
-  module pure subroutine fft_deallocate_sub(this)
+  pure subroutine fft_deallocate_sub(this)
     class(T_fft), intent(inout) :: this
     
     if ( allocated( this%it ) ) deallocate( this%it )
@@ -270,7 +270,7 @@ module FFT_mod
     
   end subroutine fft_deallocate_sub
   
-  module pure subroutine fxzini(n, it, t)
+  pure subroutine fxzini(n, it, t)
     integer,        intent(in)  :: n
     integer,        intent(out) :: it(n)
     real(kind=dbl), intent(out) :: t(2,0:n-1)
@@ -371,7 +371,7 @@ module FFT_mod
     
   end subroutine fxzini
   
-  module pure recursive subroutine fxztal(m, k, l, x, t, ic, itsum, is, j1, it1)
+  pure recursive subroutine fxztal(m, k, l, x, t, ic, itsum, is, j1, it1)
     integer,        intent(in)    :: m, k, l, ic, itsum, is, j1, it1
     real(kind=dbl), intent(in)    :: t(2,0:*)
     real(kind=dbl), intent(inout) :: x(m,2,0:*)
@@ -419,7 +419,7 @@ module FFT_mod
     
   end subroutine fxztal
   
-  module pure subroutine fxzm2a(m, k, l, x, t)
+  pure subroutine fxzm2a(m, k, l, x, t)
     integer,     intent(in)    :: m, k, l
     real(kind=dbl), intent(in)    :: t(2,0:*)
     real(kind=dbl), intent(inout) :: x(m,2,l/2,0:1,0:k-1)
@@ -437,7 +437,7 @@ module FFT_mod
   
   end subroutine fxzm2a
   
-  module pure subroutine fxzm2b(m, l, x)
+  pure subroutine fxzm2b(m, l, x)
     integer,        intent(in)    :: m, l
     real(kind=dbl), intent(inout) :: x(m,2,l/2,0:1)
     integer                       :: i, iv
@@ -449,7 +449,7 @@ module FFT_mod
     
   end subroutine fxzm2b
   
-  module pure subroutine fxzm3a(m, k, l, x, t)
+  pure subroutine fxzm3a(m, k, l, x, t)
     integer,        intent(in)    :: m, k, l
     real(kind=dbl), intent(in)    :: t(2,0:*)
     real(kind=dbl), intent(inout) :: x(m,2,l/3,0:2,0:k-1)
@@ -480,7 +480,7 @@ module FFT_mod
     
   end subroutine fxzm3a
   
-  module pure subroutine fxzm3b(m, l, x)
+  pure subroutine fxzm3b(m, l, x)
     integer,        intent(in)    :: m, l
     real(kind=dbl), intent(inout) :: x(m,2,l/3,0:2)
     integer                       :: i, iv
@@ -498,7 +498,7 @@ module FFT_mod
     
   end subroutine fxzm3b
   
-  module pure subroutine fxzm4a(m, k, l, x, t)
+  pure subroutine fxzm4a(m, k, l, x, t)
     integer,        intent(in)    :: m, k, l
     REAL(kind=dbl), intent(in)    :: t(2,0:*)
     real(kind=dbl), intent(inout) :: x(m,2,l/4,0:3,0:k-1)
@@ -532,7 +532,7 @@ module FFT_mod
     
   end subroutine fxzm4a
   
-  module pure subroutine fxzm4b(m, l, x)
+  pure subroutine fxzm4b(m, l, x)
     integer,        intent(in)    :: m, l
     real(kind=dbl), intent(inout) :: x(m,2,l/4,0:3)
     integer                       :: i, iv
@@ -552,7 +552,7 @@ module FFT_mod
   
   end subroutine fxzm4b
   
-  module pure subroutine fxzm5a(m, k, l, x, t)
+  pure subroutine fxzm5a(m, k, l, x, t)
     integer,        intent(in)    :: m, k, l
     real(kind=dbl), intent(in)    :: t(2,0:*)
     real(kind=dbl), intent(inout) :: x(m,2,l/5,0:4,0:k-1)
@@ -598,7 +598,7 @@ module FFT_mod
   
   end subroutine fxzm5a
   
-  module pure subroutine fxzm5b(m, l, x)
+  pure subroutine fxzm5b(m, l, x)
     integer,        intent(in)    :: m, l
     real(kind=dbl), intent(inout) :: x(m,2,l/5,0:4)
     integer                       :: i, iv

@@ -17,7 +17,7 @@ module Matrices
   
   contains
   
-  module pure subroutine init_matrices_sub(this, nd, jmax, grid_type)
+  pure subroutine init_matrices_sub(this, nd, jmax, grid_type)
     class(T_matrices), intent(inout) :: this
     integer,           intent(in)    :: nd, jmax
     character(len=*),  intent(in)    :: grid_type
@@ -28,7 +28,7 @@ module Matrices
     
   end subroutine init_matrices_sub
   
-  module pure subroutine init_mtemp_sub(this)
+  pure subroutine init_mtemp_sub(this)
     class(T_matrices), intent(inout) :: this
     integer                          :: j
     
@@ -48,7 +48,7 @@ module Matrices
     
   end subroutine init_mtemp_sub
   
-  module pure subroutine init_mtorr_sub(this)
+  pure subroutine init_mtorr_sub(this)
     class(T_matrices), intent(inout) :: this
     integer                          :: j
     
@@ -68,7 +68,7 @@ module Matrices
     
   end subroutine init_mtorr_sub
   
-  module pure subroutine init_mmech_sub(this)
+  pure subroutine init_mmech_sub(this)
     class(T_matrices), intent(inout) :: this
     integer                          :: j
     
@@ -88,7 +88,7 @@ module Matrices
       
   end subroutine init_mmech_sub
   
-  module pure subroutine deallocate_matrices_sub(this)
+  pure subroutine deallocate_matrices_sub(this)
     class(T_matrices), intent(inout) :: this
     integer                          :: j
     

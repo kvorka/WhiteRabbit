@@ -1,9 +1,7 @@
 submodule (PhysicalObject) Output
-  implicit none
+  implicit none ; contains
   
-  contains
-  
-  subroutine vypis_sub(this, filenum, path, quantity)
+  module subroutine vypis_sub(this, filenum, path, quantity)
     class(T_physicalObject), intent(in) :: this
     integer,                 intent(in) :: filenum
     character(len=*),        intent(in) :: path, quantity

@@ -1,7 +1,5 @@
 submodule (SphericalHarmonics) vcvv
-  implicit none
-  
-  contains
+  implicit none ; contains
   
   module pure subroutine vcvv_sub(this, cajml, cbjml, cjm)
     class(T_lateralGrid), intent(in)  :: this

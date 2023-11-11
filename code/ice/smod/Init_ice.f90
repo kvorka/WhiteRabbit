@@ -1,9 +1,7 @@
 submodule(IceMod) Init_ice
-  implicit none
+  implicit none ; contains
   
-  contains
-  
-  subroutine init_ice_sub(this, jmax_in, rheol_in, n_iter, noharm)
+  module subroutine init_ice_sub(this, jmax_in, rheol_in, n_iter, noharm)
     class(T_ice),      intent(inout) :: this
     integer,           intent(in)    :: jmax_in, n_iter
     character(len=*),  intent(in)    :: rheol_in
@@ -69,8 +67,8 @@ submodule(IceMod) Init_ice
     allocate( this%htide(this%nd,jms4) ); this%htide = czero
 
   end subroutine init_ice_sub
-
-  subroutine deallocate_ice_sub(this)
+  
+  module subroutine deallocate_ice_sub(this)
     class(T_ice), intent(inout) :: this
     
     call this%gravity%deallocate_sub()

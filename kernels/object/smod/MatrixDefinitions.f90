@@ -1,9 +1,7 @@
 submodule (PhysicalObject) MatrixDefinitions
-  implicit none
+  implicit none ; contains
   
-  contains
-  
-  pure function matica_temp_fn(this, j_in, a_in) result(matica)
+  module pure function matica_temp_fn(this, j_in, a_in) result(matica)
     class(T_physicalObject), intent(in) :: this
     integer,                 intent(in) :: j_in
     real(kind=dbl),          intent(in) :: a_in
@@ -19,7 +17,7 @@ submodule (PhysicalObject) MatrixDefinitions
     
   end function matica_temp_fn
   
-  pure function matica_torr_fn(this, j_in, a_in) result(matica)
+  module pure function matica_torr_fn(this, j_in, a_in) result(matica)
     class(T_physicalObject), intent(in) :: this
     integer,                 intent(in) :: j_in
     real(kind=dbl),          intent(in) :: a_in
@@ -35,7 +33,7 @@ submodule (PhysicalObject) MatrixDefinitions
     
   end function matica_torr_fn
   
-  pure function matica_mech_fn(this, j_in, a_in) result(matica)
+  module pure function matica_mech_fn(this, j_in, a_in) result(matica)
     class(T_physicalObject), intent(in) :: this
     integer,                 intent(in) :: j_in
     real(kind=dbl),          intent(in) :: a_in

@@ -1,8 +1,7 @@
 submodule(PhysicalObject) TimeStepping
-  implicit none
-  contains
+  implicit none ; contains
   
-  real(kind=dbl) pure function velc_crit_fn(this)
+  module pure real(kind=dbl) function velc_crit_fn(this)
     class(T_physicalObject), intent(in) :: this
     integer                             :: ir
     real(kind=dbl)                      :: L2_rvelc, L2_zvelc
