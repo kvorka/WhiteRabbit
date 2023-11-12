@@ -51,14 +51,13 @@ module LU
     ldu = ld + 1 + lu
     
     do j = 1, n
-      i = Indx(j)
+      i = Indx(j) ; dum = b(i)
         if (i /= j) then
-          dum  = b(i)
           b(i) = b(j)
           b(j) = dum
         end if
       
-      k = min(n,ld+j) ; b(j+1:k) = b(j+1:k) - Lower(1:k-j,j) * b(j)
+      k = min(n,ld+j) ; b(j+1:k) = b(j+1:k) - Lower(1:k-j,j) * dum
     end do
     
     do i = n, 1, -1
