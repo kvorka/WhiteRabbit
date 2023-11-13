@@ -5,7 +5,6 @@ optimization=$2
 $compiler -$optimization -march=native -c kernels/math/Math.f90
 $compiler -$optimization -march=native -c kernels/math/Clebsch_Legendre.f90
 $compiler -$optimization -march=native -c kernels/math/SphericalFunctions.f90
-$compiler -$optimization -march=native -c kernels/math/Vector_analysis.f90
 $compiler -$optimization -march=native -c kernels/math/Harmsy.f90
 
 $compiler -$optimization -march=native -c code/ice/IceConstants.f90
