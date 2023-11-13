@@ -23,6 +23,8 @@ submodule (SphericalHarmonics) Init_SphericalHarmonics
     this%nFourier  = 3*(this%maxj+1)
     this%nLegendre = (((3*(this%maxj+1)/2+1)/2+1+step)/step)*step
     
+    this%scale = 1 / ( 8 * this%nLegendre**2 * sqrt(pi) )
+    
     if ( jmax <= 50 ) then
       this%tolm = 1.0d-11
     else if ( jmax <= 100 ) then

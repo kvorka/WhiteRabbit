@@ -80,14 +80,14 @@ submodule (SphericalHarmonics) vcvv_vcvgv
         end if
         
         ijml = 3*(j*(j+1)/2+m)+abs(j-1)-j
-          cab(3,ijml) =         ( sum1(1) - sum2(1) ) * fac1
-          cab(4,ijml) = cunit * ( sum1(1) + sum2(1) ) * fac1
-          cab(5,ijml) =         ( sum3(1)           ) * fac1
+          cab(3,ijml) =         ( sum1(1) - sum2(1) ) * sq2_1 * fac1
+          cab(4,ijml) = cunit * ( sum1(1) + sum2(1) ) * sq2_1 * fac1
+          cab(5,ijml) =         ( sum3(1)           )         * fac1
         
         ijml = 3*(j*(j+1)/2+m)+(j+1)-j
-          cab(3,ijml) =         ( sum1(2) - sum2(2) ) * fac2
-          cab(4,ijml) = cunit * ( sum1(2) + sum2(2) ) * fac2
-          cab(5,ijml) =         ( sum3(2)           ) * fac2
+          cab(3,ijml) =         ( sum1(2) - sum2(2) ) * sq2_1 * fac2
+          cab(4,ijml) = cunit * ( sum1(2) + sum2(2) ) * sq2_1 * fac2
+          cab(5,ijml) =         ( sum3(2)           )         * fac2
       end do
     end do
     
@@ -162,16 +162,11 @@ submodule (SphericalHarmonics) vcvv_vcvgv
             do concurrent ( i1 = 1:5 )
               i2 = 3*(i1-1)+1
               
-              cc(i2  ,mj) =           sum1(i1) - sum2(i1)
-              cc(i2+1,mj) = cunit * ( sum1(i1) + sum2(i1) )
+              cc(i2  ,mj) =         ( sum1(i1) - sum2(i1) ) * sq2_1
+              cc(i2+1,mj) = cunit * ( sum1(i1) + sum2(i1) ) * sq2_1
               cc(i2+2,mj) =           sum3(i1)
             end do
         end do
-      end do
-      
-      do concurrent ( mj = 1:this%jms2 )
-        cc(1: 5,mj) = cc(1: 5,mj) / 2
-        cc(7:15,mj) = cc(7:15,mj) / 2
       end do
     
     deallocate(cab, sum1, sum2, sum3)
@@ -446,16 +441,9 @@ submodule (SphericalHarmonics) vcvv_vcvgv
     deallocate( cc, sumLegendreN, sumLegendreS, grid, fft, sumFourierN, sumFourierS, pmm, pmj, pmj1, pmj2, cosx, sinx, fftLege, &
               & symL, asymL, symF, asymF )
     
-    fac1 = 1 / ( 4 * this%nLegendre**2 * sqrt(pi) )
-    
-    do concurrent ( mj = 1:this%jms1 ) 
-      cr(1,mj) = cr(1,mj) * fac1
-      cr(2,mj) = cr(2,mj) * fac1 / 2
-      cr(3,mj) = cr(3,mj) * fac1 / 2 * cunit
-      cr(4,mj) = cr(4,mj) * fac1
-      
-      cr12     = cr(2,mj) - cr(3,mj)
-      cr(3,mj) = cr(2,mj) + cr(3,mj)
+    do concurrent ( mj = 1:this%jms1 )
+      cr12     = +( cr(2,mj) - cr(3,mj) * cunit ) * sq2_1
+      cr(3,mj) = -( cr(2,mj) + cr(3,mj) * cunit ) * sq2_1
       cr(2,mj) = cr12
     end do
     
@@ -495,18 +483,22 @@ submodule (SphericalHarmonics) vcvv_vcvgv
         
         cjm(1,ijm) = cr(1,mj   )
         cjm(2,ijm) = cr(2,mj2-1) * cleb1_fn(j-1,m+1,1,-1,j,m) + &
-                   & cr(4,mj -1) * cleb1_fn(j-1,m+0,1, 0,j,m) - &
+                   & cr(4,mj -1) * cleb1_fn(j-1,m+0,1, 0,j,m) + &
                    & cr(3,mj1-1) * cleb1_fn(j-1,m-1,1,+1,j,m)
         cjm(3,ijm) = cr(2,mj2  ) * cleb1_fn(j  ,m+1,1,-1,j,m) + &
-                   & cr(4,mj   ) * cleb1_fn(j  ,m+0,1, 0,j,m) - &
+                   & cr(4,mj   ) * cleb1_fn(j  ,m+0,1, 0,j,m) + &
                    & cr(3,mj1  ) * cleb1_fn(j  ,m-1,1,+1,j,m)
         cjm(4,ijm) = cr(2,mj2+1) * cleb1_fn(j+1,m+1,1,-1,j,m) + &
-                   & cr(4,mj +1) * cleb1_fn(j+1,m+0,1, 0,j,m) - &
+                   & cr(4,mj +1) * cleb1_fn(j+1,m+0,1, 0,j,m) + &
                    & cr(3,mj1+1) * cleb1_fn(j+1,m-1,1,+1,j,m)
       end do
     end do
     
     deallocate(cr)
+    
+    do concurrent ( ijm=1:this%jms , i1=1:4 )
+      cjm(i1,ijm) = cjm(i1,ijm) * this%scale
+    end do
     
   end subroutine vcvv_vcvgv_sub
   

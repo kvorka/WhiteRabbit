@@ -5,6 +5,7 @@ module Math
   integer,           parameter, public :: dbl   = real64
   real(kind=dbl),    parameter, public :: zero  = 0._dbl
   real(kind=dbl),    parameter, public :: one   = 1._dbl
+  real(kind=dbl),    parameter, public :: sq2_1 = 1 / sqrt(2._dbl)
   real(kind=dbl),    parameter, public :: pi    = acos(-one)
   real(kind=dbl),    parameter, public :: s4pi  = sqrt(4*pi)
   complex(kind=dbl), parameter, public :: cunit = cmplx(zero, one , kind=dbl)
