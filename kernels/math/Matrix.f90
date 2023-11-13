@@ -44,20 +44,20 @@ module Matrix
     this%M = matrixM
     this%U = matrixU
     
-    do i = 1, this%ld
-      do k = this%ld, 1, -1
-        this%U( this%ld  + 2 - i - k : this%ldu - k , i ) = this%U( this%ld+2-i : this%ldu, i )
-        this%U( this%ldu + 1 -     k : this%ldu     , i ) = zero
+    k = this%ld
+      do i = 1, this%ld
+        this%U(this%ld+2-i-k:this%ldu-k,i) = this%U(this%ld+2-i:this%ldu,i)
+        
+        k = k-1
+          this%U(this%ldu-k:this%ldu,i) = zero
       end do
-    end do
     
     allocate( pom(this%ldu) )
     
     do j = 1, this%n
-      k = min( this%ld+j , this%n )
-      
-      this%I(j) = maxloc( abs( this%U(1,j:k) ), 1 ) + j - 1
-      i         = this%I(j)
+      k         = min(this%ld+j,this%n)
+      i         = maxloc( abs( this%U(1,j:k) ), 1 ) + j - 1
+      this%I(j) = i
       
       if (i /= j) then
         pom         = this%U(:,j)
@@ -67,9 +67,9 @@ module Matrix
       
       pom = this%U(:,j)
         do i = j+1, k
-          this%L(          i-j, j ) = this%U( 1          , i ) / pom(1)
-          this%U( 1:this%ldu-1, i ) = this%U( 2:this%ldu , i ) - this%L(i-j,j) * pom(2:this%ldu)
-          this%U(   this%ldu  , i ) = zero
+          this%L(i-j,j)          = this%U(1,i) / pom(1)
+          this%U(1:this%ldu-1,i) = this%U(2:this%ldu,i) - this%L(i-j,j) * pom(2:this%ldu)
+          this%U(this%ldu,i)     = zero
         end do
     end do
     
