@@ -1,4 +1,5 @@
 module Matrix
+  !Original work on LU: Numerical Recipes in Fortran77
   use Math
   implicit none
   
@@ -105,8 +106,8 @@ module Matrix
     complex(kind=dbl), intent(in) :: vector(:)
     integer                       :: indM1, indM2, indV1, indV2
     
-    indM1 = max( 1,   this%ld+2-i ) ; indM2 = min( this%ldu  , this%ld+1+this%n-i )
-    indV1 = max( 1, i-this%ld     ) ; indV2 = min( i+this%lu ,           this%n   )
+    indM1 = max( 1 ,   this%ld+2-i ) ; indM2 = min( this%ldu  , this%ld+1+this%n-i )
+    indV1 = max( 1 , i-this%ld     ) ; indV2 = min( i+this%lu ,           this%n   )
     
     matrixMultiple_fn = sum( this%M( indM1 : indM2, i ) * vector( indV1 : indV2 ) )
     

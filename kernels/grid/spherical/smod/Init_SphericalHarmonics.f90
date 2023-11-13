@@ -1,12 +1,17 @@
 submodule (SphericalHarmonics) Init_SphericalHarmonics
   implicit none ; contains
   
-  module pure subroutine init_harmonics_sub(this, jmax)
+  module subroutine init_harmonics_sub(this, jmax)
     class(T_lateralGrid), intent(inout) :: this
     integer,              intent(in)    :: jmax
     integer                             :: i, k, j, m, n, ncnt
     real(kind=dbl)                      :: xincr, x, y, fx, fy
-
+    
+    if ( .not. ( any( addmissible_jmax == jmax ) ) ) then
+      write(*,*) 'Due to FFT, this value of jmax is prohibited. Please, see table of admissible values in SphericalHarmonics.f90'
+      stop
+    end if
+    
     this%jmax = jmax
     this%jms  =     ( jmax   *(jmax+1)/2 +  jmax   ) + 1
     this%jms1 =     ((jmax+1)*(jmax+2)/2 + (jmax+1)) + 1
