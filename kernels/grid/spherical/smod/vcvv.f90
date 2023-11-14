@@ -204,9 +204,7 @@ submodule (SphericalHarmonics) vcvv
       call this%fourtrans%exec_c2r_sub(6*step, this%maxj+1, sumLegendreN, grid)
       
       do concurrent ( i1=0:this%nFourier-1, i2=1:step )
-        fft(i2,i1) = grid(1,i2,i1) * grid(4,i2,i1) + &
-                   & grid(2,i2,i1) * grid(5,i2,i1) + &
-                   & grid(3,i2,i1) * grid(6,i2,i1)
+        fft(i2,i1) = sum( grid(1:3,i2,i1) * grid(4:6,i2,i1) )
       end do
       
       call this%fourtrans%exec_r2c_sub(step, this%maxj, fft, sumFourierN)
@@ -214,9 +212,7 @@ submodule (SphericalHarmonics) vcvv
       call this%fourtrans%exec_c2r_sub(6*step, this%maxj+1, sumLegendreS, grid)
       
       do concurrent ( i1=0:this%nFourier-1, i2=1:step )
-        fft(i2,i1) = grid(1,i2,i1) * grid(4,i2,i1) + &
-                   & grid(2,i2,i1) * grid(5,i2,i1) + &
-                   & grid(3,i2,i1) * grid(6,i2,i1)
+        fft(i2,i1) = sum( grid(1:3,i2,i1) * grid(4:6,i2,i1) )
       end do
       
       call this%fourtrans%exec_r2c_sub(step, this%maxj, fft, sumFourierS)

@@ -297,32 +297,20 @@ submodule (SphericalHarmonics) vcvgv
       
       call this%fourtrans%exec_c2r_sub(12*step, this%maxj+1, sumLegendreN, grid)
       
-      do concurrent (i1=0:this%nFourier-1, i2=1:step)
-        fft(1,i2,i1) = grid( 1,i2,i1) * grid( 4,i2,i1) + &
-                     & grid( 2,i2,i1) * grid( 5,i2,i1) + &
-                     & grid( 3,i2,i1) * grid( 6,i2,i1)
-        fft(2,i2,i1) = grid( 1,i2,i1) * grid( 7,i2,i1) + &
-                     & grid( 2,i2,i1) * grid( 8,i2,i1) + &
-                     & grid( 3,i2,i1) * grid( 9,i2,i1)
-        fft(3,i2,i1) = grid( 1,i2,i1) * grid(10,i2,i1) + &
-                     & grid( 2,i2,i1) * grid(11,i2,i1) + &
-                     & grid( 3,i2,i1) * grid(12,i2,i1)
+      do concurrent ( i1=0:this%nFourier-1, i2=1:step )
+        fft(1,i2,i1) = sum( grid(1:3,i2,i1) * grid( 4: 6,i2,i1) )
+        fft(2,i2,i1) = sum( grid(1:3,i2,i1) * grid( 7: 9,i2,i1) )
+        fft(3,i2,i1) = sum( grid(1:3,i2,i1) * grid(10:12,i2,i1) )
       end do
       
       call this%fourtrans%exec_r2c_sub(3*step, this%maxj, fft, sumFourierN)
       
       call this%fourtrans%exec_c2r_sub(12*step, this%maxj+1, sumLegendreS, grid)
       
-      do concurrent (i1=0:this%nFourier-1, i2=1:step)
-        fft(1,i2,i1) = grid( 1,i2,i1) * grid( 4,i2,i1) + &
-                     & grid( 2,i2,i1) * grid( 5,i2,i1) + &
-                     & grid( 3,i2,i1) * grid( 6,i2,i1)
-        fft(2,i2,i1) = grid( 1,i2,i1) * grid( 7,i2,i1) + &
-                     & grid( 2,i2,i1) * grid( 8,i2,i1) + &
-                     & grid( 3,i2,i1) * grid( 9,i2,i1)
-        fft(3,i2,i1) = grid( 1,i2,i1) * grid(10,i2,i1) + &
-                     & grid( 2,i2,i1) * grid(11,i2,i1) + &
-                     & grid( 3,i2,i1) * grid(12,i2,i1)
+      do concurrent ( i1=0:this%nFourier-1, i2=1:step )
+        fft(1,i2,i1) = sum( grid(1:3,i2,i1) * grid( 4: 6,i2,i1) )
+        fft(2,i2,i1) = sum( grid(1:3,i2,i1) * grid( 7: 9,i2,i1) )
+        fft(3,i2,i1) = sum( grid(1:3,i2,i1) * grid(10:12,i2,i1) )
       end do
       
       call this%fourtrans%exec_r2c_sub(3*step, this%maxj, fft, sumFourierS)
