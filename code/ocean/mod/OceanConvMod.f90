@@ -30,19 +30,19 @@ module OceanConvMod
     real(kind=dbl)                    :: dt
     logical                           :: changed_dt
     
-    changed_dt = .false.
-    !dt = this%velc_crit_fn()
-    !  if ( dt < this%dt) then
-    !    dt = 0.75_dbl * dt
-    !
-    !    this%ab = 1 + dt / ( 2 * this%dt )
-    !    this%dt = dt
-    !    
-    !    changed_dt = .true.
-    !  else
-    !    this%ab    = 1.5_dbl
-    !    changed_dt = .false.
-    !  end if
+    changed_dt = .false. ; dt = this%velc_crit_fn()
+    
+    if ( dt < this%dt) then
+      dt = 0.50_dbl * dt
+      
+      this%ab = 1 + dt / ( 2 * this%dt )
+      this%dt = dt
+      
+      changed_dt = .true.
+    else
+      this%ab    = 1.5_dbl
+      changed_dt = .false.
+    end if
     
     ijm = 1 ; ir = 1
       this%rtemp(ir,ijm) = cs4pi

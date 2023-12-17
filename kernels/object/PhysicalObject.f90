@@ -51,7 +51,7 @@ module PhysicalObject
       class(T_physicalObject), intent(inout) :: this
     end subroutine set_dt_sub
     
-    module pure real(kind=dbl) function velc_crit_fn(this)
+    module real(kind=dbl) function velc_crit_fn(this)
       class(T_physicalObject), intent(in) :: this
     end function velc_crit_fn
     

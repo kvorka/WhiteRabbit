@@ -35,7 +35,7 @@ $compiler -$optimization -$arch -c kernels/gmodel/Gravity.f90
 
 $compiler -$optimization -$arch -c kernels/object/PhysicalObject.f90
 $compiler -$optimization -$arch -c kernels/object/smod/Init_object.f90
-$compiler -$optimization -$arch -c kernels/object/smod/TimeStepping.f90
+$compiler -$optimization -$arch -$parallel -c kernels/object/smod/TimeStepping.f90
 $compiler -$optimization -$arch -c kernels/object/smod/Parameters.f90
 $compiler -$optimization -$arch -c kernels/object/smod/Variables.f90
 $compiler -$optimization -$arch -c kernels/object/smod/Forces.f90
