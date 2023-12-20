@@ -13,19 +13,15 @@ submodule(PhysicalObject) TimeStepping
     !$omp parallel do private( velc_jml_ir, L2_rvelc, L2_zvelc )
     do ir = 2, this%nd
       call this%sol%velocity_jml_sub(ir, velc_jml_ir)
-        L2_rvelc = snorm_fn(this%jmax, ervs_fn(this%jmax, velc_jml_ir))
-        L2_zvelc = vnorm_fn(this%jmax, ervv_fn(this%jmax, velc_jml_ir))
+        L2_rvelc = max( snorm_fn(this%jmax, ervs_fn(this%jmax, velc_jml_ir)) , 1d-15 )
+        L2_zvelc = max( vnorm_fn(this%jmax, ervv_fn(this%jmax, velc_jml_ir)) , 1d-15 )
       
-      if ( ( L2_rvelc > 0 ) .and. ( L2_zvelc > 0) ) then
-        crit(ir) = min( ( this%rad_grid%r(ir) - this%rad_grid%r(ir-1) ) / L2_rvelc, this%rad_grid%rr(ir) / this%jmax / L2_zvelc )
-      else
-        crit(ir) = huge(0._dbl)
-      end if
+      crit(ir) = min( ( this%rad_grid%r(ir) - this%rad_grid%r(ir-1) ) / L2_rvelc, this%rad_grid%rr(ir) / this%jmax / L2_zvelc )
     end do
     !$omp end parallel do
     
     velc_crit_fn = minval( crit )
-
+    
     deallocate( velc_jml_ir , crit )
     
   end function velc_crit_fn
