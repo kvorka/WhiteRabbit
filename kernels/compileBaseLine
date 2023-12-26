@@ -36,6 +36,9 @@ $compiler -$optimization -$arch -c kernels/equations/matrices/smod/Matrices_init
 $compiler -$optimization -$arch -c kernels/equations/matrices/smod/Matrices_initmech.f90
 
 $compiler -$optimization -$arch -c kernels/gmodel/Gravity.f90
+$compiler -$optimization -$arch -c kernels/gmodel/smod/Gravity_init.f90
+$compiler -$optimization -$arch -c kernels/gmodel/smod/Potentials.f90
+$compiler -$optimization -$arch -c kernels/gmodel/smod/Gacceleration.f90
 
 $compiler -$optimization -$arch -c kernels/object/PhysicalObject.f90
 $compiler -$optimization -$arch -c kernels/object/smod/Init_object.f90
