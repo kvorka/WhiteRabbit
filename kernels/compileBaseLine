@@ -30,6 +30,10 @@ $compiler -$optimization -$arch -c kernels/equations/solutions/smod/Solution_rad
 $compiler -$optimization -$arch -c kernels/equations/solutions/smod/Solution_spherical.f90
 
 $compiler -$optimization -$arch -c kernels/equations/matrices/Matrices.f90
+$compiler -$optimization -$arch -c kernels/equations/matrices/smod/Matrices_init.f90
+$compiler -$optimization -$arch -c kernels/equations/matrices/smod/Matrices_inittemp.f90
+$compiler -$optimization -$arch -c kernels/equations/matrices/smod/Matrices_inittorr.f90
+$compiler -$optimization -$arch -c kernels/equations/matrices/smod/Matrices_initmech.f90
 
 $compiler -$optimization -$arch -c kernels/gmodel/Gravity.f90
 
