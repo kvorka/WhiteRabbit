@@ -39,8 +39,13 @@ module Matrix
   pure subroutine luDecompMatrix_sub(this, matrixU, matrixM)
     class(T_matrix), intent(inout) :: this
     real(kind=dbl),  intent(in)    :: matrixU(:,:), matrixM(:,:)
-    integer                            :: i, j, k, l
-    real(kind=dbl)                     :: pom
+    integer                        :: i, j, k, l
+    real(kind=dbl)                 :: pom
+    
+    do concurrent ( j = 1:this%n , i = 1:this%ldu )
+      this%U(i,j) = matrixU(i,j)
+      this%M(i,j) = matrixM(i,j)
+    end do
     
     k = this%ld
       do i = 1, this%ld
@@ -91,8 +96,8 @@ module Matrix
   pure subroutine luSolutionMatrix_sub(this, b)
     class(T_matrix),   intent(in)    :: this
     complex(kind=dbl), intent(inout) :: b(:)
-    integer                            :: i, j, k
-    complex(kind=dbl)                  :: dum
+    integer                          :: i, j, k
+    complex(kind=dbl)                :: dum
     
     do j = 1, this%n
       i = this%I(j) ; dum = b(i)
