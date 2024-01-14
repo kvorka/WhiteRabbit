@@ -3,9 +3,9 @@ module OceanConstants
   implicit none
   
   !Vseobecne nastavenie konstant
-  integer, parameter :: nd_ocean = 97
+  integer, parameter :: nd_ocean = 145
   integer, parameter :: jmax_ocean = 213
-  integer, parameter :: n_iter_ocean = 100  !Nastavit na N_period pre slapy
+  integer, parameter :: n_iter_ocean = 10  !Nastavit na N_period pre slapy
   logical, parameter :: noharm_ocean = .false.
   
   character(len=*), parameter :: grid_type_ocean    = 'chebv'
