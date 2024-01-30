@@ -2,7 +2,8 @@ module Spherical_func
   use Math
   implicit none
   
-  public :: jm, jml, jml2, ersv_fn, ervs_fn, ervv_fn, ezvv_fn, ezvv_sub, snorm_fn, vnorm_fn, tnorm_fn, dotproduct_fn, scalproduct_fn
+  public :: jm, jml, jml2, ersv_fn, ervs_fn, ervv_fn, ezvv_fn, ezvv_sub, snorm_fn, vnorm_fn, &
+          & tnorm_fn, dotproduct_fn, scalproduct_fn
   
   contains
   
