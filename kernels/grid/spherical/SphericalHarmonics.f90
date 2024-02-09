@@ -1,6 +1,8 @@
 module SphericalHarmonics
   use Clebsch_Legendre
   use FFT_mod
+  use poly_lege
+  use sph_vectors
   implicit none
   
   type, public :: T_lateralGrid
@@ -43,8 +45,8 @@ module SphericalHarmonics
     module pure subroutine vcvv_vcvgv_sub(this, ri, q, dv_r, v, cjm)
       class(T_lateralGrid), intent(in)  :: this
       real(kind=dbl),       intent(in)  :: ri
-      complex(kind=dbl),    intent(in)  :: dv_r(:), q(:), v(:)
-      complex(kind=dbl),    intent(out) :: cjm(:,:)
+      complex(kind=dbl),    intent(in)  :: dv_r(*), q(*), v(*)
+      complex(kind=dbl),    intent(out) :: cjm(*)
     end subroutine vcvv_vcvgv_sub
   end interface
   
