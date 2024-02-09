@@ -1,5 +1,5 @@
 module Spherical_func
-  use Math
+  use Conversions
   implicit none
   
   public :: jm, jml, jml2, ersv_fn, ervs_fn, ervv_fn, ezvv_fn, ezvv_sub, snorm_fn, vnorm_fn, &
