@@ -1,5 +1,5 @@
 module sph_vectors
-  use Clebsch_Legendre
+  use Clebsch_Gordan
   implicit none; public
   
   contains

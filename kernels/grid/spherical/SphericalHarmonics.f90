@@ -1,5 +1,5 @@
 module SphericalHarmonics
-  use Clebsch_Legendre
+  use Clebsch_Gordan
   use FFT_mod
   use poly_lege
   use sph_vectors

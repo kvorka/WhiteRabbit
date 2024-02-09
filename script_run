@@ -20,7 +20,7 @@ code_type="speed"
 ###########################################################################################
 $compile -c kernels/math/Math.f90
 $compile -c kernels/math/Conversions.f90
-$compile -c kernels/math/Clebsch_Legendre.f90
+$compile -c kernels/math/Clebsch_Gordan.f90
 $compile -c kernels/math/FFT.f90
 $compile -c kernels/math/SphericalFunctions.f90
 $compile -c kernels/math/poly_lege.f90
