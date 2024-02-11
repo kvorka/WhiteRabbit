@@ -1,11 +1,9 @@
 module OutputIceMod
   use IceConstants
   use OutputMod
-  implicit none
+  implicit none; public
   
-  integer, parameter, public :: jms = jmax_ice * (jmax_ice+1) / 2 + jmax_ice + 1
-  
-  public :: convergence_curve_ice_sub, harm_analysis_ice_sub, save_spectra_ice_sub
+  integer, parameter, private :: jms = jmax_ice * (jmax_ice+1) / 2 + jmax_ice + 1
   
   contains
   
@@ -44,43 +42,6 @@ module OutputIceMod
     
   end subroutine convergence_curve_ice_sub
   
-  subroutine harm_analysis_ice_sub(path_in, path_out, zon)
-    character(len=*),   intent(in) :: path_in, path_out
-    logical,            intent(in) :: zon
-    integer                        :: ij, ijm, error
-    complex(kind=dbl), allocatable :: spectra(:)
-    real(kind=dbl),    allocatable :: spectra_j0(:), griddata_1d(:), griddata_2d(:,:)
-    
-    allocate( spectra(jms) )
-    
-    open(unit=1, file=path_in, status='old', action='read')
-      do
-        read(1,*,iostat=error) ijm, spectra(ijm) ; if (error /= 0) exit
-      end do
-    close(1)
-    
-    if (zon) then
-      allocate( spectra_j0(0:jmax_ice) , griddata_1d(nth) )
-        
-        do ij = 0, jmax_ice
-          spectra_j0(ij) = c2r_fn( spectra( jm(ij,0) ) )
-        end do
-
-        call harmsy_Pj0_sub(jmax_ice, spectra_j0, griddata_1d)
-        call out_data_1d_sub(path_out, griddata_1d)
-      
-      deallocate( spectra_j0 , griddata_1d, spectra )
-    else
-      allocate( griddata_2d(2*nth,nth) )
-        
-        call harmsy_sub(jmax_ice, spectra, griddata_2d)
-        call out_data_2d_sub(path_out, griddata_2d)
-        
-      deallocate( griddata_2d, spectra )
-    end if
-    
-  end subroutine harm_analysis_ice_sub
-
   subroutine save_spectra_ice_sub(path_in, path_out)
     character(len=*),  intent(in)  :: path_in, path_out
     complex(kind=dbl), allocatable :: spectra(:)

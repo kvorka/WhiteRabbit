@@ -1,94 +1,82 @@
 module OutputOceanMod
   use OceanConstants
   use OutputMod
-  implicit none
+  implicit none; public
   
-  integer, parameter, public :: n_out = 120
-  integer, parameter, public :: jms   =    (jmax_ocean  )*(jmax_ocean+1)/2 + (jmax_ocean  )  + 1
-  integer, parameter, public :: jms1  =    (jmax_ocean+1)*(jmax_ocean+2)/2 + (jmax_ocean+1)  + 1
-  integer, parameter, public :: jmv   = 3*((jmax_ocean  )*(jmax_ocean+1)/2 + (jmax_ocean  )) + 1
-  
-  public :: nuss_curve_sub, harm_analysis_flux_sub, harm_analysis_temp_sub, harm_analysis_rad_velc_sub,save_data_sub, &
-          & harm_analysis_zon_velc_sub, save_spectra_velc_sub, save_spectra_temp_sub, save_spectra_flux_sub, load_data_sub
-  
-  interface
-    module subroutine nuss_curve_sub()
-    end subroutine nuss_curve_sub
-    
-    module subroutine harm_analysis_flux_sub()
-    end subroutine harm_analysis_flux_sub
-    
-    module subroutine save_spectra_flux_sub()
-    end subroutine save_spectra_flux_sub
-    
-    module subroutine harm_analysis_temp_sub()
-    end subroutine harm_analysis_temp_sub
-    
-    module subroutine save_spectra_temp_sub()
-    end subroutine save_spectra_temp_sub
-    
-    module subroutine harm_analysis_rad_velc_sub()
-    end subroutine harm_analysis_rad_velc_sub
-    
-    module subroutine harm_analysis_zon_velc_sub()
-    end subroutine harm_analysis_zon_velc_sub
-    
-    module subroutine save_spectra_velc_sub()
-    end subroutine save_spectra_velc_sub
-  end interface
+  integer, parameter, private :: n_out = 120
+  integer, parameter, private :: jms   =    (jmax_ocean  )*(jmax_ocean+1)/2 + (jmax_ocean  )  + 1
+  integer, parameter, private :: jms1  =    (jmax_ocean+1)*(jmax_ocean+2)/2 + (jmax_ocean+1)  + 1
+  integer, parameter, private :: jmv   = 3*((jmax_ocean  )*(jmax_ocean+1)/2 + (jmax_ocean  )) + 1
   
   contains
   
-  subroutine load_data_sub(dim_in, file_in, data_out)
-    character(len=*),  intent(in)  :: file_in
-    integer,           intent(in)  :: dim_in
-    complex(kind=dbl), intent(out) :: data_out(:,:)
-    real(kind=dbl),    allocatable :: r_in(:)
-    complex(kind=dbl), allocatable :: data_in(:,:)
-    integer                        :: i, ii
-    real(kind=dbl)                 :: r
-
-    allocate( r_in(nd_ocean+1), data_in(dim_in, nd_ocean+1) )
-
-      open(unit=1, file=file_in, status='old', action='read')
-        do i = 1, nd_ocean+1
-          read(1,*) r_in(i), data_in(:,i)
-        end do
-      close(1)
-
-      do i = 1, n_out
-        r = r_ud_ocean/(1-r_ud_ocean) + (i-1._dbl)/(n_out-1._dbl)
-
-        do ii = 1, nd_ocean
-          if ( (r >= r_in(ii)) .and. (r <= r_in(ii+1)) ) then
-            data_out(:,i) = ( (r-r_in(ii)) * data_in(:,ii+1) + (r_in(ii+1)-r) * data_in(:,ii) ) / ( r_in(ii+1)-r_in(ii) )
-            exit
-          end if
-        end do
-      end do
+  subroutine nuss_curve_sub()
+    integer         :: n, error
+    real(kind=dbl)  :: t, dt, Nuss, Re, sumNuss, sumRe
     
-    deallocate( r_in, data_in )
+    n = 0
+      sumNuss = 0._dbl
+      sumRe   = 0._dbl
     
-    data_out(1,:) = czero
-
-  end subroutine load_data_sub
+    open(unit=1, file=path_nuss, status='old', action='read')
+    
+    do
+      read(1,*,iostat=error) t, dt, Nuss, Re
+      
+      if ( error /= 0 ) then
+        exit
+      else if ( t > tNuss ) then
+        n = n + 1
+          sumNuss = sumNuss + Nuss
+          sumRe   = sumRe + Re
+      end if
+    end do
+    
+    close(1)
+    
+    open(unit=8, file='nuss', status='new', action='write')
+      write(8,*) sumNuss / n , sumRe / n
+    close(8)
+    
+  end subroutine nuss_curve_sub
   
-  subroutine save_data_sub(file_in, data_in)
-    character(len=*), intent(in) :: file_in
-    real(kind=dbl),   intent(in) :: data_in(:,:)
-    integer                      :: ir, ith
+  subroutine save_spectra_flux_sub()
+    complex(kind=dbl), allocatable :: flux(:)
     
-    open(unit=2, file=file_in, status='new', action='write')
+    allocate( flux(jms) ) ; flux = czero
     
-      do ith = 1, nth
-        do ir = 1, n_out
-          write(2,*) ith-0.5+90, 480+ir, data_in(ith,ir)
-        end do
-      end do
+    call avrg_spectra_2d_sub(path_ocean_flux, flux)
+    call out_spectra_2d_sub('flux-averaged.spec', flux)
     
-    close(2)
+    deallocate( flux )
     
-  end subroutine save_data_sub
+  end subroutine save_spectra_flux_sub
+  
+  subroutine save_spectra_temp_sub()
+    real(kind=dbl),    allocatable :: r(:)
+    complex(kind=dbl), allocatable :: temp(:,:)
+    
+    allocate( r(nd_ocean+1), temp(jms,nd_ocean+1) ) ; temp = czero
+    
+    call avrg_spectra_3d_sub(path_ocean_temp, r, temp)
+    call out_spectra_3d_sub('temp-averaged.spec', r, temp)
+    
+    deallocate( r, temp )
+    
+  end subroutine save_spectra_temp_sub
+  
+  subroutine save_spectra_velc_sub()
+    real(kind=dbl),    allocatable :: r(:)
+    complex(kind=dbl), allocatable :: velc(:,:)
+    
+    allocate( r(nd_ocean+1), velc(jmv,nd_ocean+1) ) ; velc = czero
+    
+    call avrg_spectra_3d_sub(path_ocean_velc, r, velc)
+    call out_spectra_3d_sub('velc-averaged.spec', r, velc)
+    
+    deallocate( r, velc )
+    
+  end subroutine save_spectra_velc_sub
   
 end module OutputOceanMod
   

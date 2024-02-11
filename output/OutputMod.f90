@@ -1,42 +1,9 @@
 module OutputMod
   use Paths
-  use Harmsy
   use Spherical_func
-  implicit none
-  
-  public :: out_data_2d_sub, out_data_1d_sub, out_spectra_2d_sub, out_spectra_3d_sub, avrg_spectra_2d_sub, avrg_spectra_3d_sub
+  implicit none; public
   
   contains
-  
-  subroutine out_data_1d_sub(opt, data_in)
-    character(len=*), intent(in) :: opt
-    real(kind=dbl),   intent(in) :: data_in(:)
-    integer                      :: ith
-      
-    open(unit=1, file=opt, status='new', action='write')
-    
-    do ith = 1, nth
-      write(1,*) ith-0.5, data_in(ith)
-    end do
-    
-    close(1)
-    
-  end subroutine out_data_1d_sub
-  
-  subroutine out_data_2d_sub(opt, data_in)
-    character(len=*), intent(in) :: opt
-    real(kind=dbl),   intent(in) :: data_in(:,:)
-    integer                      :: ith, iph
-    
-    open(unit=1, file=opt, status='new', action='write')
-    
-    do concurrent ( ith = 1:nth , iph = 1:2*nth )
-      write(1,*) iph-1.0, ith-0.5, data_in(iph,ith)
-    end do
-    
-    close(1)
-    
-  end subroutine out_data_2d_sub
   
   subroutine out_spectra_2d_sub(opt, spectra_in)
     character(len=*),     intent(in) :: opt

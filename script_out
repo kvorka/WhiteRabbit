@@ -1,12 +1,69 @@
-#!/bin/bash
-compiler=gfortran-12
-optimization=Ofast
+#!/bin/bash 
+###########################################################################################
+####                              COMPILER SET UP                                      ####
+###########################################################################################
+compile="gfortran-12 -Ofast -march=native -frename-registers -flto=auto -fopenmp"
 
-#ladova kora
-#./output/scripts/getConvIce $compiler $optimization
-./output/scripts/getDataIce $compiler $optimization
-#./output/scripts/gmtIce
+###########################################################################################
+####                              POSSIBLE CODE SETTINGS                               ####
+####    ocean_convection, ice_ocean, ocean_tides, ice_deformation, ice_convergence     ####
+###########################################################################################
+code_type="ocean_convection"
 
-#ocean
-./output/scripts/getDataOcean $compiler $optimization
-#./output/scripts/gmtOcean
+###########################################################################################
+####                             COMPILATION OF THE BASELINE                           ####
+###########################################################################################
+$compile -c kernels/math/Math.f90
+$compile -c kernels/math/Conversions.f90
+$compile -c kernels/math/SphericalFunctions.f90
+$compile -c output/Paths.f90
+$compile -c output/OutputMod.f90
+
+$compile -c code/ice/IceConstants.f90
+$compile -c output/ice/mod/OutputIceMod.f90
+
+$compile -c code/ocean/OceanConstants.f90
+$compile -c output/ocean/mod/OutputOceanMod.f90
+
+rm -f temp_averaged.spec velc_averaged.spec flux_averaged.spec || true
+rm -f curveShape_dn.dat curveShape_up.dat curveTopo_dn.dat curveTopo_up.dat || true
+
+###########################################################################################
+####                                    LINKING                                        ####
+###########################################################################################
+case $code_type in
+    
+    ocean_convection)
+        $compile output/ocean/OutputOcean.f90 *.o -o code_out
+        #./code_out
+    ;;
+    
+    ocean_tides)
+        $compile output/ocean/OutputOcean.f90 *.o -o code_out
+        ./code_out
+    ;;
+    
+    ice_ocean)
+        $compile output/ocean/OutputOcean.f90 *.o -o code_out
+        ./code_out
+        
+        $compile output/ice/OutputIce.f90 *.o -o code_out
+        ./code_out
+    ;;
+    
+    ice_deformation)
+        $compile output/ice/OutputIce.f90 *.o -o code_out
+        ./code_out
+    ;;
+    
+    ice_convergence)
+        $compile output/ice/ConvergenceIce.f90 *.o -o code_out
+        ./code_out
+    ;;
+    
+esac
+
+###########################################################################################
+####                                    CLEANING                                       ####
+###########################################################################################
+rm *.mod *.o code_out
