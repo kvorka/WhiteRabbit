@@ -47,92 +47,63 @@ $compile -c kernels/gmodel/smod/*.f90
 $compile -c kernels/object/PhysicalObject.f90
 $compile -c kernels/object/smod/*.f90
 
+$compile -c code/ocean/OceanConstants.f90
+$compile -c code/ocean/OceanMod.f90
+$compile -c code/ocean/mod/*.f90
+
+$compile -c code/ice/IceConstants.f90
+$compile -c code/ice/IceViscosity.f90
+$compile -c code/ice/IceMod.f90
+$compile -c code/ice/smod/*.f90
+$compile -c code/ice/mod/IceTidesMod.f90
+$compile -c code/ice/mod/IceCrustMod.f90
+
 rm -r -f data || true
 mkdir data
 
 ###########################################################################################
-####                               OCEAN-ICE COMPUTATION                               ####
+####                                    LINKING                                        ####
 ###########################################################################################
 if [ "$code_type" = "$code_oceanIce" ]; then
-mkdir data/data_ice_topo
-mkdir data/data_ice_shape
-mkdir data/data_ice_tides
-
-mkdir data/data_ocean_temp
-mkdir data/data_ocean_veloc
-mkdir data/data_ocean_flux
-
-$compile -c code/ocean/OceanConstants.f90
-$compile -c code/ocean/OceanMod.f90
-$compile -c code/ocean/mod/OceanIceMod.f90
-
-$compile -c code/ice/IceConstants.f90
-$compile -c code/ice/IceViscosity.f90
-$compile -c code/ice/IceMod.f90
-$compile -c code/ice/smod/*.f90
-$compile -c code/ice/mod/IceTidesMod.f90
-$compile -c code/ice/mod/IceCrustMod.f90
-
-$compile code/codes/BielyKralik_oceanIce.f90 *.o -o Test_oceanIce
+    mkdir data/data_ice_topo
+    mkdir data/data_ice_shape
+    mkdir data/data_ice_tides
+    
+    mkdir data/data_ocean_temp
+    mkdir data/data_ocean_veloc
+    mkdir data/data_ocean_flux
+    
+    $compile code/codes/BielyKralik_oceanIce.f90 *.o -o Test_oceanIce
 fi
 
-###########################################################################################
-####                            OCEAN TIDES COMPUTATION                                ####
-###########################################################################################
 if [ "$code_type" = "$code_tides" ]; then
-$compile -c code/ocean/OceanConstants.f90
-$compile -c code/ocean/OceanMod.f90
-$compile -c code/ocean/mod/OceanTidesMod.f90
-
-$compile code/codes/BielyKralik_tidesOcean.f90 *.o -o Test_tides
+    mkdir data/data_ocean_veloc
+    
+    $compile code/codes/BielyKralik_tidesOcean.f90 *.o -o Test_tides
 fi
 
-###########################################################################################
-####                                   SPEED TEST                                      ####
-###########################################################################################
 if [ "$code_type" = "$code_test" ]; then
-mkdir data/data_ocean_temp
-mkdir data/data_ocean_veloc
-mkdir data/data_ocean_flux
-
-$compile -c code/ocean/OceanConstants.f90
-$compile -c code/ocean/OceanMod.f90
-$compile -c code/ocean/mod/OceanConvMod.f90
-
-$compile code/codes/BielyKralik_speedTest.f90 *.o -o Test_speed
+    mkdir data/data_ocean_temp
+    mkdir data/data_ocean_veloc
+    mkdir data/data_ocean_flux
+    
+    $compile code/codes/BielyKralik_speedTest.f90 *.o -o Test_speed
 fi
 
-###########################################################################################
-####                              CONVECTION COMPUTATION                               ####
-###########################################################################################
 if [ "$code_type" = "$code_convection" ]; then
-mkdir data/data_ocean_temp
-mkdir data/data_ocean_veloc
-mkdir data/data_ocean_flux
-
-$compile -c code/ocean/OceanConstants.f90
-$compile -c code/ocean/OceanMod.f90
-$compile -c code/ocean/mod/OceanConvMod.f90
-
-$compile code/codes/BielyKralik_oceanConv.f90 *.o -o Test_convection
+    mkdir data/data_ocean_temp
+    mkdir data/data_ocean_veloc
+    mkdir data/data_ocean_flux
+    
+    $compile code/codes/BielyKralik_oceanConv.f90 *.o -o Test_convection
 fi
 
-###########################################################################################
-####                          ICE DEFORMATION COMPUTATION                              ####
-###########################################################################################
 if [ "$code_type" = "$code_ice" ]; then
-mkdir data/data_ice_topo
-mkdir data/data_ice_shape
-mkdir data/data_ice_tides
-
-$compile -c code/ice/IceConstants.f90
-$compile -c code/ice/IceViscosity.f90
-$compile -c code/ice/IceMod.f90
-$compile -c code/ice/smod/*.f90
-$compile -c code/ice/mod/IceTidesMod.f90
-$compile -c code/ice/mod/IceCrustMod.f90
-
-$compile code/codes/BielyKralik_Ice.f90 *.o -o Test_ice
+    mkdir data/data_ice_topo
+    mkdir data/data_ice_shape
+    mkdir data/data_ice_tides
+    
+    $compile code/codes/BielyKralik_Ice.f90 *.o -o Test_ice
 fi
 
 ###########################################################################################
