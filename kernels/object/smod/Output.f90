@@ -5,7 +5,7 @@ submodule (PhysicalObject) Output
     class(T_physicalObject), intent(in) :: this
     integer,                 intent(in) :: filenum
     character(len=*),        intent(in) :: path, quantity
-    integer                             :: i, j, m
+    integer                             :: i, ijm
     
     select case (quantity)
       case ('temperature')
@@ -24,44 +24,34 @@ submodule (PhysicalObject) Output
       
       case ('flux')
         open(unit=filenum, file=path//'/Flux-'//trim(adjustl(int2str_fn(this%poc)))//'.dat', status='new', action='write')
-          do j = 0, this%jmax
-            do m = 0, j
-              write(filenum,*) j, m, this%flux_up(jm(j,m))
-            end do
+          do ijm = 1, this%jms
+            write(filenum,*) ijm, this%flux_up(ijm)
           end do
         close(filenum)
       
       case ('topo')
         open(unit=filenum, file=path//'/Topo_dn-'//trim(adjustl(int2str_fn(this%poc)))//'.dat', status='new', action='write')
-          do j = 1, this%jmax
-            do m = 0, j
-              write(filenum,*) j, m, this%sol%t_dn(jm(j,m)) * this%D_ud
-            end do
+          do ijm = 1, this%jms
+            write(filenum,*) ijm, this%sol%t_dn(ijm) * this%D_ud
           end do
         close(filenum)
         
         open(unit=filenum, file=path//'/Topo_up-'//trim(adjustl(int2str_fn(this%poc)))//'.dat', status='new', action='write')
-          do j = 1, this%jmax
-            do m = 0, j
-              write(filenum,*) j, m, this%sol%t_up(jm(j,m)) * this%D_ud
-            end do
+          do ijm = 1, this%jms
+            write(filenum,*) ijm, this%sol%t_up(ijm) * this%D_ud
           end do
         close(filenum)
       
       case('shape')
         open(unit=filenum, file=path//'/Shape_dn-'//trim(adjustl(int2str_fn(this%poc)))//'.dat', status='new', action='write')
-          do j = 1, this%jmax
-            do m = 0, j
-              write(filenum,*) j, m, this%sol%u_dn(jm(j,m)) * this%D_ud
-            end do
+          do ijm = 1, this%jms
+            write(filenum,*) ijm, this%sol%u_dn(ijm) * this%D_ud
           end do
         close(filenum)
 
         open(unit=filenum, file=path//'/Shape_up-'//trim(adjustl(int2str_fn(this%poc)))//'.dat', status='new', action='write')
-          do j = 1, this%jmax
-            do m = 0, j
-              write(filenum,*) j, m, this%sol%u_up(jm(j,m)) * this%D_ud
-            end do
+          do ijm = 1, this%jms
+            write(filenum,*) ijm, this%sol%u_up(ijm) * this%D_ud
           end do
         close(filenum)
     end select

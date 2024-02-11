@@ -9,7 +9,7 @@ module OutputIceMod
   
   subroutine convergence_curve_ice_sub(path_in, path_out)
     character(len=*), intent(in) :: path_out, path_in
-    integer                      :: in, ij, im, error
+    integer                      :: in, ijm, error
     real(kind=dbl)               :: L2
     complex(kind=dbl)            :: coeff
     
@@ -23,13 +23,9 @@ module OutputIceMod
             L2 = 0._dbl
             
             do
-              read(7,*,iostat=error) ij, im, coeff ; if (error /= 0) exit
+              read(7,*,iostat=error) ijm, coeff ; if (error /= 0) exit
               
-              if (im == 0) then
-                L2 = L2 + abs( coeff )**2
-              else
-                L2 = L2 + 2 * abs( coeff )**2
-              end if
+              L2 = L2 + abs( coeff )**2
             end do
           end if
           

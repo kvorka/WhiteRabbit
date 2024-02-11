@@ -1,9 +1,7 @@
 module OutputMod
   use Paths
-  use Spherical_func
-  implicit none; public
-  
-  contains
+  use Conversions
+  implicit none; public; contains
   
   subroutine out_spectra_2d_sub(opt, spectra_in)
     character(len=*),     intent(in) :: opt
@@ -39,19 +37,19 @@ module OutputMod
   subroutine avrg_spectra_2d_sub(opt, spectra_out)
     character(len=*),  intent(in)  :: opt
     complex(kind=dbl), intent(out) :: spectra_out(:)
-    integer                        :: in, ij, im, error
+    integer                        :: in, ijm, error
     complex(kind=dbl)              :: spectrajm
     
     do in = avrg_start, avrg_end
       open( unit=7, file=opt//trim(adjustl(int2str_fn(in)))//'.dat', status='old', action='read' )
       
       do
-        read(7,*,iostat=error) ij, im, spectrajm
+        read(7,*,iostat=error) ijm, spectrajm
         
         if (error /= 0) then
           exit
         else
-          spectra_out(jm(ij,im)) = spectra_out(jm(ij,im)) + spectrajm / (avrg_end-avrg_start)
+          spectra_out(ijm) = spectra_out(ijm) + spectrajm / (avrg_end-avrg_start)
         end if
       end do
       

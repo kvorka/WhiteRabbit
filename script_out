@@ -14,8 +14,7 @@ code_type="ocean_convection"
 ####                             COMPILATION OF THE BASELINE                           ####
 ###########################################################################################
 $compile -c kernels/math/Math.f90
-$compile -c kernels/math/Conversions.f90
-$compile -c kernels/math/SphericalFunctions.f90
+$compile -c kernels/math/mod/Conversions.f90
 $compile -c output/Paths.f90
 $compile -c output/OutputMod.f90
 
@@ -35,7 +34,7 @@ case $code_type in
     
     ocean_convection)
         $compile output/ocean/OutputOcean.f90 *.o -o code_out
-        #./code_out
+        ./code_out
     ;;
     
     ocean_tides)
