@@ -4,219 +4,54 @@ submodule (SphericalHarmonics) vcvgv
   module pure subroutine vcvgv_sub(this, ri, dv_r, v, cjm)
     class(T_lateralGrid), intent(in)  :: this
     real(kind=dbl),       intent(in)  :: ri
-    complex(kind=dbl),    intent(in)  :: dv_r(:), v(:)
-    complex(kind=dbl),    intent(out) :: cjm(:,:)
-    integer                           :: i, j, m, l, ijm, ijml, mj, mj1, mj2, lmj, i1, i2
-    real(kind=dbl)                    :: cleb, fac1, fac2
-    real(kind=dbl),       allocatable :: pmm(:), pmj(:), pmj1(:), pmj2(:), cosx(:), fftLege(:), sinx(:), grid(:,:,:), fft(:,:,:)
-    complex(kind=dbl)                 :: cr12
-    complex(kind=dbl),    allocatable :: sum1(:), sum2(:), sum3(:)
-    complex(kind=dbl),    allocatable :: cab(:,:), cc(:,:), cr(:,:), symL(:,:), asymL(:,:), symF(:,:), asymF(:,:)
-    complex(kind=dbl),    allocatable :: sumLegendreN(:,:,:), sumLegendreS(:,:,:), sumFourierN(:,:,:), sumFourierS(:,:,:)
+    complex(kind=dbl),    intent(in)  :: dv_r(*), v(*)
+    complex(kind=dbl),    intent(out) :: cjm(*)
+    integer                           :: i, j, m, ijm, mj, mj1, mj2, lmj, i1, i2
+    real(kind=dbl),       allocatable :: pmm(:), pmj(:), pmj1(:), pmj2(:), cosx(:), weight(:), sinx(:), grid(:,:,:), fft(:,:,:)
+    complex(kind=dbl),    allocatable :: cab(:), cc(:), cr(:), ssym(:), asym(:), sumN(:), sumS(:)
     
-    allocate( cab(4,this%jmv1), sum1(2), sum2(2), sum3(2) ) ; cab = czero
-    
-    do concurrent ( ijml = 1:this%jmv )
-      cab(1,ijml) = v(ijml)
-    end do
-    
-    do j = 0, this%jmax+1
-      fac1 = sqrt((j  )/(2*j+1._dbl))
-      fac2 = sqrt((j+1)/(2*j+1._dbl))
+    allocate( cab(4*this%jmv1), cc(12*this%jms2), cr(3*this%jms1) )
       
-      do m = 0, j
-        sum1 = czero ; sum2 = czero ; sum3 = czero
-        
-        if (m == 0) then
-          do l = abs(j-1), min(this%jmax, j+1)
-            lmj = 3*(l*(l+1)/2+m+1)+j-l
-            
-            cleb = cleb1_fn(j,m,1, 0,l,m+0)
-              sum3(1) = sum3(1) + ( dv_r(lmj-3) + (j+1) * v(lmj-3) / ri ) * cleb
-              sum3(2) = sum3(2) - ( dv_r(lmj-3) - (j  ) * v(lmj-3) / ri ) * cleb
-            
-            cleb = cleb1_fn(j,m,1,-1,l,m-1) * (-1)**(j+l)
-              sum1(1) = sum1(1) + conjg( dv_r(lmj) + (j+1) * v(lmj) / ri ) * cleb
-              sum1(2) = sum1(2) - conjg( dv_r(lmj) - (j  ) * v(lmj) / ri ) * cleb
-            
-            cleb = cleb1_fn(j,m,1,+1,l,m+1)
-              sum2(1) = sum2(1) + ( dv_r(lmj) + (j+1) * v(lmj) / ri ) * cleb
-              sum2(2) = sum2(2) - ( dv_r(lmj) - (j  ) * v(lmj) / ri ) * cleb
-          end do
-        
-        else
-          do l = max(abs(m-1), j-1), min(this%jmax, j+1)
-            lmj = 3*(l*(l+1)/2+m-1)+j-l
-            
-            if (l > m) then
-              cleb = cleb1_fn(j,m,1,-1,l,m-1)
-                sum1(1) = sum1(1) + ( dv_r(lmj) + (j+1) * v(lmj) / ri ) * cleb
-                sum1(2) = sum1(2) - ( dv_r(lmj) - (j  ) * v(lmj) / ri ) * cleb
-              
-              cleb = cleb1_fn(j,m,1, 0,l,m+0)
-                sum3(1) = sum3(1) + ( dv_r(lmj+3) + (j+1) * v(lmj+3) / ri ) * cleb
-                sum3(2) = sum3(2) - ( dv_r(lmj+3) - (j  ) * v(lmj+3) / ri ) * cleb
-              
-              cleb = cleb1_fn(j,m,1,+1,l,m+1)
-                sum2(1) = sum2(1) + ( dv_r(lmj+6) + (j+1) * v(lmj+6) / ri ) * cleb
-                sum2(2) = sum2(2) - ( dv_r(lmj+6) - (j  ) * v(lmj+6) / ri ) * cleb
-              
-            else if (l > m-1) then
-              cleb = cleb1_fn(j,m,1,-1,l,m-1)
-                sum1(1) = sum1(1) + ( dv_r(lmj) + (j+1) * v(lmj) / ri ) * cleb
-                sum1(2) = sum1(2) - ( dv_r(lmj) - (j  ) * v(lmj) / ri ) * cleb
-              
-              cleb = cleb1_fn(j,m,1, 0,l,m+0)
-                sum3(1) = sum3(1) + ( dv_r(lmj+3) + (j+1) * v(lmj+3) / ri ) * cleb
-                sum3(2) = sum3(2) - ( dv_r(lmj+3) - (j  ) * v(lmj+3) / ri ) * cleb
-              
-            else
-              cleb = cleb1_fn(j,m,1,-1,l,m-1)
-                sum1(1) = sum1(1) + ( dv_r(lmj) + (j+1) * v(lmj) / ri ) * cleb
-                sum1(2) = sum1(2) - ( dv_r(lmj) - (j  ) * v(lmj) / ri ) * cleb
-            end if
-          end do
-        end if
-        
-        ijml = 3*(j*(j+1)/2+m)+abs(j-1)-j
-          cab(2,ijml) =         ( sum1(1) - sum2(1) ) * sq2_1 * fac1
-          cab(3,ijml) = cunit * ( sum1(1) + sum2(1) ) * sq2_1 * fac1
-          cab(4,ijml) =         ( sum3(1)           )         * fac1
-        
-        ijml = 3*(j*(j+1)/2+m)+(j+1)-j
-          cab(2,ijml) =         ( sum1(2) - sum2(2) ) * sq2_1 * fac2
-          cab(3,ijml) = cunit * ( sum1(2) + sum2(2) ) * sq2_1 * fac2
-          cab(4,ijml) =         ( sum3(2)           )         * fac2
+      cab = czero
+      cc  = czero
+      cr  = czero
+      
+      do concurrent( ijm = 0:this%jmv-1 )
+        cab(1+4*ijm) = v(ijm+1)
       end do
-    end do
+      
+      call gradvec_to_vectors_sub( this%jmax, 2, 4, ri, v(1), dv_r(1), cab(1) )
+      call vectors_to_scalars_sub( this%jmax, 4, cab(1), cc(1) )
+      
+    deallocate(cab)
     
-    deallocate( sum1, sum2, sum3 )
-    allocate(cc(12,this%jms2), sum1(4), sum2(4), sum3(4)) ; cc = czero
-    
-    mj = 0
-      do m = 0, this%maxj
-        do j = m, this%maxj
-          sum1 = czero ; sum2 = czero ; sum3 = czero
-          
-          if (m == 0) then
-            do l = abs(j-1), min(this%jmax+1, j+1)
-              lmj = 3*(l*(l+1)/2+m+1)+j-l
-
-              cleb = cleb1_fn(j,m,1,0,l,m)
-                do concurrent ( i1 = 1:4 )
-                  sum3(i1) = sum3(i1) + cab(i1,lmj-3) * cleb
-                end do
-              
-              cleb = cleb1_fn(j,m,1,-1,l,m-1) * (-1)**(j+l)
-                do concurrent ( i1 = 1:4 )
-                  sum1(i1) = sum1(i1) + conjg( cab(i1,lmj) ) * cleb
-                end do
-              
-              cleb = cleb1_fn(j,m,1,+1,l,m+1)
-                do concurrent ( i1 = 1:4 )
-                  sum2(i1) = sum2(i1) + cab(i1,lmj) * cleb
-                end do
-            end do
-          else
-            do l = abs(j-1), min(this%jmax+1, j+1)
-              lmj = 3*(l*(l+1)/2+m-1)+j-l
-              
-              if (l > m) then
-                cleb = cleb1_fn(j,m,1,-1,l,m-1)
-                  do concurrent ( i1 = 1:4 )
-                    sum1(i1) = sum1(i1) + cab(i1,lmj) * cleb
-                  end do
-                
-                cleb = cleb1_fn(j,m,1,0,l,m)
-                  do concurrent ( i1 = 1:4 )
-                    sum3(i1) = sum3(i1) + cab(i1,lmj+3) * cleb
-                  end do
-                
-                cleb = cleb1_fn(j,m,1,+1,l,m+1)
-                  do concurrent ( i1 = 1:4 )
-                    sum2(i1) = sum2(i1) + cab(i1,lmj+6) * cleb
-                  end do
-    
-              else if (l > m-1) then
-                cleb = cleb1_fn(j,m,1,-1,l,m-1)
-                  do concurrent ( i1 = 1:4 )
-                    sum1(i1) = sum1(i1) + cab(i1,lmj) * cleb
-                  end do
-                
-                cleb = cleb1_fn(j,m,1,0,l,m)
-                  do concurrent ( i1 = 1:4 )
-                    sum3(i1) = sum3(i1) + cab(i1,lmj+3) * cleb
-                  end do
-              
-              else
-                cleb = cleb1_fn(j,m,1,-1,l,m-1)
-                  do concurrent ( i1 = 1:4 )
-                    sum1(i1) = sum1(i1) + cab(i1,lmj) * cleb
-                  end do
-              end if
-            end do
-          end if
-          
-          mj = mj+1
-            do concurrent ( i1 = 1:4 )
-              i2 = 3*(i1-1)+1
-              
-              cc(i2  ,mj) =         ( sum1(i1) - sum2(i1) ) * sq2_1
-              cc(i2+1,mj) = cunit * ( sum1(i1) + sum2(i1) ) * sq2_1
-              cc(i2+2,mj) =           sum3(i1)
-            end do
-        end do
-      end do
-    
-    deallocate( cab, sum1, sum2, sum3 )
-    allocate( pmm(step), pmj(step), pmj1(step), pmj2(step), cosx(step), fftLege(step), sinx(step), symL(step,12), asymL(step,12), &
-            & sumLegendreN(12,step,0:this%maxj), sumLegendreS(12,step,0:this%maxj), grid(12,step,0:this%nFourier-1),              &
-            & cr(3,this%jms1), fft(3,step,0:this%nFourier-1), sumFourierN(3,step,0:this%jmax+1), symF(step,3), asymF(step,3),     &
-            & sumFourierS(3,step,0:this%jmax+1) ) ; cr = czero
+    allocate( pmm(step), pmj(step), pmj1(step), pmj2(step), cosx(step), weight(step), sinx(step), ssym(step*12), asym(step*12), &
+            & sumN(12*step*(1+this%maxj)), sumS(12*step*(1+this%maxj)), grid(12,step,0:this%nFourier-1), &
+            & fft(3,step,0:this%nFourier-1) )
     
     do i = 1, this%nLegendre, step
-      cosx    = this%roots(i:i+step-1)
-      sinx    = sqrt(1-cosx**2)
-      fftLege = this%fftLege(i:i+step-1)
+      call lege_setup_sub( this%roots(i), this%fftLege(i), cosx(1), sinx(1), weight(1) )
+      call zero_poly_sub( 12*step*(this%maxj+1), sumN(1), sumS(1) )
       
-      pmm = 1._dbl
-      
-      sumLegendreN = czero
-      sumLegendreS = czero
-      
-      m = 0
-        pmj2 = 0._dbl
-        pmj1 = 0._dbl
-        pmj  = pmm
+      do m = 0, this%maxj
+        call pmm_recursion_sub( m, sinx(1), pmm(1) ) ; if (maxval(abs(pmm)) < this%tolm) exit
         
-        symL  = czero
-        asymL = czero
+        call zero_poly_sub( 12*step, ssym(1), asym(1) )
         
         j = m
-          mj = m*(this%maxj+1)-m*(m+1)/2+j+1
+          mj = m*(this%maxj+1)-m*(m+1)/2+j
           
-          do concurrent ( i1=1:12 , i2=1:step )
-            symL(i2,i1) = symL(i2,i1) + cc(i1,mj)
-          end do
-          
+          call pmj_setup_sub( pmm(1), pmj2(1), pmj1(1), pmj(1) )
+          call pmj_backward_sub( 12, pmj(1), cc(1+12*mj), ssym(1) )
+        
         do j = 1, (this%maxj-m)/2
           mj = mj+2
           
-          pmj2 = pmj1
-          pmj1 = pmj
-          pmj = this%amjrr(mj-1) * cosx * pmj1 - this%bmjrr(mj-1) * pmj2
+          call pmj_recursion_sub( this%amjrr(mj), this%bmjrr(mj), cosx(1), pmj2(1), pmj1(1), pmj(1) )
+          call pmj_backward_sub( 12, pmj(1), cc(1+12*(mj-1)), asym(1) )
           
-          do concurrent ( i1=1:12 , i2=1:step )
-            asymL(i2,i1) = asymL(i2,i1) + cc(i1,mj-1) * pmj(i2)
-          end do
-          
-          pmj2 = pmj1
-          pmj1 = pmj
-          pmj = this%amjrr(mj) * cosx * pmj1 - this%bmjrr(mj) * pmj2
-          
-          do concurrent ( i1=1:12 , i2=1:step )
-            symL(i2,i1) = symL(i2,i1) + cc(i1,mj) * pmj(i2)
-          end do
+          call pmj_recursion_sub( this%amjrr(mj+1), this%bmjrr(mj+1), cosx(1), pmj2(1), pmj1(1), pmj(1) )
+          call pmj_backward_sub( 12, pmj(1), cc(1+12*mj), ssym(1) )
           
           if ( maxval(abs(pmj)) < this%tolm ) exit
         end do
@@ -224,78 +59,14 @@ submodule (SphericalHarmonics) vcvgv
         if ( (maxval(abs(pmj)) >= this%tolm) .and. (mod((this%maxj-m),2) /= 0) ) then
           mj = mj+1
           
-          pmj2 = pmj1
-          pmj1 = pmj
-          pmj = this%amjrr(mj) * cosx * pmj1 - this%bmjrr(mj) * pmj2
-          
-          do concurrent ( i1=1:12 , i2=1:step )
-            asymL(i2,i1) = asymL(i2,i1) + cc(i1,mj) * pmj(i2)
-          end do
+          call pmj_recursion_sub( this%amjrr(mj+1), this%bmjrr(mj+1), cosx(1), pmj2(1), pmj1(1), pmj(1) )
+          call pmj_backward_sub( 12, pmj(1), cc(1+12*mj), asym(1) )
         end if
         
-        do concurrent ( i2=1:step, i1=1:12 )
-          sumLegendreN(i1,i2,0)%re = symL(i2,i1)%re + asymL(i2,i1)%re ; sumLegendreN(i1,i2,0)%im = 0._dbl
-          sumLegendreS(i1,i2,0)%re = symL(i2,i1)%re - asymL(i2,i1)%re ; sumLegendreS(i1,i2,0)%im = 0._dbl
-        end do
-        
-      do m = 1, this%maxj
-        fac1 = -sqrt( ( 2*m+1 ) / ( 2._dbl*m ) ) ; pmm = fac1 * sinx * pmm ; if (maxval(abs(pmm)) < this%tolm) exit
-        
-        pmj2 = 0._dbl
-        pmj1 = 0._dbl
-        pmj  = pmm
-        
-        symL  = czero
-        asymL = czero
-        
-        j = m
-          mj = m*(this%maxj+1)-m*(m+1)/2+j+1
-          
-          do concurrent ( i1=1:12 , i2=1:step )
-            symL(i2,i1) = symL(i2,i1) + cc(i1,mj) * pmj(i2)
-          end do
-        
-        do j = 1, (this%maxj-m)/2
-          mj = mj+2
-          
-          pmj2 = pmj1
-          pmj1 = pmj
-          pmj = this%amjrr(mj-1) * cosx * pmj1 - this%bmjrr(mj-1) * pmj2
-          
-          do concurrent ( i1=1:12 , i2=1:step )
-            asymL(i2,i1) = asymL(i2,i1) + cc(i1,mj-1) * pmj(i2)
-          end do
-          
-          pmj2 = pmj1
-          pmj1 = pmj
-          pmj  = this%amjrr(mj) * cosx * pmj1 - this%bmjrr(mj) * pmj2
-          
-          do concurrent ( i1=1:12 , i2=1:step )
-            symL(i2,i1) = symL(i2,i1) + cc(i1,mj) * pmj(i2)
-          end do
-          
-          if ( maxval(abs(pmj)) < this%tolm ) exit
-        end do
-        
-        if ( (maxval(abs(pmj)) >= this%tolm) .and. (mod((this%maxj-m),2) /= 0) ) then
-          mj = mj+1
-          
-          pmj2 = pmj1
-          pmj1 = pmj
-          pmj  = this%amjrr(mj) * cosx * pmj1 - this%bmjrr(mj) * pmj2
-          
-          do concurrent ( i1=1:12 , i2=1:step )
-            asymL(i2,i1) = asymL(i2,i1) + cc(i1,mj) * pmj(i2)
-          end do
-        end if
-        
-        do concurrent ( i2=1:step, i1=1:12 )
-          sumLegendreN(i1,i2,m) = ( symL(i2,i1) + asymL(i2,i1) )
-          sumLegendreS(i1,i2,m) = ( symL(i2,i1) - asymL(i2,i1) ) 
-        end do
+        call pmj_backward_recomb_sub( m, 12, ssym(1), asym(1), sumN(1+12*step*m), sumS(1+12*step*m) )
       end do
       
-      call this%fourtrans%exec_c2r_sub(12*step, this%maxj+1, sumLegendreN, grid)
+      call this%fourtrans%exec_c2r_sub(12*step, this%maxj+1, sumN, grid)
       
       do concurrent ( i1=0:this%nFourier-1, i2=1:step )
         fft(1,i2,i1) = sum( grid(1:3,i2,i1) * grid( 4: 6,i2,i1) )
@@ -303,9 +74,9 @@ submodule (SphericalHarmonics) vcvgv
         fft(3,i2,i1) = sum( grid(1:3,i2,i1) * grid(10:12,i2,i1) )
       end do
       
-      call this%fourtrans%exec_r2c_sub(3*step, this%maxj, fft, sumFourierN)
+      call this%fourtrans%exec_r2c_sub(3*step, this%maxj, fft, sumN)
       
-      call this%fourtrans%exec_c2r_sub(12*step, this%maxj+1, sumLegendreS, grid)
+      call this%fourtrans%exec_c2r_sub(12*step, this%maxj+1, sumS, grid)
       
       do concurrent ( i1=0:this%nFourier-1, i2=1:step )
         fft(1,i2,i1) = sum( grid(1:3,i2,i1) * grid( 4: 6,i2,i1) )
@@ -313,169 +84,86 @@ submodule (SphericalHarmonics) vcvgv
         fft(3,i2,i1) = sum( grid(1:3,i2,i1) * grid(10:12,i2,i1) )
       end do
       
-      call this%fourtrans%exec_r2c_sub(3*step, this%maxj, fft, sumFourierS)
+      call this%fourtrans%exec_r2c_sub(3*step, this%maxj, fft, sumS)
       
-      pmm  = 1._dbl
-      
-      m = 0
-        pmj2 = 0._dbl
-        pmj1 = 0._dbl
-        pmj  = pmm
-        
-        do concurrent (i2=1:step, i1=1:3)
-          symF(i2,i1)  = fftLege(i2) * ( sumFourierN(i1,i2,m) + sumFourierS(i1,i2,m) ) ; symF(i2,i1)%im  = 0._dbl
-          asymF(i2,i1) = fftLege(i2) * ( sumFourierN(i1,i2,m) - sumFourierS(i1,i2,m) ) ; asymF(i2,i1)%im = 0._dbl
-        end do
+      do m = 0, this%jmax+1
+        call pmm_recursion_sub( m, sinx(1), pmm(1) )
+        call pmj_forward_recomb_sub( m, 3, weight(1), sumN(1+3*step*m), sumS(1+3*step*m), ssym(1), asym(1) )
         
         j = m
-          mj = m*this%maxj-m*(m+1)/2+j+1
+          mj = m*this%maxj-m*(m+1)/2+j
           
-          do concurrent ( i1=1:3 , i2=1:step )
-            cr(i1,mj) = cr(i1,mj) + symF(i2,i1)
-          end do
-          
-        do j = 1, (this%jmax-m+1)/2
-          mj = mj+2
-          
-          pmj2 = pmj1
-          pmj1 = pmj
-          pmj = this%amjrr(mj-1+m) * cosx * pmj1 - this%bmjrr(mj-1+m) * pmj2
-          
-          do concurrent ( i1=1:3 , i2=1:step )
-            cr(i1,mj-1) = cr(i1,mj-1) + pmj(i2) * asymF(i2,i1)
-          end do
-          
-          pmj2 = pmj1
-          pmj1 = pmj
-          pmj = this%amjrr(mj+m) * cosx * pmj1 - this%bmjrr(mj+m) * pmj2
-          
-          do concurrent ( i1=1:3 , i2=1:step )
-            cr(i1,mj) = cr(i1,mj) + pmj(i2) * symF(i2,i1)
-          end do
-        end do
-        
-        if (mod(this%jmax+1-m,2) /= 0) then
-          mj = mj+1
-          
-          pmj2 = pmj1
-          pmj1 = pmj
-          pmj = this%amjrr(mj+m) * cosx * pmj1 - this%bmjrr(mj+m) * pmj2
-          
-          do concurrent ( i1=1:3 , i2=1:step )
-            cr(i1,mj) = cr(i1,mj) + pmj(i2) * asymF(i2,i1)
-          end do
-        end if
-      
-      do m = 1, this%jmax+1
-        fac1 = -sqrt( ( 2*m+1 ) / ( 2._dbl*m ) ) ; pmm = fac1 * sinx * pmm
-        
-        pmj2 = 0._dbl
-        pmj1 = 0._dbl
-        pmj  = pmm
-        
-        do concurrent ( i2=1:step, i1=1:3 )
-          symF(i2,i1)  = fftLege(i2) * ( sumFourierN(i1,i2,m) + sumFourierS(i1,i2,m) )
-          asymF(i2,i1) = fftLege(i2) * ( sumFourierN(i1,i2,m) - sumFourierS(i1,i2,m) )
-        end do
-        
-        j = m
-          mj = m*this%maxj-m*(m+1)/2+j+1
-          
-          do concurrent ( i1=1:3 , i2=1:step )
-            cr(i1,mj) = cr(i1,mj) + pmj(i2) * symF(i2,i1)
-          end do
+          call pmj_setup_sub( pmm(1), pmj2(1), pmj1(1), pmj(1) )
+          call pmj_forward_sub( 3, pmj(1), ssym(1), cr(1+3*mj) )
         
         do j = 1, (this%jmax+1-m)/2
           mj = mj+2
           
-          pmj2 = pmj1
-          pmj1 = pmj
-          pmj = this%amjrr(mj-1+m) * cosx * pmj1 - this%bmjrr(mj-1+m) * pmj2
+          call pmj_recursion_sub( this%amjrr(mj+m), this%bmjrr(mj+m), cosx(1), pmj2(1), pmj1(1), pmj(1) )
+          call pmj_forward_sub( 3, pmj(1), asym(1), cr(1+3*(mj-1)) )
           
-          do concurrent ( i1=1:3 , i2=1:step )
-            cr(i1,mj-1) = cr(i1,mj-1) + pmj(i2) * asymF(i2,i1)
-          end do
-          
-          pmj2 = pmj1
-          pmj1 = pmj
-          pmj = this%amjrr(mj+m) * cosx * pmj1 - this%bmjrr(mj+m) * pmj2
-          
-          do concurrent ( i1=1:3 , i2=1:step )
-            cr(i1,mj) = cr(i1,mj) + pmj(i2) * symF(i2,i1)
-          end do
+          call pmj_recursion_sub( this%amjrr(mj+m+1), this%bmjrr(mj+m+1), cosx(1), pmj2(1), pmj1(1), pmj(1) )
+          call pmj_forward_sub( 3, pmj(1), ssym(1), cr(1+3*mj) )
         end do
         
         if (mod(this%jmax+1-m,2) /= 0) then
           mj = mj+1
           
-          pmj2 = pmj1
-          pmj1 = pmj
-          pmj = this%amjrr(mj+m) * cosx * pmj1 - this%bmjrr(mj+m) * pmj2
-          
-          do concurrent ( i1=1:3 , i2=1:step )
-            cr(i1,mj) = cr(i1,mj) + pmj(i2) * asymF(i2,i1)
-          end do
+          call pmj_recursion_sub( this%amjrr(mj+m+1), this%bmjrr(mj+m+1), cosx(1), pmj2(1), pmj1(1), pmj(1) )
+          call pmj_forward_sub( 3, pmj(1), asym(1), cr(1+3*mj) )
         end if
       end do
     end do
     
-    deallocate( cc, sumLegendreN, sumLegendreS, grid, fft, sumFourierN, sumFourierS, pmm, pmj, pmj1, pmj2, cosx, sinx, fftLege, &
-              & symL, asymL, symF, asymF )
-    
-    do concurrent ( mj = 1:this%jms1 )
-      cr12     = +( cr(1,mj) - cr(2,mj) * cunit ) * sq2_1
-      cr(2,mj) = -( cr(1,mj) + cr(2,mj) * cunit ) * sq2_1
-      cr(1,mj) = cr12
-    end do
-    
-    j = 0
-      m = 0
-        ijm = 1
-        mj  = m*(this%maxj)-m*(m+1)/2+j+1
-        mj2 = mj + this%maxj - m
-        
-        cjm(3,ijm) =        cr(1,mj2 )   * cleb1_fn(j+1,m+1,1,-1,j,m) + &
-                   &        cr(3,mj+1)   * cleb1_fn(j+1,m+0,1, 0,j,m) + &
-                   & conjg( cr(1,mj2 ) ) * cleb1_fn(j+1,m-1,1,+1,j,m) ; cjm(3,ijm)%im = 0._dbl
-        
-    do j = 1, this%jmax
-      m = 0
-        ijm = ijm+1
-        mj  = m*(this%maxj)-m*(m+1)/2+j+1
-        mj2 = mj + this%maxj - m - 1
-        
-        cjm(1,ijm) =        cr(1,mj2-1)   * cleb1_fn(j-1,m+1,1,-1,j,m) + &
-                   &        cr(3,mj -1)   * cleb1_fn(j-1,m+0,1, 0,j,m) + &
-                   & conjg( cr(1,mj2-1) ) * cleb1_fn(j-1,m-1,1,+1,j,m) ; cjm(1,ijm)%im = 0._dbl
-        cjm(2,ijm) =        cr(1,mj2  )   * cleb1_fn(j  ,m+1,1,-1,j,m) + &
-                   &        cr(3,mj   )   * cleb1_fn(j  ,m+0,1, 0,j,m) + &
-                   & conjg( cr(1,mj2  ) ) * cleb1_fn(j  ,m-1,1,+1,j,m) ; cjm(2,ijm)%re = 0._dbl
-        cjm(3,ijm) =        cr(1,mj2+1)   * cleb1_fn(j+1,m+1,1,-1,j,m) + &
-                   &        cr(3,mj +1)   * cleb1_fn(j+1,m+0,1, 0,j,m) + &
-                   & conjg( cr(1,mj2+1) ) * cleb1_fn(j+1,m-1,1,+1,j,m) ; cjm(3,ijm)%im = 0._dbl
+    deallocate( cc, sumN, sumS, grid, fft, pmm, pmj, pmj1, pmj2, cosx, sinx, weight, ssym, asym )
       
-      do m = 1, j
-        ijm = ijm+1
-        mj  = m*(this%maxj)-m*(m+1)/2+j+1
-        mj1 = mj - this%maxj + m
-        mj2 = mj + this%maxj - m - 1
-        
-        cjm(1,ijm) = cr(1,mj2-1) * cleb1_fn(j-1,m+1,1,-1,j,m) + &
-                   & cr(3,mj -1) * cleb1_fn(j-1,m+0,1, 0,j,m) + &
-                   & cr(2,mj1-1) * cleb1_fn(j-1,m-1,1,+1,j,m)
-        cjm(2,ijm) = cr(1,mj2  ) * cleb1_fn(j  ,m+1,1,-1,j,m) + &
-                   & cr(3,mj   ) * cleb1_fn(j  ,m+0,1, 0,j,m) + &
-                   & cr(2,mj1  ) * cleb1_fn(j  ,m-1,1,+1,j,m)
-        cjm(3,ijm) = cr(1,mj2+1) * cleb1_fn(j+1,m+1,1,-1,j,m) + &
-                   & cr(3,mj +1) * cleb1_fn(j+1,m+0,1, 0,j,m) + &
-                   & cr(2,mj1+1) * cleb1_fn(j+1,m-1,1,+1,j,m)
+      call cartesian_to_cyclic_sub( 1, 3, this%jms1, cr(1) )
+      
+      j = 0
+        m = 0
+          ijm = 0 ; mj = m*(this%maxj)-m*(m+1)/2+j
+          
+          mj2 = 3*(mj + this%maxj - m)
+          mj  = 3*(mj)
+          
+          cjm(1) = czero
+          cjm(2) = czero
+          cjm(3) = cr(1+mj2) * cleb_fn(+1,-1,j,m) + cr(6+mj) * cleb_fn(+1,0,j,m) + conjg( cr(1+mj2) ) * cleb_fn(+1,+1,j,m)
+          
+          cjm(3)%im = 0._dbl
+          
+      do j = 1, this%jmax
+        m = 0
+          ijm = ijm+3 ; mj = m*(this%maxj)-m*(m+1)/2+j
+          
+          mj2 = 3*(mj + this%maxj - m - 1)
+          mj  = 3*(mj)
+          
+          cjm(1+ijm) = cr(-2+mj2) * cleb_fn(-1,-1,j,m) + cr(  mj) * cleb_fn(-1,0,j,m) + conjg( cr(-2+mj2) ) * cleb_fn(-1,+1,j,m)
+          cjm(2+ijm) = cr( 1+mj2) * cleb_fn( 0,-1,j,m) + cr(3+mj) * cleb_fn( 0,0,j,m) + conjg( cr( 1+mj2) ) * cleb_fn( 0,+1,j,m)
+          cjm(3+ijm) = cr( 4+mj2) * cleb_fn(+1,-1,j,m) + cr(6+mj) * cleb_fn(+1,0,j,m) + conjg( cr( 4+mj2) ) * cleb_fn(+1,+1,j,m)
+          
+          cjm(1+ijm)%im = 0._dbl
+          cjm(2+ijm)%re = 0._dbl
+          cjm(3+ijm)%im = 0._dbl
+          
+        do m = 1, j
+          ijm = ijm+3 ; mj = m*(this%maxj)-m*(m+1)/2+j
+          
+          mj1 = 3*(mj - this%maxj + m)
+          mj2 = 3*(mj + this%maxj - m - 1)
+          mj  = 3*(mj)
+          
+          cjm(1+ijm) = cr(-2+mj2) * cleb_fn(-1,-1,j,m) + cr(  mj) * cleb_fn(-1,0,j,m) + cr(-1+mj1) * cleb_fn(-1,+1,j,m)
+          cjm(2+ijm) = cr( 1+mj2) * cleb_fn( 0,-1,j,m) + cr(3+mj) * cleb_fn( 0,0,j,m) + cr( 2+mj1) * cleb_fn( 0,+1,j,m)
+          cjm(3+ijm) = cr( 4+mj2) * cleb_fn(+1,-1,j,m) + cr(6+mj) * cleb_fn(+1,0,j,m) + cr( 5+mj1) * cleb_fn(+1,+1,j,m)
+        end do
       end do
-    end do
-    
+      
     deallocate(cr)
     
-    do concurrent ( ijm=1:this%jms , i1=1:3 )
-      cjm(i1,ijm) = cjm(i1,ijm) * this%scale
+    do concurrent ( i1=1:3*this%jms )
+      cjm(i1) = cjm(i1) * this%scale
     end do
     
   end subroutine vcvgv_sub

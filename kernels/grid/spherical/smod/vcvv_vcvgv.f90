@@ -6,9 +6,8 @@ submodule (SphericalHarmonics) vcvv_vcvgv
     real(kind=dbl),       intent(in)  :: ri
     complex(kind=dbl),    intent(in)  :: dv_r(*), q(*), v(*)
     complex(kind=dbl),    intent(out) :: cjm(*)
-    integer                           :: i, j, m, l, ijm, ijml, mj, mj1, mj2, i1, i2
+    integer                           :: i, j, m, ijm, mj, mj1, mj2, i1, i2
     real(kind=dbl),       allocatable :: pmm(:), pmj(:), pmj1(:), pmj2(:), cosx(:), sinx(:), weight(:), grid(:)
-    complex(kind=dbl)                 :: cr12
     complex(kind=dbl),    allocatable :: cab(:), cc(:), cr(:), ssym(:), asym(:), sumN(:), sumS(:)
     
     allocate( cab(5*this%jmv1), cc(15*this%jms2), cr(4*this%jms1) )
@@ -17,9 +16,9 @@ submodule (SphericalHarmonics) vcvv_vcvgv
       cc  = czero
       cr  = czero
       
-      do concurrent( ijml = 0:this%jmv-1 )
-        cab(1+5*ijml) = q(ijml+1)
-        cab(2+5*ijml) = v(ijml+1)
+      do concurrent( ijm = 0:this%jmv-1 )
+        cab(1+5*ijm) = q(ijm+1)
+        cab(2+5*ijm) = v(ijm+1)
       end do
       
       call gradvec_to_vectors_sub( this%jmax, 3, 5, ri, v(1), dv_r(1), cab(1) )
@@ -124,11 +123,7 @@ submodule (SphericalHarmonics) vcvv_vcvgv
       
     deallocate( cc, sumN, sumS, grid, pmm, pmj, pmj1, pmj2, cosx, sinx, weight, ssym, asym )
       
-      do concurrent ( mj = 0:this%jms1-1 )
-        cr12       = +( cr(2+4*mj) - cr(3+4*mj) * cunit ) * sq2_1
-        cr(3+4*mj) = -( cr(2+4*mj) + cr(3+4*mj) * cunit ) * sq2_1
-        cr(2+4*mj) = cr12
-      end do
+      call cartesian_to_cyclic_sub( 2, 4, this%jms1, cr(1) )
       
       j = 0
         m = 0

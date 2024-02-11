@@ -105,7 +105,7 @@ module sph_vectors
     
     do m = 0, jmax+2
       do j = m, jmax+2
-        do concurrent ( i1 = 1:5 )
+        do concurrent ( i1 = 1:nvec )
           sum1(i1) = czero
           sum2(i1) = czero
           sum3(i1) = czero
@@ -184,5 +184,19 @@ module sph_vectors
     deallocate( sum1, sum2, sum3 )
     
   end subroutine vectors_to_scalars_sub
+  
+  pure subroutine cartesian_to_cyclic_sub(padding, nvec, length, cr)
+    integer,         intent(in)    :: padding, nvec, length
+    complex(real64), intent(inout) :: cr(*)
+    integer                        :: mj
+    complex(real64)                :: cr12
+    
+    do concurrent ( mj = 0:length-1 )
+      cr12                  = +( cr(padding+nvec*mj) - cr(padding+1+nvec*mj) * cunit ) * sq2_1
+      cr(padding+1+nvec*mj) = -( cr(padding+nvec*mj) + cr(padding+1+nvec*mj) * cunit ) * sq2_1
+      cr(padding+  nvec*mj) = cr12
+    end do
+    
+  end subroutine cartesian_to_cyclic_sub
   
 end module sph_vectors

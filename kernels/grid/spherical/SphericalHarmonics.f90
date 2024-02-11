@@ -31,15 +31,15 @@ module SphericalHarmonics
     
     module pure subroutine vcvv_sub(this, cajml, cbjml, cjm)
       class(T_lateralGrid), intent(in)  :: this
-      complex(kind=dbl),    intent(in)  :: cajml(:), cbjml(:)
-      complex(kind=dbl),    intent(out) :: cjm(:)
+      complex(kind=dbl),    intent(in)  :: cajml(*), cbjml(*)
+      complex(kind=dbl),    intent(out) :: cjm(*)
     end subroutine vcvv_sub
     
     module pure subroutine vcvgv_sub(this, ri, dv_r, v, cjm)
       class(T_lateralGrid), intent(in)  :: this
       real(kind=dbl),       intent(in)  :: ri
-      complex(kind=dbl),    intent(in)  :: v(:), dv_r(:)
-      complex(kind=dbl),    intent(out) :: cjm(:,:)
+      complex(kind=dbl),    intent(in)  :: v(*), dv_r(*)
+      complex(kind=dbl),    intent(out) :: cjm(*)
     end subroutine vcvgv_sub
     
     module pure subroutine vcvv_vcvgv_sub(this, ri, q, dv_r, v, cjm)
