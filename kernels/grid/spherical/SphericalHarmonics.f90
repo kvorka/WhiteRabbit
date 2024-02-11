@@ -1,7 +1,7 @@
 module SphericalHarmonics
   use Clebsch_Gordan
-  use FFT_mod
-  use poly_lege
+  use Legendre_polynomials
+  use Fourier_transform
   use sph_vectors
   implicit none
   

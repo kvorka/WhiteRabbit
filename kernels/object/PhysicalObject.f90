@@ -1,6 +1,8 @@
 module PhysicalObject
   use Math
-  use Spherical_func
+  use sph_indexing
+  use sph_unitvec_op
+  use sph_norms
   use SphericalHarmonics
   use RadialGrid
   use Gravity

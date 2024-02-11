@@ -1,8 +1,6 @@
 module sph_vectors
   use Clebsch_Gordan
-  implicit none; public
-  
-  contains
+  implicit none; public; contains
   
   pure subroutine gradvec_to_vectors_sub(jmax, padding, nvec, ri, v, dv_r, cab)
     integer,         intent(in)    :: jmax, padding, nvec

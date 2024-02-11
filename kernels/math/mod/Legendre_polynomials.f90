@@ -1,8 +1,6 @@
-module poly_lege
+module Legendre_polynomials
   use Math
-  implicit none; public
-  
-  contains
+  implicit none; public; contains
   
   pure real(kind=dbl) function xnode_fn(nL, x, y, fx, fy)
     integer,        intent(in) :: nL
@@ -193,4 +191,4 @@ module poly_lege
     
   end subroutine pmj_forward_recomb_sub
 
-end module poly_lege
+end module Legendre_polynomials

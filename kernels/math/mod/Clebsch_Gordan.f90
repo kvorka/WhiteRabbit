@@ -1,8 +1,6 @@
 module Clebsch_Gordan
   use Math
-  implicit none; public
-  
-  contains
+  implicit none; public; contains
   
   pure real(kind=dbl) function cleb_fn(j1j, m2, j, m)
     integer, intent(in) :: j1j, m2, j, m

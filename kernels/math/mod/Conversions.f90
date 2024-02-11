@@ -1,8 +1,6 @@
 module Conversions
   use Math
-  implicit none; public
-  
-  contains
+  implicit none; public; contains
   
   pure function int2str_fn(n) result(str)
     integer,          intent(in) :: n

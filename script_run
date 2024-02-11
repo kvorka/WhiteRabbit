@@ -14,12 +14,14 @@ code_type="ocean_convection"
 ####                    COMPILATION OF THE BASELINE, DIRS SET UP                       ####
 ###########################################################################################
 $compile -c kernels/math/Math.f90
-$compile -c kernels/math/Conversions.f90
-$compile -c kernels/math/Clebsch_Gordan.f90
-$compile -c kernels/math/FFT.f90
-$compile -c kernels/math/SphericalFunctions.f90
-$compile -c kernels/math/poly_lege.f90
-$compile -c kernels/math/sph_vectors.f90
+$compile -c kernels/math/mod/*.f90
+$compile -c kernels/math/mod2/*.f90
+
+$compile -c kernels/math/fft/Fourier_transform.f90
+$compile -c kernels/math/fft/smod/*.f90
+
+$compile -c kernels/math/lu_matrix/Matrix.f90
+$compile -c kernels/math/lu_matrix/smod/*.f90
 
 $compile -c kernels/grid/radial/RadialGrid.f90
 $compile -c kernels/grid/radial/smod/*.f90
@@ -29,9 +31,6 @@ $compile -c kernels/grid/spherical/smod/*.f90
 
 $compile -c kernels/equations/solutions/Solution.f90
 $compile -c kernels/equations/solutions/smod/*.f90
-
-$compile -c kernels/equations/matrix/Matrix.f90
-$compile -c kernels/equations/matrix/smod/*.f90
 
 $compile -c kernels/equations/matrices/Matrices.f90
 $compile -c kernels/equations/matrices/smod/*.f90
