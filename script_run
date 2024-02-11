@@ -6,14 +6,9 @@ compile="gfortran-12 -Ofast -march=native -frename-registers -flto=auto -fopenmp
 
 ###########################################################################################
 ####                              POSSIBLE CODE SETTINGS                               ####
+####       test_speed, ocean_convection, ice_ocean, ocean_tides, ice_deformation       ####
 ###########################################################################################
-code_ice="ice"
-code_convection="convection"
-code_tides="tides"
-code_oceanIce="iceOcean"
-code_test="speed"
-
-code_type="speed"
+code_type="ocean_convection"
 
 ###########################################################################################
 ####                    COMPILATION OF THE BASELINE, DIRS SET UP                       ####
@@ -64,47 +59,51 @@ mkdir data
 ###########################################################################################
 ####                                    LINKING                                        ####
 ###########################################################################################
-if [ "$code_type" = "$code_oceanIce" ]; then
-    mkdir data/data_ice_topo
-    mkdir data/data_ice_shape
-    mkdir data/data_ice_tides
+case $code_type in
     
-    mkdir data/data_ocean_temp
-    mkdir data/data_ocean_veloc
-    mkdir data/data_ocean_flux
+    test_speed)
+        mkdir data/data_ocean_temp
+        mkdir data/data_ocean_veloc
+        mkdir data/data_ocean_flux
+        
+        $compile code/codes/BielyKralik_speedTest.f90 *.o -o Test_speed
+    ;;
     
-    $compile code/codes/BielyKralik_oceanIce.f90 *.o -o Test_oceanIce
-fi
-
-if [ "$code_type" = "$code_tides" ]; then
-    mkdir data/data_ocean_veloc
+    ocean_convection)
+        mkdir data/data_ocean_temp
+        mkdir data/data_ocean_veloc
+        mkdir data/data_ocean_flux
+        
+        $compile code/codes/BielyKralik_oceanConv.f90 *.o -o Test_convection
+    ;;
     
-    $compile code/codes/BielyKralik_tidesOcean.f90 *.o -o Test_tides
-fi
-
-if [ "$code_type" = "$code_test" ]; then
-    mkdir data/data_ocean_temp
-    mkdir data/data_ocean_veloc
-    mkdir data/data_ocean_flux
+    ice_ocean)
+        mkdir data/data_ice_topo
+        mkdir data/data_ice_shape
+        mkdir data/data_ice_tides
+        
+        mkdir data/data_ocean_temp
+        mkdir data/data_ocean_veloc
+        mkdir data/data_ocean_flux
+        
+        $compile code/codes/BielyKralik_oceanIce.f90 *.o -o Test_oceanIce
+    ;;
     
-    $compile code/codes/BielyKralik_speedTest.f90 *.o -o Test_speed
-fi
-
-if [ "$code_type" = "$code_convection" ]; then
-    mkdir data/data_ocean_temp
-    mkdir data/data_ocean_veloc
-    mkdir data/data_ocean_flux
+    ocean_tides)
+        mkdir data/data_ocean_veloc
     
-    $compile code/codes/BielyKralik_oceanConv.f90 *.o -o Test_convection
-fi
-
-if [ "$code_type" = "$code_ice" ]; then
-    mkdir data/data_ice_topo
-    mkdir data/data_ice_shape
-    mkdir data/data_ice_tides
+        $compile code/codes/BielyKralik_tidesOcean.f90 *.o -o Test_tides
+    ;;
     
-    $compile code/codes/BielyKralik_Ice.f90 *.o -o Test_ice
-fi
+    ice_deformation)
+        mkdir data/data_ice_topo
+        mkdir data/data_ice_shape
+        mkdir data/data_ice_tides
+        
+        $compile code/codes/BielyKralik_Ice.f90 *.o -o Test_ice
+    ;;
+    
+esac
 
 ###########################################################################################
 ####                                    CLEANING                                       ####
