@@ -25,32 +25,6 @@ submodule (SphericalHarmonics) Init_SphericalHarmonics
     
     this%scale = 1 / ( 8 * this%nLegendre**2 * sqrt(pi) )
     
-    if ( jmax <= 50 ) then
-      this%tolm = 1.0d-11
-    else if ( jmax <= 100 ) then
-      this%tolm = 1.0d-19
-    else if ( jmax <= 150 ) then
-      this%tolm = 1.0d-27
-    else if ( jmax <= 200 ) then
-      this%tolm = 1.0d-35
-    else if ( jmax <= 250 ) then
-      this%tolm = 1.0d-43
-    else if ( jmax <= 300 ) then
-      this%tolm = 1.0d-51
-    else if ( jmax <= 350 ) then
-      this%tolm = 1.0d-60
-    else if ( jmax <= 400 ) then
-      this%tolm = 1.0d-68
-    else if ( jmax <= 450 ) then
-      this%tolm = 1.0d-76
-    else if ( jmax <= 500 ) then
-      this%tolm = 1.0d-84
-    else if ( jmax <= 550 ) then
-      this%tolm = 1.0d-92
-    else if ( jmax <= 600 ) then
-      this%tolm = 1.0d-100
-    end if
-
     allocate( this%roots(this%nLegendre), this%fftLege(this%nLegendre), this%amjrr(this%jms2), this%bmjrr(this%jms2) )
     
     n = this%nLegendre
@@ -95,6 +69,8 @@ submodule (SphericalHarmonics) Init_SphericalHarmonics
     end do
     
     call this%fourtrans%init_sub( this%nFourier )
+    
+    this%tolm = 0.1_dbl; call this%vctol_sub();
     
   end subroutine init_harmonics_sub
   
