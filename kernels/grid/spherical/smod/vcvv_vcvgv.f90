@@ -6,10 +6,11 @@ submodule (SphericalHarmonics) vcvv_vcvgv
     real(kind=dbl),       intent(in)  :: ri
     complex(kind=dbl),    intent(in)  :: dv_r(*), q(*), v(*)
     complex(kind=dbl),    intent(out) :: cjm(*)
-    integer                           :: i, j, m, ijm, mj, mj1, mj2, i1, i2
+    integer                           :: i, j, m, ijm, mj, mj1, mj2
     real(kind=dbl),       allocatable :: pmm(:), pmj(:), pmj1(:), pmj2(:), cosx(:), sinx(:), weight(:), grid(:)
     complex(kind=dbl),    allocatable :: cab(:), cc(:), cr(:), ssym(:), asym(:), sumN(:), sumS(:)
     
+    !Preparing arrays for transforms
     allocate( cab(5*this%jmv1), cc(15*this%jms2), cr(4*this%jms1) )
       
       cab = czero
@@ -25,102 +26,71 @@ submodule (SphericalHarmonics) vcvv_vcvgv
       call vectors_to_scalars_sub( this%jmax, 5, cab(1), cc(1) )
       
     deallocate(cab)
+
+    !Allocating needed memory :: no reallocate for lower stepping
+    allocate( pmm(16), pmj(16), pmj1(16), pmj2(16), cosx(16), weight(16), sinx(16), ssym(240),     &
+            & asym(240), sumN(240*(this%maxj+1)), sumS(240*(this%maxj+1)), grid(240*this%nFourier) )
     
-    allocate( pmm(step), pmj(step), pmj1(step), pmj2(step), cosx(step), weight(step), sinx(step), ssym(step*15),   &
-            & asym(step*15), sumN(15*step*(this%maxj+1)), sumS(15*step*(this%maxj+1)), grid(15*step*this%nFourier) )
-      
-      do i = 1, this%nLegendre, step
-        call lege_setup_sub( this%roots(i), this%fftLege(i), cosx(1), sinx(1), weight(1) )
-        call zero_poly_sub( 15*step*(this%maxj+1), sumN(1), sumS(1) )
+      !Stepping of the algorithm :: 16
+      do i = 1, (this%nLegendre/16)*16, 16
+        call lege_setup_16_sub( this%roots(i), this%fftLege(i), cosx(1), sinx(1), weight(1) )
+        call zero_poly_sub( 240*(this%maxj+1), sumN(1), sumS(1) )
         
-        do m = 0, this%maxj
-          call pmm_recursion_sub( m, sinx(1), pmm(1) ) ; if (maxval(abs(pmm)) < this%tolm) exit
-          
-          call zero_poly_sub( 15*step, ssym(1), asym(1) )
-          
-          j = m
-            mj = m*(this%maxj+1)-m*(m+1)/2+j
-            
-            call pmj_setup_sub( pmm(1), pmj2(1), pmj1(1), pmj(1) )
-            call pmj_backward_sub( 15, pmj(1), cc(1+15*mj), ssym(1) )
-          
-          do j = 1, (this%maxj-m)/2
-            mj = mj+2
-            
-            call pmj_recursion_sub( this%amjrr(mj), this%bmjrr(mj), cosx(1), pmj2(1), pmj1(1), pmj(1) )
-            call pmj_backward_sub( 15, pmj(1), cc(1+15*(mj-1)), asym(1) )
-            
-            call pmj_recursion_sub( this%amjrr(mj+1), this%bmjrr(mj+1), cosx(1), pmj2(1), pmj1(1), pmj(1) )
-            call pmj_backward_sub( 15, pmj(1), cc(1+15*mj), ssym(1) )
-            
-            if ( maxval(abs(pmj)) < this%tolm ) exit
-          end do
-          
-          if ( (maxval(abs(pmj)) >= this%tolm) .and. (mod((this%maxj-m),2) /= 0) ) then
-            mj = mj+1
-            
-            call pmj_recursion_sub( this%amjrr(mj+1), this%bmjrr(mj+1), cosx(1), pmj2(1), pmj1(1), pmj(1) )
-            call pmj_backward_sub( 15, pmj(1), cc(1+15*mj), asym(1) )
-          end if
-          
-          call pmj_backward_recomb_sub( m, 15, ssym(1), asym(1), sumN(1+15*step*m), sumS(1+15*step*m) )
-        end do
+        call this%partial_backward_16_sub( 15, cosx(1), sinx(1), pmm(1), pmj2(1), pmj1(1), pmj(1), &
+                                         & ssym(1), asym(1), cc(1), sumN(1), sumS(1)               )
         
-        call this%fourtrans%exec_c2r_sub(15*step, this%maxj+1, sumN, grid)
+        call this%grid_op_16_vcvv_vcvgv_sub( grid(1), sumN(1) )
+        call this%grid_op_16_vcvv_vcvgv_sub( grid(1), sumS(1) )
         
-        do i1 = 0, this%nFourier-1
-          do i2 = 0, step-1
-            grid(1+4*(i2+i1*step)) = sum( grid(1+15*(i2+i1*step):3+15*(i2+i1*step)) * grid( 4+15*(i2+i1*step): 6+15*(i2+i1*step)) )
-            grid(2+4*(i2+i1*step)) = sum( grid(4+15*(i2+i1*step):6+15*(i2+i1*step)) * grid( 7+15*(i2+i1*step): 9+15*(i2+i1*step)) )
-            grid(3+4*(i2+i1*step)) = sum( grid(4+15*(i2+i1*step):6+15*(i2+i1*step)) * grid(10+15*(i2+i1*step):12+15*(i2+i1*step)) )
-            grid(4+4*(i2+i1*step)) = sum( grid(4+15*(i2+i1*step):6+15*(i2+i1*step)) * grid(13+15*(i2+i1*step):15+15*(i2+i1*step)) )
-          end do
-        end do
+        call this%partial_forward_16_sub( 4, weight(1), cosx(1), sinx(1), pmm(1), pmj2(1), pmj1(1), pmj(1), ssym(1), asym(1), &
+                                        & cr(1), sumN(1), sumS(1) )
+      end do
+    
+      !Stepping of the algorithm :: 8
+      do i = (this%nLegendre/16)*16+1, (this%nLegendre/8)*8, 8
+        call lege_setup_8_sub( this%roots(i), this%fftLege(i), cosx(1), sinx(1), weight(1) )
+        call zero_poly_sub( 120*(this%maxj+1), sumN(1), sumS(1) )
         
-        call this%fourtrans%exec_r2c_sub(4*step, this%maxj, grid, sumN)
+        call this%partial_backward_8_sub( 15, cosx(1), sinx(1), pmm(1), pmj2(1), pmj1(1), pmj(1), &
+                                        & ssym(1), asym(1), cc(1), sumN(1), sumS(1)               )
         
-        call this%fourtrans%exec_c2r_sub(15*step, this%maxj+1, sumS, grid)
+        call this%grid_op_8_vcvv_vcvgv_sub( grid(1), sumN(1) )
+        call this%grid_op_8_vcvv_vcvgv_sub( grid(1), sumS(1) )
         
-        do i1 = 0, this%nFourier-1
-          do i2 = 0, step-1
-            grid(1+4*(i2+i1*step)) = sum( grid(1+15*(i2+i1*step):3+15*(i2+i1*step)) * grid( 4+15*(i2+i1*step): 6+15*(i2+i1*step)) )
-            grid(2+4*(i2+i1*step)) = sum( grid(4+15*(i2+i1*step):6+15*(i2+i1*step)) * grid( 7+15*(i2+i1*step): 9+15*(i2+i1*step)) )
-            grid(3+4*(i2+i1*step)) = sum( grid(4+15*(i2+i1*step):6+15*(i2+i1*step)) * grid(10+15*(i2+i1*step):12+15*(i2+i1*step)) )
-            grid(4+4*(i2+i1*step)) = sum( grid(4+15*(i2+i1*step):6+15*(i2+i1*step)) * grid(13+15*(i2+i1*step):15+15*(i2+i1*step)) )
-          end do
-        end do
-        
-        call this%fourtrans%exec_r2c_sub(4*step, this%maxj, grid, sumS)
-        
-        do m = 0, this%jmax+1
-          call pmm_recursion_sub( m, sinx(1), pmm(1) )
-          call pmj_forward_recomb_sub( m, 4, weight(1), sumN(1+4*step*m), sumS(1+4*step*m), ssym(1), asym(1) )
-          
-          j = m
-            mj = m*this%maxj-m*(m+1)/2+j
-            
-            call pmj_setup_sub( pmm(1), pmj2(1), pmj1(1), pmj(1) )
-            call pmj_forward_sub( 4, pmj(1), ssym(1), cr(1+4*mj) )
-          
-          do j = 1, (this%jmax+1-m)/2
-            mj = mj+2
-            
-            call pmj_recursion_sub( this%amjrr(mj+m), this%bmjrr(mj+m), cosx(1), pmj2(1), pmj1(1), pmj(1) )
-            call pmj_forward_sub( 4, pmj(1), asym(1), cr(1+4*(mj-1)) )
-            
-            call pmj_recursion_sub( this%amjrr(mj+m+1), this%bmjrr(mj+m+1), cosx(1), pmj2(1), pmj1(1), pmj(1) )
-            call pmj_forward_sub( 4, pmj(1), ssym(1), cr(1+4*mj) )
-          end do
-          
-          if (mod(this%jmax+1-m,2) /= 0) then
-            mj = mj+1
-            
-            call pmj_recursion_sub( this%amjrr(mj+m+1), this%bmjrr(mj+m+1), cosx(1), pmj2(1), pmj1(1), pmj(1) )
-            call pmj_forward_sub( 4, pmj(1), asym(1), cr(1+4*mj) )
-          end if
-        end do
+        call this%partial_forward_8_sub( 4, weight(1), cosx(1), sinx(1), pmm(1), pmj2(1), pmj1(1), pmj(1), ssym(1), asym(1), &
+                                       & cr(1), sumN(1), sumS(1) )
       end do
       
+      !Stepping of the algorithm :: 4
+      do i = (this%nLegendre/8)*8+1, (this%nLegendre/4)*4, 4
+        call lege_setup_4_sub( this%roots(i), this%fftLege(i), cosx(1), sinx(1), weight(1) )
+        call zero_poly_sub( 60*(this%maxj+1), sumN(1), sumS(1) )
+        
+        call this%partial_backward_4_sub( 15, cosx(1), sinx(1), pmm(1), pmj2(1), pmj1(1), pmj(1), &
+                                        & ssym(1), asym(1), cc(1), sumN(1), sumS(1)               )
+        
+        call this%grid_op_4_vcvv_vcvgv_sub( grid(1), sumN(1) )
+        call this%grid_op_4_vcvv_vcvgv_sub( grid(1), sumS(1) )
+        
+        call this%partial_forward_4_sub( 4, weight(1), cosx(1), sinx(1), pmm(1), pmj2(1), pmj1(1), pmj(1), ssym(1), asym(1), &
+                                       & cr(1), sumN(1), sumS(1) )
+      end do
+      
+      !Stepping of the algorithm :: 2
+      do i = (this%nLegendre/4)*4+1, this%nLegendre, 2
+        call lege_setup_2_sub( this%roots(i), this%fftLege(i), cosx(1), sinx(1), weight(1) )
+        call zero_poly_sub( 30*(this%maxj+1), sumN(1), sumS(1) )
+        
+        call this%partial_backward_2_sub( 15, cosx(1), sinx(1), pmm(1), pmj2(1), pmj1(1), pmj(1), &
+                                        & ssym(1), asym(1), cc(1), sumN(1), sumS(1)               )
+        
+        call this%grid_op_2_vcvv_vcvgv_sub( grid(1), sumN(1) )
+        call this%grid_op_2_vcvv_vcvgv_sub( grid(1), sumS(1) )
+        
+        call this%partial_forward_2_sub( 4, weight(1), cosx(1), sinx(1), pmm(1), pmj2(1), pmj1(1), pmj(1), ssym(1), asym(1), &
+                                       & cr(1), sumN(1), sumS(1) )
+      end do
+    
     deallocate( cc, sumN, sumS, grid, pmm, pmj, pmj1, pmj2, cosx, sinx, weight, ssym, asym )
       
       call cartesian_to_cyclic_sub( 2, 4, this%jms1, cr(1) )
@@ -173,11 +143,11 @@ submodule (SphericalHarmonics) vcvv_vcvgv
           cjm(4+ijm) = cr( 6+mj2) * cleb_fn(+1,-1,j,m) + cr(8+mj) * cleb_fn(+1, 0,j,m) + cr( 7+mj1) * cleb_fn(+1,+1,j,m)
         end do
       end do
-      
+    
     deallocate(cr)
     
-    do concurrent ( i1 = 1:4*this%jms )
-      cjm(i1) = cjm(i1) * this%scale
+    do concurrent ( ijm = 1:4*this%jms )
+      cjm(ijm) = cjm(ijm) * this%scale
     end do
     
   end subroutine vcvv_vcvgv_sub

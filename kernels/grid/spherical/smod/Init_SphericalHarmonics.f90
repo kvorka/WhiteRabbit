@@ -8,7 +8,7 @@ submodule (SphericalHarmonics) Init_SphericalHarmonics
     real(kind=dbl)                      :: xincr, x, y, fx, fy
     
     if ( .not. ( any( addmissible_jmax == jmax ) ) ) then
-      write(*,*) 'Due to FFT, this value of jmax is prohibited. Please, see table of admissible values in SphericalHarmonics.f90'
+      write(*,*) 'Due to FFT, this value of jmax is prohibited. Please, see table of admissible values in Math.f90'
       stop
     end if
     
@@ -21,10 +21,12 @@ submodule (SphericalHarmonics) Init_SphericalHarmonics
     
     this%maxj      = jmax+2
     this%nFourier  = 3*(this%maxj+1)
-    this%nLegendre = (((3*(this%maxj+1)/2+1)/2+1+step)/step)*step
+
+    this%nLegendre = ( 3*(this%maxj+1)/2+1 ) / 2 + 1
+    if ( mod(this%nLegendre,2) /= 0 ) this%nLegendre = this%nLegendre+1
     
     this%scale = 1 / ( 8 * this%nLegendre**2 * sqrt(pi) )
-    
+
     allocate( this%roots(this%nLegendre), this%fftLege(this%nLegendre), this%amjrr(this%jms2), this%bmjrr(this%jms2) )
     
     n = this%nLegendre
