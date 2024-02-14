@@ -3,19 +3,19 @@ module sph_vectors
   implicit none; public; contains
   
   pure subroutine gradvec_to_vectors_sub(jmax, padding, nvec, ri, v, dv_r, cab)
-    integer,         intent(in)    :: jmax, padding, nvec
-    real(real64),    intent(in)    :: ri
-    complex(real64), intent(in)    :: v(*), dv_r(*)
-    complex(real64), intent(inout) :: cab(*)
-    integer                        :: j, m, l, lmj, ijml, i1
-    real(real64)                   :: cleb, fac1, fac2
-    complex(real64), allocatable   :: sum1(:), sum2(:), sum3(:)
+    integer,           intent(in)    :: jmax, padding, nvec
+    real(kind=dbl),    intent(in)    :: ri
+    complex(kind=dbl), intent(in)    :: v(*), dv_r(*)
+    complex(kind=dbl), intent(inout) :: cab(*)
+    integer                          :: j, m, l, lmj, ijml, i1
+    real(kind=dbl)                   :: cleb, fac1, fac2
+    complex(kind=dbl), allocatable   :: sum1(:), sum2(:), sum3(:)
     
     allocate( sum1(2), sum2(2), sum3(2) )
     
     do j = 0, jmax+1
-      fac1 = sqrt((j  )/(2*j+1._real64))
-      fac2 = sqrt((j+1)/(2*j+1._real64))
+      fac1 = sqrt((j  )/(2*j+1._dbl))
+      fac2 = sqrt((j+1)/(2*j+1._dbl))
       
       do m = 0, j
         do concurrent ( i1 = 1:2 )
@@ -92,12 +92,12 @@ module sph_vectors
   end subroutine gradvec_to_vectors_sub
   
   pure subroutine vectors_to_scalars_sub(jmax, nvec, cab, cc)
-    integer,         intent(in)  :: jmax, nvec
-    complex(real64), intent(in)  :: cab(*)
-    complex(real64), intent(out) :: cc(*)
-    integer                      :: j, m, l, mj, lmj, i1, i2
-    real(real64)                 :: cleb
-    complex(real64), allocatable :: sum1(:), sum2(:), sum3(:)
+    integer,           intent(in)  :: jmax, nvec
+    complex(kind=dbl), intent(in)  :: cab(*)
+    complex(kind=dbl), intent(out) :: cc(*)
+    integer                        :: j, m, l, mj, lmj, i1, i2
+    real(kind=dbl)                 :: cleb
+    complex(kind=dbl), allocatable :: sum1(:), sum2(:), sum3(:)
     
     allocate( sum1(nvec), sum2(nvec), sum3(nvec) )
     
@@ -184,10 +184,10 @@ module sph_vectors
   end subroutine vectors_to_scalars_sub
   
   pure subroutine cartesian_to_cyclic_sub(padding, nvec, length, cr)
-    integer,         intent(in)    :: padding, nvec, length
-    complex(real64), intent(inout) :: cr(*)
-    integer                        :: mj
-    complex(real64)                :: cr12
+    integer,           intent(in)    :: padding, nvec, length
+    complex(kind=dbl), intent(inout) :: cr(*)
+    integer                          :: mj
+    complex(kind=dbl)                :: cr12
     
     do concurrent ( mj = 0:length-1 )
       cr12                  = +( cr(padding+nvec*mj) - cr(padding+1+nvec*mj) * cunit ) * sq2_1
