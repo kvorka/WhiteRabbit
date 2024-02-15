@@ -2,7 +2,7 @@
 ###########################################################################################
 ####                              COMPILER SET UP                                      ####
 ###########################################################################################
-compile="gfortran-12 -Ofast -march=native -frename-registers -flto=auto -fopenmp"
+compile="gfortran-12 -Ofast -march=native -flto=auto -fwhole-program -fopenmp"
 
 ###########################################################################################
 ####                              POSSIBLE CODE SETTINGS                               ####
@@ -13,9 +13,11 @@ code_type="ocean_convection"
 ###########################################################################################
 ####                    COMPILATION OF THE BASELINE, DIRS SET UP                       ####
 ###########################################################################################
-$compile -c kernels/math/Math.f90
-$compile -c kernels/math/mod/*.f90
-$compile -c kernels/math/mod2/*.f90
+$compile -c kernels/math/precision/Math.f90
+$compile -c kernels/math/precision/Conversions.f90
+
+$compile -c kernels/math/sph1/*.f90
+$compile -c kernels/math/sph2/*.f90
 
 $compile -c kernels/math/fft/Fourier_transform.f90
 $compile -c kernels/math/fft/smod/*.f90

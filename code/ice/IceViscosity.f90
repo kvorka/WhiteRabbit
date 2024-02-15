@@ -2,6 +2,8 @@ module IceViscosity
   use Math
   implicit none
   
+  real(kind=dbl), parameter :: rgas  = 8.31_dbl
+  
   public  :: andrade_visc_fn, goldsby_visc_fn
   private :: vdiff_visc_fn, gbdiff_visc_fn, disl_visc_fn, basal_visc_fn, gbs_visc_fn
   

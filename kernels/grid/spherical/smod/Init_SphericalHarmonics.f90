@@ -8,7 +8,7 @@ submodule (SphericalHarmonics) Init_SphericalHarmonics
     real(kind=dbl)                      :: xincr, x, y, fx, fy
     
     if ( .not. ( any( addmissible_jmax == jmax ) ) ) then
-      write(*,*) 'Due to FFT, this value of jmax is prohibited. Please, see table of admissible values in Math.f90'
+      write(*,*) 'Due to FFT, this value of jmax is prohibited. Please, see table of admissible values in SphericalHarmonics.f90'
       stop
     end if
     

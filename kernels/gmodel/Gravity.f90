@@ -3,6 +3,8 @@ module Gravity
   use RadialGrid
   implicit none
   
+  real(kind=dbl), parameter :: kappa = 6.670d-11
+  
   type, public :: T_gravity
     character(len=3),            private :: gmod
     integer,                     private :: nlay
