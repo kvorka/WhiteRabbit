@@ -76,14 +76,14 @@ module sph_vectors
         end if
         
         ijml = 3*(j*(j+1)/2+m)+abs(j-1)-j-1
-          cab(padding  +nvec*ijml) =         ( sum1(1) - sum2(1) ) * sq2_1 * fac1
-          cab(padding+1+nvec*ijml) = cunit * ( sum1(1) + sum2(1) ) * sq2_1 * fac1
-          cab(padding+2+nvec*ijml) =         ( sum3(1)           )         * fac1
+          cab(padding  +nvec*ijml) =         ( +sum1(1) - sum2(1) ) * sq2_1 * fac1
+          cab(padding+1+nvec*ijml) = cunit * ( -sum1(1) - sum2(1) ) * sq2_1 * fac1
+          cab(padding+2+nvec*ijml) =         ( +sum3(1)           )         * fac1
         
         ijml = 3*(j*(j+1)/2+m)+(j+1)-j-1
-          cab(padding  +nvec*ijml) =         ( sum1(2) - sum2(2) ) * sq2_1 * fac2
-          cab(padding+1+nvec*ijml) = cunit * ( sum1(2) + sum2(2) ) * sq2_1 * fac2
-          cab(padding+2+nvec*ijml) =         ( sum3(2)           )         * fac2
+          cab(padding  +nvec*ijml) =         ( +sum1(2) - sum2(2) ) * sq2_1 * fac2
+          cab(padding+1+nvec*ijml) = cunit * ( -sum1(2) - sum2(2) ) * sq2_1 * fac2
+          cab(padding+2+nvec*ijml) =         ( +sum3(2)           )         * fac2
       end do
     end do
     
@@ -172,9 +172,9 @@ module sph_vectors
           do concurrent ( i1 = 1:nvec )
             i2 = 3*(i1-1)+1
             
-            cc(i2  +3*nvec*mj) =         ( sum1(i1) - sum2(i1) ) * sq2_1
-            cc(i2+1+3*nvec*mj) = cunit * ( sum1(i1) + sum2(i1) ) * sq2_1
-            cc(i2+2+3*nvec*mj) =           sum3(i1)
+            cc(i2  +3*nvec*mj) =         ( +sum1(i1) - sum2(i1) ) * sq2_1
+            cc(i2+1+3*nvec*mj) = cunit * ( -sum1(i1) - sum2(i1) ) * sq2_1
+            cc(i2+2+3*nvec*mj) =           +sum3(i1)
           end do
       end do
     end do
@@ -190,8 +190,8 @@ module sph_vectors
     complex(kind=dbl)                :: cr12
     
     do concurrent ( mj = 0:length-1 )
-      cr12                  = +( cr(padding+nvec*mj) - cr(padding+1+nvec*mj) * cunit ) * sq2_1
-      cr(padding+1+nvec*mj) = -( cr(padding+nvec*mj) + cr(padding+1+nvec*mj) * cunit ) * sq2_1
+      cr12                  = ( +cr(padding+nvec*mj) + cr(padding+1+nvec*mj) * cunit ) * sq2_1
+      cr(padding+1+nvec*mj) = ( -cr(padding+nvec*mj) + cr(padding+1+nvec*mj) * cunit ) * sq2_1
       cr(padding+  nvec*mj) = cr12
     end do
     
