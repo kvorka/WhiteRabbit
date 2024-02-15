@@ -1,5 +1,6 @@
 module SphericalHarmonics
   use Clebsch_Gordan
+  use Legendre_function
   use Legendre_polynomials
   use Fourier_transform
   use sph_vectors
