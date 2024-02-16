@@ -87,7 +87,7 @@ submodule (SphericalHarmonics) vctol
           end do
         end do
         
-        if ( maxdiff < 1.0d-6 ) then
+        if ( maxdiff < 1.0d-5 ) then
           exit
         else
           this%tolm = this%tolm / 10
