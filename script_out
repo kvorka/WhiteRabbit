@@ -1,4 +1,4 @@
-#!/bin/bash 
+#!/bin/bash
 ###########################################################################################
 ####                              COMPILER SET UP                                      ####
 ###########################################################################################
@@ -13,8 +13,8 @@ code_type="ocean_convection"
 ###########################################################################################
 ####                             COMPILATION OF THE BASELINE                           ####
 ###########################################################################################
-$compile -c kernels/math/Math.f90
-$compile -c kernels/math/mod/Conversions.f90
+$compile -c kernels/math/precision/Math.f90
+$compile -c kernels/math/precision/Conversions.f90
 $compile -c output/Paths.f90
 $compile -c output/OutputMod.f90
 
