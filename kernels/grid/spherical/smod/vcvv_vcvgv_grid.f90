@@ -29,7 +29,7 @@ submodule(SphericalHarmonics) vcvv_vcvgv_grid
       end do
     end do
     
-    call this%fourtrans%exec_r2c_sub(8, this%maxj, grid, sumNS)
+    call this%fourtrans%exec_r2c_sub(8, this%maxj+1, grid, sumNS)
     
   end subroutine grid_op_2_vcvv_vcvgv_sub
   
@@ -61,7 +61,7 @@ submodule(SphericalHarmonics) vcvv_vcvgv_grid
       end do
     end do
     
-    call this%fourtrans%exec_r2c_sub(16, this%maxj, grid, sumNS)
+    call this%fourtrans%exec_r2c_sub(16, this%maxj+1, grid, sumNS)
     
   end subroutine grid_op_4_vcvv_vcvgv_sub
   
@@ -93,7 +93,7 @@ submodule(SphericalHarmonics) vcvv_vcvgv_grid
       end do
     end do
     
-    call this%fourtrans%exec_r2c_sub(32, this%maxj, grid, sumNS)
+    call this%fourtrans%exec_r2c_sub(32, this%maxj+1, grid, sumNS)
     
   end subroutine grid_op_8_vcvv_vcvgv_sub
   
@@ -125,7 +125,7 @@ submodule(SphericalHarmonics) vcvv_vcvgv_grid
       end do
     end do
     
-    call this%fourtrans%exec_r2c_sub(64, this%maxj, grid, sumNS)
+    call this%fourtrans%exec_r2c_sub(64, this%maxj+1, grid, sumNS)
     
   end subroutine grid_op_16_vcvv_vcvgv_sub
   

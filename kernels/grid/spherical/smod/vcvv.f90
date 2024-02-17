@@ -9,7 +9,7 @@ submodule (SphericalHarmonics) vcvv
     real(kind=dbl),       allocatable :: pmm(:), pmj(:), pmj1(:), pmj2(:), cosx(:), weight(:), sinx(:), grid(:)
     complex(kind=dbl),    allocatable :: cab(:), cc(:), cr(:), ssym(:), asym(:), sumN(:), sumS(:)
     
-    allocate( cab(2*this%jmv1), cc(6*this%jms2), cr(this%jms1) )
+    allocate( cab(2*this%jmv1), cc(6*this%jms2), cr(this%jms2) )
       
       cab = czero
       cc  = czero
@@ -91,11 +91,11 @@ submodule (SphericalHarmonics) vcvv
       
       do j = 0, this%jmax
         m = 0
-          cjm(j*(j+1)/2+m+1)%re = cr(m*(this%maxj)-m*(m+1)/2+j+1)%re * this%scale
+          cjm(j*(j+1)/2+m+1)%re = cr(m*(this%maxj+1)-m*(m+1)/2+j+1)%re * this%scale
           cjm(j*(j+1)/2+m+1)%im = 0._dbl
         
         do m = 1, j
-          cjm(j*(j+1)/2+m+1) = cr(m*(this%maxj)-m*(m+1)/2+j+1) * this%scale
+          cjm(j*(j+1)/2+m+1) = cr(m*(this%maxj+1)-m*(m+1)/2+j+1) * this%scale
         end do
       end do
       

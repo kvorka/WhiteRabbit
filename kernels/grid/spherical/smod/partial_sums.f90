@@ -54,30 +54,30 @@ submodule(SphericalHarmonics) partial_sums
     complex(kind=dbl),    intent(inout) :: ssym(*), asym(*), sumN(*), sumS(*)
     integer                             :: j, m, mj
     
-    do m = 0, this%jmax+1
+    do m = 0, this%maxj
       call pmm_recursion_2_sub( m, sinx(1), pmm(1) )
       call pmj_forward_recomb_2_sub( m, n, weight(1), sumN(1+2*n*m), sumS(1+2*n*m), ssym(1), asym(1) )
       
       j = m
-        mj = m*this%maxj-m*(m+1)/2+j
+        mj = m*(this%maxj+1)-m*(m+1)/2+j
         
         call pmj_setup_2_sub( pmm(1), pmj2(1), pmj1(1), pmj(1) )
         call pmj_forward_2_sub( n, pmj(1), ssym(1), cr(1+n*mj) )
       
-      do j = 1, (this%jmax+1-m)/2
+      do j = 1, (this%maxj-m)/2
         mj = mj+2
         
-        call pmj_recursion_2_sub( this%amjrr(mj+m), this%bmjrr(mj+m), cosx(1), pmj2(1), pmj1(1), pmj(1) )
+        call pmj_recursion_2_sub( this%amjrr(mj), this%bmjrr(mj), cosx(1), pmj2(1), pmj1(1), pmj(1) )
         call pmj_forward_2_sub( n, pmj(1), asym(1), cr(1+n*(mj-1)) )
         
-        call pmj_recursion_2_sub( this%amjrr(mj+m+1), this%bmjrr(mj+m+1), cosx(1), pmj2(1), pmj1(1), pmj(1) )
+        call pmj_recursion_2_sub( this%amjrr(mj+1), this%bmjrr(mj+1), cosx(1), pmj2(1), pmj1(1), pmj(1) )
         call pmj_forward_2_sub( n, pmj(1), ssym(1), cr(1+n*mj) )
       end do
       
-      if (mod(this%jmax+1-m,2) /= 0) then
+      if (mod(this%maxj-m,2) /= 0) then
         mj = mj+1
         
-        call pmj_recursion_2_sub( this%amjrr(mj+m+1), this%bmjrr(mj+m+1), cosx(1), pmj2(1), pmj1(1), pmj(1) )
+        call pmj_recursion_2_sub( this%amjrr(mj+1), this%bmjrr(mj+1), cosx(1), pmj2(1), pmj1(1), pmj(1) )
         call pmj_forward_2_sub( n, pmj(1), asym(1), cr(1+n*mj) )
       end if
     end do
@@ -137,30 +137,30 @@ submodule(SphericalHarmonics) partial_sums
     complex(kind=dbl),    intent(inout) :: ssym(*), asym(*), sumN(*), sumS(*)
     integer                             :: j, m, mj
     
-    do m = 0, this%jmax+1
+    do m = 0, this%maxj
       call pmm_recursion_4_sub( m, sinx(1), pmm(1) )
       call pmj_forward_recomb_4_sub( m, n, weight(1), sumN(1+4*n*m), sumS(1+4*n*m), ssym(1), asym(1) )
       
       j = m
-        mj = m*this%maxj-m*(m+1)/2+j
+        mj = m*(this%maxj+1)-m*(m+1)/2+j
         
         call pmj_setup_4_sub( pmm(1), pmj2(1), pmj1(1), pmj(1) )
         call pmj_forward_4_sub( n, pmj(1), ssym(1), cr(1+n*mj) )
       
-      do j = 1, (this%jmax+1-m)/2
+      do j = 1, (this%maxj-m)/2
         mj = mj+2
         
-        call pmj_recursion_4_sub( this%amjrr(mj+m), this%bmjrr(mj+m), cosx(1), pmj2(1), pmj1(1), pmj(1) )
+        call pmj_recursion_4_sub( this%amjrr(mj), this%bmjrr(mj), cosx(1), pmj2(1), pmj1(1), pmj(1) )
         call pmj_forward_4_sub( n, pmj(1), asym(1), cr(1+n*(mj-1)) )
         
-        call pmj_recursion_4_sub( this%amjrr(mj+m+1), this%bmjrr(mj+m+1), cosx(1), pmj2(1), pmj1(1), pmj(1) )
+        call pmj_recursion_4_sub( this%amjrr(mj+1), this%bmjrr(mj+1), cosx(1), pmj2(1), pmj1(1), pmj(1) )
         call pmj_forward_4_sub( n, pmj(1), ssym(1), cr(1+n*mj) )
       end do
       
-      if (mod(this%jmax+1-m,2) /= 0) then
+      if (mod(this%maxj-m,2) /= 0) then
         mj = mj+1
         
-        call pmj_recursion_4_sub( this%amjrr(mj+m+1), this%bmjrr(mj+m+1), cosx(1), pmj2(1), pmj1(1), pmj(1) )
+        call pmj_recursion_4_sub( this%amjrr(mj+1), this%bmjrr(mj+1), cosx(1), pmj2(1), pmj1(1), pmj(1) )
         call pmj_forward_4_sub( n, pmj(1), asym(1), cr(1+n*mj) )
       end if
     end do
@@ -220,30 +220,30 @@ submodule(SphericalHarmonics) partial_sums
     complex(kind=dbl),    intent(inout) :: ssym(*), asym(*), sumN(*), sumS(*)
     integer                             :: j, m, mj
     
-    do m = 0, this%jmax+1
+    do m = 0, this%maxj
       call pmm_recursion_8_sub( m, sinx(1), pmm(1) )
       call pmj_forward_recomb_8_sub( m, n, weight(1), sumN(1+8*n*m), sumS(1+8*n*m), ssym(1), asym(1) )
       
       j = m
-        mj = m*this%maxj-m*(m+1)/2+j
+        mj = m*(this%maxj+1)-m*(m+1)/2+j
         
         call pmj_setup_8_sub( pmm(1), pmj2(1), pmj1(1), pmj(1) )
         call pmj_forward_8_sub( n, pmj(1), ssym(1), cr(1+n*mj) )
       
-      do j = 1, (this%jmax+1-m)/2
+      do j = 1, (this%maxj-m)/2
         mj = mj+2
         
-        call pmj_recursion_8_sub( this%amjrr(mj+m), this%bmjrr(mj+m), cosx(1), pmj2(1), pmj1(1), pmj(1) )
+        call pmj_recursion_8_sub( this%amjrr(mj), this%bmjrr(mj), cosx(1), pmj2(1), pmj1(1), pmj(1) )
         call pmj_forward_8_sub( n, pmj(1), asym(1), cr(1+n*(mj-1)) )
         
-        call pmj_recursion_8_sub( this%amjrr(mj+m+1), this%bmjrr(mj+m+1), cosx(1), pmj2(1), pmj1(1), pmj(1) )
+        call pmj_recursion_8_sub( this%amjrr(mj+1), this%bmjrr(mj+1), cosx(1), pmj2(1), pmj1(1), pmj(1) )
         call pmj_forward_8_sub( n, pmj(1), ssym(1), cr(1+n*mj) )
       end do
       
-      if (mod(this%jmax+1-m,2) /= 0) then
+      if (mod(this%maxj-m,2) /= 0) then
         mj = mj+1
         
-        call pmj_recursion_8_sub( this%amjrr(mj+m+1), this%bmjrr(mj+m+1), cosx(1), pmj2(1), pmj1(1), pmj(1) )
+        call pmj_recursion_8_sub( this%amjrr(mj+1), this%bmjrr(mj+1), cosx(1), pmj2(1), pmj1(1), pmj(1) )
         call pmj_forward_8_sub( n, pmj(1), asym(1), cr(1+n*mj) )
       end if
     end do
@@ -303,30 +303,30 @@ submodule(SphericalHarmonics) partial_sums
     complex(kind=dbl),    intent(inout) :: ssym(*), asym(*), sumN(*), sumS(*)
     integer                             :: j, m, mj
     
-    do m = 0, this%jmax+1
+    do m = 0, this%maxj
       call pmm_recursion_16_sub( m, sinx(1), pmm(1) )
       call pmj_forward_recomb_16_sub( m, n, weight(1), sumN(1+16*n*m), sumS(1+16*n*m), ssym(1), asym(1) )
       
       j = m
-        mj = m*this%maxj-m*(m+1)/2+j
+        mj = m*(this%maxj+1)-m*(m+1)/2+j
         
         call pmj_setup_16_sub( pmm(1), pmj2(1), pmj1(1), pmj(1) )
         call pmj_forward_16_sub( n, pmj(1), ssym(1), cr(1+n*mj) )
       
-      do j = 1, (this%jmax+1-m)/2
+      do j = 1, (this%maxj-m)/2
         mj = mj+2
         
-        call pmj_recursion_16_sub( this%amjrr(mj+m), this%bmjrr(mj+m), cosx(1), pmj2(1), pmj1(1), pmj(1) )
+        call pmj_recursion_16_sub( this%amjrr(mj), this%bmjrr(mj), cosx(1), pmj2(1), pmj1(1), pmj(1) )
         call pmj_forward_16_sub( n, pmj(1), asym(1), cr(1+n*(mj-1)) )
         
-        call pmj_recursion_16_sub( this%amjrr(mj+m+1), this%bmjrr(mj+m+1), cosx(1), pmj2(1), pmj1(1), pmj(1) )
+        call pmj_recursion_16_sub( this%amjrr(mj+1), this%bmjrr(mj+1), cosx(1), pmj2(1), pmj1(1), pmj(1) )
         call pmj_forward_16_sub( n, pmj(1), ssym(1), cr(1+n*mj) )
       end do
       
-      if (mod(this%jmax+1-m,2) /= 0) then
+      if (mod(this%maxj-m,2) /= 0) then
         mj = mj+1
         
-        call pmj_recursion_16_sub( this%amjrr(mj+m+1), this%bmjrr(mj+m+1), cosx(1), pmj2(1), pmj1(1), pmj(1) )
+        call pmj_recursion_16_sub( this%amjrr(mj+1), this%bmjrr(mj+1), cosx(1), pmj2(1), pmj1(1), pmj(1) )
         call pmj_forward_16_sub( n, pmj(1), asym(1), cr(1+n*mj) )
       end if
     end do

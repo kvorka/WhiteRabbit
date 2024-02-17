@@ -11,7 +11,7 @@ submodule (SphericalHarmonics) vcvv_vcvgv
     complex(kind=dbl),    allocatable :: cab(:), cc(:), cr(:), ssym(:), asym(:), sumN(:), sumS(:)
     
     !Preparing arrays for transforms
-    allocate( cab(5*this%jmv1), cc(15*this%jms2), cr(4*this%jms1) )
+    allocate( cab(5*this%jmv1), cc(15*this%jms2), cr(4*this%jms2) )
       
       cab = czero
       cc  = czero
@@ -93,14 +93,14 @@ submodule (SphericalHarmonics) vcvv_vcvgv
     
     deallocate( cc, sumN, sumS, grid, pmm, pmj, pmj1, pmj2, cosx, sinx, weight, ssym, asym )
       
-      call cartesian_to_cyclic_sub( 2, 4, this%jms1, cr(1) )
+      call cartesian_to_cyclic_sub( 2, 4, this%jms2, cr(1) )
       
       j = 0
         m = 0
           ijm = 0
-          mj  = m*(this%maxj)-m*(m+1)/2+j
+          mj  = m*(this%maxj+1)-m*(m+1)/2+j
           
-          mj2 = 4*(mj + this%maxj - m)
+          mj2 = 4*(mj + this%maxj + 1 - m)
           mj  = 4*(mj)
           
           cjm(1) = cr(1+mj )
@@ -114,9 +114,9 @@ submodule (SphericalHarmonics) vcvv_vcvgv
       do j = 1, this%jmax
         m = 0
           ijm = ijm+4
-          mj  = m*(this%maxj)-m*(m+1)/2+j
+          mj  = m*(this%maxj+1)-m*(m+1)/2+j
           
-          mj2 = 4*(mj + this%maxj - m - 1)
+          mj2 = 4*(mj + this%maxj + 1 - m - 1)
           mj  = 4*(mj)
           
           cjm(1+ijm) = cr( 1+mj )
@@ -131,10 +131,10 @@ submodule (SphericalHarmonics) vcvv_vcvgv
           
         do m = 1, j
           ijm = ijm+4
-          mj  = m*(this%maxj)-m*(m+1)/2+j
+          mj  = m*(this%maxj+1)-m*(m+1)/2+j
           
-          mj1 = 4*(mj - this%maxj + m)
-          mj2 = 4*(mj + this%maxj - m - 1)
+          mj1 = 4*(mj - this%maxj - 1 + m)
+          mj2 = 4*(mj + this%maxj + 1 - m - 1)
           mj  = 4*(mj)
           
           cjm(1+ijm) = cr( 1+mj )

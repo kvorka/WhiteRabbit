@@ -197,4 +197,46 @@ module sph_vectors
     
   end subroutine cartesian_to_cyclic_sub
   
+  pure subroutine tensor2_to_scalars_sub(jmax, padding, nscal, ctjml, cu)
+    integer,           intent(in)    :: jmax, padding, nscal
+    complex(kind=dbl), intent(in)    :: ctjml(*)
+    complex(kind=dbl), intent(inout) :: cu(*)
+    integer                          :: j, m, l, k, lm
+    complex(kind=dbl)                :: csum, cpom
+    
+    do k = -2, 2
+      do l = 0, jmax+2
+        do m = 0, l
+          csum = czero
+          
+          do j = max(abs(m+k),abs(l-2)), min(jmax,l+2)
+            if ( m >= -k ) then
+              csum = csum + cleb2_fn(l,m,2,k,j,m+k) * ctjml(5*(j*(j+1)/2+abs(m+k))+l-j-1)
+            else
+              csum = csum + cleb2_fn(l,m,2,k,j,m+k) * (-1)**(j+m+k+l) * conjg( ctjml(5*(j*(j+1)/2+abs(m+k))+l-j-1) )
+            end if
+          end do
+          
+          lm = nscal * ( m*(jmax+3)-m*(m+1)/2+l )
+          
+          if ( k <= 0 ) then
+            cu(padding+k+2+lm) = csum
+            
+          else if ( k == 1 ) then
+            cpom             = cu(padding+1+lm)
+            cu(padding+1+lm) =           cpom - csum
+            cu(padding+3+lm) = cunit * ( cpom + csum )
+            
+          else
+            cpom             = cu(padding+lm)
+            cu(padding+  lm) =            cpom + csum 
+            cu(padding+4+lm) = cunit * ( -cpom + csum )
+          end if
+          
+        end do
+      end do
+    end do
+    
+  end subroutine tensor2_to_scalars_sub
+  
 end module sph_vectors

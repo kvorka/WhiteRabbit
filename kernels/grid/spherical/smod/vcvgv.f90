@@ -10,7 +10,7 @@ submodule (SphericalHarmonics) vcvgv
     real(kind=dbl),       allocatable :: pmm(:), pmj(:), pmj1(:), pmj2(:), cosx(:), weight(:), sinx(:), grid(:)
     complex(kind=dbl),    allocatable :: cab(:), cc(:), cr(:), ssym(:), asym(:), sumN(:), sumS(:)
     
-    allocate( cab(4*this%jmv1), cc(12*this%jms2), cr(3*this%jms1) )
+    allocate( cab(4*this%jmv1), cc(12*this%jms2), cr(3*this%jms2) )
       
       cab = czero
       cc  = czero
@@ -90,13 +90,13 @@ submodule (SphericalHarmonics) vcvgv
     
     deallocate( cc, sumN, sumS, grid, pmm, pmj, pmj1, pmj2, cosx, sinx, weight, ssym, asym )
       
-      call cartesian_to_cyclic_sub( 1, 3, this%jms1, cr(1) )
+      call cartesian_to_cyclic_sub( 1, 3, this%jms2, cr(1) )
       
       j = 0
         m = 0
-          ijm = 0 ; mj = m*(this%maxj)-m*(m+1)/2+j
+          ijm = 0 ; mj = m*(this%maxj+1)-m*(m+1)/2+j
           
-          mj2 = 3*(mj + this%maxj - m)
+          mj2 = 3*(mj + this%maxj+1 - m)
           mj  = 3*(mj)
           
           cjm(1) = czero
@@ -107,9 +107,9 @@ submodule (SphericalHarmonics) vcvgv
           
       do j = 1, this%jmax
         m = 0
-          ijm = ijm+3 ; mj = m*(this%maxj)-m*(m+1)/2+j
+          ijm = ijm+3 ; mj = m*(this%maxj+1)-m*(m+1)/2+j
           
-          mj2 = 3*(mj + this%maxj - m - 1)
+          mj2 = 3*(mj + this%maxj + 1 - m - 1)
           mj  = 3*(mj)
           
           cjm(1+ijm) = cr(-2+mj2) * cleb_fn(-1,-1,j,m) + cr(  mj) * cleb_fn(-1,0,j,m) + conjg( cr(-2+mj2) ) * cleb_fn(-1,+1,j,m)
@@ -121,10 +121,10 @@ submodule (SphericalHarmonics) vcvgv
           cjm(3+ijm)%im = 0._dbl
           
         do m = 1, j
-          ijm = ijm+3 ; mj = m*(this%maxj)-m*(m+1)/2+j
+          ijm = ijm+3 ; mj = m*(this%maxj+1)-m*(m+1)/2+j
           
-          mj1 = 3*(mj - this%maxj + m)
-          mj2 = 3*(mj + this%maxj - m - 1)
+          mj1 = 3*(mj - this%maxj - 1 + m)
+          mj2 = 3*(mj + this%maxj + 1 - m - 1)
           mj  = 3*(mj)
           
           cjm(1+ijm) = cr(-2+mj2) * cleb_fn(-1,-1,j,m) + cr(  mj) * cleb_fn(-1,0,j,m) + cr(-1+mj1) * cleb_fn(-1,+1,j,m)

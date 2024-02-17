@@ -3,22 +3,23 @@ submodule (SphericalHarmonics) vctol
   
   module subroutine vctol_sub(this)
     class(T_lateralGrid), intent(inout) :: this
-    integer                             :: i, j, m, mj, i1, i2
+    integer                             :: i, j, m, mj
     real(kind=dbl)                      :: diff, maxdiff
     real(kind=dbl),       allocatable   :: pmm(:), pmj(:), pmj1(:), pmj2(:), cosx(:), weight(:), sinx(:)
     complex(kind=dbl),    allocatable   :: cc(:), cr(:), ssym(:), asym(:), sumN(:), sumS(:)
     
-    allocate( cc(this%jms2), cr(this%jms1) )
+    allocate( cc(this%jms2), cr(this%jms2) )
       
-      cc = czero
-      
-      do m = 0, this%jmax
-        do j = m, this%jmax
+      do m = 0, this%jmax+2
+        do j = m, this%jmax+2
+          mj = m*(this%maxj+1)-m*(m+1)/2+j+1
+          
           if ( m /= 0 ) then
-            call random_number(cc(m*(this%maxj+1)-m*(m+1)/2+j+1)%re)
-            call random_number(cc(m*(this%maxj+1)-m*(m+1)/2+j+1)%im)
+            call random_number(cc(mj)%re)
+            call random_number(cc(mj)%im)
           else
-            call random_number(cc(m*(this%maxj+1)-m*(m+1)/2+j+1)%re)
+            call random_number(cc(mj)%re)
+            cc(mj)%im = czero
           end if
         end do
       end do
@@ -79,18 +80,21 @@ submodule (SphericalHarmonics) vctol
         
         maxdiff = 0._dbl
         
-        do m = 0, this%jmax
-          do j = m, this%jmax
-            diff = abs( abs( cc(m*(this%maxj+1)-m*(m+1)/2+j+1) / cr(m*(this%maxj)-m*(m+1)/2+j+1) ) / this%scale / sqrt(4*pi) - 1 )
+        do mj = 1, this%jms2
+          diff = abs( abs( cc(mj) / cr(mj) ) / this%scale / sqrt(4*pi) - 1 )
             
-            if ( diff > maxdiff ) maxdiff = diff
-          end do
+          if ( diff > maxdiff ) maxdiff = diff
         end do
         
         if ( maxdiff < 1.0d-5 ) then
           exit
         else
           this%tolm = this%tolm / 10
+        end if
+        
+        if ( this%tolm < 1.0d-100) then
+          write(*,*) 'Problem with precision setting, try another run (that usually fixes it).'
+          stop
         end if
       end do
       
