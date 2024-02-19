@@ -7,20 +7,20 @@ submodule (SphericalHarmonics) vcvv
     complex(kind=dbl),    intent(out) :: cjm(*)
     integer                           :: i, j, m, mj, i1, i2
     real(kind=dbl),       allocatable :: pmm(:), pmj(:), pmj1(:), pmj2(:), cosx(:), weight(:), sinx(:), grid(:)
-    complex(kind=dbl),    allocatable :: cab(:), cc(:), cr(:), ssym(:), asym(:), sumN(:), sumS(:)
+    complex(kind=dbl),    allocatable :: cab(:,:), cc(:), cr(:), ssym(:), asym(:), sumN(:), sumS(:)
     
-    allocate( cab(2*this%jmv1), cc(6*this%jms2), cr(this%jms2) )
+    allocate( cab(2,this%jmv1), cc(6*this%jms2), cr(this%jms2) )
       
       cab = czero
       cc  = czero
       cr  = czero
       
-      do concurrent( mj = 0:this%jmv-1 )
-        cab(1+2*mj) = cajml(mj+1)
-        cab(2+2*mj) = cbjml(mj+1)
+      do concurrent( mj = 1:this%jmv )
+        cab(1,mj) = cajml(mj)
+        cab(2,mj) = cbjml(mj)
       end do
       
-      call vectors_to_scalars_sub( this%jmax, 2, cab(1), cc(1) )
+      call vectors_to_scalars_sub( this%jmax, 2, cab(1,1), cc(1) )
       
     deallocate(cab)
     
@@ -32,14 +32,14 @@ submodule (SphericalHarmonics) vcvv
         call lege_setup_16_sub( this%roots(i), this%fftLege(i), cosx(1), sinx(1), weight(1) )
         call zero_poly_sub( 96*(this%maxj+1), sumN(1), sumS(1) )
         
-        call this%partial_backward_16_sub( 6, cosx(1), sinx(1), pmm(1), pmj2(1), pmj1(1), pmj(1), &
-                                         & ssym(1), asym(1), cc(1), sumN(1), sumS(1)              )
+        call this%partial_backward_16_sub( 6, cosx(1), sinx(1), pmm(1), pmj2(1), pmj1(1),    &
+                                         & pmj(1), ssym(1), asym(1), cc(1), sumN(1), sumS(1) )
         
         call this%grid_op_16_vcvv_sub( grid(1), sumN(1) )
         call this%grid_op_16_vcvv_sub( grid(1), sumS(1) )
         
-        call this%partial_forward_16_sub( 1, weight(1), cosx(1), sinx(1), pmm(1), pmj2(1), pmj1(1), pmj(1), ssym(1), asym(1), &
-                                        & cr(1), sumN(1), sumS(1) )
+        call this%partial_forward_16_sub( 1, weight(1), cosx(1), sinx(1), pmm(1), pmj2(1), pmj1(1), &
+                                        & pmj(1), ssym(1), asym(1), cr(1), sumN(1), sumS(1)         )
       end do
       
       !Stepping of the algorithm :: 8
@@ -47,14 +47,14 @@ submodule (SphericalHarmonics) vcvv
         call lege_setup_8_sub( this%roots(i), this%fftLege(i), cosx(1), sinx(1), weight(1) )
         call zero_poly_sub( 48*(this%maxj+1), sumN(1), sumS(1) )
         
-        call this%partial_backward_8_sub( 6, cosx(1), sinx(1), pmm(1), pmj2(1), pmj1(1), pmj(1), &
-                                        & ssym(1), asym(1), cc(1), sumN(1), sumS(1)              )
+        call this%partial_backward_8_sub( 6, cosx(1), sinx(1), pmm(1), pmj2(1), pmj1(1),    &
+                                        & pmj(1), ssym(1), asym(1), cc(1), sumN(1), sumS(1) )
         
         call this%grid_op_8_vcvv_sub( grid(1), sumN(1) )
         call this%grid_op_8_vcvv_sub( grid(1), sumS(1) )
         
-        call this%partial_forward_8_sub( 1, weight(1), cosx(1), sinx(1), pmm(1), pmj2(1), pmj1(1), pmj(1), ssym(1), asym(1), &
-                                       & cr(1), sumN(1), sumS(1) )
+        call this%partial_forward_8_sub( 1, weight(1), cosx(1), sinx(1), pmm(1), pmj2(1), pmj1(1), &
+                                       & pmj(1), ssym(1), asym(1), cr(1), sumN(1), sumS(1)         )
       end do
       
       !Stepping of the algorithm :: 4
@@ -62,14 +62,14 @@ submodule (SphericalHarmonics) vcvv
         call lege_setup_4_sub( this%roots(i), this%fftLege(i), cosx(1), sinx(1), weight(1) )
         call zero_poly_sub( 24*(this%maxj+1), sumN(1), sumS(1) )
         
-        call this%partial_backward_4_sub( 6, cosx(1), sinx(1), pmm(1), pmj2(1), pmj1(1), pmj(1), &
-                                        & ssym(1), asym(1), cc(1), sumN(1), sumS(1)              )
+        call this%partial_backward_4_sub( 6, cosx(1), sinx(1), pmm(1), pmj2(1), pmj1(1),    &
+                                        & pmj(1), ssym(1), asym(1), cc(1), sumN(1), sumS(1) )
         
         call this%grid_op_4_vcvv_sub( grid(1), sumN(1) )
         call this%grid_op_4_vcvv_sub( grid(1), sumS(1) )
         
-        call this%partial_forward_4_sub( 1, weight(1), cosx(1), sinx(1), pmm(1), pmj2(1), pmj1(1), pmj(1), ssym(1), asym(1), &
-                                       & cr(1), sumN(1), sumS(1) )
+        call this%partial_forward_4_sub( 1, weight(1), cosx(1), sinx(1), pmm(1), pmj2(1), pmj1(1), &
+                                       & pmj(1), ssym(1), asym(1), cr(1), sumN(1), sumS(1)         )
       end do
       
       !Stepping of the algorithm :: 2
@@ -77,14 +77,14 @@ submodule (SphericalHarmonics) vcvv
         call lege_setup_2_sub( this%roots(i), this%fftLege(i), cosx(1), sinx(1), weight(1) )
         call zero_poly_sub( 12*(this%maxj+1), sumN(1), sumS(1) )
         
-        call this%partial_backward_2_sub( 6, cosx(1), sinx(1), pmm(1), pmj2(1), pmj1(1), pmj(1), &
-                                        & ssym(1), asym(1), cc(1), sumN(1), sumS(1)              )
+        call this%partial_backward_2_sub( 6, cosx(1), sinx(1), pmm(1), pmj2(1), pmj1(1),    &
+                                        & pmj(1), ssym(1), asym(1), cc(1), sumN(1), sumS(1) )
         
         call this%grid_op_2_vcvv_sub( grid(1), sumN(1) )
         call this%grid_op_2_vcvv_sub( grid(1), sumS(1) )
         
-        call this%partial_forward_2_sub( 1, weight(1), cosx(1), sinx(1), pmm(1), pmj2(1), pmj1(1), pmj(1), ssym(1), asym(1), &
-                                       & cr(1), sumN(1), sumS(1) )
+        call this%partial_forward_2_sub( 1, weight(1), cosx(1), sinx(1), pmm(1), pmj2(1), pmj1(1), &
+                                       & pmj(1), ssym(1), asym(1), cr(1), sumN(1), sumS(1)         )
       end do
       
     deallocate( cc, sumN, sumS, grid, pmm, pmj, pmj1, pmj2, cosx, sinx, weight, ssym, asym )

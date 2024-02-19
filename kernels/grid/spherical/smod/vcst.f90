@@ -31,14 +31,14 @@ submodule (SphericalHarmonics) vcst
         call lege_setup_16_sub( this%roots(i), this%fftLege(i), cosx(1), sinx(1), weight(1) )
         call zero_poly_sub( 96*(this%maxj+1), sumN(1), sumS(1) )
         
-        call this%partial_backward_16_sub( 6, cosx(1), sinx(1), pmm(1), pmj2(1), pmj1(1), pmj(1), &
-                                         & ssym(1), asym(1), cc(1), sumN(1), sumS(1)              )
+        call this%partial_backward_16_sub( 6, cosx(1), sinx(1), pmm(1), pmj2(1), pmj1(1),    &
+                                         & pmj(1), ssym(1), asym(1), cc(1), sumN(1), sumS(1) )
           
         call this%grid_op_16_vcst_sub( grid(1), sumN(1) )
         call this%grid_op_16_vcst_sub( grid(1), sumS(1) )
         
-        call this%partial_forward_16_sub( 5, weight(1), cosx(1), sinx(1), pmm(1), pmj2(1), pmj1(1), pmj(1), ssym(1), asym(1), &
-                                        & cr(1,1), sumN(1), sumS(1) )
+        call this%partial_forward_16_sub( 5, weight(1), cosx(1), sinx(1), pmm(1), pmj2(1), pmj1(1), &
+                                        & pmj(1), ssym(1), asym(1), cr(1,1), sumN(1), sumS(1)       )
       end do
       
       !Stepping of the algorithm :: 8
@@ -46,14 +46,14 @@ submodule (SphericalHarmonics) vcst
         call lege_setup_8_sub( this%roots(i), this%fftLege(i), cosx(1), sinx(1), weight(1) )
         call zero_poly_sub( 48*(this%maxj+1), sumN(1), sumS(1) )
         
-        call this%partial_backward_8_sub( 6, cosx(1), sinx(1), pmm(1), pmj2(1), pmj1(1), pmj(1), &
-                                        & ssym(1), asym(1), cc(1), sumN(1), sumS(1)              )
+        call this%partial_backward_8_sub( 6, cosx(1), sinx(1), pmm(1), pmj2(1), pmj1(1),    &
+                                        & pmj(1), ssym(1), asym(1), cc(1), sumN(1), sumS(1) )
           
         call this%grid_op_8_vcst_sub( grid(1), sumN(1) )
         call this%grid_op_8_vcst_sub( grid(1), sumS(1) )
         
-        call this%partial_forward_8_sub( 5, weight(1), cosx(1), sinx(1), pmm(1), pmj2(1), pmj1(1), pmj(1), ssym(1), asym(1), &
-                                       & cr(1,1), sumN(1), sumS(1) )
+        call this%partial_forward_8_sub( 5, weight(1), cosx(1), sinx(1), pmm(1), pmj2(1), pmj1(1), &
+                                       & pmj(1), ssym(1), asym(1), cr(1,1), sumN(1), sumS(1)       )
       end do
       
       !Stepping of the algorithm :: 4
@@ -61,14 +61,14 @@ submodule (SphericalHarmonics) vcst
         call lege_setup_4_sub( this%roots(i), this%fftLege(i), cosx(1), sinx(1), weight(1) )
         call zero_poly_sub( 24*(this%maxj+1), sumN(1), sumS(1) )
         
-        call this%partial_backward_4_sub( 6, cosx(1), sinx(1), pmm(1), pmj2(1), pmj1(1), pmj(1), &
-                                        & ssym(1), asym(1), cc(1), sumN(1), sumS(1)              )
+        call this%partial_backward_4_sub( 6, cosx(1), sinx(1), pmm(1), pmj2(1), pmj1(1),    &
+                                        & pmj(1), ssym(1), asym(1), cc(1), sumN(1), sumS(1) )
           
         call this%grid_op_4_vcst_sub( grid(1), sumN(1) )
         call this%grid_op_4_vcst_sub( grid(1), sumS(1) )
         
-        call this%partial_forward_4_sub( 5, weight(1), cosx(1), sinx(1), pmm(1), pmj2(1), pmj1(1), pmj(1), ssym(1), asym(1), &
-                                       & cr(1,1), sumN(1), sumS(1) )
+        call this%partial_forward_4_sub( 5, weight(1), cosx(1), sinx(1), pmm(1), pmj2(1), pmj1(1), &
+                                       & pmj(1), ssym(1), asym(1), cr(1,1), sumN(1), sumS(1)       )
       end do
       
       !Stepping of the algorithm :: 2
@@ -76,14 +76,14 @@ submodule (SphericalHarmonics) vcst
         call lege_setup_2_sub( this%roots(i), this%fftLege(i), cosx(1), sinx(1), weight(1) )
         call zero_poly_sub( 12*(this%maxj+1), sumN(1), sumS(1) )
         
-        call this%partial_backward_2_sub( 6, cosx(1), sinx(1), pmm(1), pmj2(1), pmj1(1), pmj(1), &
-                                        & ssym(1), asym(1), cc(1), sumN(1), sumS(1)              )
+        call this%partial_backward_2_sub( 6, cosx(1), sinx(1), pmm(1), pmj2(1), pmj1(1),    &
+                                        & pmj(1), ssym(1), asym(1), cc(1), sumN(1), sumS(1) )
           
         call this%grid_op_2_vcst_sub( grid(1), sumN(1) )
         call this%grid_op_2_vcst_sub( grid(1), sumS(1) )
         
-        call this%partial_forward_2_sub( 5, weight(1), cosx(1), sinx(1), pmm(1), pmj2(1), pmj1(1), pmj(1), ssym(1), asym(1), &
-                                       & cr(1,1), sumN(1), sumS(1) )
+        call this%partial_forward_2_sub( 5, weight(1), cosx(1), sinx(1), pmm(1), pmj2(1), pmj1(1), &
+                                       & pmj(1), ssym(1), asym(1), cr(1,1), sumN(1), sumS(1)       )
       end do
       
     deallocate( cc, sumN, sumS, grid, pmm, pmj, pmj1, pmj2, cosx, sinx, weight, ssym, asym )

@@ -4,7 +4,7 @@ submodule (SphericalHarmonics) vctol
   module subroutine vctol_sub(this)
     class(T_lateralGrid), intent(inout) :: this
     integer                             :: i, j, m, mj
-    real(kind=dbl)                      :: diff, maxdiff
+    real(kind=dbl)                      :: diff, maxdiff, xrand
     real(kind=dbl),       allocatable   :: pmm(:), pmj(:), pmj1(:), pmj2(:), cosx(:), weight(:), sinx(:)
     complex(kind=dbl),    allocatable   :: cc(:), cr(:), ssym(:), asym(:), sumN(:), sumS(:)
     
@@ -15,10 +15,10 @@ submodule (SphericalHarmonics) vctol
           mj = m*(this%maxj+1)-m*(m+1)/2+j+1
           
           if ( m /= 0 ) then
-            call random_number(cc(mj)%re)
-            call random_number(cc(mj)%im)
+            call random_number( xrand ) ; cc(mj)%re = xrand
+            call random_number( xrand ) ; cc(mj)%im = xrand
           else
-            call random_number(cc(mj)%re)
+            call random_number( xrand ) ; cc(mj)%re = xrand
             cc(mj)%im = czero
           end if
         end do

@@ -28,7 +28,7 @@ module Legendre_polynomials
   end subroutine lege_setup_2_sub
   
   pure subroutine pmm_recursion_2_sub(m, sinx, pmm)
-    integer,      intent(in)      :: m
+    integer,        intent(in)    :: m
     real(kind=dbl), intent(in)    :: sinx(*)
     real(kind=dbl), intent(inout) :: pmm(*)
     integer                       :: i
@@ -82,11 +82,11 @@ module Legendre_polynomials
     integer,           intent(in)    :: nsum
     real(kind=dbl),    intent(in)    :: pmj(*)
     complex(kind=dbl), intent(in)    :: cc(*)
-    complex(kind=dbl), intent(inout) :: legesum(*)
+    complex(kind=dbl), intent(inout) :: legesum(2,*)
     integer                          :: i1, i2
     
     do concurrent ( i1=1:nsum , i2=1:2 )
-      legesum(i2+(i1-1)*2) = legesum(i2+(i1-1)*2) + cc(i1) * pmj(i2)
+      legesum(i2,i1) = legesum(i2,i1) + cc(i1) * pmj(i2)
     end do
     
   end subroutine pmj_backward_2_sub
@@ -94,54 +94,54 @@ module Legendre_polynomials
   pure subroutine pmj_forward_2_sub(nsum, pmj, legesum, cc)
     integer,           intent(in)    :: nsum
     real(kind=dbl),    intent(in)    :: pmj(*)
-    complex(kind=dbl), intent(in)    :: legesum(*)
+    complex(kind=dbl), intent(in)    :: legesum(2,*)
     complex(kind=dbl), intent(inout) :: cc(*)
     integer                          :: i1, i2
     
     do concurrent ( i1=1:nsum , i2=1:2 )
-      cc(i1) = cc(i1) + pmj(i2) * legesum(i2+(i1-1)*2)
+      cc(i1) = cc(i1) + pmj(i2) * legesum(i2,i1)
     end do
     
   end subroutine pmj_forward_2_sub
   
-  pure subroutine pmj_backward_recomb_2_sub(m, nsum, sym, asym, sumN, sumS)
+  pure subroutine pmj_backward_recomb_2_sub(m, nsum, ssym, asym, sumN, sumS)
     integer,           intent(in)  :: m
     integer,           intent(in)  :: nsum
-    complex(kind=dbl), intent(in)  :: sym(*), asym(*)
-    complex(kind=dbl), intent(out) :: sumN(*), sumS(*)
+    complex(kind=dbl), intent(in)  :: ssym(2,*), asym(2,*)
+    complex(kind=dbl), intent(out) :: sumN(nsum,*), sumS(nsum,*)
     integer                        :: i1, i2
     
     do concurrent ( i2=1:2, i1=1:nsum )
-      sumN(i1+(i2-1)*nsum) = sym(i2+(i1-1)*2) + asym(i2+(i1-1)*2)
-      sumS(i1+(i2-1)*nsum) = sym(i2+(i1-1)*2) - asym(i2+(i1-1)*2)
+      sumN(i1,i2) = ssym(i2,i1) + asym(i2,i1)
+      sumS(i1,i2) = ssym(i2,i1) - asym(i2,i1)
     end do
     
     if ( m == 0 ) then
       do concurrent ( i2=1:2, i1=1:nsum )
-        sumN(i1+(i2-1)*nsum)%im = zero
-        sumS(i1+(i2-1)*nsum)%im = zero
+        sumN(i1,i2)%im = zero
+        sumS(i1,i2)%im = zero
       end do
     end if
     
   end subroutine pmj_backward_recomb_2_sub
   
-  pure subroutine pmj_forward_recomb_2_sub(m, nsum, weight, sumN, sumS, sym, asym)
+  pure subroutine pmj_forward_recomb_2_sub(m, nsum, weight, sumN, sumS, ssym, asym)
     integer,           intent(in)  :: m
     integer,           intent(in)  :: nsum
     real(kind=dbl),    intent(in)  :: weight(*)
-    complex(kind=dbl), intent(in)  :: sumN(*), sumS(*)
-    complex(kind=dbl), intent(out) :: sym(*), asym(*)
+    complex(kind=dbl), intent(in)  :: sumN(nsum,*), sumS(nsum,*)
+    complex(kind=dbl), intent(out) :: ssym(2,*), asym(2,*)
     integer                        :: i1, i2
     
     do concurrent ( i2=1:2, i1=1:nsum )
-      sym(i2+(i1-1)*2)  = weight(i2) * ( sumN(i1+(i2-1)*nsum) + sumS(i1+(i2-1)*nsum) )
-      asym(i2+(i1-1)*2) = weight(i2) * ( sumN(i1+(i2-1)*nsum) - sumS(i1+(i2-1)*nsum) )
+      ssym(i2,i1) = weight(i2) * ( sumN(i1,i2) + sumS(i1,i2) )
+      asym(i2,i1) = weight(i2) * ( sumN(i1,i2) - sumS(i1,i2) )
     end do
     
     if ( m == 0 ) then
-      do concurrent ( i2=1:2, i1=1:nsum )
-        sym(i2+(i1-1)*2)%im  = zero
-        asym(i2+(i1-1)*2)%im = zero
+      do concurrent ( i1=1:nsum, i2=1:2 )
+        ssym(i2,i1)%im = zero
+        asym(i2,i1)%im = zero
       end do
     end if
     
@@ -215,11 +215,11 @@ module Legendre_polynomials
     integer,           intent(in)    :: nsum
     real(kind=dbl),    intent(in)    :: pmj(*)
     complex(kind=dbl), intent(in)    :: cc(*)
-    complex(kind=dbl), intent(inout) :: legesum(*)
+    complex(kind=dbl), intent(inout) :: legesum(4,*)
     integer                          :: i1, i2
     
     do concurrent ( i1=1:nsum , i2=1:4 )
-      legesum(i2+(i1-1)*4) = legesum(i2+(i1-1)*4) + cc(i1) * pmj(i2)
+      legesum(i2,i1) = legesum(i2,i1) + cc(i1) * pmj(i2)
     end do
     
   end subroutine pmj_backward_4_sub
@@ -227,54 +227,54 @@ module Legendre_polynomials
   pure subroutine pmj_forward_4_sub(nsum, pmj, legesum, cc)
     integer,           intent(in)    :: nsum
     real(kind=dbl),    intent(in)    :: pmj(*)
-    complex(kind=dbl), intent(in)    :: legesum(*)
+    complex(kind=dbl), intent(in)    :: legesum(4,*)
     complex(kind=dbl), intent(inout) :: cc(*)
     integer                          :: i1, i2
     
     do concurrent ( i1=1:nsum , i2=1:4 )
-      cc(i1) = cc(i1) + pmj(i2) * legesum(i2+(i1-1)*4)
+      cc(i1) = cc(i1) + pmj(i2) * legesum(i2,i1)
     end do
     
   end subroutine pmj_forward_4_sub
   
-  pure subroutine pmj_backward_recomb_4_sub(m, nsum, sym, asym, sumN, sumS)
+  pure subroutine pmj_backward_recomb_4_sub(m, nsum, ssym, asym, sumN, sumS)
     integer,           intent(in)  :: m
     integer,           intent(in)  :: nsum
-    complex(kind=dbl), intent(in)  :: sym(*), asym(*)
-    complex(kind=dbl), intent(out) :: sumN(*), sumS(*)
+    complex(kind=dbl), intent(in)  :: ssym(4,*), asym(4,*)
+    complex(kind=dbl), intent(out) :: sumN(nsum,*), sumS(nsum,*)
     integer                        :: i1, i2
     
     do concurrent ( i2=1:4, i1=1:nsum )
-      sumN(i1+(i2-1)*nsum) = sym(i2+(i1-1)*4) + asym(i2+(i1-1)*4)
-      sumS(i1+(i2-1)*nsum) = sym(i2+(i1-1)*4) - asym(i2+(i1-1)*4)
+      sumN(i1,i2) = ssym(i2,i1) + asym(i2,i1)
+      sumS(i1,i2) = ssym(i2,i1) - asym(i2,i1)
     end do
     
     if ( m == 0 ) then
       do concurrent ( i2=1:4, i1=1:nsum )
-        sumN(i1+(i2-1)*nsum)%im = zero
-        sumS(i1+(i2-1)*nsum)%im = zero
+        sumN(i1,i2)%im = zero
+        sumS(i1,i2)%im = zero
       end do
     end if
     
   end subroutine pmj_backward_recomb_4_sub
   
-  pure subroutine pmj_forward_recomb_4_sub(m, nsum, weight, sumN, sumS, sym, asym)
+  pure subroutine pmj_forward_recomb_4_sub(m, nsum, weight, sumN, sumS, ssym, asym)
     integer,           intent(in)  :: m
     integer,           intent(in)  :: nsum
     real(kind=dbl),    intent(in)  :: weight(*)
-    complex(kind=dbl), intent(in)  :: sumN(*), sumS(*)
-    complex(kind=dbl), intent(out) :: sym(*), asym(*)
+    complex(kind=dbl), intent(in)  :: sumN(nsum,*), sumS(nsum,*)
+    complex(kind=dbl), intent(out) :: ssym(4,*), asym(4,*)
     integer                        :: i1, i2
     
     do concurrent ( i2=1:4, i1=1:nsum )
-      sym(i2+(i1-1)*4)  = weight(i2) * ( sumN(i1+(i2-1)*nsum) + sumS(i1+(i2-1)*nsum) )
-      asym(i2+(i1-1)*4) = weight(i2) * ( sumN(i1+(i2-1)*nsum) - sumS(i1+(i2-1)*nsum) )
+      ssym(i2,i1) = weight(i2) * ( sumN(i1,i2) + sumS(i1,i2) )
+      asym(i2,i1) = weight(i2) * ( sumN(i1,i2) - sumS(i1,i2) )
     end do
     
     if ( m == 0 ) then
-      do concurrent ( i2=1:4, i1=1:nsum )
-        sym(i2+(i1-1)*4)%im  = zero
-        asym(i2+(i1-1)*4)%im = zero
+      do concurrent ( i1=1:nsum, i2=1:4 )
+        ssym(i2,i1)%im = zero
+        asym(i2,i1)%im = zero
       end do
     end if
     
@@ -348,11 +348,11 @@ module Legendre_polynomials
     integer,           intent(in)    :: nsum
     real(kind=dbl),    intent(in)    :: pmj(*)
     complex(kind=dbl), intent(in)    :: cc(*)
-    complex(kind=dbl), intent(inout) :: legesum(*)
+    complex(kind=dbl), intent(inout) :: legesum(8,*)
     integer                          :: i1, i2
     
     do concurrent ( i1=1:nsum , i2=1:8 )
-      legesum(i2+(i1-1)*8) = legesum(i2+(i1-1)*8) + cc(i1) * pmj(i2)
+      legesum(i2,i1) = legesum(i2,i1) + cc(i1) * pmj(i2)
     end do
     
   end subroutine pmj_backward_8_sub
@@ -360,54 +360,54 @@ module Legendre_polynomials
   pure subroutine pmj_forward_8_sub(nsum, pmj, legesum, cc)
     integer,           intent(in)    :: nsum
     real(kind=dbl),    intent(in)    :: pmj(*)
-    complex(kind=dbl), intent(in)    :: legesum(*)
+    complex(kind=dbl), intent(in)    :: legesum(8,*)
     complex(kind=dbl), intent(inout) :: cc(*)
     integer                          :: i1, i2
     
     do concurrent ( i1=1:nsum , i2=1:8 )
-      cc(i1) = cc(i1) + pmj(i2) * legesum(i2+(i1-1)*8)
+      cc(i1) = cc(i1) + pmj(i2) * legesum(i2,i1)
     end do
     
   end subroutine pmj_forward_8_sub
   
-  pure subroutine pmj_backward_recomb_8_sub(m, nsum, sym, asym, sumN, sumS)
+  pure subroutine pmj_backward_recomb_8_sub(m, nsum, ssym, asym, sumN, sumS)
     integer,           intent(in)  :: m
     integer,           intent(in)  :: nsum
-    complex(kind=dbl), intent(in)  :: sym(*), asym(*)
-    complex(kind=dbl), intent(out) :: sumN(*), sumS(*)
+    complex(kind=dbl), intent(in)  :: ssym(8,*), asym(8,*)
+    complex(kind=dbl), intent(out) :: sumN(nsum,*), sumS(nsum,*)
     integer                        :: i1, i2
     
     do concurrent ( i2=1:8, i1=1:nsum )
-      sumN(i1+(i2-1)*nsum) = sym(i2+(i1-1)*8) + asym(i2+(i1-1)*8)
-      sumS(i1+(i2-1)*nsum) = sym(i2+(i1-1)*8) - asym(i2+(i1-1)*8)
+      sumN(i1,i2) = ssym(i2,i1) + asym(i2,i1)
+      sumS(i1,i2) = ssym(i2,i1) - asym(i2,i1)
     end do
     
     if ( m == 0 ) then
       do concurrent ( i2=1:8, i1=1:nsum )
-        sumN(i1+(i2-1)*nsum)%im = zero
-        sumS(i1+(i2-1)*nsum)%im = zero
+        sumN(i1,i2)%im = zero
+        sumS(i1,i2)%im = zero
       end do
     end if
     
   end subroutine pmj_backward_recomb_8_sub
   
-  pure subroutine pmj_forward_recomb_8_sub(m, nsum, weight, sumN, sumS, sym, asym)
+  pure subroutine pmj_forward_recomb_8_sub(m, nsum, weight, sumN, sumS, ssym, asym)
     integer,           intent(in)  :: m
     integer,           intent(in)  :: nsum
     real(kind=dbl),    intent(in)  :: weight(*)
-    complex(kind=dbl), intent(in)  :: sumN(*), sumS(*)
-    complex(kind=dbl), intent(out) :: sym(*), asym(*)
+    complex(kind=dbl), intent(in)  :: sumN(nsum,*), sumS(nsum,*)
+    complex(kind=dbl), intent(out) :: ssym(8,*), asym(8,*)
     integer                        :: i1, i2
     
     do concurrent ( i2=1:8, i1=1:nsum )
-      sym(i2+(i1-1)*8)  = weight(i2) * ( sumN(i1+(i2-1)*nsum) + sumS(i1+(i2-1)*nsum) )
-      asym(i2+(i1-1)*8) = weight(i2) * ( sumN(i1+(i2-1)*nsum) - sumS(i1+(i2-1)*nsum) )
+      ssym(i2,i1) = weight(i2) * ( sumN(i1,i2) + sumS(i1,i2) )
+      asym(i2,i1) = weight(i2) * ( sumN(i1,i2) - sumS(i1,i2) )
     end do
     
     if ( m == 0 ) then
-      do concurrent ( i2=1:8, i1=1:nsum )
-        sym(i2+(i1-1)*8)%im  = zero
-        asym(i2+(i1-1)*8)%im = zero
+      do concurrent ( i1=1:nsum, i2=1:8 )
+        ssym(i2,i1)%im = zero
+        asym(i2,i1)%im = zero
       end do
     end if
     
@@ -481,11 +481,11 @@ module Legendre_polynomials
     integer,           intent(in)    :: nsum
     real(kind=dbl),    intent(in)    :: pmj(*)
     complex(kind=dbl), intent(in)    :: cc(*)
-    complex(kind=dbl), intent(inout) :: legesum(*)
+    complex(kind=dbl), intent(inout) :: legesum(16,*)
     integer                          :: i1, i2
     
     do concurrent ( i1=1:nsum , i2=1:16 )
-      legesum(i2+(i1-1)*16) = legesum(i2+(i1-1)*16) + cc(i1) * pmj(i2)
+      legesum(i2,i1) = legesum(i2,i1) + cc(i1) * pmj(i2)
     end do
     
   end subroutine pmj_backward_16_sub
@@ -493,57 +493,57 @@ module Legendre_polynomials
   pure subroutine pmj_forward_16_sub(nsum, pmj, legesum, cc)
     integer,           intent(in)    :: nsum
     real(kind=dbl),    intent(in)    :: pmj(*)
-    complex(kind=dbl), intent(in)    :: legesum(*)
+    complex(kind=dbl), intent(in)    :: legesum(16,*)
     complex(kind=dbl), intent(inout) :: cc(*)
     integer                          :: i1, i2
     
     do concurrent ( i1=1:nsum , i2=1:16 )
-      cc(i1) = cc(i1) + pmj(i2) * legesum(i2+(i1-1)*16)
+      cc(i1) = cc(i1) + pmj(i2) * legesum(i2,i1)
     end do
     
   end subroutine pmj_forward_16_sub
   
-  pure subroutine pmj_backward_recomb_16_sub(m, nsum, sym, asym, sumN, sumS)
+  pure subroutine pmj_backward_recomb_16_sub(m, nsum, ssym, asym, sumN, sumS)
     integer,           intent(in)  :: m
     integer,           intent(in)  :: nsum
-    complex(kind=dbl), intent(in)  :: sym(*), asym(*)
-    complex(kind=dbl), intent(out) :: sumN(*), sumS(*)
+    complex(kind=dbl), intent(in)  :: ssym(16,*), asym(16,*)
+    complex(kind=dbl), intent(out) :: sumN(nsum,*), sumS(nsum,*)
     integer                        :: i1, i2
     
     do concurrent ( i2=1:16, i1=1:nsum )
-      sumN(i1+(i2-1)*nsum) = sym(i2+(i1-1)*16) + asym(i2+(i1-1)*16)
-      sumS(i1+(i2-1)*nsum) = sym(i2+(i1-1)*16) - asym(i2+(i1-1)*16)
+      sumN(i1,i2) = ssym(i2,i1) + asym(i2,i1)
+      sumS(i1,i2) = ssym(i2,i1) - asym(i2,i1)
     end do
     
     if ( m == 0 ) then
       do concurrent ( i2=1:16, i1=1:nsum )
-        sumN(i1+(i2-1)*nsum)%im = zero
-        sumS(i1+(i2-1)*nsum)%im = zero
+        sumN(i1,i2)%im = zero
+        sumS(i1,i2)%im = zero
       end do
     end if
     
   end subroutine pmj_backward_recomb_16_sub
   
-  pure subroutine pmj_forward_recomb_16_sub(m, nsum, weight, sumN, sumS, sym, asym)
+  pure subroutine pmj_forward_recomb_16_sub(m, nsum, weight, sumN, sumS, ssym, asym)
     integer,           intent(in)  :: m
     integer,           intent(in)  :: nsum
     real(kind=dbl),    intent(in)  :: weight(*)
-    complex(kind=dbl), intent(in)  :: sumN(*), sumS(*)
-    complex(kind=dbl), intent(out) :: sym(*), asym(*)
+    complex(kind=dbl), intent(in)  :: sumN(nsum,*), sumS(nsum,*)
+    complex(kind=dbl), intent(out) :: ssym(16,*), asym(16,*)
     integer                        :: i1, i2
     
     do concurrent ( i2=1:16, i1=1:nsum )
-      sym(i2+(i1-1)*16)  = weight(i2) * ( sumN(i1+(i2-1)*nsum) + sumS(i1+(i2-1)*nsum) )
-      asym(i2+(i1-1)*16) = weight(i2) * ( sumN(i1+(i2-1)*nsum) - sumS(i1+(i2-1)*nsum) )
+      ssym(i2,i1) = weight(i2) * ( sumN(i1,i2) + sumS(i1,i2) )
+      asym(i2,i1) = weight(i2) * ( sumN(i1,i2) - sumS(i1,i2) )
     end do
     
     if ( m == 0 ) then
-      do concurrent ( i2=1:16, i1=1:nsum )
-        sym(i2+(i1-1)*16)%im  = zero
-        asym(i2+(i1-1)*16)%im = zero
+      do concurrent ( i1 = 1:nsum, i2 = 1:16 )
+        ssym(i2,i1)%im = zero
+        asym(i2,i1)%im = zero
       end do
     end if
     
   end subroutine pmj_forward_recomb_16_sub
-
+  
 end module Legendre_polynomials
