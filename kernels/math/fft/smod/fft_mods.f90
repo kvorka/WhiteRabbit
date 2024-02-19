@@ -1,5 +1,14 @@
 submodule(Fourier_transform) fft_mods
-  implicit none; contains
+  implicit none
+  
+  real(kind=dbl), parameter :: C31 = -0.5_dbl
+  real(kind=dbl), parameter :: C32 = +0.86602540378443864676_dbl
+  real(kind=dbl), parameter :: C51 = +0.25_dbl
+  real(kind=dbl), parameter :: C52 = +0.5590169943749474241_dbl
+  real(kind=dbl), parameter :: C53 = +0.6180339887498948482_dbl
+  real(kind=dbl), parameter :: C54 = -0.9510565162951535721_dbl
+  
+  contains
   
   module pure subroutine fxzini(n, it, t)
     integer,        intent(in)  :: n

@@ -5,7 +5,7 @@ module Fourier_transform
   implicit none
   
   type, public :: T_fft
-    integer                     :: n
+    integer                     :: n, np
     integer,        allocatable :: it(:)
     real(kind=dbl), allocatable :: t(:)
     
@@ -21,13 +21,7 @@ module Fourier_transform
     
   end type T_fft
   
-  integer,        parameter :: imm = -2e4
-  real(kind=dbl), parameter :: C31 = -0.5_dbl
-  real(kind=dbl), parameter :: C32 = +0.86602540378443864676_dbl
-  real(kind=dbl), parameter :: C51 = +0.25_dbl
-  real(kind=dbl), parameter :: C52 = +0.5590169943749474241_dbl
-  real(kind=dbl), parameter :: C53 = +0.6180339887498948482_dbl
-  real(kind=dbl), parameter :: C54 = -0.9510565162951535721_dbl
+  integer, parameter :: imm = -2e4
   
   interface
     module pure subroutine fft_init_sub(this, n)
@@ -39,11 +33,11 @@ module Fourier_transform
       class(T_fft), intent(inout) :: this
     end subroutine fft_deallocate_sub
     
-    module pure subroutine fft_r2c_exec_sub(this, m, np, x, cx)
+    module pure subroutine fft_r2c_exec_sub(this, m, x, cx)
       class(T_fft),      intent(in)    :: this
-      integer,           intent(in)    :: m, np
-      real(kind=dbl),    intent(inout) :: x(m,this%n)
-      complex(kind=dbl), intent(out)   :: cx(m,np)
+      integer,           intent(in)    :: m
+      real(kind=dbl),    intent(inout) :: x(m,*)
+      complex(kind=dbl), intent(out)   :: cx(m,*)
     end subroutine fft_r2c_exec_sub
     
     pure module subroutine fft_r2c_sub(this, m, x)
@@ -52,11 +46,11 @@ module Fourier_transform
       real(kind=dbl),    intent(inout) :: x(m,2,0:this%n/2-1)
     end subroutine fft_r2c_sub
     
-    module pure subroutine fft_c2r_exec_sub(this, m, np, cx, x)
+    module pure subroutine fft_c2r_exec_sub(this, m, cx, x)
       class(T_fft),      intent(in)  :: this
-      integer,           intent(in)  :: m, np
-      complex(kind=dbl), intent(in)  :: cx(m,np)
-      real(kind=dbl),    intent(out) :: x(m,this%n)
+      integer,           intent(in)  :: m
+      complex(kind=dbl), intent(in)  :: cx(m,*)
+      real(kind=dbl),    intent(out) :: x(m,*)
     end subroutine fft_c2r_exec_sub
     
     module pure subroutine fft_c2r_sub(this, m, x)

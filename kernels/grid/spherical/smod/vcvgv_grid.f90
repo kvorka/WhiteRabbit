@@ -7,7 +7,7 @@ submodule(SphericalHarmonics) vcvgv_grid
     complex(kind=dbl),    intent(inout) :: sumNS(*)
     integer                             :: i1, i2
     
-    call this%fourtrans%exec_c2r_sub(24, this%maxj+1, sumNS, grid)
+    call this%fourtrans%exec_c2r_sub(24, sumNS, grid)
     
     do i1 = 0, this%nFourier-1
       do i2 = 0, 1
@@ -25,7 +25,7 @@ submodule(SphericalHarmonics) vcvgv_grid
       end do
     end do
     
-    call this%fourtrans%exec_r2c_sub(6, this%maxj+1, grid, sumNS)
+    call this%fourtrans%exec_r2c_sub(6, grid, sumNS)
     
   end subroutine grid_op_2_vcvgv_sub
   
@@ -35,7 +35,7 @@ submodule(SphericalHarmonics) vcvgv_grid
     complex(kind=dbl),    intent(inout) :: sumNS(*)
     integer                             :: i1, i2
     
-    call this%fourtrans%exec_c2r_sub(48, this%maxj+1, sumNS, grid)
+    call this%fourtrans%exec_c2r_sub(48, sumNS, grid)
     
     do i1 = 0, this%nFourier-1
       do i2 = 0, 3
@@ -53,7 +53,7 @@ submodule(SphericalHarmonics) vcvgv_grid
       end do
     end do
     
-    call this%fourtrans%exec_r2c_sub(12, this%maxj+1, grid, sumNS)
+    call this%fourtrans%exec_r2c_sub(12, grid, sumNS)
     
   end subroutine grid_op_4_vcvgv_sub
   
@@ -63,7 +63,7 @@ submodule(SphericalHarmonics) vcvgv_grid
     complex(kind=dbl),    intent(inout) :: sumNS(*)
     integer                             :: i1, i2
     
-    call this%fourtrans%exec_c2r_sub(96, this%maxj+1, sumNS, grid)
+    call this%fourtrans%exec_c2r_sub(96, sumNS, grid)
     
     do i1 = 0, this%nFourier-1
       do i2 = 0, 7
@@ -81,7 +81,7 @@ submodule(SphericalHarmonics) vcvgv_grid
       end do
     end do
     
-    call this%fourtrans%exec_r2c_sub(24, this%maxj+1, grid, sumNS)
+    call this%fourtrans%exec_r2c_sub(24, grid, sumNS)
     
   end subroutine grid_op_8_vcvgv_sub
   
@@ -91,7 +91,7 @@ submodule(SphericalHarmonics) vcvgv_grid
     complex(kind=dbl),    intent(inout) :: sumNS(*)
     integer                             :: i1, i2
     
-    call this%fourtrans%exec_c2r_sub(192, this%maxj+1, sumNS, grid)
+    call this%fourtrans%exec_c2r_sub(192, sumNS, grid)
     
     do i1 = 0, this%nFourier-1
       do i2 = 0, 15
@@ -109,7 +109,7 @@ submodule(SphericalHarmonics) vcvgv_grid
       end do
     end do
     
-    call this%fourtrans%exec_r2c_sub(48, this%maxj+1, grid, sumNS)
+    call this%fourtrans%exec_r2c_sub(48, grid, sumNS)
     
   end subroutine grid_op_16_vcvgv_sub
   

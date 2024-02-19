@@ -6,7 +6,8 @@ submodule(Fourier_transform) init_fft
     integer,      intent(in)    :: n
     integer                     :: i
     
-    this%n = n
+    this%np = n/3
+    this%n  = n
       allocate( this%it(n/2)  ) ; this%it = 0
       allocate( this%t(3*n/2) ) ; this%t = 0._dbl
     
