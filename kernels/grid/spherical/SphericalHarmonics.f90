@@ -1,9 +1,9 @@
 module SphericalHarmonics
+  use Nulify
   use Clebsch_Gordan
   use Legendre_function
   use Legendre_polynomials
   use Fourier_transform
-  use sph_vectors
   implicit none
   
   integer, parameter :: addmissible_jmax(47) = [   5,   7,   9,  13,  15,  21,  27,  29,  33,  37,  45, 47,  51,  57,  61,  69,  &
@@ -11,7 +11,7 @@ module SphericalHarmonics
                                                & 247, 253, 267, 285, 297, 317, 321, 357, 381, 397, 429, 447, 477, 483, 497       ]
   
   type, public :: T_lateralGrid
-    integer,                     private :: jmax, jms, jms1, jms2, jmv, jmv1, maxj, nLegendre, nFourier
+    integer,                     private :: jmax, jms, jms1, jms2, jmv, jmv1, jmt, maxj, nLegendre, nFourier
     real(kind=dbl),              private :: tolm, scale
     real(kind=dbl), allocatable, private :: roots(:), fftLege(:), amjrr(:), bmjrr(:)
     type(T_fft),                 private :: fourtrans
@@ -20,7 +20,10 @@ module SphericalHarmonics
     
     procedure :: init_sub       => init_harmonics_sub
     procedure :: deallocate_sub => deallocate_harmonics_sub
-    procedure :: vctol_sub, vcsum_sub, vcst_sub, vcvv_sub, vcvgv_sub, vcvv_vcvgv_sub
+    procedure :: lege_setup_2_sub, lege_setup_4_sub, lege_setup_8_sub, lege_setup_16_sub
+    procedure :: vec2vec_jml_to_jml_sub, scal2scal_jm_to_mj_sub, vec2scal_jml_to_mj_sub, gradvec2vec_jmlk_to_jml_sub, &
+               & devtens2scal_jml2_to_mj_sub, scal2scal_mj_to_jm_sub, scal2vecscal_mj_to_jm_sub, scal2devtens_mj_to_jml2_sub
+    procedure :: rescale_sub, vctol_sub, vcsum_sub, vcst_sub, vcvv_sub, vcvgv_sub, vcvv_vcvgv_sub
     procedure :: partial_backward_2_sub, partial_backward_4_sub, partial_backward_8_sub, partial_backward_16_sub
     procedure :: partial_forward_2_sub, partial_forward_4_sub, partial_forward_8_sub, partial_forward_16_sub
     procedure :: grid_op_2_vcsum_sub, grid_op_4_vcsum_sub, grid_op_8_vcsum_sub, grid_op_16_vcsum_sub
@@ -40,6 +43,93 @@ module SphericalHarmonics
     module pure subroutine deallocate_harmonics_sub(this)
       class(T_lateralGrid), intent(inout) :: this
     end subroutine deallocate_harmonics_sub
+    
+    module pure subroutine rescale_sub( this, arr, length )
+      class(T_lateralGrid), intent(in)    :: this
+      integer,              intent(in)    :: length
+      complex(kind=dbl),    intent(inout) :: arr(*)
+    end subroutine rescale_sub
+    
+    module pure subroutine lege_setup_2_sub(this, it, cosx, sinx, weight)
+      class(T_lateralGrid), intent(in)  :: this
+      integer,              intent(in)  :: it
+      real(kind=dbl),       intent(out) :: cosx(*), sinx(*), weight(*)
+    end subroutine lege_setup_2_sub
+    
+    module pure subroutine lege_setup_4_sub(this, it, cosx, sinx, weight)
+      class(T_lateralGrid), intent(in)  :: this
+      integer,              intent(in)  :: it
+      real(kind=dbl),       intent(out) :: cosx(*), sinx(*), weight(*)
+    end subroutine lege_setup_4_sub
+    
+    module pure subroutine lege_setup_8_sub(this, it, cosx, sinx, weight)
+      class(T_lateralGrid), intent(in)  :: this
+      integer,              intent(in)  :: it
+      real(kind=dbl),       intent(out) :: cosx(*), sinx(*), weight(*)
+    end subroutine lege_setup_8_sub
+    
+    module pure subroutine lege_setup_16_sub(this, it, cosx, sinx, weight)
+      class(T_lateralGrid), intent(in)  :: this
+      integer,              intent(in)  :: it
+      real(kind=dbl),       intent(out) :: cosx(*), sinx(*), weight(*)
+    end subroutine lege_setup_16_sub
+    
+    module pure subroutine vec2vec_jml_to_jml_sub(this, cjml, cab, ncab, cabpadding)
+      class(T_lateralGrid), intent(in)    :: this
+      integer,              intent(in)    :: ncab, cabpadding
+      complex(kind=dbl),    intent(in)    :: cjml(*)
+      complex(kind=dbl),    intent(inout) :: cab(ncab,*)
+    end subroutine vec2vec_jml_to_jml_sub
+    
+    module pure subroutine scal2scal_jm_to_mj_sub(this, cjm, cab, ncab, cabpadding)
+      class(T_lateralGrid), intent(in)    :: this
+      integer,              intent(in)    :: ncab, cabpadding
+      complex(kind=dbl),    intent(in)    :: cjm(*)
+      complex(kind=dbl),    intent(inout) :: cab(ncab,*)
+    end subroutine scal2scal_jm_to_mj_sub
+    
+    module pure subroutine vec2scal_jml_to_mj_sub(this, cab, ncab, cc)
+      class(T_lateralGrid), intent(in)  :: this
+      integer,              intent(in)  :: ncab
+      complex(kind=dbl),    intent(in)  :: cab(ncab,*)
+      complex(kind=dbl),    intent(out) :: cc(3,ncab,*)
+    end subroutine vec2scal_jml_to_mj_sub
+    
+    module pure subroutine gradvec2vec_jmlk_to_jml_sub(this, ri, v, dv_r, cab, ncab, cabpadding)
+      class(T_lateralGrid), intent(in)    :: this
+      integer,              intent(in)    :: cabpadding, ncab
+      real(kind=dbl),       intent(in)    :: ri
+      complex(kind=dbl),    intent(in)    :: v(*), dv_r(*)
+      complex(kind=dbl),    intent(inout) :: cab(ncab,*)
+    end subroutine gradvec2vec_jmlk_to_jml_sub
+    
+    module pure subroutine devtens2scal_jml2_to_mj_sub(this, ctjml2, cr, ncr, crpadding)
+      class(T_lateralGrid), intent(in)    :: this
+      integer,              intent(in)    :: ncr, crpadding
+      complex(kind=dbl),    intent(in)    :: ctjml2(*)
+      complex(kind=dbl),    intent(inout) :: cr(ncr,*)
+    end subroutine devtens2scal_jml2_to_mj_sub
+    
+    module pure subroutine scal2scal_mj_to_jm_sub(this, cr, ncr, crpadding, cjm, ncjm, cjmpadding)
+      class(T_lateralGrid), intent(in)    :: this
+      integer,              intent(in)    :: ncr, ncjm, crpadding, cjmpadding
+      complex(kind=dbl),    intent(in)    :: cr(ncr,*)
+      complex(kind=dbl),    intent(inout) :: cjm(ncjm,*)
+    end subroutine scal2scal_mj_to_jm_sub
+    
+    module pure subroutine scal2vecscal_mj_to_jm_sub(this, cr, ncr, crpadding, cjm, ncjm, cjmpadding)
+      class(T_lateralGrid), intent(in)    :: this
+      integer,              intent(in)    :: ncr, crpadding, ncjm, cjmpadding
+      complex(kind=dbl),    intent(inout) :: cr(ncr,*)
+      complex(kind=dbl),    intent(inout) :: cjm(ncjm,*)
+    end subroutine scal2vecscal_mj_to_jm_sub
+    
+    module pure subroutine scal2devtens_mj_to_jml2_sub(this, cr, ncr, crpadding, ctjml2)
+      class(T_lateralGrid), intent(in) :: this
+      integer,              intent(in)  :: ncr, crpadding
+      complex(kind=dbl),    intent(in)  :: cr(ncr,*)
+      complex(kind=dbl),    intent(out) :: ctjml2(*)
+    end subroutine scal2devtens_mj_to_jml2_sub
     
     module pure subroutine partial_backward_2_sub(this, n, cosx, sinx, pmm, pmj2, pmj1, pmj, ssym, asym, cc, sumN, sumS)
       class(T_lateralGrid), intent(in)    :: this

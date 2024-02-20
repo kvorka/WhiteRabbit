@@ -15,6 +15,7 @@ code_type="ocean_convection"
 ###########################################################################################
 $compile -c kernels/math/precision/Math.f90
 $compile -c kernels/math/precision/Conversions.f90
+$compile -c kernels/math/precision/Nulify.f90
 
 $compile -c kernels/math/sph1/*.f90
 $compile -c kernels/math/sph2/*.f90

@@ -13,7 +13,8 @@ submodule(SphericalHarmonics) partial_sums
     do m = 0, this%maxj
       call pmm_recursion_2_sub( m, sinx(1), pmm(1) ) ; if (maxval(abs(pmm(1:2))) < this%tolm) exit
       
-      call zero_poly_sub( 2*n, ssym(1), asym(1) )
+      call zero_carray_sub( 2*n, ssym(1) )
+      call zero_carray_sub( 2*n, asym(1) )
       
       j = m
         mj = m*(this%maxj+1)-m*(m+1)/2+j+1
@@ -96,7 +97,8 @@ submodule(SphericalHarmonics) partial_sums
     do m = 0, this%maxj
       call pmm_recursion_4_sub( m, sinx(1), pmm(1) ) ; if (maxval(abs(pmm(1:4))) < this%tolm) exit
       
-      call zero_poly_sub( 4*n, ssym(1), asym(1) )
+      call zero_carray_sub( 4*n, ssym(1) )
+      call zero_carray_sub( 4*n, asym(1) )
       
       j = m
         mj = m*(this%maxj+1)-m*(m+1)/2+j+1
@@ -179,7 +181,8 @@ submodule(SphericalHarmonics) partial_sums
     do m = 0, this%maxj
       call pmm_recursion_8_sub( m, sinx(1), pmm(1) ) ; if (maxval(abs(pmm(1:8))) < this%tolm) exit
       
-      call zero_poly_sub( 8*n, ssym(1), asym(1) )
+      call zero_carray_sub( 8*n, ssym(1) )
+      call zero_carray_sub( 8*n, asym(1) )
       
       j = m
         mj = m*(this%maxj+1)-m*(m+1)/2+j+1
@@ -262,7 +265,8 @@ submodule(SphericalHarmonics) partial_sums
     do m = 0, this%maxj
       call pmm_recursion_16_sub( m, sinx(1), pmm(1) ) ; if (maxval(abs(pmm(1:16))) < this%tolm) exit
       
-      call zero_poly_sub( 16*n, ssym(1), asym(1) )
+      call zero_carray_sub( 16*n, ssym(1) )
+      call zero_carray_sub( 16*n, asym(1) )
       
       j = m
         mj = m*(this%maxj+1)-m*(m+1)/2+j+1

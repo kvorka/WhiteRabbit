@@ -2,31 +2,6 @@ module Legendre_polynomials
   use Math
   implicit none; public; contains
   
-  pure subroutine zero_poly_sub(length, arr1, arr2)
-    integer,         intent(in)  :: length
-    complex(kind=dbl), intent(out) :: arr1(*), arr2(*)
-    integer                      :: i
-    
-    do concurrent ( i = 1:length )
-      arr1(i) = czero
-      arr2(i) = czero
-    end do
-    
-  end subroutine zero_poly_sub
-  
-  pure subroutine lege_setup_2_sub(roots, fftLege, cosx, sinx, weight)
-    real(kind=dbl), intent(in)  :: roots(*), fftLege(*)
-    real(kind=dbl), intent(out) :: cosx(*), sinx(*), weight(*)
-    integer                     :: i
-    
-    do concurrent ( i = 1:2 )
-      cosx(i)   = roots(i)
-      sinx(i)   = sqrt(1-cosx(i)**2)
-      weight(i) = fftLege(i)
-    end do
-    
-  end subroutine lege_setup_2_sub
-  
   pure subroutine pmm_recursion_2_sub(m, sinx, pmm)
     integer,        intent(in)    :: m
     real(kind=dbl), intent(in)    :: sinx(*)
@@ -146,19 +121,6 @@ module Legendre_polynomials
     end if
     
   end subroutine pmj_forward_recomb_2_sub
-  
-  pure subroutine lege_setup_4_sub(roots, fftLege, cosx, sinx, weight)
-    real(kind=dbl), intent(in)  :: roots(*), fftLege(*)
-    real(kind=dbl), intent(out) :: cosx(*), sinx(*), weight(*)
-    integer                     :: i
-    
-    do concurrent ( i = 1:4 )
-      cosx(i)   = roots(i)
-      sinx(i)   = sqrt(1-cosx(i)**2)
-      weight(i) = fftLege(i)
-    end do
-    
-  end subroutine lege_setup_4_sub
   
   pure subroutine pmm_recursion_4_sub(m, sinx, pmm)
     integer,        intent(in)    :: m
@@ -280,19 +242,6 @@ module Legendre_polynomials
     
   end subroutine pmj_forward_recomb_4_sub
   
-  pure subroutine lege_setup_8_sub(roots, fftLege, cosx, sinx, weight)
-    real(kind=dbl), intent(in)  :: roots(*), fftLege(*)
-    real(kind=dbl), intent(out) :: cosx(*), sinx(*), weight(*)
-    integer                     :: i
-    
-    do concurrent ( i = 1:8 )
-      cosx(i)   = roots(i)
-      sinx(i)   = sqrt(1-cosx(i)**2)
-      weight(i) = fftLege(i)
-    end do
-    
-  end subroutine lege_setup_8_sub
-  
   pure subroutine pmm_recursion_8_sub(m, sinx, pmm)
     integer,        intent(in)    :: m
     real(kind=dbl), intent(in)    :: sinx(*)
@@ -412,19 +361,6 @@ module Legendre_polynomials
     end if
     
   end subroutine pmj_forward_recomb_8_sub
-  
-  pure subroutine lege_setup_16_sub(roots, fftLege, cosx, sinx, weight)
-    real(kind=dbl), intent(in)  :: roots(*), fftLege(*)
-    real(kind=dbl), intent(out) :: cosx(*), sinx(*), weight(*)
-    integer                     :: i
-    
-    do concurrent ( i = 1:16 )
-      cosx(i)   = roots(i)
-      sinx(i)   = sqrt(1-cosx(i)**2)
-      weight(i) = fftLege(i)
-    end do
-    
-  end subroutine lege_setup_16_sub
   
   pure subroutine pmm_recursion_16_sub(m, sinx, pmm)
     integer,        intent(in)    :: m
