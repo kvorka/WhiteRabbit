@@ -18,7 +18,7 @@ submodule (SphericalHarmonics) Init_SphericalHarmonics
     this%jms2 =     ((jmax+2)*(jmax+3)/2 + (jmax+2)) + 1
     this%jmv  = 3 * ( jmax   *(jmax+1)/2 +  jmax   ) + 1
     this%jmv1 = 3 * ((jmax+1)*(jmax+2)/2 + (jmax+1)) + 1
-    this%jmt  = 5 * ((jmax+1)*(jmax+2)/2 + (jmax+1)) + 1
+    this%jmt  = 5 * ((jmax  )*(jmax+1)/2 + (jmax  )) + 1
     
     this%maxj      = jmax+2
     this%nFourier  = 3*(this%maxj+1)
