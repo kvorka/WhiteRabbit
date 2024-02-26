@@ -23,7 +23,7 @@ submodule (SphericalHarmonics) reindexing
     
     do m = 0, this%jmax
       do j = m, this%jmax
-        cab(cabpadding, m*(this%jmax+3)-m*(m+1)/2+j+1) = cjm(j*(j+1)/2+m+1)
+        cab(cabpadding, m*this%jmax3-m*(m+1)/2+j+1) = cjm(j*(j+1)/2+m+1)
       end do
     end do
     
@@ -40,8 +40,8 @@ submodule (SphericalHarmonics) reindexing
     
     allocate( sum1(ncab), sum2(ncab), sum3(ncab) )
     
-    do m = 0, this%maxj
-      do j = m, this%maxj
+    do m = 0, this%jmax2
+      do j = m, this%jmax2
         do concurrent ( i1 = 1:ncab )
           sum1(i1) = czero
           sum2(i1) = czero
@@ -49,7 +49,7 @@ submodule (SphericalHarmonics) reindexing
         end do
         
         if (m == 0) then
-          do l = abs(j-1), min(this%jmax+1, j+1)
+          do l = abs(j-1), min(this%jmax1, j+1)
             lmj = 3*(l*(l+1)/2+m+1)+j-l
             
             cleb = cleb1_fn(j,m,1,0,l,m)
@@ -68,7 +68,7 @@ submodule (SphericalHarmonics) reindexing
               end do
           end do
         else
-          do l = abs(j-1), min(this%jmax+1, j+1)
+          do l = abs(j-1), min(this%jmax1, j+1)
             lmj = 3*(l*(l+1)/2+m-1)+j-l
             
             if (l > m) then
@@ -107,7 +107,7 @@ submodule (SphericalHarmonics) reindexing
           end do
         end if
         
-        mj = m*(this%jmax+3)-m*(m+1)/2+j+1
+        mj = m*this%jmax3-m*(m+1)/2+j+1
           do concurrent ( i1 = 1:ncab )
             cc(1,i1,mj) =         ( +sum1(i1) - sum2(i1) ) * sq2_1
             cc(2,i1,mj) = cunit * ( -sum1(i1) - sum2(i1) ) * sq2_1
@@ -132,7 +132,7 @@ submodule (SphericalHarmonics) reindexing
     
     allocate( sum1(2), sum2(2), sum3(2) )
     
-    do j = 0, this%jmax+1
+    do j = 0, this%jmax1
       fac1 = sqrt((j  )/(2*j+1._dbl))
       fac2 = sqrt((j+1)/(2*j+1._dbl))
       
@@ -219,7 +219,7 @@ submodule (SphericalHarmonics) reindexing
     complex(kind=dbl)                   :: csum, cpom
     
     do k = -2, 2
-      do l = 0, this%maxj
+      do l = 0, this%jmax2
         do m = 0, l
           csum = czero
           
@@ -231,7 +231,7 @@ submodule (SphericalHarmonics) reindexing
             end if
           end do
           
-          lm = m*(this%jmax+3)-m*(m+1)/2+l+1
+          lm = m*this%jmax3-m*(m+1)/2+l+1
           
           if ( k <= 0 ) then
             cr(crpadding+k+2,lm) = csum
@@ -263,13 +263,13 @@ submodule (SphericalHarmonics) reindexing
     do j = 0, this%jmax
       m = 0
         ijm = j*(j+1)/2+m+1
-        imj = m*(this%jmax+3)-m*(m+1)/2+j+1
+        imj = m*this%jmax3-m*(m+1)/2+j+1
           cjm(cjmpadding,ijm)%re = cr(crpadding,imj)%re
           cjm(cjmpadding,ijm)%im = zero
       
       do m = 1, j
         ijm = j*(j+1)/2+m+1
-        imj = m*(this%jmax+3)-m*(m+1)/2+j+1
+        imj = m*this%jmax3-m*(m+1)/2+j+1
           cjm(cjmpadding,ijm) = cr(crpadding,imj)
       end do
     end do
@@ -293,7 +293,7 @@ submodule (SphericalHarmonics) reindexing
     j = 0
       m = 0
         ijm = 1
-        mj  = m*(this%jmax+3)-m*(m+1)/2+j+1
+        mj  = m*this%jmax3-m*(m+1)/2+j+1
         mj2 = mj + this%jmax + 3 - m
         
         cjm(cjmpadding+2,ijm) =      cr(crpadding  ,mj2 )   * cleb1_fn(j+1,m+1,1,-1,j,m) + &
@@ -303,7 +303,7 @@ submodule (SphericalHarmonics) reindexing
     do j = 1, this%jmax
       m = 0
         ijm = ijm+1
-        mj  = m*(this%jmax+3)-m*(m+1)/2+j+1
+        mj  = m*this%jmax3-m*(m+1)/2+j+1
         mj2 = mj + this%jmax + 2 - m
         
         cjm(cjmpadding  ,ijm) =        cr(crpadding  ,mj2-1)   * cleb1_fn(j-1,m+1,1,-1,j,m) + &
@@ -318,7 +318,7 @@ submodule (SphericalHarmonics) reindexing
       
       do m = 1, j
         ijm = ijm+1
-        mj  = m*(this%jmax+3)-m*(m+1)/2+j+1
+        mj  = m*this%jmax3-m*(m+1)/2+j+1
         mj1 = mj - this%jmax - 3 + m
         mj2 = mj + this%jmax + 2 - m
         
@@ -353,7 +353,7 @@ submodule (SphericalHarmonics) reindexing
           csum = czero
           
           do k = -2, 2
-            lm = abs(k)*(this%jmax+3)-abs(k)*(abs(k)+1)/2+l+1
+            lm = abs(k)*this%jmax3-abs(k)*(abs(k)+1)/2+l+1
             
             if (m < k) then
               do concurrent ( i1 = 0:4 )
@@ -404,7 +404,7 @@ submodule (SphericalHarmonics) reindexing
           csum = czero
           
           do k = -2, 2
-            lm = abs(m-k)*(this%jmax+3)-abs(m-k)*(abs(m-k)+1)/2+l+1
+            lm = abs(m-k)*this%jmax3-abs(m-k)*(abs(m-k)+1)/2+l+1
             
             if (m < k) then
               do concurrent ( i1 = 0:4 )

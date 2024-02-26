@@ -12,18 +12,22 @@ submodule (SphericalHarmonics) Init_SphericalHarmonics
       stop
     end if
     
-    this%jmax = jmax
+    this%jmax  = jmax
+    this%jmax1 = jmax+1
+    this%jmax2 = jmax+2
+    this%jmax3 = jmax+3
+
     this%jms  =     ( jmax   *(jmax+1)/2 +  jmax   ) + 1
     this%jms1 =     ((jmax+1)*(jmax+2)/2 + (jmax+1)) + 1
     this%jms2 =     ((jmax+2)*(jmax+3)/2 + (jmax+2)) + 1
+
     this%jmv  = 3 * ( jmax   *(jmax+1)/2 +  jmax   ) + 1
     this%jmv1 = 3 * ((jmax+1)*(jmax+2)/2 + (jmax+1)) + 1
+    
     this%jmt  = 5 * ((jmax  )*(jmax+1)/2 + (jmax  )) + 1
     
-    this%maxj      = jmax+2
-    this%nFourier  = 3*(this%maxj+1)
-
-    this%nLegendre = ( 3*(this%maxj+1)/2+1 ) / 2 + 1
+    this%nFourier  = 3*(this%jmax2+1)
+    this%nLegendre = ( 3*(this%jmax2+1)/2+1 ) / 2 + 1
     if ( mod(this%nLegendre,2) /= 0 ) this%nLegendre = this%nLegendre+1
     
     this%scale = 1 / ( 8 * this%nLegendre**2 * sqrt(pi) )
@@ -60,10 +64,10 @@ submodule (SphericalHarmonics) Init_SphericalHarmonics
         y = x + xincr; fy = lege_fn(2*this%nLegendre, y)
       end do
     
-    do m = 0, this%maxj
-      do j = m+1, this%maxj
-        this%amjrr(m*(this%maxj+1)-m*(m+1)/2+j+1) = sqrt((2*j-1._dbl)*(2*j+1._dbl)                          /(        (j-m)*(j+m)))
-        this%bmjrr(m*(this%maxj+1)-m*(m+1)/2+j+1) = sqrt(             (2*j+1._dbl)*(j-m-1._dbl)*(j+m-1._dbl)/((2*j-3)*(j-m)*(j+m)))
+    do m = 0, this%jmax2
+      do j = m+1, this%jmax2
+        this%amjrr(m*this%jmax3-m*(m+1)/2+j+1) = sqrt((2*j-1._dbl)*(2*j+1._dbl)                          /(        (j-m)*(j+m)))
+        this%bmjrr(m*this%jmax3-m*(m+1)/2+j+1) = sqrt(             (2*j+1._dbl)*(j-m-1._dbl)*(j+m-1._dbl)/((2*j-3)*(j-m)*(j+m)))
       end do
     end do
       

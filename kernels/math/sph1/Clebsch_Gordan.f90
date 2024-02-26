@@ -8,23 +8,23 @@ module Clebsch_Gordan
     select case (m2)
       case (-1)
         select case (j1-j)
-          case (-1) ; cleb1_fn = +sqrt( (j-m-1) * (j-m  ) / ( (2*j-1._dbl) * (  j  ) * 2 ) )
-          case ( 0) ; cleb1_fn = +sqrt( (j+m+1) * (j-m  ) / ( (  j+1._dbl) * (  j  ) * 2 ) )
-          case (+1) ; cleb1_fn = +sqrt( (j+m+2) * (j+m+1) / ( (  j+1._dbl) * (2*j+3) * 2 ) )
+          case (-1) ; cleb1_fn = +sqrt( (j-m-1) * (j-m  ) / ( (2*j-one) * (  j  ) * 2 ) )
+          case ( 0) ; cleb1_fn = +sqrt( (j+m+1) * (j-m  ) / ( (  j+one) * (  j  ) * 2 ) )
+          case (+1) ; cleb1_fn = +sqrt( (j+m+2) * (j+m+1) / ( (  j+one) * (2*j+3) * 2 ) )
         end select
         
       case (0)
         select case (j1-j)
-          case (-1) ; cleb1_fn = +sqrt( (j+m  ) * (j-m  ) / ( (2*j-1._dbl) * (  j  ) ) )
-          case ( 0) ; cleb1_fn = +sqrt( (  m  ) * (  m  ) / ( (  j+1._dbl) * (  j  ) ) )
-          case (+1) ; cleb1_fn = -sqrt( (j+m+1) * (j-m+1) / ( (  j+1._dbl) * (2*j+3) ) )
+          case (-1) ; cleb1_fn = +sqrt( (j+m  ) * (j-m  ) / ( (2*j-one) * (  j  ) ) )
+          case ( 0) ; cleb1_fn = +sqrt( (  m  ) * (  m  ) / ( (  j+one) * (  j  ) ) )
+          case (+1) ; cleb1_fn = -sqrt( (j+m+1) * (j-m+1) / ( (  j+one) * (2*j+3) ) )
         end select
         
       case (+1)
         select case (j1-j)
-          case (-1) ; cleb1_fn = +sqrt( (j+m-1) * (j+m  ) / ( (2*j-1._dbl) * (  j  ) * 2 ) )
-          case ( 0) ; cleb1_fn = -sqrt( (j+m  ) * (j-m+1) / ( (  j+1._dbl) * (  j  ) * 2 ) )
-          case (+1) ; cleb1_fn = +sqrt( (j-m+1) * (j-m+2) / ( (  j+1._dbl) * (2*j+3) * 2 ) )
+          case (-1) ; cleb1_fn = +sqrt( (j+m-1) * (j+m  ) / ( (2*j-one) * (  j  ) * 2 ) )
+          case ( 0) ; cleb1_fn = -sqrt( (j+m  ) * (j-m+1) / ( (  j+one) * (  j  ) * 2 ) )
+          case (+1) ; cleb1_fn = +sqrt( (j-m+1) * (j-m+2) / ( (  j+one) * (2*j+3) * 2 ) )
         end select
     end select
     
@@ -36,18 +36,18 @@ module Clebsch_Gordan
     real(kind=dbl)      :: c2
     
     c2 = zero; cleb2_fn = c2
-
+    
     i  = sign(1,m2) * m
     
     select case ( abs(m2) )
       
       case (0)
         select case (j-j1)
-          case (+2); c2 = sqrt( ( 3._dbl * (j+m-1) * (j+m) * (j-m-1) * (j-m) ) / ( (2*j-3) * (2*j-2) * (2*j-1) * j ) )
-          case (+1); c2 = m * sqrt( (3._dbl * (j+m) * (j-m) ) / ( (j-1) * (2*j-1) * j * (j+1) ) )
+          case (+2); c2 =      sqrt( ( 3 * (j+m-one) * (j+m  ) * (j-m-1) * (j-m  ) ) / ( (2*j-3  ) * (2*j-2) * (2*j-1) * (  j  ) ) )
+          case (+1); c2 = +m * sqrt( ( 3 * (j+m    ) * (j-m  )                     ) / ( (  j-one) * (2*j-1) * (  j+1) * (  j  ) ) )
+          case (-1); c2 = -m * sqrt( ( 3 * (j+m+one) *           (j-m+1)           ) / ( (2*j+3  ) * (  j+1) * (  j+2) * (  j  ) ) )
+          case (-2); c2 =      sqrt( ( 3 * (j+m+one) * (j+m+2) * (j-m+1) * (j-m+2) ) / ( (  j+1  ) * (2*j+3) * (2*j+4) * (2*j+5) ) )
           case ( 0); c2 = ( 3._dbl * m * m - j * (j+1) ) / sqrt( (2*j-1._dbl) * j * (j+1) * (2*j+3) )
-          case (-1); c2 = -m * sqrt( ( 3._dbl * (j+m+1) * (j-m+1) ) / ( j * (j+1) * (2*j+3) * (j+2) ) )
-          case (-2); c2 = sqrt( ( 3._dbl * (j+m+1) * (j+m+2) * (j-m+1) * (j-m+2) ) / ( (j+1) * (2*j+3) * (2*j+4) * (2*j+5) ) )
         end select
         
       case (1)

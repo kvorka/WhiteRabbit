@@ -7,28 +7,28 @@ submodule (SphericalHarmonics) vcvv
     complex(kind=dbl),    intent(out) :: cjm(*)
     integer                           :: i
     real(kind=dbl),       allocatable :: pmm(:), pmj(:), pmj1(:), pmj2(:), cosx(:), weight(:), sinx(:), grid(:)
-    complex(kind=dbl),    allocatable :: cab(:), cc(:), cr(:), ssym(:), asym(:), sumN(:), sumS(:)
+    complex(kind=dbl),    allocatable :: ca(:), cc(:), cr(:), ssym(:), asym(:), sumN(:), sumS(:)
     
     !Array preparation
-    allocate( cab(2*this%jmv1) ); call zero_carray_sub( 2*this%jmv1, cab(1) )
-    allocate( cc(6*this%jms2)  ); call zero_carray_sub( 6*this%jms2, cc(1)  )
-    allocate( cr(this%jms2)    ); call zero_carray_sub(   this%jms2, cr(1)  )
+    allocate( ca(2*this%jmv1) ); call zero_carray_sub( 2*this%jmv1, ca(1) )
+    allocate( cc(6*this%jms2) ); call zero_carray_sub( 6*this%jms2, cc(1) )
+    allocate( cr(  this%jms2) ); call zero_carray_sub(   this%jms2, cr(1) )
       
-      call this%vec2vec_jml_to_jml_sub( cajml(1), cab(1), 2, 1 )
-      call this%vec2vec_jml_to_jml_sub( cbjml(1), cab(1), 2, 2 )
+      call this%vec2vec_jml_to_jml_sub( cajml(1), ca(1), 2, 1 )
+      call this%vec2vec_jml_to_jml_sub( cbjml(1), ca(1), 2, 2 )
       
-      call this%vec2scal_jml_to_mj_sub( cab(1), 2, cc(1) )
+      call this%vec2scal_jml_to_mj_sub( ca(1), 2, cc(1) )
       
-    deallocate(cab)
+    deallocate(ca)
     
     !Allocating needed memory :: no reallocate for lower stepping
     allocate( pmm(16), pmj(16), pmj1(16), pmj2(16), cosx(16), weight(16), sinx(16), ssym(96),  &
-            & asym(96), sumN(96*(1+this%maxj)), sumS(96*(1+this%maxj)), grid(96*this%nFourier) )
+            & asym(96), sumN(96*this%jmax3), sumS(96*this%jmax3), grid(96*this%nFourier)       )
       
       !Stepping of the algorithm :: 16
       do i = 1, (this%nLegendre/16)*16, 16
-        call zero_carray_sub( 96*(this%maxj+1), sumN(1) )
-        call zero_carray_sub( 96*(this%maxj+1), sumS(1) )
+        call zero_carray_sub( 96*this%jmax3, sumN(1) )
+        call zero_carray_sub( 96*this%jmax3, sumS(1) )
 
         call this%lege_setup_16_sub( i-1, cosx(1), sinx(1), weight(1) )
         
@@ -44,8 +44,8 @@ submodule (SphericalHarmonics) vcvv
       
       !Stepping of the algorithm :: 8
       do i = (this%nLegendre/16)*16+1, (this%nLegendre/8)*8, 8
-        call zero_carray_sub( 48*(this%maxj+1), sumN(1) )
-        call zero_carray_sub( 48*(this%maxj+1), sumS(1) )
+        call zero_carray_sub( 48*this%jmax3, sumN(1) )
+        call zero_carray_sub( 48*this%jmax3, sumS(1) )
         
         call this%lege_setup_8_sub( i-1, cosx(1), sinx(1), weight(1) )
         
@@ -61,8 +61,8 @@ submodule (SphericalHarmonics) vcvv
       
       !Stepping of the algorithm :: 4
       do i = (this%nLegendre/8)*8+1, (this%nLegendre/4)*4, 4
-        call zero_carray_sub( 24*(this%maxj+1), sumN(1) )
-        call zero_carray_sub( 24*(this%maxj+1), sumS(1) )
+        call zero_carray_sub( 24*this%jmax3, sumN(1) )
+        call zero_carray_sub( 24*this%jmax3, sumS(1) )
 
         call this%lege_setup_4_sub( i-1, cosx(1), sinx(1), weight(1) )
         
@@ -78,8 +78,8 @@ submodule (SphericalHarmonics) vcvv
       
       !Stepping of the algorithm :: 2
       do i = (this%nLegendre/4)*4+1, this%nLegendre, 2
-        call zero_carray_sub( 12*(this%maxj+1), sumN(1) )
-        call zero_carray_sub( 12*(this%maxj+1), sumS(1) )
+        call zero_carray_sub( 12*this%jmax3, sumN(1) )
+        call zero_carray_sub( 12*this%jmax3, sumS(1) )
         
         call this%lege_setup_2_sub( i-1, cosx(1), sinx(1), weight(1) )
         

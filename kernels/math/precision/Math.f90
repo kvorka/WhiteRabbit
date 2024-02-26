@@ -4,6 +4,9 @@ module Math
   
   integer,           parameter :: dbl   = real64
   real(kind=dbl),    parameter :: zero  = 0._dbl
+  real(kind=dbl),    parameter :: one   = 1._dbl
+  real(kind=dbl),    parameter :: two   = 2._dbl
+  real(kind=dbl),    parameter :: three = 3._dbl
   real(kind=dbl),    parameter :: sq2_1 = 1 / sqrt(2._dbl)
   real(kind=dbl),    parameter :: pi    = acos(-1._dbl)
   real(kind=dbl),    parameter :: s4pi  = sqrt(4*pi)

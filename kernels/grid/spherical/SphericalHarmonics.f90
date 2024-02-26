@@ -11,7 +11,11 @@ module SphericalHarmonics
                                                & 247, 253, 267, 285, 297, 317, 321, 357, 381, 397, 429, 447, 477, 483, 497       ]
   
   type, public :: T_lateralGrid
-    integer,                     private :: jmax, jms, jms1, jms2, jmv, jmv1, jmt, maxj, nLegendre, nFourier
+    integer,                     private :: jmax, jmax1, jmax2, jmax3
+    integer,                     private :: jms, jms1, jms2
+    integer,                     private :: jmv, jmv1
+    integer,                     private :: jmt
+    integer,                     private :: nLegendre, nFourier
     real(kind=dbl),              private :: tolm, scale
     real(kind=dbl), allocatable, private :: roots(:), fftLege(:), amjrr(:), bmjrr(:)
     type(T_fft),                 private :: fourtrans
@@ -354,9 +358,9 @@ module SphericalHarmonics
     end subroutine grid_op_8_vcvv_vcvgv_sub
     
     module pure subroutine grid_op_16_vcvv_vcvgv_sub(this, grid, sumNS)
-      class(T_lateralGrid), intent(in)    :: this
-      real(kind=dbl),       intent(out)   :: grid(*)
-      complex(kind=dbl),    intent(inout) :: sumNS(*)
+      class(T_lateralGrid),   intent(in)    :: this
+      real(kind=dbl), target, intent(out)   :: grid(*)
+      complex(kind=dbl),      intent(inout) :: sumNS(*)
     end subroutine grid_op_16_vcvv_vcvgv_sub
   end interface
   
