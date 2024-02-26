@@ -244,117 +244,117 @@ module SphericalHarmonics
     end subroutine vcvv_vcvgv_sub
     
     module pure subroutine grid_op_2_vcsum_sub(this, grid, sumNS)
-      class(T_lateralGrid), intent(in)    :: this
-      real(kind=dbl),       intent(out)   :: grid(*)
-      complex(kind=dbl),    intent(inout) :: sumNS(*)
+      class(T_lateralGrid),   intent(in)    :: this
+      real(kind=dbl), target, intent(out)   :: grid(*)
+      complex(kind=dbl),      intent(inout) :: sumNS(*)
     end subroutine grid_op_2_vcsum_sub
     
     module pure subroutine grid_op_4_vcsum_sub(this, grid, sumNS)
-      class(T_lateralGrid), intent(in)    :: this
-      real(kind=dbl),       intent(out)   :: grid(*)
-      complex(kind=dbl),    intent(inout) :: sumNS(*)
+      class(T_lateralGrid),   intent(in)    :: this
+      real(kind=dbl), target, intent(out)   :: grid(*)
+      complex(kind=dbl),      intent(inout) :: sumNS(*)
     end subroutine grid_op_4_vcsum_sub
     
     module pure subroutine grid_op_8_vcsum_sub(this, grid, sumNS)
-      class(T_lateralGrid), intent(in)    :: this
-      real(kind=dbl),       intent(out)   :: grid(*)
-      complex(kind=dbl),    intent(inout) :: sumNS(*)
+      class(T_lateralGrid),   intent(in)    :: this
+      real(kind=dbl), target, intent(out)   :: grid(*)
+      complex(kind=dbl),      intent(inout) :: sumNS(*)
     end subroutine grid_op_8_vcsum_sub
     
     module pure subroutine grid_op_16_vcsum_sub(this, grid, sumNS)
-      class(T_lateralGrid), intent(in)    :: this
-      real(kind=dbl),       intent(out)   :: grid(*)
-      complex(kind=dbl),    intent(inout) :: sumNS(*)
+      class(T_lateralGrid),   intent(in)    :: this
+      real(kind=dbl), target, intent(out)   :: grid(*)
+      complex(kind=dbl),      intent(inout) :: sumNS(*)
     end subroutine grid_op_16_vcsum_sub
     
     module pure subroutine grid_op_2_vcst_sub(this, grid, sumNS)
-      class(T_lateralGrid), intent(in)    :: this
-      real(kind=dbl),       intent(out)   :: grid(*)
-      complex(kind=dbl),    intent(inout) :: sumNS(*)
+      class(T_lateralGrid),   intent(in)    :: this
+      real(kind=dbl), target, intent(out)   :: grid(*)
+      complex(kind=dbl),      intent(inout) :: sumNS(*)
     end subroutine grid_op_2_vcst_sub
     
     module pure subroutine grid_op_4_vcst_sub(this, grid, sumNS)
-      class(T_lateralGrid), intent(in)    :: this
-      real(kind=dbl),       intent(out)   :: grid(*)
-      complex(kind=dbl),    intent(inout) :: sumNS(*)
+      class(T_lateralGrid),   intent(in)    :: this
+      real(kind=dbl), target, intent(out)   :: grid(*)
+      complex(kind=dbl),      intent(inout) :: sumNS(*)
     end subroutine grid_op_4_vcst_sub
     
     module pure subroutine grid_op_8_vcst_sub(this, grid, sumNS)
-      class(T_lateralGrid), intent(in)    :: this
-      real(kind=dbl),       intent(out)   :: grid(*)
-      complex(kind=dbl),    intent(inout) :: sumNS(*)
+      class(T_lateralGrid),   intent(in)    :: this
+      real(kind=dbl), target, intent(out)   :: grid(*)
+      complex(kind=dbl),      intent(inout) :: sumNS(*)
     end subroutine grid_op_8_vcst_sub
     
     module pure subroutine grid_op_16_vcst_sub(this, grid, sumNS)
-      class(T_lateralGrid), intent(in)    :: this
-      real(kind=dbl),       intent(out)   :: grid(*)
-      complex(kind=dbl),    intent(inout) :: sumNS(*)
+      class(T_lateralGrid),   intent(in)    :: this
+      real(kind=dbl), target, intent(out)   :: grid(*)
+      complex(kind=dbl),      intent(inout) :: sumNS(*)
     end subroutine grid_op_16_vcst_sub
     
     module pure subroutine grid_op_2_vcvv_sub(this, grid, sumNS)
-      class(T_lateralGrid), intent(in)    :: this
-      real(kind=dbl),       intent(out)   :: grid(*)
-      complex(kind=dbl),    intent(inout) :: sumNS(*)
+      class(T_lateralGrid),   intent(in)    :: this
+      real(kind=dbl), target, intent(out)   :: grid(*)
+      complex(kind=dbl),      intent(inout) :: sumNS(*)
     end subroutine grid_op_2_vcvv_sub
     
     module pure subroutine grid_op_4_vcvv_sub(this, grid, sumNS)
-      class(T_lateralGrid), intent(in)    :: this
-      real(kind=dbl),       intent(out)   :: grid(*)
-      complex(kind=dbl),    intent(inout) :: sumNS(*)
+      class(T_lateralGrid),   intent(in)    :: this
+      real(kind=dbl), target, intent(out)   :: grid(*)
+      complex(kind=dbl),      intent(inout) :: sumNS(*)
     end subroutine grid_op_4_vcvv_sub
     
     module pure subroutine grid_op_8_vcvv_sub(this, grid, sumNS)
-      class(T_lateralGrid), intent(in)    :: this
-      real(kind=dbl),       intent(out)   :: grid(*)
-      complex(kind=dbl),    intent(inout) :: sumNS(*)
+      class(T_lateralGrid),   intent(in)    :: this
+      real(kind=dbl), target, intent(out)   :: grid(*)
+      complex(kind=dbl),      intent(inout) :: sumNS(*)
     end subroutine grid_op_8_vcvv_sub
     
     module pure subroutine grid_op_16_vcvv_sub(this, grid, sumNS)
-      class(T_lateralGrid), intent(in)    :: this
-      real(kind=dbl),       intent(out)   :: grid(*)
-      complex(kind=dbl),    intent(inout) :: sumNS(*)
+      class(T_lateralGrid),   intent(in)    :: this
+      real(kind=dbl), target, intent(out)   :: grid(*)
+      complex(kind=dbl),      intent(inout) :: sumNS(*)
     end subroutine grid_op_16_vcvv_sub
     
     module pure subroutine grid_op_2_vcvgv_sub(this, grid, sumNS)
-      class(T_lateralGrid), intent(in)    :: this
-      real(kind=dbl),       intent(out)   :: grid(*)
-      complex(kind=dbl),    intent(inout) :: sumNS(*)
+      class(T_lateralGrid),   intent(in)    :: this
+      real(kind=dbl), target, intent(out)   :: grid(*)
+      complex(kind=dbl),      intent(inout) :: sumNS(*)
     end subroutine grid_op_2_vcvgv_sub
     
     module pure subroutine grid_op_4_vcvgv_sub(this, grid, sumNS)
-      class(T_lateralGrid), intent(in)    :: this
-      real(kind=dbl),       intent(out)   :: grid(*)
-      complex(kind=dbl),    intent(inout) :: sumNS(*)
+      class(T_lateralGrid),   intent(in)    :: this
+      real(kind=dbl), target, intent(out)   :: grid(*)
+      complex(kind=dbl),      intent(inout) :: sumNS(*)
     end subroutine grid_op_4_vcvgv_sub
     
     module pure subroutine grid_op_8_vcvgv_sub(this, grid, sumNS)
-      class(T_lateralGrid), intent(in)    :: this
-      real(kind=dbl),       intent(out)   :: grid(*)
-      complex(kind=dbl),    intent(inout) :: sumNS(*)
+      class(T_lateralGrid),   intent(in)    :: this
+      real(kind=dbl), target, intent(out)   :: grid(*)
+      complex(kind=dbl),      intent(inout) :: sumNS(*)
     end subroutine grid_op_8_vcvgv_sub
     
     module pure subroutine grid_op_16_vcvgv_sub(this, grid, sumNS)
-      class(T_lateralGrid), intent(in)    :: this
-      real(kind=dbl),       intent(out)   :: grid(*)
-      complex(kind=dbl),    intent(inout) :: sumNS(*)
+      class(T_lateralGrid),   intent(in)    :: this
+      real(kind=dbl), target, intent(out)   :: grid(*)
+      complex(kind=dbl),      intent(inout) :: sumNS(*)
     end subroutine grid_op_16_vcvgv_sub
     
     module pure subroutine grid_op_2_vcvv_vcvgv_sub(this, grid, sumNS)
-      class(T_lateralGrid), intent(in)    :: this
-      real(kind=dbl),       intent(out)   :: grid(*)
-      complex(kind=dbl),    intent(inout) :: sumNS(*)
+      class(T_lateralGrid),   intent(in)    :: this
+      real(kind=dbl), target, intent(out)   :: grid(*)
+      complex(kind=dbl),      intent(inout) :: sumNS(*)
     end subroutine grid_op_2_vcvv_vcvgv_sub
     
     module pure subroutine grid_op_4_vcvv_vcvgv_sub(this, grid, sumNS)
-      class(T_lateralGrid), intent(in)    :: this
-      real(kind=dbl),       intent(out)   :: grid(*)
-      complex(kind=dbl),    intent(inout) :: sumNS(*)
+      class(T_lateralGrid),   intent(in)    :: this
+      real(kind=dbl), target, intent(out)   :: grid(*)
+      complex(kind=dbl),      intent(inout) :: sumNS(*)
     end subroutine grid_op_4_vcvv_vcvgv_sub
     
     module pure subroutine grid_op_8_vcvv_vcvgv_sub(this, grid, sumNS)
-      class(T_lateralGrid), intent(in)    :: this
-      real(kind=dbl),       intent(out)   :: grid(*)
-      complex(kind=dbl),    intent(inout) :: sumNS(*)
+      class(T_lateralGrid),   intent(in)    :: this
+      real(kind=dbl), target, intent(out)   :: grid(*)
+      complex(kind=dbl),      intent(inout) :: sumNS(*)
     end subroutine grid_op_8_vcvv_vcvgv_sub
     
     module pure subroutine grid_op_16_vcvv_vcvgv_sub(this, grid, sumNS)
