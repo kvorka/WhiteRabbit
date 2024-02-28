@@ -94,8 +94,6 @@ submodule (SphericalHarmonics) vctol
           if ( diff > maxdiff ) maxdiff = diff
         end do
         
-        write(*,*) maxdiff
-        
         if ( maxdiff <= 1.0d-4 ) then
           exit
         else
