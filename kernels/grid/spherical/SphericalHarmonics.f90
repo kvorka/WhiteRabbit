@@ -141,7 +141,7 @@ module SphericalHarmonics
       real(kind=dbl),       intent(in)    :: cosx(*), sinx(*)
       real(kind=dbl),       intent(inout) :: pmm(*), pmj2(*), pmj1(*), pmj(*)
       complex(kind=dbl),    intent(in)    :: cc(n,*)
-      complex(kind=dbl),    intent(inout) :: ssym(*), asym(*), sumN(n,2,*), sumS(n,2,*)
+      complex(kind=dbl),    intent(inout) :: ssym(*), asym(*), sumN(n,2,0:*), sumS(n,2,0:*)
     end subroutine partial_backward_2_sub
     
     module pure subroutine partial_forward_2_sub(this, n, weight, cosx, sinx, pmm, pmj2, pmj1, pmj, ssym, asym, cr, sumN, sumS)
@@ -150,7 +150,7 @@ module SphericalHarmonics
       real(kind=dbl),       intent(in)    :: cosx(*), sinx(*), weight(*)
       real(kind=dbl),       intent(inout) :: pmm(*), pmj2(*), pmj1(*), pmj(*)
       complex(kind=dbl),    intent(inout) :: cr(n,*)
-      complex(kind=dbl),    intent(inout) :: ssym(*), asym(*), sumN(n,2,*), sumS(n,2,*)
+      complex(kind=dbl),    intent(inout) :: ssym(*), asym(*), sumN(n,2,0:*), sumS(n,2,0:*)
     end subroutine partial_forward_2_sub
     
     module pure subroutine partial_backward_4_sub(this, n, cosx, sinx, pmm, pmj2, pmj1, pmj, ssym, asym, cc, sumN, sumS)
@@ -159,7 +159,7 @@ module SphericalHarmonics
       real(kind=dbl),       intent(in)    :: cosx(*), sinx(*)
       real(kind=dbl),       intent(inout) :: pmm(*), pmj2(*), pmj1(*), pmj(*)
       complex(kind=dbl),    intent(in)    :: cc(n,*)
-      complex(kind=dbl),    intent(inout) :: ssym(*), asym(*), sumN(n,4,*), sumS(n,4,*)
+      complex(kind=dbl),    intent(inout) :: ssym(*), asym(*), sumN(n,4,0:*), sumS(n,4,0:*)
     end subroutine partial_backward_4_sub
     
     module pure subroutine partial_forward_4_sub(this, n, weight, cosx, sinx, pmm, pmj2, pmj1, pmj, ssym, asym, cr, sumN, sumS)
@@ -168,7 +168,7 @@ module SphericalHarmonics
       real(kind=dbl),       intent(in)    :: cosx(*), sinx(*), weight(*)
       real(kind=dbl),       intent(inout) :: pmm(*), pmj2(*), pmj1(*), pmj(*)
       complex(kind=dbl),    intent(inout) :: cr(n,*)
-      complex(kind=dbl),    intent(inout) :: ssym(*), asym(*), sumN(n,4,*), sumS(n,4,*)
+      complex(kind=dbl),    intent(inout) :: ssym(*), asym(*), sumN(n,4,0:*), sumS(n,4,0:*)
     end subroutine partial_forward_4_sub
     
     module pure subroutine partial_backward_8_sub(this, n, cosx, sinx, pmm, pmj2, pmj1, pmj, ssym, asym, cc, sumN, sumS)
