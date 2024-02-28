@@ -77,7 +77,7 @@ submodule (SphericalHarmonics) Init_SphericalHarmonics
     
     call this%fourtrans%init_sub( this%nFourier )
     
-    this%tolm = 1.0d-52 !0.1_dbl; call this%vctol_sub();
+    this%tolm = 0.1_dbl; call this%vctol_sub();
     
   end subroutine init_harmonics_sub
   

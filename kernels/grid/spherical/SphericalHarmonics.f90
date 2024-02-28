@@ -177,7 +177,7 @@ module SphericalHarmonics
       real(kind=dbl),       intent(in)    :: cosx(*), sinx(*)
       real(kind=dbl),       intent(inout) :: pmm(*), pmj2(*), pmj1(*), pmj(*)
       complex(kind=dbl),    intent(in)    :: cc(n,*)
-      complex(kind=dbl),    intent(inout) :: ssym(*), asym(*), sumN(n,8,*), sumS(n,8,*)
+      complex(kind=dbl),    intent(inout) :: ssym(*), asym(*), sumN(n,8,0:*), sumS(n,8,0:*)
     end subroutine partial_backward_8_sub
     
     module pure subroutine partial_forward_8_sub(this, n, weight, cosx, sinx, pmm, pmj2, pmj1, pmj, ssym, asym, cr, sumN, sumS)
@@ -186,7 +186,7 @@ module SphericalHarmonics
       real(kind=dbl),       intent(in)    :: cosx(*), sinx(*), weight(*)
       real(kind=dbl),       intent(inout) :: pmm(*), pmj2(*), pmj1(*), pmj(*)
       complex(kind=dbl),    intent(inout) :: cr(n,*)
-      complex(kind=dbl),    intent(inout) :: ssym(*), asym(*), sumN(n,8,*), sumS(n,8,*)
+      complex(kind=dbl),    intent(inout) :: ssym(*), asym(*), sumN(n,8,0:*), sumS(n,8,0:*)
     end subroutine partial_forward_8_sub
     
     module pure subroutine partial_backward_16_sub(this, n, cosx, sinx, pmm, pmj2, pmj1, pmj, ssym, asym, cc, sumN, sumS)
@@ -195,7 +195,7 @@ module SphericalHarmonics
       real(kind=dbl),       intent(in)    :: cosx(*), sinx(*)
       real(kind=dbl),       intent(inout) :: pmm(*), pmj2(*), pmj1(*), pmj(*)
       complex(kind=dbl),    intent(in)    :: cc(n,*)
-      complex(kind=dbl),    intent(inout) :: ssym(*), asym(*), sumN(n,16,*), sumS(n,16,*)
+      complex(kind=dbl),    intent(inout) :: ssym(*), asym(*), sumN(n,16,0:*), sumS(n,16,0:*)
     end subroutine partial_backward_16_sub
     
     module pure subroutine partial_forward_16_sub(this, n, weight, cosx, sinx, pmm, pmj2, pmj1, pmj, ssym, asym, cr, sumN, sumS)
@@ -204,7 +204,7 @@ module SphericalHarmonics
       real(kind=dbl),       intent(in)    :: cosx(*), sinx(*), weight(*)
       real(kind=dbl),       intent(inout) :: pmm(*), pmj2(*), pmj1(*), pmj(*)
       complex(kind=dbl),    intent(inout) :: cr(n,*)
-      complex(kind=dbl),    intent(inout) :: ssym(*), asym(*), sumN(n,16,*), sumS(n,16,*)
+      complex(kind=dbl),    intent(inout) :: ssym(*), asym(*), sumN(n,16,0:*), sumS(n,16,0:*)
     end subroutine partial_forward_16_sub
     
     module subroutine vctol_sub(this)

@@ -8,7 +8,7 @@ compile="gfortran-12 -Ofast -march=native -flto=auto -fwhole-program -fopenmp"
 ####                              POSSIBLE CODE SETTINGS                               ####
 ####       test_speed, ocean_convection, ice_ocean, ocean_tides, ice_deformation       ####
 ###########################################################################################
-code_type="ocean_convection"
+code_type="test_legendre"
 
 ###########################################################################################
 ####                    COMPILATION OF THE BASELINE, DIRS SET UP                       ####
@@ -56,14 +56,19 @@ $compile -c code/ice/mod/IceTidesMod.f90
 $compile -c code/ice/mod/IceCrustMod.f90
 
 rm -r -f data || true
-mkdir data
 
 ###########################################################################################
 ####                                    LINKING                                        ####
 ###########################################################################################
 case $code_type in
     
+    test_legendre)
+        $compile code/codes/BielyKralik_legeTest.f90 *.o -o Test_lege
+    ;;
+
     test_speed)
+        mkdir data
+        
         mkdir data/data_ocean_temp
         mkdir data/data_ocean_veloc
         mkdir data/data_ocean_flux
@@ -72,6 +77,8 @@ case $code_type in
     ;;
     
     ocean_convection)
+        mkdir data
+
         mkdir data/data_ocean_temp
         mkdir data/data_ocean_veloc
         mkdir data/data_ocean_flux
@@ -80,6 +87,8 @@ case $code_type in
     ;;
     
     ice_ocean)
+        mkdir data
+        
         mkdir data/data_ice_topo
         mkdir data/data_ice_shape
         mkdir data/data_ice_tides
@@ -92,12 +101,16 @@ case $code_type in
     ;;
     
     ocean_tides)
+        mkdir data
+
         mkdir data/data_ocean_veloc
     
         $compile code/codes/BielyKralik_tidesOcean.f90 *.o -o Test_tides
     ;;
     
     ice_deformation)
+        mkdir data
+
         mkdir data/data_ice_topo
         mkdir data/data_ice_shape
         mkdir data/data_ice_tides
