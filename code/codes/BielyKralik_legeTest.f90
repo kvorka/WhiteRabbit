@@ -5,7 +5,7 @@ program BielyKralik_legeTest
   type(T_lateralGrid) :: sph
   
   !Inicializuj vypocet
-  call sph%init_sub(497)
+  call sph%init_sub(105)
   
   !Cistenie
   call sph%deallocate_sub()
