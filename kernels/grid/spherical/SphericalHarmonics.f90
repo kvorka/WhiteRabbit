@@ -2,7 +2,6 @@ module SphericalHarmonics
   use Nulify
   use Clebsch_Gordan
   use Legendre_function
-  use Legendre_polynomials
   use Fourier_transform
   implicit none
   
@@ -24,7 +23,6 @@ module SphericalHarmonics
     
     procedure :: init_sub       => init_harmonics_sub
     procedure :: deallocate_sub => deallocate_harmonics_sub
-    procedure :: lege_init_2_sub, lege_init_4_sub, lege_init_8_sub, lege_init_16_sub
     procedure :: vec2vec_jml_to_jml_sub, scal2scal_jm_to_mj_sub, vec2scal_jml_to_mj_sub, gradvec2vec_jmlk_to_jml_sub, &
                & devtens2scal_jml2_to_mj_sub, scal2scal_mj_to_jm_sub, scal2vecscal_mj_to_jm_sub, scal2devtens_mj_to_jml2_sub
     procedure :: rescale_sub, vctol_sub, vcsum_sub, vcst_sub, vcvv_sub, vcvgv_sub, vcvv_vcvgv_sub
@@ -58,30 +56,6 @@ module SphericalHarmonics
       complex(kind=dbl),    intent(inout) :: arr(*)
     end subroutine rescale_sub
     
-    module pure subroutine lege_init_2_sub(this, it, cosx, sinx, weight)
-      class(T_lateralGrid), intent(in)  :: this
-      integer,              intent(in)  :: it
-      real(kind=dbl),       intent(out) :: cosx(*), sinx(*), weight(*)
-    end subroutine lege_init_2_sub
-    
-    module pure subroutine lege_init_4_sub(this, it, cosx, sinx, weight)
-      class(T_lateralGrid), intent(in)  :: this
-      integer,              intent(in)  :: it
-      real(kind=dbl),       intent(out) :: cosx(*), sinx(*), weight(*)
-    end subroutine lege_init_4_sub
-    
-    module pure subroutine lege_init_8_sub(this, it, cosx, sinx, weight)
-      class(T_lateralGrid), intent(in)  :: this
-      integer,              intent(in)  :: it
-      real(kind=dbl),       intent(out) :: cosx(*), sinx(*), weight(*)
-    end subroutine lege_init_8_sub
-    
-    module pure subroutine lege_init_16_sub(this, it, cosx, sinx, weight)
-      class(T_lateralGrid), intent(in)  :: this
-      integer,              intent(in)  :: it
-      real(kind=dbl),       intent(out) :: cosx(*), sinx(*), weight(*)
-    end subroutine lege_init_16_sub
-    
     module pure subroutine pmj_backward_set_2_sub(this, i, m, nsum, pmj2, pmj1, pmj, cc, legesum)
       class(T_lateralGrid), intent(in)    :: this
       integer,              intent(in)    :: nsum, i, m
@@ -114,37 +88,33 @@ module SphericalHarmonics
       complex(kind=dbl),    intent(inout) :: cr(*)
     end subroutine pmj_forward_set_4_sub
     
-    module pure subroutine pmj_backward_set_8_sub(this, nsum, pmm, pmj2, pmj1, pmj, cc, legesum)
+    module pure subroutine pmj_backward_set_8_sub(this, i, m, nsum, pmj2, pmj1, pmj, cc, legesum)
       class(T_lateralGrid), intent(in)    :: this
-      integer,              intent(in)    :: nsum
-      real(kind=dbl),       intent(in)    :: pmm(*)
+      integer,              intent(in)    :: i, m, nsum
       real(kind=dbl),       intent(inout) :: pmj1(*), pmj2(*), pmj(*)
       complex(kind=dbl),    intent(in)    :: cc(*)
       complex(kind=dbl),    intent(inout) :: legesum(8,*)
     end subroutine pmj_backward_set_8_sub
     
-    module pure subroutine pmj_forward_set_8_sub(this, nsum, pmm, pmj2, pmj1, pmj, legesum, cr)
+    module pure subroutine pmj_forward_set_8_sub(this, i, m, nsum, pmj2, pmj1, pmj, legesum, cr)
       class(T_lateralGrid), intent(in)    :: this
-      integer,              intent(in)    :: nsum
-      real(kind=dbl),       intent(in)    :: pmm(*)
+      integer,              intent(in)    :: i, m, nsum
       real(kind=dbl),       intent(inout) :: pmj1(*), pmj2(*), pmj(*)
       complex(kind=dbl),    intent(inout) :: legesum(8,*)
       complex(kind=dbl),    intent(inout) :: cr(*)
     end subroutine pmj_forward_set_8_sub
     
-    module pure subroutine pmj_backward_set_16_sub(this, nsum, pmm, pmj2, pmj1, pmj, cc, legesum)
+    module pure subroutine pmj_backward_set_16_sub(this, i, m, nsum, pmj2, pmj1, pmj, cc, legesum)
       class(T_lateralGrid), intent(in)    :: this
-      integer,              intent(in)    :: nsum
-      real(kind=dbl),       intent(in)    :: pmm(*)
+      integer,              intent(in)    :: i, m, nsum
       real(kind=dbl),       intent(inout) :: pmj1(*), pmj2(*), pmj(*)
       complex(kind=dbl),    intent(in)    :: cc(*)
       complex(kind=dbl),    intent(inout) :: legesum(16,*)
     end subroutine pmj_backward_set_16_sub
     
-    module pure subroutine pmj_forward_set_16_sub(this, nsum, pmm, pmj2, pmj1, pmj, legesum, cr)
+    module pure subroutine pmj_forward_set_16_sub(this, i, m, nsum, pmj2, pmj1, pmj, legesum, cr)
       class(T_lateralGrid), intent(in)    :: this
-      integer,              intent(in)    :: nsum
-      real(kind=dbl),       intent(in)    :: pmm(*)
+      integer,              intent(in)    :: i, m, nsum
       real(kind=dbl),       intent(inout) :: pmj1(*), pmj2(*), pmj(*)
       complex(kind=dbl),    intent(inout) :: legesum(16,*)
       complex(kind=dbl),    intent(inout) :: cr(*)
@@ -282,8 +252,7 @@ module SphericalHarmonics
     module pure subroutine partial_backward_2_sub(this, i, n, cosx, pmj2, pmj1, pmj, ssym, asym, cc, sumN, sumS)
       class(T_lateralGrid), intent(in)    :: this
       integer,              intent(in)    :: i, n
-      real(kind=dbl),       intent(in)    :: cosx(*)
-      real(kind=dbl),       intent(inout) :: pmj2(*), pmj1(*), pmj(*)
+      real(kind=dbl),       intent(inout) :: cosx(*), pmj2(*), pmj1(*), pmj(*)
       complex(kind=dbl),    intent(in)    :: cc(n,*)
       complex(kind=dbl),    intent(inout) :: ssym(2,*), asym(2,*), sumN(n,2,0:*), sumS(n,2,0:*)
     end subroutine partial_backward_2_sub
@@ -291,8 +260,8 @@ module SphericalHarmonics
     module pure subroutine partial_forward_2_sub(this, i, n, weight, cosx, pmj2, pmj1, pmj, ssym, asym, cr, sumN, sumS)
       class(T_lateralGrid), intent(in)    :: this
       integer,              intent(in)    :: i, n
-      real(kind=dbl),       intent(in)    :: cosx(*), weight(*)
-      real(kind=dbl),       intent(inout) :: pmj2(*), pmj1(*), pmj(*)
+      real(kind=dbl),       intent(in)    :: cosx(*)
+      real(kind=dbl),       intent(inout) :: weight(*), pmj2(*), pmj1(*), pmj(*)
       complex(kind=dbl),    intent(inout) :: cr(n,*)
       complex(kind=dbl),    intent(inout) :: ssym(2,*), asym(2,*), sumN(n,2,0:*), sumS(n,2,0:*)
     end subroutine partial_forward_2_sub
@@ -300,8 +269,7 @@ module SphericalHarmonics
     module pure subroutine partial_backward_4_sub(this, i, n, cosx, pmj2, pmj1, pmj, ssym, asym, cc, sumN, sumS)
       class(T_lateralGrid), intent(in)    :: this
       integer,              intent(in)    :: i, n
-      real(kind=dbl),       intent(in)    :: cosx(*)
-      real(kind=dbl),       intent(inout) :: pmj2(*), pmj1(*), pmj(*)
+      real(kind=dbl),       intent(inout) :: cosx(*), pmj2(*), pmj1(*), pmj(*)
       complex(kind=dbl),    intent(in)    :: cc(n,*)
       complex(kind=dbl),    intent(inout) :: ssym(4,*), asym(4,*), sumN(n,4,0:*), sumS(n,4,0:*)
     end subroutine partial_backward_4_sub
@@ -309,44 +277,42 @@ module SphericalHarmonics
     module pure subroutine partial_forward_4_sub(this, i, n, weight, cosx, pmj2, pmj1, pmj, ssym, asym, cr, sumN, sumS)
       class(T_lateralGrid), intent(in)    :: this
       integer,              intent(in)    :: i, n
-      real(kind=dbl),       intent(in)    :: cosx(*), weight(*)
-      real(kind=dbl),       intent(inout) :: pmj2(*), pmj1(*), pmj(*)
+      real(kind=dbl),       intent(in)    :: cosx(*)
+      real(kind=dbl),       intent(inout) :: weight(*), pmj2(*), pmj1(*), pmj(*)
       complex(kind=dbl),    intent(inout) :: cr(n,*)
       complex(kind=dbl),    intent(inout) :: ssym(4,*), asym(4,*), sumN(n,4,0:*), sumS(n,4,0:*)
     end subroutine partial_forward_4_sub
     
-    module pure subroutine partial_backward_8_sub(this, n, cosx, sinx, pmm, pmj2, pmj1, pmj, ssym, asym, cc, sumN, sumS)
+    module pure subroutine partial_backward_8_sub(this, i, n, cosx, pmj2, pmj1, pmj, ssym, asym, cc, sumN, sumS)
       class(T_lateralGrid), intent(in)    :: this
-      integer,              intent(in)    :: n
-      real(kind=dbl),       intent(in)    :: cosx(*), sinx(*)
-      real(kind=dbl),       intent(inout) :: pmm(*), pmj2(*), pmj1(*), pmj(*)
+      integer,              intent(in)    :: i, n
+      real(kind=dbl),       intent(inout) :: cosx(*), pmj2(*), pmj1(*), pmj(*)
       complex(kind=dbl),    intent(in)    :: cc(n,*)
       complex(kind=dbl),    intent(inout) :: ssym(8,*), asym(8,*), sumN(n,8,0:*), sumS(n,8,0:*)
     end subroutine partial_backward_8_sub
     
-    module pure subroutine partial_forward_8_sub(this, n, weight, cosx, sinx, pmm, pmj2, pmj1, pmj, ssym, asym, cr, sumN, sumS)
+    module pure subroutine partial_forward_8_sub(this, i, n, weight, cosx, pmj2, pmj1, pmj, ssym, asym, cr, sumN, sumS)
       class(T_lateralGrid), intent(in)    :: this
-      integer,              intent(in)    :: n
-      real(kind=dbl),       intent(in)    :: cosx(*), sinx(*), weight(*)
-      real(kind=dbl),       intent(inout) :: pmm(*), pmj2(*), pmj1(*), pmj(*)
+      integer,              intent(in)    :: i, n
+      real(kind=dbl),       intent(in)    :: cosx(*)
+      real(kind=dbl),       intent(inout) :: weight(*), pmj2(*), pmj1(*), pmj(*)
       complex(kind=dbl),    intent(inout) :: cr(n,*)
       complex(kind=dbl),    intent(inout) :: ssym(8,*), asym(8,*), sumN(n,8,0:*), sumS(n,8,0:*)
     end subroutine partial_forward_8_sub
     
-    module pure subroutine partial_backward_16_sub(this, n, cosx, sinx, pmm, pmj2, pmj1, pmj, ssym, asym, cc, sumN, sumS)
+    module pure subroutine partial_backward_16_sub(this, i, n, cosx, pmj2, pmj1, pmj, ssym, asym, cc, sumN, sumS)
       class(T_lateralGrid), intent(in)    :: this
-      integer,              intent(in)    :: n
-      real(kind=dbl),       intent(in)    :: cosx(*), sinx(*)
-      real(kind=dbl),       intent(inout) :: pmm(*), pmj2(*), pmj1(*), pmj(*)
+      integer,              intent(in)    :: i, n
+      real(kind=dbl),       intent(inout) :: cosx(*), pmj2(*), pmj1(*), pmj(*)
       complex(kind=dbl),    intent(in)    :: cc(n,*)
       complex(kind=dbl),    intent(inout) :: ssym(16,*), asym(16,*), sumN(n,16,0:*), sumS(n,16,0:*)
     end subroutine partial_backward_16_sub
     
-    module pure subroutine partial_forward_16_sub(this, n, weight, cosx, sinx, pmm, pmj2, pmj1, pmj, ssym, asym, cr, sumN, sumS)
+    module pure subroutine partial_forward_16_sub(this, i, n, weight, cosx, pmj2, pmj1, pmj, ssym, asym, cr, sumN, sumS)
       class(T_lateralGrid), intent(in)    :: this
-      integer,              intent(in)    :: n
-      real(kind=dbl),       intent(in)    :: cosx(*), sinx(*), weight(*)
-      real(kind=dbl),       intent(inout) :: pmm(*), pmj2(*), pmj1(*), pmj(*)
+      integer,              intent(in)    :: i, n
+      real(kind=dbl),       intent(in)    :: cosx(*)
+      real(kind=dbl),       intent(inout) :: weight(*), pmj2(*), pmj1(*), pmj(*)
       complex(kind=dbl),    intent(inout) :: cr(n,*)
       complex(kind=dbl),    intent(inout) :: ssym(16,*), asym(16,*), sumN(n,16,0:*), sumS(n,16,0:*)
     end subroutine partial_forward_16_sub
