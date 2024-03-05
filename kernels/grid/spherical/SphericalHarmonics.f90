@@ -24,10 +24,12 @@ module SphericalHarmonics
     
     procedure :: init_sub       => init_harmonics_sub
     procedure :: deallocate_sub => deallocate_harmonics_sub
-    procedure :: lege_setup_2_sub, lege_setup_4_sub, lege_setup_8_sub, lege_setup_16_sub
+    procedure :: lege_init_2_sub, lege_init_4_sub, lege_init_8_sub, lege_init_16_sub
     procedure :: vec2vec_jml_to_jml_sub, scal2scal_jm_to_mj_sub, vec2scal_jml_to_mj_sub, gradvec2vec_jmlk_to_jml_sub, &
                & devtens2scal_jml2_to_mj_sub, scal2scal_mj_to_jm_sub, scal2vecscal_mj_to_jm_sub, scal2devtens_mj_to_jml2_sub
     procedure :: rescale_sub, vctol_sub, vcsum_sub, vcst_sub, vcvv_sub, vcvgv_sub, vcvv_vcvgv_sub
+    procedure :: pmj_backward_set_2_sub
+    procedure :: pmj_backward_rec_2_sub
     procedure :: partial_backward_2_sub, partial_backward_4_sub, partial_backward_8_sub, partial_backward_16_sub
     procedure :: partial_forward_2_sub, partial_forward_4_sub, partial_forward_8_sub, partial_forward_16_sub
     procedure :: grid_op_2_vcsum_sub, grid_op_4_vcsum_sub, grid_op_8_vcsum_sub, grid_op_16_vcsum_sub
@@ -54,29 +56,46 @@ module SphericalHarmonics
       complex(kind=dbl),    intent(inout) :: arr(*)
     end subroutine rescale_sub
     
-    module pure subroutine lege_setup_2_sub(this, it, cosx, sinx, weight)
+    module pure subroutine lege_init_2_sub(this, it, cosx, sinx, weight)
       class(T_lateralGrid), intent(in)  :: this
       integer,              intent(in)  :: it
       real(kind=dbl),       intent(out) :: cosx(*), sinx(*), weight(*)
-    end subroutine lege_setup_2_sub
+    end subroutine lege_init_2_sub
     
-    module pure subroutine lege_setup_4_sub(this, it, cosx, sinx, weight)
+    module pure subroutine lege_init_4_sub(this, it, cosx, sinx, weight)
       class(T_lateralGrid), intent(in)  :: this
       integer,              intent(in)  :: it
       real(kind=dbl),       intent(out) :: cosx(*), sinx(*), weight(*)
-    end subroutine lege_setup_4_sub
+    end subroutine lege_init_4_sub
     
-    module pure subroutine lege_setup_8_sub(this, it, cosx, sinx, weight)
+    module pure subroutine lege_init_8_sub(this, it, cosx, sinx, weight)
       class(T_lateralGrid), intent(in)  :: this
       integer,              intent(in)  :: it
       real(kind=dbl),       intent(out) :: cosx(*), sinx(*), weight(*)
-    end subroutine lege_setup_8_sub
+    end subroutine lege_init_8_sub
     
-    module pure subroutine lege_setup_16_sub(this, it, cosx, sinx, weight)
+    module pure subroutine lege_init_16_sub(this, it, cosx, sinx, weight)
       class(T_lateralGrid), intent(in)  :: this
       integer,              intent(in)  :: it
       real(kind=dbl),       intent(out) :: cosx(*), sinx(*), weight(*)
-    end subroutine lege_setup_16_sub
+    end subroutine lege_init_16_sub
+    
+    module pure subroutine pmj_backward_set_2_sub(this, nsum, pmm, pmj2, pmj1, pmj, cc, legesum)
+      class(T_lateralGrid), intent(in)    :: this
+      integer,              intent(in)    :: nsum
+      real(kind=dbl),       intent(in)    :: pmm(*)
+      real(kind=dbl),       intent(inout) :: pmj1(*), pmj2(*), pmj(*)
+      complex(kind=dbl),    intent(in)    :: cc(*)
+      complex(kind=dbl),    intent(inout) :: legesum(2,*)
+    end subroutine pmj_backward_set_2_sub
+    
+    module pure subroutine pmj_backward_rec_2_sub(this, mj, nsum, pmj2, pmj1, pmj, cc, legesum)
+      class(T_lateralGrid), intent(in)    :: this
+      integer,              intent(in)    :: mj, nsum
+      real(kind=dbl),       intent(inout) :: pmj1(*), pmj2(*), pmj(*)
+      complex(kind=dbl),    intent(in)    :: cc(*)
+      complex(kind=dbl),    intent(inout) :: legesum(2,*)
+    end subroutine pmj_backward_rec_2_sub
     
     module pure subroutine vec2vec_jml_to_jml_sub(this, cjml, cab, ncab, cabpadding)
       class(T_lateralGrid), intent(in)    :: this

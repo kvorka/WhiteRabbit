@@ -31,7 +31,7 @@ submodule (SphericalHarmonics) vcvgv
         call zero_carray_sub( 192*this%jmax3, sumN(1) )
         call zero_carray_sub( 192*this%jmax3, sumS(1) )
         
-        call this%lege_setup_16_sub( i-1, cosx(1), sinx(1), weight(1) )
+        call this%lege_init_16_sub( i-1, cosx(1), sinx(1), weight(1) )
         
         call this%partial_backward_16_sub( 12, cosx(1), sinx(1), pmm(1), pmj2(1), pmj1(1),   &
                                          & pmj(1), ssym(1), asym(1), cc(1), sumN(1), sumS(1) )
@@ -48,7 +48,7 @@ submodule (SphericalHarmonics) vcvgv
         call zero_carray_sub( 96*this%jmax3, sumN(1) )
         call zero_carray_sub( 96*this%jmax3, sumS(1) )
         
-        call this%lege_setup_8_sub( i-1, cosx(1), sinx(1), weight(1) )
+        call this%lege_init_8_sub( i-1, cosx(1), sinx(1), weight(1) )
         
         call this%partial_backward_8_sub( 12, cosx(1), sinx(1), pmm(1), pmj2(1), pmj1(1),   &
                                         & pmj(1), ssym(1), asym(1), cc(1), sumN(1), sumS(1) )
@@ -65,7 +65,7 @@ submodule (SphericalHarmonics) vcvgv
         call zero_carray_sub( 48*this%jmax3, sumN(1) )
         call zero_carray_sub( 48*this%jmax3, sumS(1) )
         
-        call this%lege_setup_4_sub( i-1, cosx(1), sinx(1), weight(1) )
+        call this%lege_init_4_sub( i-1, cosx(1), sinx(1), weight(1) )
         
         call this%partial_backward_4_sub( 12, cosx(1), sinx(1), pmm(1), pmj2(1), pmj1(1),   &
                                         & pmj(1), ssym(1), asym(1), cc(1), sumN(1), sumS(1) )
@@ -82,7 +82,7 @@ submodule (SphericalHarmonics) vcvgv
         call zero_carray_sub( 24*this%jmax3, sumN(1) )
         call zero_carray_sub( 24*this%jmax3, sumS(1) )
         
-        call this%lege_setup_2_sub( i-1, cosx(1), sinx(1), weight(1) )
+        call this%lege_init_2_sub( i-1, cosx(1), sinx(1), weight(1) )
         
         call this%partial_backward_2_sub( 12, cosx(1), sinx(1), pmm(1), pmj2(1), pmj1(1),   &
                                         & pmj(1), ssym(1), asym(1), cc(1), sumN(1), sumS(1) )

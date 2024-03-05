@@ -19,24 +19,17 @@ submodule(SphericalHarmonics) partial_sums
       j = m
         mj = 1
         
-        call pmj_setup_2_sub( pmm(1), pmj2(1), pmj1(1), pmj(1) )
-        call pmj_backward_2_sub( n, pmj(1), cc(1,1), ssym(1) )
-      
+        call this%pmj_backward_set_2_sub( n, pmm(1), pmj2(1), pmj1(1), pmj(1), cc(1,1), ssym(1) )
+        
       do j = 1, this%jmax2/2
         mj = mj+2
         
-        call pmj_recursion_2_sub( this%amjrr(mj-1), this%bmjrr(mj-1), cosx(1), pmj2(1), pmj1(1), pmj(1) )
-        call pmj_backward_2_sub( n, pmj(1), cc(1,mj-1), asym(1) )
-        
-        call pmj_recursion_2_sub( this%amjrr(mj), this%bmjrr(mj), cosx(1), pmj2(1), pmj1(1), pmj(1) )
-        call pmj_backward_2_sub( n, pmj(1), cc(1,mj), ssym(1) )
+        call this%pmj_backward_rec_2_sub( mj-1, n, pmj2(1), pmj1(1), pmj(1), cc(1,mj-1), asym(1) )
+        call this%pmj_backward_rec_2_sub( mj  , n, pmj2(1), pmj1(1), pmj(1), cc(1,mj  ), ssym(1) )
       end do
       
       if ( mod(this%jmax2,2) /= 0 ) then
-        mj = mj+1
-        
-        call pmj_recursion_2_sub( this%amjrr(mj), this%bmjrr(mj), cosx(1), pmj2(1), pmj1(1), pmj(1) )
-        call pmj_backward_2_sub( n, pmj(1), cc(1,mj), asym(1) )
+        call this%pmj_backward_rec_2_sub( mj+1, n, pmj2(1), pmj1(1), pmj(1), cc(1,mj+1), asym(1) )
       end if
       
       call pmj_backward_recomb_2_sub( n, ssym(1), asym(1), sumN(1,1,0), sumS(1,1,0) )
@@ -57,24 +50,17 @@ submodule(SphericalHarmonics) partial_sums
         j = m
           mj = m*this%jmax3-m*(m+1)/2+j+1
           
-          call pmj_setup_2_sub( pmm(1), pmj2(1), pmj1(1), pmj(1) )
-          call pmj_backward_2_sub( n, pmj(1), cc(1,mj), ssym(1) )
-        
+          call this%pmj_backward_set_2_sub( n, pmm(1), pmj2(1), pmj1(1), pmj(1), cc(1,mj), ssym(1) )
+          
         do j = 1, (this%jmax2-m)/2
           mj = mj+2
           
-          call pmj_recursion_2_sub( this%amjrr(mj-1), this%bmjrr(mj-1), cosx(1), pmj2(1), pmj1(1), pmj(1) )
-          call pmj_backward_2_sub( n, pmj(1), cc(1,mj-1), asym(1) )
-          
-          call pmj_recursion_2_sub( this%amjrr(mj), this%bmjrr(mj), cosx(1), pmj2(1), pmj1(1), pmj(1) )
-          call pmj_backward_2_sub( n, pmj(1), cc(1,mj), ssym(1) )
+          call this%pmj_backward_rec_2_sub( mj-1, n, pmj2(1), pmj1(1), pmj(1), cc(1,mj-1), asym(1) )
+          call this%pmj_backward_rec_2_sub( mj  , n, pmj2(1), pmj1(1), pmj(1), cc(1,mj  ), ssym(1) )
         end do
         
         if ( mod((this%jmax2-m),2) /= 0 ) then
-          mj = mj+1
-          
-          call pmj_recursion_2_sub( this%amjrr(mj), this%bmjrr(mj), cosx(1), pmj2(1), pmj1(1), pmj(1) )
-          call pmj_backward_2_sub( n, pmj(1), cc(1,mj), asym(1) )
+          call this%pmj_backward_rec_2_sub( mj+1, n, pmj2(1), pmj1(1), pmj(1), cc(1,mj+1), asym(1) )
         end if
         
         call pmj_backward_recomb_2_sub( n, ssym(1), asym(1), sumN(1,1,m), sumS(1,1,m) )
