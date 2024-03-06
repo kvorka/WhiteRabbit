@@ -282,15 +282,13 @@ submodule (SphericalHarmonics) vctol
         if ( diff > maxdiff ) maxdiff = diff
       end do
       
-      if ( maxdiff <= 1.0d-4 ) then
+      if ( this%tolm < 1.0d-100) then
+        this%tolm = 1.0d-90
+        exit
+      else if ( maxdiff <= 1.0d-4 ) then
         exit
       else
         this%tolm = this%tolm / 10
-      end if
-      
-      if ( this%tolm < 1.0d-100) then
-        write(*,*) 'Problem with precision setting, try another run (that usually fixes it).'
-        stop
       end if
     end do
       

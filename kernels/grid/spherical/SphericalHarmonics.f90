@@ -15,6 +15,7 @@ module SphericalHarmonics
     integer,                     private :: jmv, jmv1
     integer,                     private :: jmt
     integer,                     private :: nLegendre, nFourier
+    integer,        allocatable, private :: maxm(:)
     real(kind=dbl),              private :: tolm, scale
     real(kind=dbl), allocatable, private :: roots(:), fftLege(:), amjrr(:), bmjrr(:), pmm(:,:)
     type(T_fft),                 private :: fourtrans

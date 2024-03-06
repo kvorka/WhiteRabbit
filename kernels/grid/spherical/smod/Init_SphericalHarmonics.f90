@@ -91,7 +91,45 @@ submodule (SphericalHarmonics) Init_SphericalHarmonics
     
     call this%fourtrans%init_sub( this%nFourier )
     
-    this%tolm = 0.1_dbl; call this%vctol_sub(); write(*,*) this%tolm
+    this%tolm = 0.1_dbl; call this%vctol_sub()
+    
+    allocate( this%maxm(this%nLegendre) ) ; this%maxm = this%jmax2
+    
+    do i = 1, (this%nLegendre/16)*16, 16
+      do m = 0, this%jmax2
+        if ( maxval(abs(this%pmm(i:i+15,m))) < this%tolm ) then
+          this%maxm(i:i+15) = m-1
+          exit
+        end if
+      end do
+    end do
+    
+    do i = (this%nLegendre/16)*16+1, (this%nLegendre/8)*8, 8
+      do m = 0, this%jmax2
+        if ( maxval(abs(this%pmm(i:i+7,m))) < this%tolm ) then
+          this%maxm(i:i+7) = m-1
+          exit
+        end if
+      end do
+    end do
+    
+    do i = (this%nLegendre/8)*8+1, (this%nLegendre/4)*4, 4
+      do m = 0, this%jmax2
+        if ( maxval(abs(this%pmm(i:i+3,m))) < this%tolm ) then
+          this%maxm(i:i+3) = m-1
+          exit
+        end if
+      end do
+    end do
+    
+    do i = (this%nLegendre/4)*4+1, this%nLegendre, 2
+      do m = 0, this%jmax2
+        if ( maxval(abs(this%pmm(i:i+1,m))) < this%tolm ) then
+          this%maxm(i:i+1) = m-1
+          exit
+        end if
+      end do
+    end do
     
   end subroutine init_harmonics_sub
   
