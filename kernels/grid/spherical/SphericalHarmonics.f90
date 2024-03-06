@@ -23,9 +23,12 @@ module SphericalHarmonics
     
     procedure :: init_sub       => init_harmonics_sub
     procedure :: deallocate_sub => deallocate_harmonics_sub
-    procedure :: vec2vec_jml_to_jml_sub, scal2scal_jm_to_mj_sub, vec2scal_jml_to_mj_sub, gradvec2vec_jmlk_to_jml_sub, &
-               & devtens2scal_jml2_to_mj_sub, scal2scal_mj_to_jm_sub, scal2vecscal_mj_to_jm_sub, scal2devtens_mj_to_jml2_sub
-    procedure :: rescale_sub, vctol_sub, vcsum_sub, vcst_sub, vcvv_sub, vcvgv_sub, vcvv_vcvgv_sub
+    procedure :: scal2scal_jm_to_mj_sub, scal2scal_mj_to_jm_sub
+    procedure :: scal2vecscal_mj_to_jm_sub, scal2devtens_mj_to_jml2_sub
+    procedure :: vec2vec_jml_to_jml_sub, vec2scal_jml_to_mj_sub
+    procedure :: gradvec2vec_jmlk_to_jml_sub, devtens2scal_jml2_to_mj_sub
+    procedure :: rescale_sub
+    procedure :: vctol_sub
     procedure :: pmj_backward_set_2_sub, pmj_backward_set_4_sub, pmj_backward_set_8_sub, pmj_backward_set_16_sub
     procedure :: pmj_backward_rec_2_sub, pmj_backward_rec_4_sub, pmj_backward_rec_8_sub, pmj_backward_rec_16_sub
     procedure :: pmj_forward_set_2_sub, pmj_forward_set_4_sub, pmj_forward_set_8_sub, pmj_forward_set_16_sub
@@ -37,6 +40,7 @@ module SphericalHarmonics
     procedure :: grid_op_2_vcvv_sub, grid_op_4_vcvv_sub, grid_op_8_vcvv_sub, grid_op_16_vcvv_sub
     procedure :: grid_op_2_vcvgv_sub, grid_op_4_vcvgv_sub, grid_op_8_vcvgv_sub, grid_op_16_vcvgv_sub
     procedure :: grid_op_2_vcvv_vcvgv_sub, grid_op_4_vcvv_vcvgv_sub, grid_op_8_vcvv_vcvgv_sub, grid_op_16_vcvv_vcvgv_sub
+    procedure :: vcsum_sub, vcst_sub, vcvv_sub, vcvgv_sub, vcvv_vcvgv_sub
     
   end type T_lateralGrid
   

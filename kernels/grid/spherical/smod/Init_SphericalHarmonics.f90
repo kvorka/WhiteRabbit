@@ -104,6 +104,7 @@ submodule (SphericalHarmonics) Init_SphericalHarmonics
     if ( allocated(this%fftLege) ) deallocate( this%fftLege )
     if ( allocated(this%amjrr)   ) deallocate( this%amjrr   )
     if ( allocated(this%bmjrr)   ) deallocate( this%bmjrr   )
+    if ( allocated(this%pmm)     ) deallocate( this%pmm     )
     
   end subroutine deallocate_harmonics_sub
   
