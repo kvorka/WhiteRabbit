@@ -372,14 +372,14 @@ module SphericalHarmonics
       class(T_lateralGrid), intent(in)  :: this
       real(kind=dbl),       intent(in)  :: ri
       complex(kind=dbl),    intent(in)  :: v(*), dv_r(*)
-      complex(kind=dbl),    intent(out) :: cjm(3,*)
+      complex(kind=dbl),    intent(out) :: cjm(*)
     end subroutine vcvgv_sub
     
     module pure subroutine vcvv_vcvgv_sub(this, ri, q, dv_r, v, cjm)
       class(T_lateralGrid), intent(in)  :: this
       real(kind=dbl),       intent(in)  :: ri
       complex(kind=dbl),    intent(in)  :: dv_r(*), q(*), v(*)
-      complex(kind=dbl),    intent(out) :: cjm(4,*)
+      complex(kind=dbl),    intent(out) :: cjm(*)
     end subroutine vcvv_vcvgv_sub
     
     module pure subroutine grid_op_2_vcsum_sub(this, grid, sumNS)

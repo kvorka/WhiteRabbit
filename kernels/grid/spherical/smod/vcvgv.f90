@@ -5,7 +5,7 @@ submodule (SphericalHarmonics) vcvgv
     class(T_lateralGrid), intent(in)  :: this
     real(kind=dbl),       intent(in)  :: ri
     complex(kind=dbl),    intent(in)  :: dv_r(*), v(*)
-    complex(kind=dbl),    intent(out) :: cjm(3,*)
+    complex(kind=dbl),    intent(out) :: cjm(*)
     complex(kind=dbl),    allocatable :: ca(:), cc(:), cr(:)
     
     !Array preparation
@@ -25,13 +25,13 @@ submodule (SphericalHarmonics) vcvgv
                                                      & grid_op_8_vcvgv_sub, grid_op_16_vcvgv_sub )
     
     !Rearranging indexing
-    call this%scal2vecscal_mj_to_jm_sub( cr(1), 3, 1, cjm(1,1), 3, 1 )
+    call this%scal2vecscal_mj_to_jm_sub( cr(1), 3, 1, cjm(1), 3, 1 )
     
     !Cleaning
     deallocate( cc, cr )
     
     !Rescaling
-    call this%rescale_sub( cjm(1,1), 3*this%jms )
+    call this%rescale_sub( cjm(1), 3*this%jms )
     
   end subroutine vcvgv_sub
   
