@@ -22,12 +22,17 @@ module SphericalHarmonics
     
     contains
     
-    procedure, pass   :: init_sub       => init_harmonics_sub
-    procedure, pass   :: deallocate_sub => deallocate_harmonics_sub
-    procedure, pass   :: scal2scal_jm_to_mj_sub, scal2scal_mj_to_jm_sub
-    procedure, pass   :: vec2vec_jml_to_jml_sub, vec2scal_jml_to_mj_sub, scal2vecscal_mj_to_jm_sub
-    procedure, pass   :: gradvec2vec_jmlk_to_jml_sub, devtens2scal_jml2_to_mj_sub, scal2devtens_mj_to_jml2_sub
-    procedure, pass   :: rescale_sub, get_maxm_fn, vctol_sub
+    !Allocation+initialization and cleaning
+    procedure, pass :: init_sub       => init_harmonics_sub
+    procedure, pass :: deallocate_sub => deallocate_harmonics_sub
+    
+    !Vector transforms, scalar reindexing
+    procedure, pass :: scal2scal_jm_to_mj_sub, scal2scal_mj_to_jm_sub
+    procedure, pass :: vec2vec_jml_to_jml_sub, vec2scal_jml_to_mj_sub, scal2vecscal_mj_to_jm_sub
+    procedure, pass :: gradvec2vec_jmlk_to_jml_sub, devtens2scal_jml2_to_mj_sub, scal2devtens_mj_to_jml2_sub
+    
+    !Legendre sums
+    procedure, pass   :: get_maxm_fn, rescale_sub
     procedure, pass   :: pmj_backward_set_2_sub, pmj_backward_set_4_sub, pmj_backward_set_8_sub, pmj_backward_set_16_sub
     procedure, pass   :: pmj_backward_rec_2_sub, pmj_backward_rec_4_sub, pmj_backward_rec_8_sub, pmj_backward_rec_16_sub
     procedure, pass   :: pmj_forward_set_2_sub, pmj_forward_set_4_sub, pmj_forward_set_8_sub, pmj_forward_set_16_sub
@@ -35,12 +40,16 @@ module SphericalHarmonics
     procedure, nopass :: pmj_backward_recomb_2_sub, pmj_backward_recomb_4_sub, pmj_backward_recomb_8_sub, pmj_backward_recomb_16_sub
     procedure, nopass :: pmj_forward_recomb_2_sub, pmj_forward_recomb_4_sub, pmj_forward_recomb_8_sub, pmj_forward_recomb_16_sub
     procedure, pass   :: lege_transform_sub
-    procedure, pass   :: grid_op_2_vcsum_sub, grid_op_4_vcsum_sub, grid_op_8_vcsum_sub, grid_op_16_vcsum_sub
-    procedure, pass   :: grid_op_2_vcst_sub, grid_op_4_vcst_sub, grid_op_8_vcst_sub, grid_op_16_vcst_sub
-    procedure, pass   :: grid_op_2_vcvv_sub, grid_op_4_vcvv_sub, grid_op_8_vcvv_sub, grid_op_16_vcvv_sub
-    procedure, pass   :: grid_op_2_vcvgv_sub, grid_op_4_vcvgv_sub, grid_op_8_vcvgv_sub, grid_op_16_vcvgv_sub
-    procedure, pass   :: grid_op_2_vcvv_vcvgv_sub, grid_op_4_vcvv_vcvgv_sub, grid_op_8_vcvv_vcvgv_sub, grid_op_16_vcvv_vcvgv_sub
-    procedure, pass   :: vcsum_sub, vcst_sub, vcvv_sub, vcvgv_sub, vcvv_vcvgv_sub
+    
+    !Grid operations
+    procedure, pass :: grid_op_2_vcsum_sub, grid_op_4_vcsum_sub, grid_op_8_vcsum_sub, grid_op_16_vcsum_sub
+    procedure, pass :: grid_op_2_vcst_sub, grid_op_4_vcst_sub, grid_op_8_vcst_sub, grid_op_16_vcst_sub
+    procedure, pass :: grid_op_2_vcvv_sub, grid_op_4_vcvv_sub, grid_op_8_vcvv_sub, grid_op_16_vcvv_sub
+    procedure, pass :: grid_op_2_vcvgv_sub, grid_op_4_vcvgv_sub, grid_op_8_vcvgv_sub, grid_op_16_vcvgv_sub
+    procedure, pass :: grid_op_2_vcvv_vcvgv_sub, grid_op_4_vcvv_vcvgv_sub, grid_op_8_vcvv_vcvgv_sub, grid_op_16_vcvv_vcvgv_sub
+
+    !Transforms
+    procedure, pass :: vctol_sub, vcsum_sub, vcst_sub, vcvv_sub, vcvgv_sub, vcvv_vcvgv_sub
     
   end type T_lateralGrid
   

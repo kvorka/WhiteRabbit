@@ -1,4 +1,4 @@
-submodule(Fourier_transform) fft_c2r
+submodule (Fourier_transform) fft_c2r
   implicit none; contains
   
   module pure subroutine fft_c2r_exec_sub(this, m, cx, x)

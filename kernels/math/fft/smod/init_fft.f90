@@ -1,4 +1,4 @@
-submodule(Fourier_transform) init_fft
+submodule (Fourier_transform) init_fft
   implicit none; contains
   
   module pure subroutine fft_init_sub(this, n)

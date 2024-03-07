@@ -41,7 +41,7 @@ submodule (SphericalHarmonics) lege_transform
     end interface
     
     !Allocating needed memory :: no reallocate for lower stepping
-    allocate( pmj(16), pmj1(16), pmj2(16), cosx(16), weight(16), ssym(16*nback), asym(16*nback), &
+    allocate( pmj(16), pmj1(16), pmj2(16), cosx(16), weight(16), ssym(16*nback), asym(16*nback),         &
             & sumN(0:16*nback*this%jmax3-1), sumS(0:16*nback*this%jmax3-1), grid(16*nback*this%nFourier) )
     
     !Stepping of the algorithm :: 16

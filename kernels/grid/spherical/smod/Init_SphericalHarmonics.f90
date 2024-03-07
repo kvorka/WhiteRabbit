@@ -143,6 +143,7 @@ submodule (SphericalHarmonics) Init_SphericalHarmonics
     if ( allocated(this%amjrr)   ) deallocate( this%amjrr   )
     if ( allocated(this%bmjrr)   ) deallocate( this%bmjrr   )
     if ( allocated(this%pmm)     ) deallocate( this%pmm     )
+    if ( allocated(this%maxm)    ) deallocate( this%maxm    )
     
   end subroutine deallocate_harmonics_sub
   

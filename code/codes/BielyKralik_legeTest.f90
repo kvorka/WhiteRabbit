@@ -8,7 +8,7 @@ program BielyKralik_legeTest
   complex(kind=dbl), allocatable :: scal1(:), scal2(:), scal3(:)
   
   !Inicializuj vypocet
-  jcut = 497
+  jcut = 105
   
   call sph%init_sub(jcut)
   

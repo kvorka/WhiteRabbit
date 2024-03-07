@@ -11,17 +11,22 @@ module Fourier_transform
     
     contains
     
-    procedure :: init_sub       => fft_init_sub
-    procedure :: exec_r2c_sub   => fft_r2c_exec_sub
-    procedure :: exec_c2r_sub   => fft_c2r_exec_sub
-    procedure :: deallocate_sub => fft_deallocate_sub
+    procedure, public, pass :: init_sub       => fft_init_sub
+    procedure, public, pass :: exec_r2c_sub   => fft_r2c_exec_sub
+    procedure, public, pass :: exec_c2r_sub   => fft_c2r_exec_sub
+    procedure, public, pass :: deallocate_sub => fft_deallocate_sub
     
-    procedure, private :: fft_r2c_sub
-    procedure, private :: fft_c2r_sub
+    procedure, private, pass :: fft_r2c_sub, fft_c2r_sub
     
   end type T_fft
   
-  integer, parameter :: imm = -2e4
+  integer,        parameter :: imm = -2e4
+  real(kind=dbl), parameter :: C31 = -0.5_dbl
+  real(kind=dbl), parameter :: C32 = +0.86602540378443864676_dbl
+  real(kind=dbl), parameter :: C51 = +0.25_dbl
+  real(kind=dbl), parameter :: C52 = +0.5590169943749474241_dbl
+  real(kind=dbl), parameter :: C53 = +0.6180339887498948482_dbl
+  real(kind=dbl), parameter :: C54 = -0.9510565162951535721_dbl
   
   interface
     module pure subroutine fft_init_sub(this, n)
