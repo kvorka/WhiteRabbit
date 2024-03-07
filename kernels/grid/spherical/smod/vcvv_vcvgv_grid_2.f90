@@ -7,22 +7,30 @@ submodule (SphericalHarmonics) vcvv_vcvgv_grid_2
     complex(kind=dbl),      intent(inout) :: sumNS(*)
     integer                               :: i
     real(kind=dbl), pointer               :: gin(:), gout(:)
+    real(kind=dbl), allocatable           :: tmp(:)
     
     call this%fourtrans%exec_c2r_sub(30, sumNS, grid)
+    
+    allocate( tmp(3) )
     
     do i = 0, this%nFourier-1
       gin  => grid(1+30*i:30+30*i)
       gout => grid(1+ 8*i: 8+ 8*i)
       
-      gout(1) = gin( 1) * gin( 4) + gin( 2) * gin( 5) + gin( 3) * gin( 6)
-      gout(2) = gin( 4) * gin( 7) + gin( 5) * gin( 8) + gin( 6) * gin( 9)
-      gout(3) = gin( 4) * gin(10) + gin( 5) * gin(11) + gin( 6) * gin(12)
-      gout(4) = gin( 4) * gin(13) + gin( 5) * gin(14) + gin( 6) * gin(15)
-      gout(5) = gin(16) * gin(19) + gin(17) * gin(20) + gin(18) * gin(21)
-      gout(6) = gin(19) * gin(22) + gin(20) * gin(23) + gin(21) * gin(24)
-      gout(7) = gin(19) * gin(25) + gin(20) * gin(26) + gin(21) * gin(27)
-      gout(8) = gin(19) * gin(28) + gin(20) * gin(29) + gin(21) * gin(30)
+      tmp = gin(1:3)
+        gout(1) = sum( gin( 4: 6) * tmp )
+        gout(2) = sum( gin( 7: 9) * tmp )
+        gout(3) = sum( gin(10:12) * tmp )
+        gout(4) = sum( gin(13:15) * tmp )
+      
+      tmp = gin(16:18)
+        gout(5) = sum( gin(19:21) * tmp )
+        gout(6) = sum( gin(22:24) * tmp )
+        gout(7) = sum( gin(25:27) * tmp )
+        gout(8) = sum( gin(28:30) * tmp )
     end do
+    
+    deallocate( tmp )
     
     call this%fourtrans%exec_r2c_sub(8, grid, sumNS)
     
