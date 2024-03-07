@@ -33,6 +33,7 @@ module SphericalHarmonics
     
     !Legendre sums
     procedure, pass   :: get_maxm_fn, rescale_sub
+    procedure, pass   :: pmj_prep_2_sub, pmj_prep_4_sub, pmj_prep_8_sub, pmj_prep_16_sub
     procedure, pass   :: pmj_backward_set_2_sub, pmj_backward_set_4_sub, pmj_backward_set_8_sub, pmj_backward_set_16_sub
     procedure, pass   :: pmj_backward_rec_2_sub, pmj_backward_rec_4_sub, pmj_backward_rec_8_sub, pmj_backward_rec_16_sub
     procedure, pass   :: pmj_forward_set_2_sub, pmj_forward_set_4_sub, pmj_forward_set_8_sub, pmj_forward_set_16_sub
@@ -73,6 +74,34 @@ module SphericalHarmonics
       class(T_lateralGrid), intent(in) :: this
       integer,              intent(in) :: i, i2
     end function get_maxm_fn
+    
+    module pure subroutine pmj_prep_2_sub(this, i, n, cosx, weight, sumN, sumS)
+      class(T_lateralGrid), intent(in)  :: this
+      integer,              intent(in)  :: i, n
+      real(kind=dbl),       intent(out) :: cosx(*), weight(*)
+      complex(kind=dbl),    intent(out) :: sumN(*), sumS(*)
+    end subroutine pmj_prep_2_sub
+    
+    module pure subroutine pmj_prep_4_sub(this, i, n, cosx, weight, sumN, sumS)
+      class(T_lateralGrid), intent(in)  :: this
+      integer,              intent(in)  :: i, n
+      real(kind=dbl),       intent(out) :: cosx(*), weight(*)
+      complex(kind=dbl),    intent(out) :: sumN(*), sumS(*)
+    end subroutine pmj_prep_4_sub
+    
+    module pure subroutine pmj_prep_8_sub(this, i, n, cosx, weight, sumN, sumS)
+      class(T_lateralGrid), intent(in)  :: this
+      integer,              intent(in)  :: i, n
+      real(kind=dbl),       intent(out) :: cosx(*), weight(*)
+      complex(kind=dbl),    intent(out) :: sumN(*), sumS(*)
+    end subroutine pmj_prep_8_sub
+    
+    module pure subroutine pmj_prep_16_sub(this, i, n, cosx, weight, sumN, sumS)
+      class(T_lateralGrid), intent(in)  :: this
+      integer,              intent(in)  :: i, n
+      real(kind=dbl),       intent(out) :: cosx(*), weight(*)
+      complex(kind=dbl),    intent(out) :: sumN(*), sumS(*)
+    end subroutine pmj_prep_16_sub
     
     module pure subroutine pmj_backward_set_2_sub(this, i, m, nsum, pmj2, pmj1, pmj, cc, legesum)
       class(T_lateralGrid), intent(in)    :: this
