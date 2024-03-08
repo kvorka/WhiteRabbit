@@ -36,7 +36,7 @@ submodule (SphericalHarmonics) lege_transform
     
   end function get_maxm_fn
   
-  module pure subroutine lege_transform_sub(this, nforw, nback, cc, cr, grid_2_sub, grid_4_sub, grid_8_sub, grid_16_sub)
+  module pure subroutine lege_transform_sub(this, nforw, nback, cc, cr, grid_sub)
     class(T_lateralGrid),    intent(in)    :: this
     integer,                 intent(in)    :: nforw, nback
     complex(kind=dbl),       intent(in)    :: cc(nback,*)
@@ -47,33 +47,13 @@ submodule (SphericalHarmonics) lege_transform
     complex(kind=dbl), target, allocatable :: ssym(:), asym(:), sumN(:), sumS(:)
     
     interface
-      pure subroutine grid_2_sub(sph, gxyz, sumNS)
+      pure subroutine grid_sub(sph, nstep, gxyz, sumNS)
         import dbl, T_lateralGrid
         class(T_lateralGrid),   intent(in)    :: sph
+        integer,                intent(in)    :: nstep
         real(kind=dbl), target, intent(out)   :: gxyz(*)
         complex(kind=dbl),      intent(inout) :: sumNS(*)
-      end subroutine grid_2_sub
-      
-      pure subroutine grid_4_sub(sph, gxyz, sumNS)
-        import dbl, T_lateralGrid
-        class(T_lateralGrid),   intent(in)    :: sph
-        real(kind=dbl), target, intent(out)   :: gxyz(*)
-        complex(kind=dbl),      intent(inout) :: sumNS(*)
-      end subroutine grid_4_sub
-      
-      pure subroutine grid_8_sub(sph, gxyz, sumNS)
-        import dbl, T_lateralGrid
-        class(T_lateralGrid),   intent(in)    :: sph
-        real(kind=dbl), target, intent(out)   :: gxyz(*)
-        complex(kind=dbl),      intent(inout) :: sumNS(*)
-      end subroutine grid_8_sub
-      
-      pure subroutine grid_16_sub(sph, gxyz, sumNS)
-        import dbl, T_lateralGrid
-        class(T_lateralGrid),   intent(in)    :: sph
-        real(kind=dbl), target, intent(out)   :: gxyz(*)
-        complex(kind=dbl),      intent(inout) :: sumNS(*)
-      end subroutine grid_16_sub
+      end subroutine grid_sub
     end interface
     
     !Allocating needed memory :: no reallocate for lower stepping
@@ -172,8 +152,8 @@ submodule (SphericalHarmonics) lege_transform
       !**************************************************************************************************************!
       !The backward (towards grid) fft, grid operations and the forward fft (towards space) *************************!
       !**************************************************************************************************************!
-      call grid_16_sub( this, grid(1), sumN(0) )
-      call grid_16_sub( this, grid(1), sumS(0) )
+      call grid_sub( this, 16, grid(1), sumN(0) )
+      call grid_sub( this, 16, grid(1), sumS(0) )
       
       !**************************************************************************************************************!
       !The forward (towards space) sum over associated Legendre polynomials *****************************************!
@@ -341,8 +321,8 @@ submodule (SphericalHarmonics) lege_transform
       !**************************************************************************************************************!
       !The backward (towards grid) fft, grid operations and the forward fft (towards space) *************************!
       !**************************************************************************************************************!
-      call grid_8_sub( this, grid(1), sumN(0) )
-      call grid_8_sub( this, grid(1), sumS(0) )
+      call grid_sub( this, 8, grid(1), sumN(0) )
+      call grid_sub( this, 8, grid(1), sumS(0) )
       
       !**************************************************************************************************************!
       !The forward (towards space) sum over associated Legendre polynomials *****************************************!
@@ -510,8 +490,8 @@ submodule (SphericalHarmonics) lege_transform
       !**************************************************************************************************************!
       !The backward (towards grid) fft, grid operations and the forward fft (towards space) *************************!
       !**************************************************************************************************************!
-      call grid_4_sub( this, grid(1), sumN(0) )
-      call grid_4_sub( this, grid(1), sumS(0) )
+      call grid_sub( this, 4, grid(1), sumN(0) )
+      call grid_sub( this, 4, grid(1), sumS(0) )
       
       !**************************************************************************************************************!
       !The forward (towards space) sum over associated Legendre polynomials *****************************************!
@@ -679,8 +659,8 @@ submodule (SphericalHarmonics) lege_transform
       !**************************************************************************************************************!
       !The backward (towards grid) fft, grid operations and the forward fft (towards space) *************************!
       !**************************************************************************************************************!
-      call grid_2_sub( this, grid(1), sumN(0) )
-      call grid_2_sub( this, grid(1), sumS(0) )
+      call grid_sub( this, 2, grid(1), sumN(0) )
+      call grid_sub( this, 2, grid(1), sumS(0) )
       
       !**************************************************************************************************************!
       !The forward (towards space) sum over associated Legendre polynomials *****************************************!

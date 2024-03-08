@@ -1,6 +1,29 @@
 submodule (SphericalHarmonics) vcvv
   implicit none ; contains
   
+  module pure subroutine grid_op_vcvv_sub(this, nstep, grid, sumNS)
+    class(T_lateralGrid),   intent(in)    :: this
+    integer,                intent(in)    :: nstep
+    real(kind=dbl), target, intent(out)   :: grid(*)
+    complex(kind=dbl),      intent(inout) :: sumNS(*)
+    integer                               :: i, i2
+    real(kind=dbl), pointer               :: gout(:,:), gin(:,:,:)
+    
+    call this%fourtrans%exec_c2r_sub(6*nstep, sumNS, grid)
+    
+    gin(1:6,1:nstep,1:this%nFourier) => grid(1:6*nstep*this%nFourier)
+    gout(1:nstep,1:this%nFourier)    => grid(1:  nstep*this%nFourier)
+    
+    do i = 1, this%nFourier
+      do i2 = 1, nstep
+        gout(i2,i) = gin(1,i2,i) * gin(4,i2,i) + gin(2,i2,i) * gin(5,i2,i) + gin(3,i2,i) * gin(6,i2,i)
+      end do
+    end do
+    
+    call this%fourtrans%exec_r2c_sub(nstep, grid, sumNS)
+    
+  end subroutine grid_op_vcvv_sub
+  
   module pure subroutine vcvv_sub(this, cajml, cbjml, cjm)
     class(T_lateralGrid), intent(in)  :: this
     complex(kind=dbl),    intent(in)  :: cajml(*), cbjml(*)
@@ -20,8 +43,7 @@ submodule (SphericalHarmonics) vcvv
     deallocate(ca)
     
     !Transform
-    call this%lege_transform_sub( 1, 6, cc(1), cr(1), grid_op_2_vcvv_sub, grid_op_4_vcvv_sub, &
-                                                    & grid_op_8_vcvv_sub, grid_op_16_vcvv_sub )
+    call this%lege_transform_sub( 1, 6, cc(1), cr(1), grid_op_vcvv_sub )
     
     !Rearranging indexing
     call this%scal2scal_mj_to_jm_sub( cr(1), 1, 1, cjm(1), 1, 1 )

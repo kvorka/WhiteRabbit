@@ -1,8 +1,9 @@
 submodule (SphericalHarmonics) vctol
   implicit none ; contains
   
-  module pure subroutine grid_op_vctol_sub(this, grid, sumNS)
+  module pure subroutine grid_op_vctol_sub(this, nstep, grid, sumNS)
     class(T_lateralGrid),   intent(in)    :: this
+    integer,                intent(in)    :: nstep
     real(kind=dbl), target, intent(out)   :: grid(*)
     complex(kind=dbl),      intent(inout) :: sumNS(*)
     
@@ -36,8 +37,7 @@ submodule (SphericalHarmonics) vctol
       cr = czero
       
       !Transform
-      call this%lege_transform_sub( 1, 1, cc(1), cr(1), grid_op_vctol_sub, grid_op_vctol_sub, &
-                                                      & grid_op_vctol_sub, grid_op_vctol_sub  )
+      call this%lege_transform_sub( 1, 1, cc(1), cr(1), grid_op_vctol_sub )
         
       maxdiff = 0._dbl
       
