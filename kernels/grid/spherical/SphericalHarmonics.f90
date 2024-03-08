@@ -19,24 +19,18 @@ module SphericalHarmonics
     contains
     
     !Allocation+initialization and cleaning
-    procedure, pass :: init_sub       => init_harmonics_sub
-    procedure, pass :: deallocate_sub => deallocate_harmonics_sub
+    procedure :: init_sub       => init_harmonics_sub
+    procedure :: deallocate_sub => deallocate_harmonics_sub
     
     !Vector transforms, scalar reindexing
-    procedure, pass :: scal2scal_jm_to_mj_sub, scal2scal_mj_to_jm_sub
-    procedure, pass :: vec2vec_jml_to_jml_sub, vec2scal_jml_to_mj_sub, scal2vecscal_mj_to_jm_sub
-    procedure, pass :: gradvec2vec_jmlk_to_jml_sub, devtens2scal_jml2_to_mj_sub, scal2devtens_mj_to_jml2_sub
+    procedure :: scal2scal_jm_to_mj_sub, scal2scal_mj_to_jm_sub, vec2vec_jml_to_jml_sub, vec2scal_jml_to_mj_sub, &
+               & scal2vecscal_mj_to_jm_sub, gradvec2vec_jmlk_to_jml_sub, devtens2scal_jml2_to_mj_sub, scal2devtens_mj_to_jml2_sub
     
     !Generic scalar transforms and needed routines
-    procedure, pass :: get_maxm_fn, rescale_sub, lege_transform_sub
+    procedure :: get_maxm_fn, rescale_sub, lege_transform_sub
     
     !Precision setting and transforms
-    procedure, pass :: grid_op_vctol_sub, vctol_sub
-    procedure, pass :: grid_op_vcsum_sub, vcsum_sub
-    procedure, pass :: grid_op_vcst_sub, vcst_sub
-    procedure, pass :: grid_op_vcvv_sub, vcvv_sub
-    procedure, pass :: grid_op_vcvgv_sub, vcvgv_sub
-    procedure, pass :: grid_op_vcvv_vcvgv_sub, vcvv_vcvgv_sub
+    procedure :: vctol_sub, vcsum_sub, vcst_sub, vcvv_sub, vcvgv_sub, vcvv_vcvgv_sub
     
   end type T_lateralGrid
   
@@ -49,34 +43,6 @@ module SphericalHarmonics
     module pure subroutine deallocate_harmonics_sub(this)
       class(T_lateralGrid), intent(inout) :: this
     end subroutine deallocate_harmonics_sub
-    
-    module pure subroutine rescale_sub( this, arr, length )
-      class(T_lateralGrid), intent(in)    :: this
-      integer,              intent(in)    :: length
-      complex(kind=dbl),    intent(inout) :: arr(*)
-    end subroutine rescale_sub
-    
-    module pure integer function get_maxm_fn(this, i, i2)
-      class(T_lateralGrid), intent(in) :: this
-      integer,              intent(in) :: i, i2
-    end function get_maxm_fn
-    
-    module pure subroutine lege_transform_sub(this, nforw, nback, cc, cr, grid_sub)
-      class(T_lateralGrid), intent(in)    :: this
-      integer,              intent(in)    :: nforw, nback
-      complex(kind=dbl),    intent(in)    :: cc(nback,*)
-      complex(kind=dbl),    intent(inout) :: cr(nforw,*)
-      
-      interface
-        pure subroutine grid_sub(sph, nstep, gxyz, sumNS)
-          import dbl, T_lateralGrid
-          class(T_lateralGrid),   intent(in)    :: sph
-          integer,                intent(in)    :: nstep
-          real(kind=dbl), target, intent(out)   :: gxyz(*)
-          complex(kind=dbl),      intent(inout) :: sumNS(*)
-        end subroutine grid_sub
-      end interface
-    end subroutine lege_transform_sub
     
     module pure subroutine vec2vec_jml_to_jml_sub(this, cjml, cab, ncab, cabpadding)
       class(T_lateralGrid), intent(in)    :: this
@@ -135,6 +101,32 @@ module SphericalHarmonics
       complex(kind=dbl),    intent(out) :: ctjml2(*)
     end subroutine scal2devtens_mj_to_jml2_sub
     
+    module pure subroutine rescale_sub( this, arr, length )
+      class(T_lateralGrid), intent(in)    :: this
+      integer,              intent(in)    :: length
+      complex(kind=dbl),    intent(inout) :: arr(*)
+    end subroutine rescale_sub
+    
+    module pure integer function get_maxm_fn(this, i, i2)
+      class(T_lateralGrid), intent(in) :: this
+      integer,              intent(in) :: i, i2
+    end function get_maxm_fn
+    
+    module pure subroutine lege_transform_sub(this, nforw, nback, cc, cr, grid_sub)
+      class(T_lateralGrid), intent(in)    :: this
+      integer,              intent(in)    :: nforw, nback
+      complex(kind=dbl),    intent(in)    :: cc(nback,*)
+      complex(kind=dbl),    intent(inout) :: cr(nforw,*)
+      
+      interface
+        pure subroutine grid_sub(nfour, nstep, gxyz)
+          import dbl
+          integer,                intent(in)    :: nfour, nstep
+          real(kind=dbl), target, intent(inout) :: gxyz(*)
+        end subroutine grid_sub
+      end interface
+    end subroutine lege_transform_sub
+    
     module subroutine vctol_sub(this)
       class(T_lateralGrid), intent(inout) :: this
     end subroutine vctol_sub
@@ -170,48 +162,6 @@ module SphericalHarmonics
       complex(kind=dbl),    intent(in)  :: dv_r(*), q(*), v(*)
       complex(kind=dbl),    intent(out) :: cjm(*)
     end subroutine vcvv_vcvgv_sub
-    
-    module pure subroutine grid_op_vctol_sub(this, nstep, grid, sumNS)
-      class(T_lateralGrid),   intent(in)    :: this
-      integer,                intent(in)    :: nstep
-      real(kind=dbl), target, intent(out)   :: grid(*)
-      complex(kind=dbl),      intent(inout) :: sumNS(*)
-    end subroutine grid_op_vctol_sub
-    
-    module pure subroutine grid_op_vcsum_sub(this, nstep, grid, sumNS)
-      class(T_lateralGrid),   intent(in)    :: this
-      integer,                intent(in)    :: nstep
-      real(kind=dbl), target, intent(out)   :: grid(*)
-      complex(kind=dbl),      intent(inout) :: sumNS(*)
-    end subroutine grid_op_vcsum_sub
-    
-    module pure subroutine grid_op_vcst_sub(this, nstep, grid, sumNS)
-      class(T_lateralGrid),   intent(in)    :: this
-      integer,                intent(in)    :: nstep
-      real(kind=dbl), target, intent(out)   :: grid(*)
-      complex(kind=dbl),      intent(inout) :: sumNS(*)
-    end subroutine grid_op_vcst_sub
-    
-    module pure subroutine grid_op_vcvv_sub(this, nstep, grid, sumNS)
-      class(T_lateralGrid),   intent(in)    :: this
-      integer,                intent(in)    :: nstep
-      real(kind=dbl), target, intent(out)   :: grid(*)
-      complex(kind=dbl),      intent(inout) :: sumNS(*)
-    end subroutine grid_op_vcvv_sub
-    
-    module pure subroutine grid_op_vcvgv_sub(this, nstep, grid, sumNS)
-      class(T_lateralGrid),   intent(in)    :: this
-      integer,                intent(in)    :: nstep
-      real(kind=dbl), target, intent(out)   :: grid(*)
-      complex(kind=dbl),      intent(inout) :: sumNS(*)
-    end subroutine grid_op_vcvgv_sub
-    
-    module pure subroutine grid_op_vcvv_vcvgv_sub(this, nstep, grid, sumNS)
-      class(T_lateralGrid),   intent(in)    :: this
-      integer,                intent(in)    :: nstep
-      real(kind=dbl), target, intent(out)   :: grid(*)
-      complex(kind=dbl),      intent(inout) :: sumNS(*)
-    end subroutine grid_op_vcvv_vcvgv_sub
   end interface
   
 end module SphericalHarmonics

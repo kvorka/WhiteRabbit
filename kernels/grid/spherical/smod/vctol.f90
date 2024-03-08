@@ -1,14 +1,9 @@
 submodule (SphericalHarmonics) vctol
   implicit none ; contains
   
-  module pure subroutine grid_op_vctol_sub(this, nstep, grid, sumNS)
-    class(T_lateralGrid),   intent(in)    :: this
-    integer,                intent(in)    :: nstep
-    real(kind=dbl), target, intent(out)   :: grid(*)
-    complex(kind=dbl),      intent(inout) :: sumNS(*)
-    
-    !Do nothing
-    
+  pure subroutine grid_op_vctol_sub(nfour, nstep, grid)
+    integer,                intent(in)    :: nfour, nstep
+    real(kind=dbl), target, intent(inout) :: grid(*)
   end subroutine grid_op_vctol_sub
   
   module subroutine vctol_sub(this)

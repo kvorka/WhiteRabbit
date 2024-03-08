@@ -1,23 +1,19 @@
 submodule (SphericalHarmonics) vcvv_vcvgv
   implicit none ; contains
   
-  module pure subroutine grid_op_vcvv_vcvgv_sub(this, nstep, grid, sumNS)
-    class(T_lateralGrid),   intent(in)    :: this
-    integer,                intent(in)    :: nstep
-    real(kind=dbl), target, intent(out)   :: grid(*)
-    complex(kind=dbl),      intent(inout) :: sumNS(*)
+  pure subroutine grid_op_vcvv_vcvgv_sub(nfour, nstep, grid)
+    integer,                intent(in)    :: nfour, nstep
+    real(kind=dbl), target, intent(inout) :: grid(*)
     integer                               :: i, i2
     real(kind=dbl), pointer               :: gout(:,:,:), gin(:,:,:,:)
     real(kind=dbl), allocatable           :: tmp(:)
     
-    call this%fourtrans%exec_c2r_sub(15*nstep, sumNS, grid)
-    
     allocate( tmp(3) )
     
-    gin(1:3,1:5,1:nstep,1:this%nFourier) => grid(1:15*nstep*this%nFourier)
-    gout(1:4,1:nstep,1:this%nFourier)    => grid(1: 4*nstep*this%nFourier)
+    gin(1:3,1:5,1:nstep,1:nfour) => grid(1:15*nstep*nfour)
+    gout(1:4,1:nstep,1:nfour)    => grid(1: 4*nstep*nfour)
     
-    do i = 1, this%nFourier
+    do i = 1, nfour
       do i2 = 1, nstep
         tmp = gin(1:3,1,i2,i)
         
@@ -29,8 +25,6 @@ submodule (SphericalHarmonics) vcvv_vcvgv
     end do
     
     deallocate( tmp )
-    
-    call this%fourtrans%exec_r2c_sub(4*nstep, grid, sumNS)
     
   end subroutine grid_op_vcvv_vcvgv_sub
   

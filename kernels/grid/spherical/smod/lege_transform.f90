@@ -47,18 +47,16 @@ submodule (SphericalHarmonics) lege_transform
     complex(kind=dbl), target, allocatable :: ssym(:), asym(:), sumN(:), sumS(:)
     
     interface
-      pure subroutine grid_sub(sph, nstep, gxyz, sumNS)
+      pure subroutine grid_sub(nfour, nstep, gxyz)
         import dbl, T_lateralGrid
-        class(T_lateralGrid),   intent(in)    :: sph
-        integer,                intent(in)    :: nstep
-        real(kind=dbl), target, intent(out)   :: gxyz(*)
-        complex(kind=dbl),      intent(inout) :: sumNS(*)
+        integer,                intent(in)    :: nfour, nstep
+        real(kind=dbl), target, intent(inout) :: gxyz(*)
       end subroutine grid_sub
     end interface
     
     !Allocating needed memory :: no reallocate for lower stepping
-    allocate( pmj(16), pmj1(16), pmj2(16), cosx(16), weight(16), ssym(16*nback), asym(16*nback),         &
-            & sumN(0:16*nback*this%jmax3-1), sumS(0:16*nback*this%jmax3-1), grid(16*nback*this%nFourier) )
+    allocate( pmj(16), pmj1(16), pmj2(16), cosx(16), weight(16), ssym(16*nback), asym(16*nback), &
+            & sumN(16*nback*this%jmax3), sumS(16*nback*this%jmax3), grid(16*nback*this%nFourier) )
     
     !Stepping of the algorithm :: 16
     do i = 1, (this%nLegendre/16)*16, 16
@@ -74,8 +72,8 @@ submodule (SphericalHarmonics) lege_transform
       pssym(1:16,1:nback) => ssym(1:16*nback)
       pasym(1:16,1:nback) => asym(1:16*nback)
       
-      psumN(1:nback,1:16,0:this%jmax2) => sumN(0:16*nback*this%jmax3-1)
-      psumS(1:nback,1:16,0:this%jmax2) => sumS(0:16*nback*this%jmax3-1)
+      psumN(1:nback,1:16,0:this%jmax2) => sumN(1:16*nback*this%jmax3)
+      psumS(1:nback,1:16,0:this%jmax2) => sumS(1:16*nback*this%jmax3)
       
       do concurrent ( m=0:this%jmax2, i2=1:16, i1=1:nback )
         psumN(i1,i2,m) = czero
@@ -152,8 +150,13 @@ submodule (SphericalHarmonics) lege_transform
       !**************************************************************************************************************!
       !The backward (towards grid) fft, grid operations and the forward fft (towards space) *************************!
       !**************************************************************************************************************!
-      call grid_sub( this, 16, grid(1), sumN(0) )
-      call grid_sub( this, 16, grid(1), sumS(0) )
+      call this%fourtrans%exec_c2r_sub( 16*nback, sumN(1), grid(1) )
+      call grid_sub( this%nFourier, 16, grid(1) )
+      call this%fourtrans%exec_r2c_sub( 16*nforw, grid(1), sumN(1) )
+      
+      call this%fourtrans%exec_c2r_sub( 16*nback, sumS(1), grid(1) )
+      call grid_sub( this%nFourier, 16, grid(1) )
+      call this%fourtrans%exec_r2c_sub( 16*nforw, grid(1), sumS(1) )
       
       !**************************************************************************************************************!
       !The forward (towards space) sum over associated Legendre polynomials *****************************************!
@@ -161,8 +164,8 @@ submodule (SphericalHarmonics) lege_transform
       pssym(1:16,1:nforw) => ssym(1:16*nforw)
       pasym(1:16,1:nforw) => asym(1:16*nforw)
       
-      psumN(1:nforw,1:16,0:this%jmax2) => sumN(0:16*nforw*this%jmax3-1)
-      psumS(1:nforw,1:16,0:this%jmax2) => sumS(0:16*nforw*this%jmax3-1)
+      psumN(1:nforw,1:16,0:this%jmax2) => sumN(1:16*nforw*this%jmax3)
+      psumS(1:nforw,1:16,0:this%jmax2) => sumS(1:16*nforw*this%jmax3)
       
       do m = 0, this%jmax2
         do concurrent ( i2=1:16, i1=1:nforw )
@@ -243,8 +246,8 @@ submodule (SphericalHarmonics) lege_transform
       pssym(1:8,1:nback) => ssym(1:8*nback)
       pasym(1:8,1:nback) => asym(1:8*nback)
       
-      psumN(1:nback,1:8,0:this%jmax2) => sumN(0:8*nback*this%jmax3-1)
-      psumS(1:nback,1:8,0:this%jmax2) => sumS(0:8*nback*this%jmax3-1)
+      psumN(1:nback,1:8,0:this%jmax2) => sumN(1:8*nback*this%jmax3)
+      psumS(1:nback,1:8,0:this%jmax2) => sumS(1:8*nback*this%jmax3)
       
       do concurrent ( m=0:this%jmax2, i2=1:8, i1=1:nback )
         psumN(i1,i2,m) = czero
@@ -321,8 +324,13 @@ submodule (SphericalHarmonics) lege_transform
       !**************************************************************************************************************!
       !The backward (towards grid) fft, grid operations and the forward fft (towards space) *************************!
       !**************************************************************************************************************!
-      call grid_sub( this, 8, grid(1), sumN(0) )
-      call grid_sub( this, 8, grid(1), sumS(0) )
+      call this%fourtrans%exec_c2r_sub( 8*nback, sumN(1), grid(1) )
+      call grid_sub( this%nFourier, 8, grid(1) )
+      call this%fourtrans%exec_r2c_sub( 8*nforw, grid(1), sumN(1) )
+      
+      call this%fourtrans%exec_c2r_sub( 8*nback, sumS(1), grid(1) )
+      call grid_sub( this%nFourier, 8, grid(1) )
+      call this%fourtrans%exec_r2c_sub( 8*nforw, grid(1), sumS(1) )
       
       !**************************************************************************************************************!
       !The forward (towards space) sum over associated Legendre polynomials *****************************************!
@@ -330,8 +338,8 @@ submodule (SphericalHarmonics) lege_transform
       pssym(1:8,1:nforw) => ssym(1:8*nforw)
       pasym(1:8,1:nforw) => asym(1:8*nforw)
       
-      psumN(1:nforw,1:8,0:this%jmax2) => sumN(0:8*nforw*this%jmax3-1)
-      psumS(1:nforw,1:8,0:this%jmax2) => sumS(0:8*nforw*this%jmax3-1)
+      psumN(1:nforw,1:8,0:this%jmax2) => sumN(1:8*nforw*this%jmax3)
+      psumS(1:nforw,1:8,0:this%jmax2) => sumS(1:8*nforw*this%jmax3)
       
       do m = 0, this%jmax2
         do concurrent ( i2=1:8, i1=1:nforw )
@@ -412,8 +420,8 @@ submodule (SphericalHarmonics) lege_transform
       pssym(1:4,1:nback) => ssym(1:4*nback)
       pasym(1:4,1:nback) => asym(1:4*nback)
       
-      psumN(1:nback,1:4,0:this%jmax2) => sumN(0:4*nback*this%jmax3-1)
-      psumS(1:nback,1:4,0:this%jmax2) => sumS(0:4*nback*this%jmax3-1)
+      psumN(1:nback,1:4,0:this%jmax2) => sumN(1:4*nback*this%jmax3)
+      psumS(1:nback,1:4,0:this%jmax2) => sumS(1:4*nback*this%jmax3)
       
       do concurrent ( m=0:this%jmax2, i2=1:4, i1=1:nback )
         psumN(i1,i2,m) = czero
@@ -490,8 +498,13 @@ submodule (SphericalHarmonics) lege_transform
       !**************************************************************************************************************!
       !The backward (towards grid) fft, grid operations and the forward fft (towards space) *************************!
       !**************************************************************************************************************!
-      call grid_sub( this, 4, grid(1), sumN(0) )
-      call grid_sub( this, 4, grid(1), sumS(0) )
+      call this%fourtrans%exec_c2r_sub( 4*nback, sumN(1), grid(1) )
+      call grid_sub( this%nFourier, 4, grid(1) )
+      call this%fourtrans%exec_r2c_sub( 4*nforw, grid(1), sumN(1) )
+      
+      call this%fourtrans%exec_c2r_sub( 4*nback, sumS(1), grid(1) )
+      call grid_sub( this%nFourier, 4, grid(1) )
+      call this%fourtrans%exec_r2c_sub( 4*nforw, grid(1), sumS(1) )
       
       !**************************************************************************************************************!
       !The forward (towards space) sum over associated Legendre polynomials *****************************************!
@@ -499,8 +512,8 @@ submodule (SphericalHarmonics) lege_transform
       pssym(1:4,1:nforw) => ssym(1:4*nforw)
       pasym(1:4,1:nforw) => asym(1:4*nforw)
       
-      psumN(1:nforw,1:4,0:this%jmax2) => sumN(0:4*nforw*this%jmax3-1)
-      psumS(1:nforw,1:4,0:this%jmax2) => sumS(0:4*nforw*this%jmax3-1)
+      psumN(1:nforw,1:4,0:this%jmax2) => sumN(1:4*nforw*this%jmax3)
+      psumS(1:nforw,1:4,0:this%jmax2) => sumS(1:4*nforw*this%jmax3)
       
       do m = 0, this%jmax2
         do concurrent ( i2=1:4, i1=1:nforw )
@@ -581,8 +594,8 @@ submodule (SphericalHarmonics) lege_transform
       pssym(1:2,1:nback) => ssym(1:2*nback)
       pasym(1:2,1:nback) => asym(1:2*nback)
       
-      psumN(1:nback,1:2,0:this%jmax2) => sumN(0:2*nback*this%jmax3-1)
-      psumS(1:nback,1:2,0:this%jmax2) => sumS(0:2*nback*this%jmax3-1)
+      psumN(1:nback,1:2,0:this%jmax2) => sumN(1:2*nback*this%jmax3)
+      psumS(1:nback,1:2,0:this%jmax2) => sumS(1:2*nback*this%jmax3)
       
       do concurrent ( m=0:this%jmax2, i2=1:2, i1=1:nback )
         psumN(i1,i2,m) = czero
@@ -659,8 +672,13 @@ submodule (SphericalHarmonics) lege_transform
       !**************************************************************************************************************!
       !The backward (towards grid) fft, grid operations and the forward fft (towards space) *************************!
       !**************************************************************************************************************!
-      call grid_sub( this, 2, grid(1), sumN(0) )
-      call grid_sub( this, 2, grid(1), sumS(0) )
+      call this%fourtrans%exec_c2r_sub( 2*nback, sumN(1), grid(1) )
+      call grid_sub( this%nFourier, 2, grid(1) )
+      call this%fourtrans%exec_r2c_sub( 2*nforw, grid(1), sumN(1) )
+      
+      call this%fourtrans%exec_c2r_sub( 2*nback, sumS(1), grid(1) )
+      call grid_sub( this%nFourier, 2, grid(1) )
+      call this%fourtrans%exec_r2c_sub( 2*nforw, grid(1), sumS(1) )
       
       !**************************************************************************************************************!
       !The forward (towards space) sum over associated Legendre polynomials *****************************************!
@@ -668,8 +686,8 @@ submodule (SphericalHarmonics) lege_transform
       pssym(1:2,1:nforw) => ssym(1:2*nforw)
       pasym(1:2,1:nforw) => asym(1:2*nforw)
       
-      psumN(1:nforw,1:2,0:this%jmax2) => sumN(0:2*nforw*this%jmax3-1)
-      psumS(1:nforw,1:2,0:this%jmax2) => sumS(0:2*nforw*this%jmax3-1)
+      psumN(1:nforw,1:2,0:this%jmax2) => sumN(1:2*nforw*this%jmax3)
+      psumS(1:nforw,1:2,0:this%jmax2) => sumS(1:2*nforw*this%jmax3)
       
       do m = 0, this%jmax2
         do concurrent ( i2=1:2, i1=1:nforw )
