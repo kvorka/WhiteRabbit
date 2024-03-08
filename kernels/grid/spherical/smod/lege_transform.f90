@@ -2,13 +2,14 @@ submodule (SphericalHarmonics) lege_transform
   implicit none; contains
   
   module pure subroutine lege_transform_sub(this, nforw, nback, cc, cr, grid_2_sub, grid_4_sub, grid_8_sub, grid_16_sub)
-    class(T_lateralGrid), intent(in)    :: this
-    integer,              intent(in)    :: nforw, nback
-    complex(kind=dbl),    intent(in)    :: cc(nback,*)
-    complex(kind=dbl),    intent(inout) :: cr(nforw,*)
-    integer                             :: i, j, m, mj
-    real(kind=dbl),       allocatable   :: pmj(:), pmj1(:), pmj2(:), cosx(:), weight(:), grid(:)
-    complex(kind=dbl),    allocatable   :: ssym(:), asym(:), sumN(:), sumS(:)
+    class(T_lateralGrid),    intent(in)    :: this
+    integer,                 intent(in)    :: nforw, nback
+    complex(kind=dbl),       intent(in)    :: cc(nback,*)
+    complex(kind=dbl),       intent(inout) :: cr(nforw,*)
+    integer                                :: i1, i2, i, j, m, mj
+    real(kind=dbl),            allocatable :: pmj(:), pmj1(:), pmj2(:), cosx(:), weight(:), grid(:)
+    complex(kind=dbl), pointer             :: pssym(:,:), pasym(:,:), psumN(:,:,:), psumS(:,:,:)
+    complex(kind=dbl), target, allocatable :: ssym(:), asym(:), sumN(:), sumS(:)
     
     interface
       pure subroutine grid_2_sub(sph, gxyz, sumNS)
@@ -52,37 +53,86 @@ submodule (SphericalHarmonics) lege_transform
       cosx(1:16)   = this%roots(i:i+15)
       weight(1:16) = this%fftLege(i:i+15)
       
-      call zero_carray_sub( 16*nback*this%jmax3, sumN(0) )
-      call zero_carray_sub( 16*nback*this%jmax3, sumS(0) )
-      
       !**************************************************************************************************************!
       !The backward (towards grid) sum over associated Legendre polynomials *****************************************!
       !**************************************************************************************************************!
+      pssym(1:16,1:nback) => ssym(1:16*nback)
+      pasym(1:16,1:nback) => asym(1:16*nback)
+      
+      psumN(1:nback,1:16,0:this%jmax2) => sumN(0:16*nback*this%jmax3-1)
+      psumS(1:nback,1:16,0:this%jmax2) => sumS(0:16*nback*this%jmax3-1)
+      
+      do concurrent ( m=0:this%jmax2, i2=1:16, i1=1:nback )
+        psumN(i1,i2,m) = czero
+        psumS(i1,i2,m) = czero
+      end do
+      
       do m = 0, this%get_maxm_fn(i,16)
-        call zero_carray_sub( 16*nback, ssym(1) )
-        call zero_carray_sub( 16*nback, asym(1) )
+        do concurrent ( i1=1:nback, i2=1:16 )
+          pssym(i2,i1) = czero
+          pasym(i2,i1) = czero
+        end do
         
         j = m
           mj = m*this%jmax3-m*(m+1)/2+j+1
           
-          call this%pmj_backward_set_16_sub( i, m, nback, pmj2(1), pmj1(1), pmj(1), cc(1,mj), ssym(1) )
+          pmj2(1:16) = zero
+          pmj1(1:16) = zero
+          pmj(1:16)  = this%pmm(i:i+15,m)
+          
+          do concurrent ( i1 = 1:nback, i2 = 1:16 )
+            pssym(i2,i1) = pssym(i2,i1) + cc(i1,mj) * pmj(i2)
+          end do
           
         do j = 1, (this%jmax2-m)/2
           mj = mj+2
           
-          call this%pmj_backward_rec_16_sub( mj-1, nback, cosx(1), pmj2(1), pmj1(1), pmj(1), cc(1,mj-1), asym(1) )
-          call this%pmj_backward_rec_16_sub( mj  , nback, cosx(1), pmj2(1), pmj1(1), pmj(1), cc(1,mj  ), ssym(1) )
+          pmj2(1:16) = pmj1(1:16)
+          pmj1(1:16) = pmj(1:16)
+          
+          do concurrent ( i2=1:16 )
+            pmj(i2)  = this%amjrr(mj-1) * cosx(i2) * pmj1(i2) - this%bmjrr(mj-1) * pmj2(i2)
+          end do
+          
+          do concurrent ( i1=1:nback, i2=1:16 )
+            pasym(i2,i1) = pasym(i2,i1) + cc(i1,mj-1) * pmj(i2)
+          end do
+          
+          pmj2(1:16) = pmj1(1:16)
+          pmj1(1:16) = pmj(1:16)
+          
+          do concurrent ( i2=1:16 )
+            pmj(i2)  = this%amjrr(mj) * cosx(i2) * pmj1(i2) - this%bmjrr(mj) * pmj2(i2)
+          end do
+          
+          do concurrent ( i1=1:nback, i2=1:16 )
+            pssym(i2,i1) = pssym(i2,i1) + cc(i1,mj) * pmj(i2)
+          end do
         end do
         
         if ( mod((this%jmax2-m),2) /= 0 ) then
-          call this%pmj_backward_rec_16_sub( mj+1, nback, cosx(1), pmj2(1), pmj1(1), pmj(1), cc(1,mj+1), asym(1) )
+          pmj2(1:16) = pmj1(1:16)
+          pmj1(1:16) = pmj(1:16)
+          
+          do concurrent ( i2=1:16 )
+            pmj(i2)  = this%amjrr(mj+1) * cosx(i2) * pmj1(i2) - this%bmjrr(mj+1) * pmj2(i2)
+          end do
+          
+          do concurrent ( i1=1:nback, i2=1:16 )
+            pasym(i2,i1) = pasym(i2,i1) + cc(i1,mj+1) * pmj(i2)
+          end do
         end if
         
-        call this%pmj_backward_recomb_16_sub( nback, ssym(1), asym(1), sumN(16*nback*m), sumS(16*nback*m) )
+        do concurrent ( i2=1:16, i1=1:nback )
+          psumN(i1,i2,m) = pssym(i2,i1) + pasym(i2,i1)
+          psumS(i1,i2,m) = pssym(i2,i1) - pasym(i2,i1)
+        end do
       end do
       
-      call zero_carray_imagpart_sub( 16*nback, sumN(0) )
-      call zero_carray_imagpart_sub( 16*nback, sumS(0) )
+      do concurrent ( i2=1:16, i1=1:nback )
+        psumN(i1,i2,0)%im = zero
+        psumS(i1,i2,0)%im = zero
+      end do
       
       !**************************************************************************************************************!
       !The backward (towards grid) fft, grid operations and the forward fft (towards space) *************************!
@@ -93,217 +143,580 @@ submodule (SphericalHarmonics) lege_transform
       !**************************************************************************************************************!
       !The forward (towards space) sum over associated Legendre polynomials *****************************************!
       !**************************************************************************************************************!
+      pssym(1:16,1:nforw) => ssym(1:16*nforw)
+      pasym(1:16,1:nforw) => asym(1:16*nforw)
+      
+      psumN(1:nforw,1:16,0:this%jmax2) => sumN(0:16*nforw*this%jmax3-1)
+      psumS(1:nforw,1:16,0:this%jmax2) => sumS(0:16*nforw*this%jmax3-1)
+      
       do m = 0, this%jmax2
-        call this%pmj_forward_recomb_16_sub( nforw, weight(1), sumN(16*nforw*m), sumS(16*nforw*m), ssym(1), asym(1) )
+        do concurrent ( i2=1:16, i1=1:nforw )
+          pssym(i2,i1) = weight(i2) * ( psumN(i1,i2,m) + psumS(i1,i2,m) )
+          pasym(i2,i1) = weight(i2) * ( psumN(i1,i2,m) - psumS(i1,i2,m) )
+        end do
         
         if ( m == 0 ) then
-          call zero_carray_imagpart_sub( 16*nforw, ssym(1) )
-          call zero_carray_imagpart_sub( 16*nforw, asym(1) )
+          do concurrent ( i1=1:nforw, i2=1:16 )
+            pssym(i2,i1)%im = zero
+            pasym(i2,i1)%im = zero
+          end do
         end if
         
         j = m
           mj = m*this%jmax3-m*(m+1)/2+j+1
           
-          call this%pmj_forward_set_16_sub( i, m, nforw, pmj2(1), pmj1(1), pmj(1), ssym(1), cr(1,mj) )
+          pmj2(1:16) = zero
+          pmj1(1:16) = zero
+          pmj(1:16)  = this%pmm(i:i+15,m)
+          
+          do concurrent ( i1=1:nforw , i2=1:16 )
+            cr(i1,mj) = cr(i1,mj) + pmj(i2) * pssym(i2,i1)
+          end do
         
         do j = 1, (this%jmax2-m)/2
           mj = mj+2
           
-          call this%pmj_forward_rec_16_sub( mj-1, nforw, cosx(1), pmj2(1), pmj1(1), pmj(1), asym(1), cr(1,mj-1) )
-          call this%pmj_forward_rec_16_sub( mj  , nforw, cosx(1), pmj2(1), pmj1(1), pmj(1), ssym(1), cr(1,mj  ) )
+          pmj2(1:16) = pmj1(1:16)
+          pmj1(1:16) = pmj(1:16)
+          
+          do concurrent ( i2=1:16 )
+            pmj(i2)  = this%amjrr(mj-1) * cosx(i2) * pmj1(i2) - this%bmjrr(mj-1) * pmj2(i2)
+          end do
+          
+          do concurrent ( i1=1:nforw , i2=1:16 )
+            cr(i1,mj-1) = cr(i1,mj-1) + pmj(i2) * pasym(i2,i1)
+          end do
+
+          pmj2(1:16) = pmj1(1:16)
+          pmj1(1:16) = pmj(1:16)
+          
+          do concurrent ( i2=1:16 )
+            pmj(i2)  = this%amjrr(mj) * cosx(i2) * pmj1(i2) - this%bmjrr(mj) * pmj2(i2)
+          end do
+          
+          do concurrent ( i1=1:nforw , i2=1:16 )
+            cr(i1,mj) = cr(i1,mj) + pmj(i2) * pssym(i2,i1)
+          end do
         end do
         
         if ( mod(this%jmax2-m,2) /= 0 ) then
-          call this%pmj_forward_rec_16_sub( mj+1, nforw, cosx(1), pmj2(1), pmj1(1), pmj(1), asym(1), cr(1,mj+1) )
+          pmj2(1:16) = pmj1(1:16)
+          pmj1(1:16) = pmj(1:16)
+          
+          do concurrent ( i2=1:16 )
+            pmj(i2)  = this%amjrr(mj+1) * cosx(i2) * pmj1(i2) - this%bmjrr(mj+1) * pmj2(i2)
+          end do
+          
+          do concurrent ( i1=1:nforw , i2=1:16 )
+            cr(i1,mj+1) = cr(i1,mj+1) + pmj(i2) * pasym(i2,i1)
+          end do
         end if
       end do
     end do
     
     !Stepping of the algorithm :: 8
     do i = (this%nLegendre/16)*16+1, (this%nLegendre/8)*8, 8
+      !**************************************************************************************************************!
+      !Array preparations *******************************************************************************************!
+      !**************************************************************************************************************!
       cosx(1:8)   = this%roots(i:i+7)
       weight(1:8) = this%fftLege(i:i+7)
       
-      call zero_carray_sub( 8*nback*this%jmax3, sumN(0) )
-      call zero_carray_sub( 8*nback*this%jmax3, sumS(0) )
+      !**************************************************************************************************************!
+      !The backward (towards grid) sum over associated Legendre polynomials *****************************************!
+      !**************************************************************************************************************!
+      pssym(1:8,1:nback) => ssym(1:8*nback)
+      pasym(1:8,1:nback) => asym(1:8*nback)
+      
+      psumN(1:nback,1:8,0:this%jmax2) => sumN(0:8*nback*this%jmax3-1)
+      psumS(1:nback,1:8,0:this%jmax2) => sumS(0:8*nback*this%jmax3-1)
+      
+      do concurrent ( m=0:this%jmax2, i2=1:8, i1=1:nback )
+        psumN(i1,i2,m) = czero
+        psumS(i1,i2,m) = czero
+      end do
       
       do m = 0, this%get_maxm_fn(i,8)
-        call zero_carray_sub( 8*nback, ssym(1) )
-        call zero_carray_sub( 8*nback, asym(1) )
+        do concurrent ( i1=1:nback, i2=1:8 )
+          pssym(i2,i1) = czero
+          pasym(i2,i1) = czero
+        end do
         
         j = m
           mj = m*this%jmax3-m*(m+1)/2+j+1
           
-          call this%pmj_backward_set_8_sub( i, m, nback, pmj2(1), pmj1(1), pmj(1), cc(1,mj), ssym(1) )
+          pmj2(1:8) = zero
+          pmj1(1:8) = zero
+          pmj(1:8)  = this%pmm(i:i+7,m)
+          
+          do concurrent ( i1 = 1:nback, i2 = 1:8 )
+            pssym(i2,i1) = pssym(i2,i1) + cc(i1,mj) * pmj(i2)
+          end do
           
         do j = 1, (this%jmax2-m)/2
           mj = mj+2
           
-          call this%pmj_backward_rec_8_sub( mj-1, nback, cosx(1), pmj2(1), pmj1(1), pmj(1), cc(1,mj-1), asym(1) )
-          call this%pmj_backward_rec_8_sub( mj  , nback, cosx(1), pmj2(1), pmj1(1), pmj(1), cc(1,mj  ), ssym(1) )
+          pmj2(1:8) = pmj1(1:8)
+          pmj1(1:8) = pmj(1:8)
+          
+          do concurrent ( i2=1:8 )
+            pmj(i2)  = this%amjrr(mj-1) * cosx(i2) * pmj1(i2) - this%bmjrr(mj-1) * pmj2(i2)
+          end do
+          
+          do concurrent ( i1=1:nback, i2=1:8 )
+            pasym(i2,i1) = pasym(i2,i1) + cc(i1,mj-1) * pmj(i2)
+          end do
+          
+          pmj2(1:8) = pmj1(1:8)
+          pmj1(1:8) = pmj(1:8)
+          
+          do concurrent ( i2=1:8 )
+            pmj(i2)  = this%amjrr(mj) * cosx(i2) * pmj1(i2) - this%bmjrr(mj) * pmj2(i2)
+          end do
+          
+          do concurrent ( i1=1:nback, i2=1:8 )
+            pssym(i2,i1) = pssym(i2,i1) + cc(i1,mj) * pmj(i2)
+          end do
         end do
         
         if ( mod((this%jmax2-m),2) /= 0 ) then
-          call this%pmj_backward_rec_8_sub( mj+1, nback, cosx(1), pmj2(1), pmj1(1), pmj(1), cc(1,mj+1), asym(1) )
+          pmj2(1:8) = pmj1(1:8)
+          pmj1(1:8) = pmj(1:8)
+          
+          do concurrent ( i2=1:8 )
+            pmj(i2)  = this%amjrr(mj+1) * cosx(i2) * pmj1(i2) - this%bmjrr(mj+1) * pmj2(i2)
+          end do
+          
+          do concurrent ( i1=1:nback, i2=1:8 )
+            pasym(i2,i1) = pasym(i2,i1) + cc(i1,mj+1) * pmj(i2)
+          end do
         end if
         
-        call this%pmj_backward_recomb_8_sub( nback, ssym(1), asym(1), sumN(8*nback*m), sumS(8*nback*m) )
+        do concurrent ( i2=1:8, i1=1:nback )
+          psumN(i1,i2,m) = pssym(i2,i1) + pasym(i2,i1)
+          psumS(i1,i2,m) = pssym(i2,i1) - pasym(i2,i1)
+        end do
       end do
       
-      call zero_carray_imagpart_sub( 8*nback, sumN(0) )
-      call zero_carray_imagpart_sub( 8*nback, sumS(0) )
+      do concurrent ( i2=1:8, i1=1:nback )
+        psumN(i1,i2,0)%im = zero
+        psumS(i1,i2,0)%im = zero
+      end do
       
+      !**************************************************************************************************************!
+      !The backward (towards grid) fft, grid operations and the forward fft (towards space) *************************!
+      !**************************************************************************************************************!
       call grid_8_sub( this, grid(1), sumN(0) )
       call grid_8_sub( this, grid(1), sumS(0) )
       
+      !**************************************************************************************************************!
+      !The forward (towards space) sum over associated Legendre polynomials *****************************************!
+      !**************************************************************************************************************!
+      pssym(1:8,1:nforw) => ssym(1:8*nforw)
+      pasym(1:8,1:nforw) => asym(1:8*nforw)
+      
+      psumN(1:nforw,1:8,0:this%jmax2) => sumN(0:8*nforw*this%jmax3-1)
+      psumS(1:nforw,1:8,0:this%jmax2) => sumS(0:8*nforw*this%jmax3-1)
+      
       do m = 0, this%jmax2
-        call this%pmj_forward_recomb_8_sub( nforw, weight(1), sumN(8*nforw*m), sumS(8*nforw*m), ssym(1), asym(1) )
+        do concurrent ( i2=1:8, i1=1:nforw )
+          pssym(i2,i1) = weight(i2) * ( psumN(i1,i2,m) + psumS(i1,i2,m) )
+          pasym(i2,i1) = weight(i2) * ( psumN(i1,i2,m) - psumS(i1,i2,m) )
+        end do
         
         if ( m == 0 ) then
-          call zero_carray_imagpart_sub( 8*nforw, ssym(1) )
-          call zero_carray_imagpart_sub( 8*nforw, asym(1) )
+          do concurrent ( i1=1:nforw, i2=1:8 )
+            pssym(i2,i1)%im = zero
+            pasym(i2,i1)%im = zero
+          end do
         end if
         
         j = m
           mj = m*this%jmax3-m*(m+1)/2+j+1
           
-          call this%pmj_forward_set_8_sub( i, m, nforw, pmj2(1), pmj1(1), pmj(1), ssym(1), cr(1,mj) )
+          pmj2(1:8) = zero
+          pmj1(1:8) = zero
+          pmj(1:8)  = this%pmm(i:i+7,m)
+          
+          do concurrent ( i1=1:nforw , i2=1:8 )
+            cr(i1,mj) = cr(i1,mj) + pmj(i2) * pssym(i2,i1)
+          end do
         
         do j = 1, (this%jmax2-m)/2
           mj = mj+2
           
-          call this%pmj_forward_rec_8_sub( mj-1, nforw, cosx(1), pmj2(1), pmj1(1), pmj(1), asym(1), cr(1,mj-1) )
-          call this%pmj_forward_rec_8_sub( mj  , nforw, cosx(1), pmj2(1), pmj1(1), pmj(1), ssym(1), cr(1,mj  ) )
+          pmj2(1:8) = pmj1(1:8)
+          pmj1(1:8) = pmj(1:8)
+          
+          do concurrent ( i2=1:8 )
+            pmj(i2)  = this%amjrr(mj-1) * cosx(i2) * pmj1(i2) - this%bmjrr(mj-1) * pmj2(i2)
+          end do
+          
+          do concurrent ( i1=1:nforw , i2=1:8 )
+            cr(i1,mj-1) = cr(i1,mj-1) + pmj(i2) * pasym(i2,i1)
+          end do
+          
+          pmj2(1:8) = pmj1(1:8)
+          pmj1(1:8) = pmj(1:8)
+          
+          do concurrent ( i2=1:8 )
+            pmj(i2)  = this%amjrr(mj) * cosx(i2) * pmj1(i2) - this%bmjrr(mj) * pmj2(i2)
+          end do
+          
+          do concurrent ( i1=1:nforw , i2=1:8 )
+            cr(i1,mj) = cr(i1,mj) + pmj(i2) * pssym(i2,i1)
+          end do
         end do
         
         if ( mod(this%jmax2-m,2) /= 0 ) then
-          call this%pmj_forward_rec_8_sub( mj+1, nforw, cosx(1), pmj2(1), pmj1(1), pmj(1), asym(1), cr(1,mj+1) )
+          pmj2(1:8) = pmj1(1:8)
+          pmj1(1:8) = pmj(1:8)
+          
+          do concurrent ( i2=1:8 )
+            pmj(i2) = this%amjrr(mj+1) * cosx(i2) * pmj1(i2) - this%bmjrr(mj+1) * pmj2(i2)
+          end do
+          
+          do concurrent ( i1=1:nforw , i2=1:8 )
+            cr(i1,mj+1) = cr(i1,mj+1) + pmj(i2) * pasym(i2,i1)
+          end do
         end if
       end do
     end do
     
     !Stepping of the algorithm :: 4
     do i = (this%nLegendre/8)*8+1, (this%nLegendre/4)*4, 4
+      !**************************************************************************************************************!
+      !Array preparations *******************************************************************************************!
+      !**************************************************************************************************************!
       cosx(1:4)   = this%roots(i:i+3)
       weight(1:4) = this%fftLege(i:i+3)
       
-      call zero_carray_sub( 4*nback*this%jmax3, sumN(0) )
-      call zero_carray_sub( 4*nback*this%jmax3, sumS(0) )
+      !**************************************************************************************************************!
+      !The backward (towards grid) sum over associated Legendre polynomials *****************************************!
+      !**************************************************************************************************************!
+      pssym(1:4,1:nback) => ssym(1:4*nback)
+      pasym(1:4,1:nback) => asym(1:4*nback)
+      
+      psumN(1:nback,1:4,0:this%jmax2) => sumN(0:4*nback*this%jmax3-1)
+      psumS(1:nback,1:4,0:this%jmax2) => sumS(0:4*nback*this%jmax3-1)
+      
+      do concurrent ( m=0:this%jmax2, i2=1:4, i1=1:nback )
+        psumN(i1,i2,m) = czero
+        psumS(i1,i2,m) = czero
+      end do
       
       do m = 0, this%get_maxm_fn(i,4)
-        call zero_carray_sub( 4*nback, ssym(1) )
-        call zero_carray_sub( 4*nback, asym(1) )
+        do concurrent ( i1=1:nback, i2=1:4 )
+          pssym(i2,i1) = czero
+          pasym(i2,i1) = czero
+        end do
         
         j = m
           mj = m*this%jmax3-m*(m+1)/2+j+1
           
-          call this%pmj_backward_set_4_sub( i, m, nback, pmj2(1), pmj1(1), pmj(1), cc(1,mj), ssym(1) )
+          pmj2(1:4) = zero
+          pmj1(1:4) = zero
+          pmj(1:4)  = this%pmm(i:i+3,m)
+          
+          do concurrent ( i1 = 1:nback, i2 = 1:4 )
+            pssym(i2,i1) = pssym(i2,i1) + cc(i1,mj) * pmj(i2)
+          end do
           
         do j = 1, (this%jmax2-m)/2
           mj = mj+2
           
-          call this%pmj_backward_rec_4_sub( mj-1, nback, cosx(1), pmj2(1), pmj1(1), pmj(1), cc(1,mj-1), asym(1) )
-          call this%pmj_backward_rec_4_sub( mj  , nback, cosx(1), pmj2(1), pmj1(1), pmj(1), cc(1,mj  ), ssym(1) )
+          pmj2(1:4) = pmj1(1:4)
+          pmj1(1:4) = pmj(1:4)
+          
+          do concurrent ( i2=1:4 )
+            pmj(i2)  = this%amjrr(mj-1) * cosx(i2) * pmj1(i2) - this%bmjrr(mj-1) * pmj2(i2)
+          end do
+          
+          do concurrent ( i1=1:nback, i2=1:4 )
+            pasym(i2,i1) = pasym(i2,i1) + cc(i1,mj-1) * pmj(i2)
+          end do
+          
+          pmj2(1:4) = pmj1(1:4)
+          pmj1(1:4) = pmj(1:4)
+          
+          do concurrent ( i2=1:4 )
+            pmj(i2)  = this%amjrr(mj) * cosx(i2) * pmj1(i2) - this%bmjrr(mj) * pmj2(i2)
+          end do
+          
+          do concurrent ( i1=1:nback, i2=1:4 )
+            pssym(i2,i1) = pssym(i2,i1) + cc(i1,mj) * pmj(i2)
+          end do
         end do
         
         if ( mod((this%jmax2-m),2) /= 0 ) then
-          call this%pmj_backward_rec_4_sub( mj+1, nback, cosx(1), pmj2(1), pmj1(1), pmj(1), cc(1,mj+1), asym(1) )
+          pmj2(1:4) = pmj1(1:4)
+          pmj1(1:4) = pmj(1:4)
+          
+          do concurrent ( i2=1:4 )
+            pmj(i2)  = this%amjrr(mj+1) * cosx(i2) * pmj1(i2) - this%bmjrr(mj+1) * pmj2(i2)
+          end do
+          
+          do concurrent ( i1=1:nback, i2=1:4 )
+            pasym(i2,i1) = pasym(i2,i1) + cc(i1,mj+1) * pmj(i2)
+          end do
         end if
         
-        call this%pmj_backward_recomb_4_sub( nback, ssym(1), asym(1), sumN(4*nback*m), sumS(4*nback*m) )
+        do concurrent ( i2=1:4, i1=1:nback )
+          psumN(i1,i2,m) = pssym(i2,i1) + pasym(i2,i1)
+          psumS(i1,i2,m) = pssym(i2,i1) - pasym(i2,i1)
+        end do
       end do
       
-      call zero_carray_imagpart_sub( 4*nback, sumN(0) )
-      call zero_carray_imagpart_sub( 4*nback, sumS(0) )
+      do concurrent ( i2=1:4, i1=1:nback )
+        psumN(i1,i2,0)%im = zero
+        psumS(i1,i2,0)%im = zero
+      end do
       
+      !**************************************************************************************************************!
+      !The backward (towards grid) fft, grid operations and the forward fft (towards space) *************************!
+      !**************************************************************************************************************!
       call grid_4_sub( this, grid(1), sumN(0) )
       call grid_4_sub( this, grid(1), sumS(0) )
       
+      !**************************************************************************************************************!
+      !The forward (towards space) sum over associated Legendre polynomials *****************************************!
+      !**************************************************************************************************************!
+      pssym(1:4,1:nforw) => ssym(1:4*nforw)
+      pasym(1:4,1:nforw) => asym(1:4*nforw)
+      
+      psumN(1:nforw,1:4,0:this%jmax2) => sumN(0:4*nforw*this%jmax3-1)
+      psumS(1:nforw,1:4,0:this%jmax2) => sumS(0:4*nforw*this%jmax3-1)
+      
       do m = 0, this%jmax2
-        call this%pmj_forward_recomb_4_sub( nforw, weight(1), sumN(4*nforw*m), sumS(4*nforw*m), ssym(1), asym(1) )
+        do concurrent ( i2=1:4, i1=1:nforw )
+          pssym(i2,i1) = weight(i2) * ( psumN(i1,i2,m) + psumS(i1,i2,m) )
+          pasym(i2,i1) = weight(i2) * ( psumN(i1,i2,m) - psumS(i1,i2,m) )
+        end do
         
         if ( m == 0 ) then
-          call zero_carray_imagpart_sub( 4*nforw, ssym(1) )
-          call zero_carray_imagpart_sub( 4*nforw, asym(1) )
+          do concurrent ( i1=1:nforw, i2=1:4 )
+            pssym(i2,i1)%im = zero
+            pasym(i2,i1)%im = zero
+          end do
         end if
         
         j = m
           mj = m*this%jmax3-m*(m+1)/2+j+1
           
-          call this%pmj_forward_set_4_sub( i, m, nforw, pmj2(1), pmj1(1), pmj(1), ssym(1), cr(1,mj) )
+          pmj2(1:4) = zero
+          pmj1(1:4) = zero
+          pmj(1:4)  = this%pmm(i:i+3,m)
+          
+          do concurrent ( i1=1:nforw , i2=1:4 )
+            cr(i1,mj) = cr(i1,mj) + pmj(i2) * pssym(i2,i1)
+          end do
         
         do j = 1, (this%jmax2-m)/2
           mj = mj+2
           
-          call this%pmj_forward_rec_4_sub( mj-1, nforw, cosx(1), pmj2(1), pmj1(1), pmj(1), asym(1), cr(1,mj-1) )
-          call this%pmj_forward_rec_4_sub( mj  , nforw, cosx(1), pmj2(1), pmj1(1), pmj(1), ssym(1), cr(1,mj  ) )
+          pmj2(1:4) = pmj1(1:4)
+          pmj1(1:4) = pmj(1:4)
+          
+          do concurrent ( i2=1:4 )
+            pmj(i2)  = this%amjrr(mj-1) * cosx(i2) * pmj1(i2) - this%bmjrr(mj-1) * pmj2(i2)
+          end do
+          
+          do concurrent ( i1=1:nforw , i2=1:4 )
+            cr(i1,mj-1) = cr(i1,mj-1) + pmj(i2) * pasym(i2,i1)
+          end do
+          
+          pmj2(1:4) = pmj1(1:4)
+          pmj1(1:4) = pmj(1:4)
+          
+          do concurrent ( i2=1:4 )
+            pmj(i2) = this%amjrr(mj) * cosx(i2) * pmj1(i2) - this%bmjrr(mj) * pmj2(i2)
+          end do
+          
+          do concurrent ( i1=1:nforw , i2=1:4 )
+            cr(i1,mj) = cr(i1,mj) + pmj(i2) * pssym(i2,i1)
+          end do
         end do
         
         if ( mod(this%jmax2-m,2) /= 0 ) then
-          call this%pmj_forward_rec_4_sub( mj+1, nforw, cosx(1), pmj2(1), pmj1(1), pmj(1), asym(1), cr(1,mj+1) )
+          pmj2(1:4) = pmj1(1:4)
+          pmj1(1:4) = pmj(1:4)
+          
+          do concurrent ( i2=1:4 )
+            pmj(i2) = this%amjrr(mj+1) * cosx(i2) * pmj1(i2) - this%bmjrr(mj+1) * pmj2(i2)
+          end do
+          
+          do concurrent ( i1=1:nforw , i2=1:4 )
+            cr(i1,mj+1) = cr(i1,mj+1) + pmj(i2) * pasym(i2,i1)
+          end do
         end if
       end do
     end do
     
     !Stepping of the algorithm :: 2
     do i = (this%nLegendre/4)*4+1, this%nLegendre, 2
+      !**************************************************************************************************************!
+      !Array preparations *******************************************************************************************!
+      !**************************************************************************************************************!
       cosx(1:2)   = this%roots(i:i+1)
       weight(1:2) = this%fftLege(i:i+1)
       
-      call zero_carray_sub( 2*nback*this%jmax3, sumN(0) )
-      call zero_carray_sub( 2*nback*this%jmax3, sumS(0) )
+      !**************************************************************************************************************!
+      !The backward (towards grid) sum over associated Legendre polynomials *****************************************!
+      !**************************************************************************************************************!
+      pssym(1:2,1:nback) => ssym(1:2*nback)
+      pasym(1:2,1:nback) => asym(1:2*nback)
+      
+      psumN(1:nback,1:2,0:this%jmax2) => sumN(0:2*nback*this%jmax3-1)
+      psumS(1:nback,1:2,0:this%jmax2) => sumS(0:2*nback*this%jmax3-1)
+      
+      do concurrent ( m=0:this%jmax2, i2=1:2, i1=1:nback )
+        psumN(i1,i2,m) = czero
+        psumS(i1,i2,m) = czero
+      end do
       
       do m = 0, this%get_maxm_fn(i,2)
-        call zero_carray_sub( 2*nback, ssym(1) )
-        call zero_carray_sub( 2*nback, asym(1) )
+        do concurrent ( i1=1:nback, i2=1:2 )
+          pssym(i2,i1) = czero
+          pasym(i2,i1) = czero
+        end do
         
         j = m
           mj = m*this%jmax3-m*(m+1)/2+j+1
           
-          call this%pmj_backward_set_2_sub( i, m, nback, pmj2(1), pmj1(1), pmj(1), cc(1,mj), ssym(1) )
+          pmj2(1:2) = zero
+          pmj1(1:2) = zero
+          pmj(1:2)  = this%pmm(i:i+1,m)
+          
+          do concurrent ( i1 = 1:nback, i2 = 1:2 )
+            pssym(i2,i1) = pssym(i2,i1) + cc(i1,mj) * pmj(i2)
+          end do
           
         do j = 1, (this%jmax2-m)/2
           mj = mj+2
           
-          call this%pmj_backward_rec_2_sub( mj-1, nback, cosx(1), pmj2(1), pmj1(1), pmj(1), cc(1,mj-1), asym(1) )
-          call this%pmj_backward_rec_2_sub( mj  , nback, cosx(1), pmj2(1), pmj1(1), pmj(1), cc(1,mj  ), ssym(1) )
+          pmj2(1:2) = pmj1(1:2)
+          pmj1(1:2) = pmj(1:2)
+          
+          do concurrent ( i2=1:2 )
+            pmj(i2)  = this%amjrr(mj-1) * cosx(i2) * pmj1(i2) - this%bmjrr(mj-1) * pmj2(i2)
+          end do
+          
+          do concurrent ( i1=1:nback, i2=1:2 )
+            pasym(i2,i1) = pasym(i2,i1) + cc(i1,mj-1) * pmj(i2)
+          end do
+          
+          pmj2(1:2) = pmj1(1:2)
+          pmj1(1:2) = pmj(1:2)
+          
+          do concurrent ( i2=1:2 )
+            pmj(i2)  = this%amjrr(mj) * cosx(i2) * pmj1(i2) - this%bmjrr(mj) * pmj2(i2)
+          end do
+          
+          do concurrent ( i1=1:nback, i2=1:2 )
+            pssym(i2,i1) = pssym(i2,i1) + cc(i1,mj) * pmj(i2)
+          end do
         end do
         
         if ( mod((this%jmax2-m),2) /= 0 ) then
-          call this%pmj_backward_rec_2_sub( mj+1, nback, cosx(1), pmj2(1), pmj1(1), pmj(1), cc(1,mj+1), asym(1) )
+          pmj2(1:2) = pmj1(1:2)
+          pmj1(1:2) = pmj(1:2)
+          
+          do concurrent ( i2=1:2 )
+            pmj(i2)  = this%amjrr(mj+1) * cosx(i2) * pmj1(i2) - this%bmjrr(mj+1) * pmj2(i2)
+          end do
+          
+          do concurrent ( i1=1:nback, i2=1:2 )
+            pasym(i2,i1) = pasym(i2,i1) + cc(i1,mj+1) * pmj(i2)
+          end do
         end if
         
-        call this%pmj_backward_recomb_2_sub( nback, ssym(1), asym(1), sumN(2*nback*m), sumS(2*nback*m) )
+        do concurrent ( i2=1:2, i1=1:nback )
+          psumN(i1,i2,m) = pssym(i2,i1) + pasym(i2,i1)
+          psumS(i1,i2,m) = pssym(i2,i1) - pasym(i2,i1)
+        end do
       end do
       
-      call zero_carray_imagpart_sub( 2*nback, sumN(0) )
-      call zero_carray_imagpart_sub( 2*nback, sumS(0) )
+      do concurrent ( i2=1:2, i1=1:nback )
+        psumN(i1,i2,0)%im = zero
+        psumS(i1,i2,0)%im = zero
+      end do
       
+      !**************************************************************************************************************!
+      !The backward (towards grid) fft, grid operations and the forward fft (towards space) *************************!
+      !**************************************************************************************************************!
       call grid_2_sub( this, grid(1), sumN(0) )
       call grid_2_sub( this, grid(1), sumS(0) )
       
+      !**************************************************************************************************************!
+      !The forward (towards space) sum over associated Legendre polynomials *****************************************!
+      !**************************************************************************************************************!
+      pssym(1:2,1:nforw) => ssym(1:2*nforw)
+      pasym(1:2,1:nforw) => asym(1:2*nforw)
+      
+      psumN(1:nforw,1:2,0:this%jmax2) => sumN(0:2*nforw*this%jmax3-1)
+      psumS(1:nforw,1:2,0:this%jmax2) => sumS(0:2*nforw*this%jmax3-1)
+      
       do m = 0, this%jmax2
-        call this%pmj_forward_recomb_2_sub( nforw, weight(1), sumN(2*nforw*m), sumS(2*nforw*m), ssym(1), asym(1) )
+        do concurrent ( i2=1:2, i1=1:nforw )
+          pssym(i2,i1) = weight(i2) * ( psumN(i1,i2,m) + psumS(i1,i2,m) )
+          pasym(i2,i1) = weight(i2) * ( psumN(i1,i2,m) - psumS(i1,i2,m) )
+        end do
         
         if ( m == 0 ) then
-          call zero_carray_imagpart_sub( 2*nforw, ssym(1) )
-          call zero_carray_imagpart_sub( 2*nforw, asym(1) )
+          do concurrent ( i1=1:nforw, i2=1:2 )
+            pssym(i2,i1)%im = zero
+            pasym(i2,i1)%im = zero
+          end do
         end if
         
         j = m
           mj = m*this%jmax3-m*(m+1)/2+j+1
           
-          call this%pmj_forward_set_2_sub( i, m, nforw, pmj2(1), pmj1(1), pmj(1), ssym(1), cr(1,mj) )
+          pmj2(1:2) = zero
+          pmj1(1:2) = zero
+          pmj(1:2)  = this%pmm(i:i+1,m)
+          
+          do concurrent ( i1=1:nforw , i2=1:2 )
+            cr(i1,mj) = cr(i1,mj) + pmj(i2) * pssym(i2,i1)
+          end do
         
         do j = 1, (this%jmax2-m)/2
           mj = mj+2
           
-          call this%pmj_forward_rec_2_sub( mj-1, nforw, cosx(1), pmj2(1), pmj1(1), pmj(1), asym(1), cr(1,mj-1) )
-          call this%pmj_forward_rec_2_sub( mj  , nforw, cosx(1), pmj2(1), pmj1(1), pmj(1), ssym(1), cr(1,mj  ) )
+          pmj2(1:2) = pmj1(1:2)
+          pmj1(1:2) = pmj(1:2)
+          
+          do concurrent ( i2=1:2 )
+            pmj(i2) = this%amjrr(mj-1) * cosx(i2) * pmj1(i2) - this%bmjrr(mj-1) * pmj2(i2)
+          end do
+          
+          do concurrent ( i1=1:nforw , i2=1:2 )
+            cr(i1,mj-1) = cr(i1,mj-1) + pmj(i2) * pasym(i2,i1)
+          end do
+          
+          pmj2(1:2) = pmj1(1:2)
+          pmj1(1:2) = pmj(1:2)
+          
+          do concurrent ( i2=1:2 )
+            pmj(i2)  = this%amjrr(mj) * cosx(i2) * pmj1(i2) - this%bmjrr(mj) * pmj2(i2)
+          end do
+          
+          do concurrent ( i1=1:nforw , i2=1:2 )
+            cr(i1,mj) = cr(i1,mj) + pmj(i2) * pssym(i2,i1)
+          end do
         end do
         
         if ( mod(this%jmax2-m,2) /= 0 ) then
-          call this%pmj_forward_rec_2_sub( mj+1, nforw, cosx(1), pmj2(1), pmj1(1), pmj(1), asym(1), cr(1,mj+1) )
+          pmj2(1:2) = pmj1(1:2)
+          pmj1(1:2) = pmj(1:2)
+          
+          do concurrent ( i2=1:2 )
+            pmj(i2)  = this%amjrr(mj+1) * cosx(i2) * pmj1(i2) - this%bmjrr(mj+1) * pmj2(i2)
+          end do
+          
+          do concurrent ( i1=1:nforw , i2=1:2 )
+            cr(i1,mj+1) = cr(i1,mj+1) + pmj(i2) * pasym(i2,i1)
+          end do
         end if
       end do
     end do
