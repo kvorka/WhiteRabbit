@@ -49,7 +49,11 @@ submodule (SphericalHarmonics) lege_transform
       !**************************************************************************************************************!
       !Array preparations *******************************************************************************************!
       !**************************************************************************************************************!
-      call this%pmj_prep_16_sub( i, nback, cosx(1), weight(1), sumN(0), sumS(0) )
+      cosx(1:16)   = this%roots(i:i+15)
+      weight(1:16) = this%fftLege(i:i+15)
+      
+      call zero_carray_sub( 16*nback*this%jmax3, sumN(0) )
+      call zero_carray_sub( 16*nback*this%jmax3, sumS(0) )
       
       !**************************************************************************************************************!
       !The backward (towards grid) sum over associated Legendre polynomials *****************************************!
@@ -117,7 +121,11 @@ submodule (SphericalHarmonics) lege_transform
     
     !Stepping of the algorithm :: 8
     do i = (this%nLegendre/16)*16+1, (this%nLegendre/8)*8, 8
-      call this%pmj_prep_8_sub( i, nback, cosx(1), weight(1), sumN(0), sumS(0) )
+      cosx(1:8)   = this%roots(i:i+7)
+      weight(1:8) = this%fftLege(i:i+7)
+      
+      call zero_carray_sub( 8*nback*this%jmax3, sumN(0) )
+      call zero_carray_sub( 8*nback*this%jmax3, sumS(0) )
       
       do m = 0, this%get_maxm_fn(i,8)
         call zero_carray_sub( 8*nback, ssym(1) )
@@ -176,7 +184,11 @@ submodule (SphericalHarmonics) lege_transform
     
     !Stepping of the algorithm :: 4
     do i = (this%nLegendre/8)*8+1, (this%nLegendre/4)*4, 4
-      call this%pmj_prep_4_sub( i, nback, cosx(1), weight(1), sumN(0), sumS(0) )
+      cosx(1:4)   = this%roots(i:i+3)
+      weight(1:4) = this%fftLege(i:i+3)
+      
+      call zero_carray_sub( 4*nback*this%jmax3, sumN(0) )
+      call zero_carray_sub( 4*nback*this%jmax3, sumS(0) )
       
       do m = 0, this%get_maxm_fn(i,4)
         call zero_carray_sub( 4*nback, ssym(1) )
@@ -235,7 +247,11 @@ submodule (SphericalHarmonics) lege_transform
     
     !Stepping of the algorithm :: 2
     do i = (this%nLegendre/4)*4+1, this%nLegendre, 2
-      call this%pmj_prep_2_sub( i, nback, cosx(1), weight(1), sumN(0), sumS(0) )
+      cosx(1:2)   = this%roots(i:i+1)
+      weight(1:2) = this%fftLege(i:i+1)
+      
+      call zero_carray_sub( 2*nback*this%jmax3, sumN(0) )
+      call zero_carray_sub( 2*nback*this%jmax3, sumS(0) )
       
       do m = 0, this%get_maxm_fn(i,2)
         call zero_carray_sub( 2*nback, ssym(1) )
