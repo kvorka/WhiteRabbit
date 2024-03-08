@@ -20,10 +20,10 @@ submodule (SphericalHarmonics) vcvv_vcvgv_grid_16
       do i2 = 1, 16
         tmp = gin(1:3,1,i2,i)
         
-        gout(1,i2,i) = sum( gin(1:3,2,i2,i) * tmp )
-        gout(2,i2,i) = sum( gin(1:3,3,i2,i) * tmp )
-        gout(3,i2,i) = sum( gin(1:3,4,i2,i) * tmp )
-        gout(4,i2,i) = sum( gin(1:3,5,i2,i) * tmp )
+        gout(1,i2,i) = gin(1,2,i2,i) * tmp(1) + gin(2,2,i2,i) * tmp(2) + gin(3,2,i2,i) * tmp(3)
+        gout(2,i2,i) = gin(1,3,i2,i) * tmp(1) + gin(2,3,i2,i) * tmp(2) + gin(3,3,i2,i) * tmp(3)
+        gout(3,i2,i) = gin(1,4,i2,i) * tmp(1) + gin(2,4,i2,i) * tmp(2) + gin(3,4,i2,i) * tmp(3)
+        gout(4,i2,i) = gin(1,5,i2,i) * tmp(1) + gin(2,5,i2,i) * tmp(2) + gin(3,5,i2,i) * tmp(3)
       end do
     end do
     

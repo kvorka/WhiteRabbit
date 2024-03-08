@@ -11,8 +11,8 @@ submodule (SphericalHarmonics) vcst
     allocate( cc(6*this%jms2) ); call zero_carray_sub( 6*this%jms2, cc(1) )
     allocate( cr(5*this%jms2) ); call zero_carray_sub( 5*this%jms2, cr(1) )
     
-    call this%scal2scal_jm_to_mj_sub( cajm(1), cc(1), 6, 6 )
-    call this%devtens2scal_jml2_to_mj_sub( cbjml2(1), cc(1), 6, 1 )
+    call this%scal2scal_jm_to_mj_sub( cajm(1), cc(1), 6, 1 )
+    call this%devtens2scal_jml2_to_mj_sub( cbjml2(1), cc(1), 6, 2 )
     
     !Transform
     call this%lege_transform_sub( 5, 6, cc(1), cr(1), grid_op_2_vcst_sub, grid_op_4_vcst_sub, &

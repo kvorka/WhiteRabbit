@@ -13,8 +13,8 @@ submodule (SphericalHarmonics) vcvgv
     allocate( cc(12*this%jms2) ); call zero_carray_sub( 12*this%jms2, cc(1) ) 
     allocate( cr( 3*this%jms2) ); call zero_carray_sub(  3*this%jms2, cr(1) )
     
-    call this%vec2vec_jml_to_jml_sub( v(1), ca(1), 4, 4 )
-    call this%gradvec2vec_jmlk_to_jml_sub( ri, v(1), dv_r(1), ca(1), 4, 1 )
+    call this%vec2vec_jml_to_jml_sub( v(1), ca(1), 4, 1 )
+    call this%gradvec2vec_jmlk_to_jml_sub( ri, v(1), dv_r(1), ca(1), 4, 2 )
     
     call this%vec2scal_jml_to_mj_sub( ca(1), 4, cc(1) )
     

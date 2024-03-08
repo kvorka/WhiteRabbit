@@ -5,17 +5,18 @@ submodule(SphericalHarmonics) vcsum_grid_2
     class(T_lateralGrid),   intent(in)    :: this
     real(kind=dbl), target, intent(out)   :: grid(*)
     complex(kind=dbl),      intent(inout) :: sumNS(*)
-    integer                               :: i
-    real(kind=dbl), pointer               :: gin(:), gout(:)
+    integer                               :: i, i2
+    real(kind=dbl), pointer               :: gout(:,:), gin(:,:,:)
     
     call this%fourtrans%exec_c2r_sub(4, sumNS, grid)
     
-    do i = 0, this%nFourier-1
-      gin  => grid(1+4*i:4+4*i)
-      gout => grid(1+2*i:2+2*i)
-      
-      gout(1) = gin(1) * gin(2)
-      gout(2) = gin(3) * gin(4)
+    gin(1:2,1:2,1:this%nFourier) => grid(1:4*this%nFourier)
+    gout(1:2,1:this%nFourier)    => grid(1:2*this%nFourier)
+    
+    do i = 1, this%nFourier
+      do i2 = 1, 2
+        gout(i2,i) = gin(1,i2,i) * gin(2,i2,i)
+      end do
     end do
     
     call this%fourtrans%exec_r2c_sub(2, grid, sumNS)
