@@ -47,8 +47,7 @@ submodule (SphericalHarmonics) lege_transform
     complex(kind=dbl), target, allocatable :: ssym(:), asym(:), sumN(:), sumS(:)
     
     interface
-      pure subroutine grid_sub(nfour, nstep, gxyz)
-        import dbl, T_lateralGrid
+      module pure subroutine grid_sub(nfour, nstep, gxyz)
         integer,                intent(in)    :: nfour, nstep
         real(kind=dbl), target, intent(inout) :: gxyz(*)
       end subroutine grid_sub
