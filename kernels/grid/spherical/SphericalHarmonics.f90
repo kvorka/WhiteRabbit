@@ -119,8 +119,7 @@ module SphericalHarmonics
       complex(kind=dbl),    intent(inout) :: cr(nforw,*)
       
       interface
-        pure subroutine grid_sub(nfour, nstep, gxyz)
-          import dbl
+        module pure subroutine grid_sub(nfour, nstep, gxyz)
           integer,                intent(in)    :: nfour, nstep
           real(kind=dbl), target, intent(inout) :: gxyz(*)
         end subroutine grid_sub
