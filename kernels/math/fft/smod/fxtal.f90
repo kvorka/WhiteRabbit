@@ -22,7 +22,13 @@ submodule (Fourier_transform) fxtal
       end select
     end if
     
-    k1 = k1 * ip ; ld = ld / ip ; isd = is + kd * (ip-1) ; kd = kd * ip ; j = j * ip ; it1d = it1d / 4 ; icd = ic + 1
+    k1   = k1 * ip
+    ld   = ld / ip
+    isd  = is + kd * (ip-1)
+    kd   = kd * ip
+    j    = j * ip
+    it1d = it1d / 4
+    icd  = ic + 1
     
     if ( (m * ip * ld > 2048) .and. (icd <= itsum) ) then
       do jd = 0, ip-1
@@ -43,7 +49,12 @@ submodule (Fourier_transform) fxtal
             call fxzm5a(m, k1, ld, x(1,1,j*ld), t(1,isd+j*(ip-1)))
         end select
         
-        k1 = k1 * ip ; ld = ld/ip ; isd = isd + kd * (ip-1) ; kd = kd * ip ; j = j * ip ; it1d = it1d / 4
+        k1   = k1 * ip
+        ld   = ld/ip
+        isd  = isd + kd * (ip-1)
+        kd   = kd * ip
+        j    = j * ip
+        it1d = it1d / 4
       end do
     end if
     

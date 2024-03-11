@@ -36,21 +36,20 @@ submodule (Fourier_transform) fft_c2r
     end do
     
     do concurrent ( i = 1:(this%n-2)/4 , iv = 1:m )
-      tempre1 = x(iv,1,i) + x(iv,1,this%n/2-i) ; tempim1 = x(iv,1,i) - x(iv,1,this%n/2-i)
-      tempre2 = X(iv,2,i) + x(iv,2,this%n/2-i) ; tempim2 = x(iv,2,i) - x(iv,2,this%n/2-i)
+      tempre1 = x(iv,1,i) + x(iv,1,this%n/2-i)
+      tempim1 = x(iv,1,i) - x(iv,1,this%n/2-i)
+      tempre2 = x(iv,2,i) + x(iv,2,this%n/2-i)
+      tempim2 = x(iv,2,i) - x(iv,2,this%n/2-i)
       
-      x(iv,1,         i) = tempre1 - tempim1 * this%t(this%n+2*i  ) - tempre2 * this%t(this%n+2*i-1)
-      x(iv,2,         i) = tempim2 + tempim1 * this%t(this%n+2*i-1) - tempre2 * this%t(this%n+2*i  )
-      x(iv,1,this%n/2-i) = 2 * tempre1   -     x(iv,1,i)
-      x(iv,2,this%n/2-i) =     x(iv,2,i) - 2 * tempim2
+      x(iv,1,         i) =       tempre1 - tempim1 * this%t(this%n+2*i  ) - tempre2 * this%t(this%n+2*i-1)
+      x(iv,2,         i) =       tempim2 + tempim1 * this%t(this%n+2*i-1) - tempre2 * this%t(this%n+2*i  )
+      x(iv,1,this%n/2-i) =   2 * tempre1 - x(iv,1,i)
+      x(iv,2,this%n/2-i) = - 2 * tempim2 + x(iv,2,i)
     end do
     
     if ( mod(this%n,4) == 0 ) then
       do concurrent ( iv = 1:m )
-        x(iv,1,this%n/4) = 2 * x(iv,1,this%n/4)
-      end do
-      
-      do concurrent ( iv = 1:m )
+        x(iv,1,this%n/4) = +2 * x(iv,1,this%n/4)
         x(iv,2,this%n/4) = -2 * x(iv,2,this%n/4)
       end do
     end if

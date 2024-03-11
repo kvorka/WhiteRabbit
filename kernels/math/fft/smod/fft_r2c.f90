@@ -87,22 +87,23 @@ submodule (Fourier_transform) fft_r2c
     end do
     
     do concurrent ( i = 1:(this%n-2)/4 , iv = 1:m )
-      addre = ( x(iv,1,this%n/2-i) + x(iv,1,i) ) * scal / 2 ; subre = ( x(iv,1,this%n/2-i) - x(iv,1,i) ) * scal / 2
-      addim = ( x(iv,2,this%n/2-i) + x(iv,2,i) ) * scal / 2 ; subim = ( x(iv,2,this%n/2-i) - x(iv,2,i) ) * scal / 2
+      addre = ( x(iv,1,this%n/2-i) + x(iv,1,i) ) * scal / 2
+      subre = ( x(iv,1,this%n/2-i) - x(iv,1,i) ) * scal / 2
+      addim = ( x(iv,2,this%n/2-i) + x(iv,2,i) ) * scal / 2
+      subim = ( x(iv,2,this%n/2-i) - x(iv,2,i) ) * scal / 2
       
       tempre = addre - subre * this%t(this%n+2*i) + addim * this%t(this%n+2*i-1)
       tempim = subim - addim * this%t(this%n+2*i) - subre * this%t(this%n+2*i-1)
       
-      x(iv,1,         i) =             tempre ; x(iv,2,         i) = tempim
-      x(iv,1,this%n/2-i) = 2 * addre - tempre ; x(iv,2,this%n/2-i) = tempim - 2 * subim
+      x(iv,1,         i) = tempre
+      x(iv,2,         i) = tempim
+      x(iv,1,this%n/2-i) = +2 * addre - tempre
+      x(iv,2,this%n/2-i) = -2 * subim + tempim
     end do
     
     if ( mod(this%n,4) == 0) then
        do concurrent ( iv = 1:m )
          x(iv,1,this%n/4) = +x(iv,1,this%n/4) * scal
-       end do
-       
-       do concurrent ( iv = 1:m )
          x(iv,2,this%n/4) = -x(iv,2,this%n/4) * scal
        end do
     end if
