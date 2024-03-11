@@ -4,20 +4,20 @@ submodule (Fourier_transform) fft_r2c
   module pure subroutine fft_r2c_exec_sub(this, m, x, cx)
     class(T_fft),      intent(in)    :: this
     integer,           intent(in)    :: m
-    real(kind=dbl),    intent(inout) :: x(m,*)
+    real(kind=dbl),    intent(inout) :: x(m,2,*)
     complex(kind=dbl), intent(out)   :: cx(m,*)
     integer                          :: i1, i2
     
     call this%fft_r2c_sub( m, x )
     
     do concurrent ( i1 = 1:m )
-      cx(i1,1)%re = x(i1,1)
-      cx(i1,1)%im = 0._dbl
+      cx(i1,1)%re = x(i1,1,1)
+      cx(i1,1)%im = zero
     end do
     
     do concurrent ( i2 = 2:this%np, i1 = 1:m )
-      cx(i1,i2)%re = x(i1,2*i2-1)
-      cx(i1,i2)%im = x(i1,2*i2  )
+      cx(i1,i2)%re = x(i1,1,i2)
+      cx(i1,i2)%im = x(i1,2,i2)
     end do
     
   end subroutine fft_r2c_exec_sub

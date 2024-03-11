@@ -7,7 +7,12 @@ submodule (Fourier_transform) fxtal
     real(kind=dbl), intent(inout) :: x(m,2,0:*)
     integer                       :: ip, j, isd, kd, ld, k1, jd, icd, icdd, it1d
     
-    kd = k ; ld = l ; k1 = 1 ; j = j1 ; it1d = it1 ; ip = mod(it1d,4)+2
+    kd   = k
+    ld   = l
+    k1   = 1
+    j    = j1
+    it1d = it1
+    ip   = mod(it1d,4)+2
     
     if ( ic /= 1 ) then
       select case (ip)
@@ -34,6 +39,7 @@ submodule (Fourier_transform) fxtal
       do jd = 0, ip-1
          call fxztal(m, kd, ld, x, t, icd, itsum, isd, j+jd, it1d)
       end do
+    
     else
       do icdd = icd, itsum
         ip = mod(it1d,4)+2

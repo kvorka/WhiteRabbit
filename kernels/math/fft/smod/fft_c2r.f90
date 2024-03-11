@@ -5,16 +5,16 @@ submodule (Fourier_transform) fft_c2r
     class(T_fft),      intent(in)  :: this
     integer,           intent(in)  :: m
     complex(kind=dbl), intent(in)  :: cx(m,*)
-    real(kind=dbl),    intent(out) :: x(m,*)
-    integer                        :: i1, i2
+    real(kind=dbl),    intent(out) :: x(m,2,*)
+    integer                        :: i1, i2, i3
     
-    do concurrent ( i2 = 1:this%n , i1 = 1:m )
-      x(i1,i2) = 0._dbl
+    do concurrent ( i3 = 1:this%np, i1 = 1:m )
+      x(i1,1,i3) = cx(i1,i3)%re
+      x(i1,2,i3) = cx(i1,i3)%im
     end do
     
-    do concurrent (i2 = 1:this%np, i1 = 1:m)
-      x(i1,2*i2-1) = cx(i1,i2)%re
-      x(i1,2*i2  ) = cx(i1,i2)%im
+    do concurrent ( i3 = this%np+1:this%n/2, i2 = 1:2, i1 = 1:m )
+      x(i1,i2,i3) = zero
     end do
     
     call this%fft_c2r_sub( m,  x )
