@@ -3,24 +3,87 @@ submodule (PhysicalObject) BalanceEquations
   
   module real(kind=dbl) function laws_mech_fn(this)
     class(T_physicalObject), intent(in) :: this
+    integer                             :: ir
+    real(kind=dbl)                      :: bndpow, heatpow, buoypow
+    real(kind=dbl),    allocatable      :: power_i(:)
+    complex(kind=dbl), allocatable      :: gdrho_jm(:), rvelc_jm(:)
+    
+    !Viscous dissipation
+    allocate( power_i(this%nd) )
+    
+      do ir = 1, this%nd
+        power_i(ir) = tnorm_fn( this%jmax, this%sol%deviatoric_stress_jml2_fn(ir) )**2 / this%visc_fn(ir) / 2
+      end do
+      
+      heatpow = this%rad_grid%intV_fn( power_i )
+    
+    deallocate( power_i )
+    
+    !Buoyancy power
+    allocate( power_i(this%nd+1) , gdrho_jm(this%jms), rvelc_jm(this%jms) )
+    
+      do ir = 1, this%nd+1
+        gdrho_jm = this%Ra * this%alpha_fn(ir) * this%gravity%g_fn( this%rad_grid%rr(ir) ) * this%sol%temp_jm_fn(ir)
+        rvelc_jm = ervs_fn(this%jmax, this%sol%velocity_jml_fn(ir))
+        
+        power_i(ir) = scalproduct_fn( this%jmax, gdrho_jm, rvelc_jm )
+      end do
+      
+      buoypow = this%rad_grid%intV_fn( power_i )
+    
+    deallocate( power_i, gdrho_jm, rvelc_jm )
     
     select case( this%mechanic_bnd )
       case( 'shape' )
-        laws_mech_fn = bound_power_fn(this) / ( heating_power_fn(this) - buoyancy_power_fn(this) )
+        !Power of boundary forces
+        bndpow = this%Rad * this%gd * this%rd**2 * scalproduct_fn(this%jmax, this%sol%t_dn, this%vr_jm_fn(1)) - &
+               & this%Rau * this%gu * this%ru**2 * scalproduct_fn(this%jmax, this%sol%t_up, this%vr_jm_fn(this%nd))
+        
+        laws_mech_fn = bndpow / ( heatpow - buoypow )
+        
       case default  
-        laws_mech_fn = buoyancy_power_fn(this) / heating_power_fn(this)
+        laws_mech_fn = buoypow / heatpow
+        
     end select
     
   end function laws_mech_fn
   
   module real(kind=dbl) function laws_temp_fn(this)
     class(T_physicalObject), intent(in) :: this
+    integer                             :: ir
+    real(kind=dbl)                      :: fac1, fac2, fac3, flux_dn, flux_up, totheat, totheattide
+    real(kind=dbl),         allocatable :: heat(:), heattide(:)
+    
+    flux_dn = c2r_fn( +this%sol%flux_fn(1,1,1)       * this%rd**2 )
+    flux_up = c2r_fn( -this%sol%flux_fn(this%nd,1,1) * this%ru**2 )
     
     select case( this%thermal_bnd )
       case( 'phase' )
-        laws_temp_fn = advected_heat_fn(this) / bound_flux_fn(this)
-      case default  
-        laws_temp_fn = c2r_fn( this%sol%flux_fn(this%nd,1,1) ) / c2r_fn( this%sol%flux_fn(1,1,1) ) / (this%r_ud**2)
+        allocate( heat(this%nd), heattide(this%nd) )
+          
+          do ir = 1, this%nd
+            fac1 = this%rad_grid%c(ir,-1) * this%cp_fn(ir  )
+            fac2 = this%rad_grid%c(ir,+1) * this%cp_fn(ir+1)
+            fac3 = 1 / this%lambda_fn(ir)
+            
+            heat(ir) = dotproduct_fn( this%jmax , fac1 * this%sol%velocity_jml_fn(ir  ) + &
+                                                & fac2 * this%sol%velocity_jml_fn(ir+1) , &
+                                                & fac3 * this%sol%flux_jml_fn(ir)         )
+            
+            heattide(ir) = this%htide_fn(ir,1)
+          end do
+          
+          totheat     = this%rad_grid%intV_fn( heat )
+          totheattide = this%rad_grid%intV_fn( heattide )
+          
+        deallocate( heat, heattide )
+        
+        laws_temp_fn = totheat / ( flux_dn + flux_up + totheattide )
+        
+      case default
+        
+        laws_temp_fn = flux_up / flux_dn
+        
     end select
     
   end function laws_temp_fn
@@ -49,83 +112,4 @@ submodule (PhysicalObject) BalanceEquations
     
   end function laws_force_fn
   
-  module real(kind=dbl) function buoyancy_power_fn(this)
-    class(T_physicalObject), intent(in) :: this
-    integer                             :: ir
-    real(kind=dbl),         allocatable :: power_i(:)
-    complex(kind=dbl),      allocatable :: gdrho_jm(:), rvelc_jm(:)
-    
-    allocate( power_i(this%nd+1) , gdrho_jm(this%jms), rvelc_jm(this%jms) )
-    
-      do ir = 1, this%nd+1
-        gdrho_jm = this%Ra * this%alpha_fn(ir) * this%gravity%g_fn( this%rad_grid%rr(ir) ) * this%sol%temp_jm_fn(ir)
-        rvelc_jm = ervs_fn(this%jmax, this%sol%velocity_jml_fn(ir))
-        
-        power_i(ir) = scalproduct_fn( this%jmax, gdrho_jm, rvelc_jm )
-      end do
-      
-      buoyancy_power_fn = this%rad_grid%intV_fn( power_i )
-    
-    deallocate( power_i, gdrho_jm, rvelc_jm )
-    
-  end function buoyancy_power_fn
-  
-  module real(kind=dbl) function heating_power_fn(this)
-    class(T_physicalObject),       intent(in) :: this
-    integer                                   :: ir
-    real(kind=dbl),               allocatable :: power_i(:)
-    
-    allocate( power_i(this%nd) )
-    
-      do ir = 1, this%nd
-        power_i(ir) = tnorm_fn( this%jmax, this%sol%deviatoric_stress_jml2_fn(ir) )**2 / this%visc_fn(ir) / 2
-      end do
-      
-      heating_power_fn = this%rad_grid%intV_fn( power_i )
-    
-    deallocate( power_i )
-    
-  end function heating_power_fn
-  
-  module real(kind=dbl) function bound_power_fn(this)
-    class(T_physicalObject), intent(in) :: this
-      
-    bound_power_fn = this%Rad * this%gd * this%rd**2 * scalproduct_fn(this%jmax, this%sol%t_dn, this%vr_jm_fn(1)) - &
-                   & this%Rau * this%gu * this%ru**2 * scalproduct_fn(this%jmax, this%sol%t_up, this%vr_jm_fn(this%nd))
-    
-  end function bound_power_fn
-  
-  module real(kind=dbl) function bound_flux_fn(this)
-    class(T_physicalObject), intent(in) :: this
-    
-    bound_flux_fn = c2r_fn( -this%sol%flux_fn(this%nd,1,1) * this%ru**2 + this%sol%flux_fn(1,1,1) * this%rd**2 - &
-                          & this%Ds/this%Ra * this%rad_grid%intV_fn( this%htide(:,1) )                           ) / s4pi
-    
-  end function bound_flux_fn
-  
-  module real(kind=dbl) function advected_heat_fn(this)
-    class(T_physicalObject), intent(in)  :: this
-    integer                              :: ir
-    real(kind=dbl),          allocatable :: heat(:)
-    complex(kind=dbl),       allocatable :: velc_cp(:), mgradT(:)
-    
-    allocate( velc_cp(this%jmv), mgradT(this%jmv), heat(this%nd) )
-    
-      do ir = 1, this%nd
-        velc_cp = this%rad_grid%c(ir,-1) * this%cp_fn(ir  ) * this%sol%velocity_jml_fn(ir  ) + &
-                & this%rad_grid%c(ir,+1) * this%cp_fn(ir+1) * this%sol%velocity_jml_fn(ir+1)
-        
-        mgradT = this%sol%flux_jml_fn(ir) / this%lambda_fn(ir)
-             
-        heat(ir) = dotproduct_fn( this%jmax, velc_cp, mgradT )
-      end do
-      
-    deallocate( velc_cp , mgradT )
-    
-      advected_heat_fn = this%rad_grid%intV_fn( heat )
-    
-    deallocate( heat )
-    
-  end function advected_heat_fn
-   
 end submodule BalanceEquations

@@ -330,26 +330,6 @@ module PhysicalObject
       class(T_physicalObject), intent(in) :: this
       integer,                 intent(in) :: ijm
     end function laws_force_fn
-    
-    module real(kind=dbl) function buoyancy_power_fn(this)
-      class(T_physicalObject), intent(in) :: this
-    end function buoyancy_power_fn
-    
-    module real(kind=dbl) function heating_power_fn(this)
-      class(T_physicalObject), intent(in) :: this
-    end function heating_power_fn
-    
-    module real(kind=dbl) function bound_power_fn(this)
-      class(T_physicalObject), intent(in) :: this
-    end function bound_power_fn
-    
-    module real(kind=dbl) function bound_flux_fn(this)
-      class(T_physicalObject), intent(in) :: this
-    end function bound_flux_fn
-    
-    module real(kind=dbl) function advected_heat_fn(this)
-      class(T_physicalObject), intent(in) :: this
-    end function advected_heat_fn
   end interface
 
 end module PhysicalObject
