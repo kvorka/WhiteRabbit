@@ -1,12 +1,18 @@
-module OutputOceanMod
+program OutputOcean
   use OceanConstants
   use OutputMod
-  implicit none; public
+  implicit none
   
   integer, parameter, private :: n_out = 120
   integer, parameter, private :: jms   =    (jmax_ocean  )*(jmax_ocean+1)/2 + (jmax_ocean  )  + 1
   integer, parameter, private :: jms1  =    (jmax_ocean+1)*(jmax_ocean+2)/2 + (jmax_ocean+1)  + 1
   integer, parameter, private :: jmv   = 3*((jmax_ocean  )*(jmax_ocean+1)/2 + (jmax_ocean  )) + 1
+  
+  call nuss_curve_sub()
+  
+  call save_spectra_flux_sub()
+  call save_spectra_temp_sub()
+  call save_spectra_velc_sub()
   
   contains
   
@@ -78,5 +84,4 @@ module OutputOceanMod
     
   end subroutine save_spectra_velc_sub
   
-end module OutputOceanMod
-  
+end program OutputOcean

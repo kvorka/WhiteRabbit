@@ -1,9 +1,12 @@
-module OutputIceMod
+program ConvergenceIce
   use IceConstants
   use OutputMod
-  implicit none; public
+  implicit none
   
-  integer, parameter, private :: jms = jmax_ice * (jmax_ice+1) / 2 + jmax_ice + 1
+  call convergence_curve_ice_sub(path_ice_shape_dn, 'curveShape_dn.dat')
+  call convergence_curve_ice_sub(path_ice_shape_up, 'curveShape_up.dat')
+  call convergence_curve_ice_sub(path_ice_topo_dn , 'curveTopo_dn.dat' )
+  call convergence_curve_ice_sub(path_ice_topo_up , 'curveTopo_up.dat' )
   
   contains
   
@@ -38,17 +41,4 @@ module OutputIceMod
     
   end subroutine convergence_curve_ice_sub
   
-  subroutine save_spectra_ice_sub(path_in, path_out)
-    character(len=*),  intent(in)  :: path_in, path_out
-    complex(kind=dbl), allocatable :: spectra(:)
-    
-    allocate( spectra(jms) ); spectra = czero
-
-    call avrg_spectra_2d_sub(path_in, spectra)
-    call out_spectra_2d_sub(path_out, spectra)
-    
-    deallocate( spectra )
-    
-  end subroutine save_spectra_ice_sub
-    
-end module OutputIceMod
+end program ConvergenceIce

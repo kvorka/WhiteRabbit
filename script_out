@@ -15,14 +15,8 @@ code_type="ocean_convection"
 ###########################################################################################
 $compile -c kernels/math/precision/Math.f90
 $compile -c kernels/math/precision/Conversions.f90
-$compile -c output/Paths.f90
-$compile -c output/OutputMod.f90
-
-$compile -c code/ice/IceConstants.f90
-$compile -c output/ice/mod/OutputIceMod.f90
-
-$compile -c code/ocean/OceanConstants.f90
-$compile -c output/ocean/mod/OutputOceanMod.f90
+$compile -c output/mod/Paths.f90
+$compile -c output/mod/OutputMod.f90
 
 rm -f temp_averaged.spec velc_averaged.spec flux_averaged.spec || true
 rm -f curveShape_dn.dat curveShape_up.dat curveTopo_dn.dat curveTopo_up.dat || true
@@ -33,29 +27,35 @@ rm -f curveShape_dn.dat curveShape_up.dat curveTopo_dn.dat curveTopo_up.dat || t
 case $code_type in
     
     ocean_convection)
+        $compile -c code/ocean/OceanConstants.f90
         $compile output/ocean/OutputOcean.f90 *.o -o code_out
         ./code_out
     ;;
     
     ocean_tides)
+        $compile -c code/ocean/OceanConstants.f90
         $compile output/ocean/OutputOcean.f90 *.o -o code_out
         ./code_out
     ;;
     
     ice_ocean)
+        $compile -c code/ocean/OceanConstants.f90
         $compile output/ocean/OutputOcean.f90 *.o -o code_out
         ./code_out
         
+        $compile -c code/ice/IceConstants.f90
         $compile output/ice/OutputIce.f90 *.o -o code_out
         ./code_out
     ;;
     
     ice_deformation)
+        $compile -c code/ice/IceConstants.f90
         $compile output/ice/OutputIce.f90 *.o -o code_out
         ./code_out
     ;;
     
     ice_convergence)
+        $compile -c code/ice/IceConstants.f90
         $compile output/ice/ConvergenceIce.f90 *.o -o code_out
         ./code_out
     ;;
