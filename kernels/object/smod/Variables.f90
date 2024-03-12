@@ -32,7 +32,8 @@ submodule(PhysicalObject) Variables
     
     j = real(this%j_indx(ijm), kind=dbl)
     
-    qr_fn = sqrt( j / (2*j+1) ) * this%sol%flux_fn(ir,-1,ijm) - sqrt( (j+1) / (2*j+1) ) * this%sol%flux_fn(ir,+1,ijm)
+    qr_fn = sqrt( (j  ) / (2*j+1) ) * this%sol%flux_fn(ir,-1,ijm) - &
+          & sqrt( (j+1) / (2*j+1) ) * this%sol%flux_fn(ir,+1,ijm)
     
   end function qr_fn
   
@@ -50,32 +51,12 @@ submodule(PhysicalObject) Variables
     integer,                 intent(in) :: ir
     complex(kind=dbl),      allocatable :: vr(:)
     
-    allocate( vr(this%jms) ) ; vr = ervs_fn( this%jmax, this%rad_grid%c(ir,-1) * this%sol%velocity_jml_fn(ir  ) + &
-                                  &                     this%rad_grid%c(ir,+1) * this%sol%velocity_jml_fn(ir+1)   )
+    allocate( vr(this%jms) )
+    
+    vr = ervs_fn( this%jmax, this%rad_grid%c(ir,-1) * this%sol%velocity_jml_fn(ir  ) + &
+       &                     this%rad_grid%c(ir,+1) * this%sol%velocity_jml_fn(ir+1)   )
     
   end function vr_jm_fn
-  
-  module pure function dv_dr_rrjml_fn(this, ir, v) result(dv)
-    class(T_physicalObject), intent(in) :: this
-    integer,                 intent(in) :: ir
-    complex(kind=dbl),       intent(in) :: v(:)
-    complex(kind=dbl),      allocatable :: dv(:)
-    
-    allocate( dv(this%jmv) ) ; dv = this%rad_grid%drr(ir,-1) * this%sol%velocity_jml_fn(ir-1) + &
-                                  & this%rad_grid%drr(ir, 0) * v                              + &
-                                  & this%rad_grid%drr(ir,+1) * this%sol%velocity_jml_fn(ir+1)
-    
-  end function dv_dr_rrjml_fn
-  
-  module pure function mgradT_rrjml_fn(this, ir) result(gradT)
-    class(T_physicalObject), intent(in) :: this
-    integer,                 intent(in) :: ir
-    complex(kind=dbl),      allocatable :: gradT(:)
-    
-    allocate( gradT(this%jmv) ) ; gradT = this%rad_grid%cc(ir,-1) * this%sol%flux_jml_fn(ir-1) / this%lambda_fn(ir-1) + &
-                                        & this%rad_grid%cc(ir,+1) * this%sol%flux_jml_fn(ir  ) / this%lambda_fn(ir)
-    
-  end function mgradT_rrjml_fn
   
   module pure subroutine dv_dr_rr_jml_sub(this, ir, v, dv)
     class(T_physicalObject), intent(in)  :: this

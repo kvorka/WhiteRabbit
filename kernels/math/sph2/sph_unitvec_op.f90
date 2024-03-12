@@ -72,58 +72,6 @@ module sph_unitvec_op
     
   end function ervv_fn
   
-  pure function ezvv_fn(np, cajml) result(cjml)
-    integer,           intent(in)  :: np
-    complex(kind=dbl), intent(in)  :: cajml(:)
-    complex(kind=dbl), allocatable :: cjml(:)
-    integer                        :: ij, im, jm0, jm1, jm2
-    
-    allocate( cjml(jml(np,np,+1)) ) ; cjml = czero
-    
-    ij = 0 ; cjml(1) = sqrt(2._dbl/3._dbl) * cajml(3)
-    
-    ij = 1
-      do im = 0, ij
-        jm1 = 3 * ( (ij-1)*(ij  ) / 2 + im )
-        jm0 = 3 * ( (ij  )*(ij+1) / 2 + im )
-        jm2 = 3 * ( (ij+1)*(ij+2) / 2 + im )
-        
-        cjml(jm0-1) =                                                                      - im * cajml(jm0-1) / (ij       )
-        cjml(jm0 )  = sqrt((ij+1)*((ij  )**2-im**2)/(2*ij+1._dbl)) * cajml(jm1+1) / (ij  ) - im * cajml(jm0  ) / (ij*(ij+1)) + &
-                    & sqrt((ij  )*((ij+1)**2-im**2)/(2*ij+1._dbl)) * cajml(jm2-1) / (ij+1)
-        cjml(jm0+1) =                                                                        im * cajml(jm0+1) / (    ij+1 ) + &
-                    & sqrt((ij+2)*((ij+1)**2-im**2)/(2*ij+3._dbl)) * cajml(jm2  ) / (ij+1)
-      end do
-    
-    do ij = 2, np-1
-      do im = 0, ij
-        jm1 = 3 * ( (ij-1)*(ij  ) / 2 + im )
-        jm0 = 3 * ( (ij  )*(ij+1) / 2 + im )
-        jm2 = 3 * ( (ij+1)*(ij+2) / 2 + im )
-        
-        cjml(jm0-1) = sqrt((ij-1)*((ij  )**2-im**2)/(2*ij-1._dbl)) * cajml(jm1  ) / (ij  ) - im * cajml(jm0-1) / (ij       )
-        cjml(jm0  ) = sqrt((ij+1)*((ij  )**2-im**2)/(2*ij+1._dbl)) * cajml(jm1+1) / (ij  ) - im * cajml(jm0  ) / (ij*(ij+1)) + &
-                    & sqrt((ij  )*((ij+1)**2-im**2)/(2*ij+1._dbl)) * cajml(jm2-1) / (ij+1)
-        cjml(jm0+1) =                                                                        im * cajml(jm0+1) / (    ij+1 ) + &
-                    & sqrt((ij+2)*((ij+1)**2-im**2)/(2*ij+3._dbl)) * cajml(jm2  ) / (ij+1)
-      end do
-    end do
-    
-    ij = np
-      do im = 0, ij
-        jm1 = 3 * ( (ij-1)*(ij  ) / 2 + im )
-        jm0 = 3 * ( (ij  )*(ij+1) / 2 + im )
-        jm2 = 3 * ( (ij+1)*(ij+2) / 2 + im )
-        
-        cjml(jm0-1) = sqrt(((ij-1)*(ij**2-im**2))/(2*ij-1._dbl)) * cajml(jm1  ) / ij - im * cajml(jm0-1) / (ij       )
-        cjml(jm0  ) = sqrt(((ij+1)*(ij**2-im**2))/(2*ij+1._dbl)) * cajml(jm1+1) / ij - im * cajml(jm0  ) / (ij*(ij+1))
-        cjml(jm0+1) =                                                                  im * cajml(jm0+1) / (    ij+1 )
-      end do
-    
-    cjml = cunit * cjml
-    
-  end function ezvv_fn
-  
   pure subroutine ezvv_sub(np, fac, cajml, cjml)
     integer,           intent(in)    :: np
     real(kind=dbl),    intent(in)    :: fac
