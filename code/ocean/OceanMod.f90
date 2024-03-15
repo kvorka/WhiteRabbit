@@ -91,7 +91,7 @@ module OceanMod
   subroutine vypis_ocean_sub(this)
     class(T_ocean), intent(inout) :: this
 
-    write(11,*) this%t, this%dt, this%nuss_fn(), this%reynolds_fn(), this%nonzon_reynolds_fn()
+    write(11,*) this%t, this%dt, this%nuss_fn(), this%reynolds_fn(), this%reynolds_fn(choice='convective')
     write(12,*) this%t, this%dt, this%laws_temp_fn(), this%laws_mech_fn()
      
     call this%vypis_sub(8, 'data/data_ocean_temp' , 'temperature')

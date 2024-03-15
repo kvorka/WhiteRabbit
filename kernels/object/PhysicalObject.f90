@@ -31,12 +31,11 @@ module PhysicalObject
     procedure, pass :: init_objects_sub       => init_objects_sub
     procedure, pass :: deallocate_objects_sub => deallocate_objects_sub
     
-    procedure, pass :: lambda_fn, cp_fn, visc_fn, alpha_fn, set_dt_sub, velc_crit_fn, vypis_sub, htide_fn, qr_fn, vr_fn, qr_jm_fn, &
-    & vr_jm_fn, dv_dr_rr_jml_sub, mgradT_rr_jml_sub, buoy_rr_jm_fn, coriolis_vgradv_sub, coriolis_sub, laws_temp_fn, laws_mech_fn, &
-    & buoy_rr_jml_sub, coriolis_rr_jml_sub, global_rotation_sub, mvgradT_sub, fullnl_sub, matica_temp_fn, matica_mech_fn, nuss_fn, &
+    procedure, pass :: lambda_fn, cp_fn, visc_fn, alpha_fn, set_dt_sub, reynolds_fn, vypis_sub, htide_fn, qr_fn, vr_fn, qr_jm_fn,  &
+    & dv_dr_rr_jml_sub, mgradT_rr_jml_sub, buoy_rr_jm_fn, coriolis_vgradv_sub, coriolis_sub, laws_temp_fn, nuss_fn, laws_mech_fn,  &
+    & buoy_rr_jml_sub, coriolis_rr_jml_sub, global_rotation_sub, mvgradT_sub, fullnl_sub, matica_temp_fn, matica_mech_fn, vr_jm_fn,&
     & init_eq_temp_sub, init_eq_mech_sub, init_eq_torr_sub, prepare_mat_mech_sub, prepare_mat_temp_sub, prepare_mat_torr_sub,      &
-    & solve_temp_sub, solve_torr_sub, solve_mech_sub, reynolds_fn, nonzon_reynolds_fn, volume_heating_fn, laws_force_fn,           &
-    & matica_torr_fn
+    & solve_temp_sub, solve_torr_sub, solve_mech_sub, volume_heating_fn, laws_force_fn, matica_torr_fn
     
   end type T_physicalObject
   
@@ -52,10 +51,6 @@ module PhysicalObject
     module subroutine set_dt_sub(this)
       class(T_physicalObject), intent(inout) :: this
     end subroutine set_dt_sub
-    
-    module real(kind=dbl) function velc_crit_fn(this)
-      class(T_physicalObject), intent(in) :: this
-    end function velc_crit_fn
     
     module subroutine deallocate_objects_sub(this)
       class(T_physicalObject), intent(inout) :: this
@@ -306,13 +301,10 @@ module PhysicalObject
       class(T_physicalObject), intent(in) :: this
     end function nuss_fn
     
-    module pure real(kind=dbl) function reynolds_fn(this)
-      class(T_physicalObject), intent(in) :: this
+    module pure real(kind=dbl) function reynolds_fn(this, choice)
+      class(T_physicalObject), intent(in)           :: this
+      character(len=*),        intent(in), optional :: choice
     end function reynolds_fn
-    
-    module pure real(kind=dbl) function nonzon_reynolds_fn(this)
-      class(T_physicalObject), intent(in) :: this
-    end function nonzon_reynolds_fn
     
     module pure real(kind=dbl) function volume_heating_fn(this)
       class(T_physicalObject), intent(in) :: this
