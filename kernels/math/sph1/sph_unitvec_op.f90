@@ -1,6 +1,5 @@
 module sph_unitvec_op
   use Math
-  use sph_indexing
   implicit none; public; contains
   
   pure function ervs_fn(np, cajml) result(cjm)
@@ -10,15 +9,16 @@ module sph_unitvec_op
     integer                        :: ij, ijm
     real(kind=dbl)                 :: fac1, fac2
     
-    allocate( cjm(jm(np,np)) ) ; cjm = czero
+    allocate( cjm(np*(np+1)/2+np+1) ) ; cjm = czero
     
-    ij = 0 ; cjm(1) = -cajml(1)
+    ij = 0
+      cjm(1) = -cajml(1)
     
     do ij = 1, np
       fac1 = +sqrt( ( ij   ) / ( 2*ij + 1._dbl ) )
       fac2 = -sqrt( ( ij+1 ) / ( 2*ij + 1._dbl ) )
       
-      do concurrent ( ijm = jm(ij,0) : jm(ij,ij) )
+      do concurrent ( ijm = ij*(ij+1)/2+1 : ij*(ij+1)/2+ij+1 )
         cjm(ijm) = fac1 * cajml(3*ijm-4) + fac2 * cajml(3*ijm-2)
       end do
     end do
@@ -32,15 +32,16 @@ module sph_unitvec_op
     integer                        :: ij, ijm
     real(kind=dbl)                 :: fac1, fac2
     
-    allocate( cjml(jml(np,np,+1)) ) ; cjml = czero
+    allocate( cjml(3*(np*(np+1)/2+np)+1) ) ; cjml = czero
     
-    ij = 0 ; cjml(1) = -cajm(1)
+    ij = 0
+      cjml(1) = -cajm(1)
     
     do ij = 1, np
       fac1 = +sqrt( (ij  ) / ( 2*ij+1._dbl ) )
       fac2 = -sqrt( (ij+1) / ( 2*ij+1._dbl ) )
       
-      do concurrent ( ijm = jm(ij,0) : jm(ij,ij) )
+      do concurrent ( ijm = ij*(ij+1)/2+1 : ij*(ij+1)/2+ij+1 )
         cjml(3*ijm-4) = fac1 * cajm(ijm)
         cjml(3*ijm-2) = fac2 * cajm(ijm)
       end do
@@ -53,20 +54,21 @@ module sph_unitvec_op
     complex(kind=dbl), intent(in)  :: cajml(:)
     complex(kind=dbl), allocatable :: cjml(:)
     integer                        :: ij, ijm
-    real(kind=dbl)                 :: fac1, fac2
+    complex(kind=dbl)              :: fac1, fac2
     
-    allocate( cjml(jml(np,np,+1)) ) ; cjml = czero
+    allocate( cjml(3*(np*(np+1)/2+np)+1) ) ; cjml = czero
     
-    ij = 0 ; cjml(1) = czero
+    ij = 0
+      cjml(1) = czero
     
     do ij = 1, np
-      fac1 = sqrt( ( ij   ) / ( 2*ij+1._dbl ) )
-      fac2 = sqrt( ( ij+1 ) / ( 2*ij+1._dbl ) )
+      fac1 = sqrt( ( ij   ) / ( 2*ij+1._dbl ) ) * cunit
+      fac2 = sqrt( ( ij+1 ) / ( 2*ij+1._dbl ) ) * cunit
       
-      do concurrent ( ijm = jm(ij,0) : jm(ij,ij) )
-        cjml(3*ijm-4) = cunit *   fac2 * cajml(3*ijm-3)
-        cjml(3*ijm-3) = cunit * ( fac2 * cajml(3*ijm-4) + fac1 * cajml(3*ijm-2) )
-        cjml(3*ijm-2) = cunit *   fac1 * cajml(3*ijm-3)
+      do concurrent ( ijm = ij*(ij+1)/2+1 : ij*(ij+1)/2+ij+1 )
+        cjml(3*ijm-4) = fac2 * cajml(3*ijm-3)
+        cjml(3*ijm-3) = fac2 * cajml(3*ijm-4) + fac1 * cajml(3*ijm-2)
+        cjml(3*ijm-2) =                         fac1 * cajml(3*ijm-3)
       end do
     end do
     

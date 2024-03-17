@@ -3,80 +3,75 @@ module sph_norms
   use Conversions
   implicit none; public; contains
   
+  pure function scalproduct_fn(np, cajm, cbjm) result(sp)
+    integer,           intent(in) :: np
+    complex(kind=dbl), intent(in) :: cajm(*), cbjm(*)
+    integer                       :: j, j0
+    real(kind=dbl)                :: sp
+    
+    !j == 0
+    sp = c2r_fn( cajm(1) * conjg( cbjm(1) ) )
+    
+    !higher degrees
+    do j = 1, np
+      j0 = j*(j+1)/2+1
+      
+      !sum over orders is split to m == 0 and higher orders (these are multiplied by factor 2)
+      sp = sp + c2r_fn( cajm(j0) * conjg(cbjm(j0)) ) + 2 * sum( c2r_fn( cajm(j0+1:j0+j) * conjg(cbjm(j0+1:j0+j)) ) )
+    end do
+    
+  end function scalproduct_fn
+  
+  pure function dotproduct_fn(np, cajml, cbjml) result(vp)
+    integer,           intent(in) :: np
+    complex(kind=dbl), intent(in) :: cajml(*), cbjml(*)
+    integer                       :: j, j0
+    real(kind=dbl)                :: vp
+    
+    !j == 0
+    vp = c2r_fn( cajml(1) * conjg(cbjml(1)) )
+    
+    !higher degrees
+    do j = 1, np
+      j0 = 3*(j*(j+1)/2)
+      
+      !sum over orders is split to m == 0 and higher orders (these are multiplied by factor 2)
+      vp = vp +     sum( c2r_fn( cajml(j0-1:j0    +1) * conjg(cbjml(j0-1:j0    +1)) ) ) + &
+              & 2 * sum( c2r_fn( cajml(j0+2:j0+3*j+1) * conjg(cbjml(j0+3:j0+3*j+1)) ) )
+    end do
+    
+  end function dotproduct_fn
+  
   pure real(kind=dbl) function snorm_fn(np, cajm)
     integer,           intent(in) :: np
     complex(kind=dbl), intent(in) :: cajm(:)
-    integer                       :: ij
     
-    ij = 0
-      snorm_fn = abs( cajm(1) )**2
-    
-    do ij = 1, np
-      snorm_fn = snorm_fn + abs( cajm(jm(ij,0)) )**2 + 2 * sum( abs( cajm(jm(ij,1):jm(ij,ij)) )**2 )
-    end do
-    
-    snorm_fn = sqrt( snorm_fn )
+    snorm_fn = sqrt( scalproduct_fn(np, cajm, cajm) )
     
   end function snorm_fn
   
   pure real(kind=dbl) function vnorm_fn(np, cajml)
     integer,           intent(in) :: np
     complex(kind=dbl), intent(in) :: cajml(:)
-    integer                       :: ij
     
-    vnorm_fn = abs( cajml(1) )**2
-    
-    do ij = 1, np
-      vnorm_fn = vnorm_fn +     sum( abs( cajml(jml(ij,0,-1):jml(ij, 0,+1)) )**2 ) + &
-               &            2 * sum( abs( cajml(jml(ij,1,-1):jml(ij,ij,+1)) )**2 )
-    end do
-    
-    vnorm_fn = sqrt( vnorm_fn )
+    vnorm_fn = sqrt( dotproduct_fn(np, cajml, cajml) )
     
   end function vnorm_fn
   
   pure real(kind=dbl) function tnorm_fn(np, cajml2)
     integer,           intent(in) :: np
     complex(kind=dbl), intent(in) :: cajml2(:)
-    integer                       :: ij
+    integer                       :: j
     
     tnorm_fn = abs( cajml2(1) )**2 + sum( abs( cajml2(4:6) )**2 ) + 2 * sum( abs( cajml2(9:11) )**2 )
     
-    do ij = 2, np
-      tnorm_fn = tnorm_fn +     sum( abs( cajml2(jml2(ij,0,-2):jml2(ij, 0,+2)) )**2 ) + &
-               &            2 * sum( abs( cajml2(jml2(ij,1,-2):jml2(ij,ij,+2)) )**2 )
+    do j = 2, np
+      tnorm_fn = tnorm_fn +     sum( abs( cajml2(jml2(j,0,-2):jml2(j,0,+2)) )**2 ) + &
+               &            2 * sum( abs( cajml2(jml2(j,1,-2):jml2(j,j,+2)) )**2 )
     end do
     
     tnorm_fn = sqrt( tnorm_fn )
     
   end function tnorm_fn
-  
-  pure real(kind=dbl) function scalproduct_fn(np, cajm, cbjm)
-    integer,           intent(in) :: np
-    complex(kind=dbl), intent(in) :: cajm(:), cbjm(:)
-    integer                       :: ij
-    
-    scalproduct_fn = c2r_fn( cajm(1) * conjg( cbjm(1) ) )
-    
-    do ij = 1, np
-      scalproduct_fn = scalproduct_fn +     c2r_fn(      cajm(jm(ij,0))           * conjg( cbjm(jm(ij,0)) )             ) + &
-                     &                  2 * c2r_fn( sum( cajm(jm(ij,1):jm(ij,ij)) * conjg( cbjm(jm(ij,1):jm(ij,ij)) ) ) ) 
-    end do
-    
-  end function scalproduct_fn
-  
-  pure real(kind=dbl) function dotproduct_fn(np, cajml, cbjml)
-    integer,           intent(in) :: np
-    complex(kind=dbl), intent(in) :: cajml(:), cbjml(:)
-    integer                       :: ij
-    
-    dotproduct_fn = c2r_fn( cajml(1) * conjg(cbjml(1)) )
-    
-    do ij = 1, np
-      dotproduct_fn = dotproduct_fn +   c2r_fn(sum(cajml(jml(ij,0,-1):jml(ij, 0,+1))*conjg(cbjml(jml(ij,0,-1):jml(ij, 0,+1))))) + &
-                                    2 * c2r_fn(sum(cajml(jml(ij,1,-1):jml(ij,ij,+1))*conjg(cbjml(jml(ij,1,-1):jml(ij,ij,+1)))))
-    end do
-    
-  end function dotproduct_fn
   
 end module sph_norms
