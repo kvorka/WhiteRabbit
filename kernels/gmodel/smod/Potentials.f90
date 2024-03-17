@@ -33,23 +33,17 @@ submodule(Gravity) Potentials
     integer,          intent(in) :: j, m
     real(kind=dbl),   intent(in) :: ri, phase
     
-    select case (j)
-      case (2)
-        select case (m)
-          case (0)
-            V_tide_fn = (this%omega * ri)**2 * this%Dcrust * this%exc / this%g * r2c_fn( -sqrt(9*pi/5) * cos(phase) )
-            
-          case (2)
-            V_tide_fn = (this%omega * ri)**2 * this%Dcrust * this%exc / this%g * cmplx( +sqrt(27*pi/10) * cos(phase) ,          &
-                                                                                      & -sqrt(24*pi/ 5) * sin(phase) , kind=dbl )
-          case default
-            V_tide_fn = czero
-        end select
+    if ( (j == 2) .and. (m == 0) ) then
+      V_tide_fn = (this%omega * ri)**2 * this%Dcrust * this%exc / this%g * r2c_fn( -sqrt(9*pi/5) * cos(phase) )
       
-      case default
-        V_tide_fn = czero
-    end select
-        
+    else if ( (j == 2) .and. (m == 2) ) then
+      V_tide_fn = (this%omega * ri)**2 * this%Dcrust * this%exc / this%g * cmplx( +sqrt(27*pi/10) * cos(phase) ,          &
+                                                                                & -sqrt(24*pi/ 5) * sin(phase) , kind=dbl )
+      
+    else
+      V_tide_fn = czero
+    end if
+    
   end function V_tide_fn
   
   module pure complex(kind=dbl) function V_rt_fn(this, j, m, ri)
@@ -57,20 +51,15 @@ submodule(Gravity) Potentials
     integer,          intent(in) :: j, m
     real(kind=dbl),   intent(in) :: ri
     
-    select case (j)
-      case (2)
-        select case (m)
-          case (0)
-            V_rt_fn = r2c_fn( -( this%omega * ri )**2 * this%Dcrust / this%g * sqrt(5*pi/9 ) )
-          case (2)
-            V_rt_fn = r2c_fn( +( this%omega * ri )**2 * this%Dcrust / this%g * sqrt(3*pi/10) )
-          case default
-            V_rt_fn = czero
-        end select
+    if ( (j == 2) .and. (m == 0) ) then
+      V_rt_fn = r2c_fn( -( this%omega * ri )**2 * this%Dcrust / this%g * sqrt(5*pi/9 ) )
       
-      case default
-        V_rt_fn = czero
-    end select
+    else if ( (j == 2) .and. (m == 2) ) then
+      V_rt_fn = r2c_fn( +( this%omega * ri )**2 * this%Dcrust / this%g * sqrt(3*pi/10) )
+      
+    else
+      V_rt_fn = czero
+    end if
     
   end function V_rt_fn
   

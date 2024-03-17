@@ -8,11 +8,13 @@ submodule(Matrix) LU_solve
     complex(kind=dbl)                :: dum
     
     do j = 1, this%n
-      i = this%I(j) ; dum = b(i)
-        if (i /= j) then
-          b(i) = b(j)
-          b(j) = dum
-        end if
+      i   = this%I(j)
+      dum = b(i)
+      
+      if (i /= j) then
+        b(i) = b(j)
+        b(j) = dum
+      end if
       
       do concurrent ( i = j+1:min(this%n,this%ld+j) )
         b(i) = b(i) - this%L(i-j,j) * dum

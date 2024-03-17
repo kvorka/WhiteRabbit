@@ -15,25 +15,23 @@ submodule (PhysicalObject) VolumeMeassures
     real(kind=dbl),         allocatable           :: field_vals(:)
     
     allocate( field_vals(this%nd+1) )
+    
+    if ( present( choice ) ) then
+      select case (choice)
+        case ('convective')
+          do ir = 1, this%nd+1
+            field_vals(ir) = vnorm_fn( this%jmax, this%sol%conv_velocity_jml_fn(ir) )**2
+          end do
+      end select
+    
+    else
+      do ir = 1, this%nd+1
+        field_vals(ir) = vnorm_fn( this%jmax, this%sol%velocity_jml_fn(ir) )**2
+      end do
       
-      if ( present( choice ) ) then
-        
-        select case (choice)
-          case ('convective')
-            do ir = 1, this%nd+1
-              field_vals(ir) = vnorm_fn( this%jmax, this%sol%conv_velocity_jml_fn(ir) )**2
-            end do
-        end select
-      
-      else
-        
-        do ir = 1, this%nd+1
-          field_vals(ir) = vnorm_fn( this%jmax, this%sol%velocity_jml_fn(ir) )**2
-        end do
-        
-      end if
-      
-      reynolds_fn = sqrt( this%rad_grid%intV_fn( field_vals ) / this%rad_grid%volume )
+    end if
+    
+    reynolds_fn = sqrt( this%rad_grid%intV_fn( field_vals ) / this%rad_grid%volume )
     
     deallocate(field_vals)
     
@@ -45,12 +43,12 @@ submodule (PhysicalObject) VolumeMeassures
     real(kind=dbl),         allocatable :: field_vals(:)
     
     allocate( field_vals(this%nd) )
-      
-      do ir = 1, this%nd
-        field_vals(ir) = tnorm_fn( this%jmax, this%sol%deviatoric_stress_jml2_fn(ir) )**2
-      end do
-      
-      volume_heating_fn = this%rad_grid%intV_fn( field_vals ) / 2
+    
+    do ir = 1, this%nd
+      field_vals(ir) = tnorm_fn( this%jmax, this%sol%deviatoric_stress_jml2_fn(ir) )**2
+    end do
+    
+    volume_heating_fn = this%rad_grid%intV_fn( field_vals ) / 2
     
     deallocate(field_vals)
     

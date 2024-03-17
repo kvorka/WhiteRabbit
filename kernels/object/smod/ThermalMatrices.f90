@@ -19,7 +19,7 @@ submodule (PhysicalObject) ThermalMatrices
           matica(4, 1) = 0.5_dbl
           matica(7, 1) = 0.5_dbl
         else
-          rgrad_T = - ( c2r_fn( -this%sol%flux_fn(1,1,1) / sqrt(4*pi) ) / this%lambda_fn(1) )
+          rgrad_T = - ( c2r_fn( -this%sol%flux_fn(1,1,1) ) / s4pi / this%lambda_fn(1) )
             matica(4, 1) = 0.5_dbl / ( rgrad_T - this%Cl )
             matica(5, 1) = -sqrt((j  )/(2*j+1)) * this%Raf * this%dt
             matica(6, 1) = +sqrt((j+1)/(2*j+1)) * this%Raf * this%dt
@@ -55,7 +55,7 @@ submodule (PhysicalObject) ThermalMatrices
           matica(1, 3*this%nd+1) = 0.5_dbl
           matica(4, 3*this%nd+1) = 0.5_dbl
         else
-          rgrad_T = - ( c2r_fn( -this%sol%flux_fn(this%nd,1,1) / sqrt(4*pi) ) / this%lambda_fn(this%nd) )
+          rgrad_T = - ( c2r_fn( -this%sol%flux_fn(this%nd,1,1) ) / s4pi / this%lambda_fn(this%nd) )
             matica(1, 3*this%nd+1) = 0.5_dbl / rgrad_T
             matica(4, 3*this%nd+1) = 0.5_dbl / rgrad_T
         end if

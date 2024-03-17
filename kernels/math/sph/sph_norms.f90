@@ -1,5 +1,4 @@
 module sph_norms
-  use sph_indexing
   use Conversions
   implicit none; public; contains
   
@@ -16,7 +15,6 @@ module sph_norms
     do j = 1, np
       j0 = j*(j+1)/2+1
       
-      !sum over orders is split to m == 0 and higher orders (these are multiplied by factor 2)
       sp = sp + c2r_fn( cajm(j0) * conjg(cbjm(j0)) ) + 2 * sum( c2r_fn( cajm(j0+1:j0+j) * conjg(cbjm(j0+1:j0+j)) ) )
     end do
     
@@ -35,12 +33,31 @@ module sph_norms
     do j = 1, np
       j0 = 3*(j*(j+1)/2)
       
-      !sum over orders is split to m == 0 and higher orders (these are multiplied by factor 2)
       vp = vp +     sum( c2r_fn( cajml(j0-1:j0    +1) * conjg(cbjml(j0-1:j0    +1)) ) ) + &
               & 2 * sum( c2r_fn( cajml(j0+2:j0+3*j+1) * conjg(cbjml(j0+3:j0+3*j+1)) ) )
     end do
     
   end function dotproduct_fn
+  
+  pure function tensproduct_fn(np, cajml2, cbjml2) result(tp)
+    integer,           intent(in) :: np
+    complex(kind=dbl), intent(in) :: cajml2(:), cbjml2(:)
+    integer                       :: j, j0
+    real(kind=dbl)                :: tp
+    
+    !j == 0 and j == 1
+    tp = c2r_fn( cajml2(1) * conjg(cbjml2(1)) ) +     sum( c2r_fn( cajml2(4: 6) * conjg(cbjml2(4: 6)) ) ) + &
+                                                & 2 * sum( c2r_fn( cajml2(9:11) * conjg(cbjml2(9:11)) ) )
+    
+    !higher degrees
+    do j = 2, np
+      j0 = 5*(j*(j+1)/2)-3
+      
+      tp = tp +      sum( c2r_fn( cajml2(j0  :j0    +4) * conjg(cbjml2(j0  :j0    +4)) ) ) + &
+               & 2 * sum( c2r_fn( cajml2(j0+5:j0+5*j+4) * conjg(cbjml2(j0+5:j0+5*j+4)) ) )
+    end do
+  
+  end function tensproduct_fn
   
   pure real(kind=dbl) function snorm_fn(np, cajm)
     integer,           intent(in) :: np
@@ -61,16 +78,8 @@ module sph_norms
   pure real(kind=dbl) function tnorm_fn(np, cajml2)
     integer,           intent(in) :: np
     complex(kind=dbl), intent(in) :: cajml2(:)
-    integer                       :: j
     
-    tnorm_fn = abs( cajml2(1) )**2 + sum( abs( cajml2(4:6) )**2 ) + 2 * sum( abs( cajml2(9:11) )**2 )
-    
-    do j = 2, np
-      tnorm_fn = tnorm_fn +     sum( abs( cajml2(jml2(j,0,-2):jml2(j,0,+2)) )**2 ) + &
-               &            2 * sum( abs( cajml2(jml2(j,1,-2):jml2(j,j,+2)) )**2 )
-    end do
-    
-    tnorm_fn = sqrt( tnorm_fn )
+    tnorm_fn = sqrt( tensproduct_fn(np, cajml2, cajml2) )
     
   end function tnorm_fn
   

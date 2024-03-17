@@ -7,10 +7,8 @@ submodule(Matrix) LU_decomposition
     integer                        :: i, j, k, l
     real(kind=dbl)                 :: pom
     
-    do concurrent ( j = 1:this%n , i = 1:this%ldu )
-      this%U(i,j) = matrixU(i,j)
-      this%M(i,j) = matrixM(i,j)
-    end do
+    this%U = matrixU
+    this%M = matrixM
     
     k = this%ld
       do i = 1, this%ld
@@ -20,7 +18,7 @@ submodule(Matrix) LU_decomposition
         
         k = k-1
           do concurrent ( l = this%ldu-k:this%ldu )
-            this%U(l,i) = 0._dbl
+            this%U(l,i) = zero
           end do
       end do
     
@@ -52,7 +50,7 @@ submodule(Matrix) LU_decomposition
           this%U(l,i) = this%U(l+1,i) - pom * this%U(l+1,j)
         end do
         
-        this%U(this%ldu,i) = 0._dbl
+        this%U(this%ldu,i) = zero
       end do
     end do
     

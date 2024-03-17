@@ -5,14 +5,13 @@ submodule(Matrix) Multiple_matrix
     class(T_matrix),   intent(in) :: this
     integer,           intent(in) :: i
     complex(kind=dbl), intent(in) :: vector(:)
-    integer                       :: j, k
+    integer                       :: k, indstart, indend
     
-    matrix_multiple_fn = czero
+    k        = i-this%ld-1
+    indstart = max(1,1-k)
+    indend   = min(this%ldu,this%n-k)
     
-    k = i-this%ld-1
-      do concurrent ( j = max(1,1-k):min(this%ldu,this%n-k) )
-        matrix_multiple_fn = matrix_multiple_fn + this%M(j,i) * vector(j+k)
-      end do
+    matrix_multiple_fn = sum( this%M(indstart:indend,i) * vector(k+indstart:k+indend) )
     
   end function matrix_multiple_fn
   
