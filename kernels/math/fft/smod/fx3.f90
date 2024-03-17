@@ -1,5 +1,10 @@
 submodule (Fourier_transform) fx3
-  implicit none; contains
+  implicit none
+  
+  real(kind=dbl), parameter :: C31 = -0.5_dbl
+  real(kind=dbl), parameter :: C32 = +0.86602540378443864676_dbl
+  
+  contains
   
   module pure subroutine fxzm3a(m, k, l, x, t)
     integer,        intent(in)    :: m, k, l

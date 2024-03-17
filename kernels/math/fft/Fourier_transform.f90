@@ -20,13 +20,7 @@ module Fourier_transform
     
   end type T_fft
   
-  integer,        parameter :: imm = -2e4
-  real(kind=dbl), parameter :: C31 = -0.5_dbl
-  real(kind=dbl), parameter :: C32 = +0.86602540378443864676_dbl
-  real(kind=dbl), parameter :: C51 = +0.25_dbl
-  real(kind=dbl), parameter :: C52 = +0.5590169943749474241_dbl
-  real(kind=dbl), parameter :: C53 = +0.6180339887498948482_dbl
-  real(kind=dbl), parameter :: C54 = -0.9510565162951535721_dbl
+  integer, parameter :: imm = -2e4
   
   interface
     module pure subroutine fft_init_sub(this, n)
