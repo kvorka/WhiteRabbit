@@ -6,10 +6,8 @@ module Gravity
   real(kind=dbl), parameter :: kappa = 6.670d-11
   
   type, public :: T_gravity
-    character(len=3),            private :: gmod
-    integer,                     private :: nlay
-    real(kind=dbl),              private :: Dcrust, g, exc, omega
-    real(kind=dbl), allocatable, private :: rho(:), radius(:)
+    character(len=3), private :: gmod
+    real(kind=dbl),   private :: Dcrust, g, exc, omega
     
     contains
     
@@ -27,11 +25,9 @@ module Gravity
       real(kind=dbl),   intent(in)    :: g
     end subroutine init_gravity_sub
     
-    module subroutine set_gravity_sub(this, Dcrust, omega, exc, nlay, subor)
+    module subroutine set_gravity_sub(this, Dcrust, omega, exc)
       class(T_gravity),           intent(inout) :: this
-      integer,          optional, intent(in)    :: nlay
       real(kind=dbl),   optional, intent(in)    :: Dcrust, omega, exc
-      character(len=*), optional, intent(in)    :: subor
     end subroutine set_gravity_sub
 
     module pure real(kind=dbl) function g_fn(this, ri)
