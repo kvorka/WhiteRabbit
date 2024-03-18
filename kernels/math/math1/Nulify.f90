@@ -3,9 +3,9 @@ module Nulify
   implicit none; public; contains
   
   pure subroutine zero_carray_sub( length, arr )
-    integer,         intent(in)  :: length
-    complex(real64), intent(out) :: arr(*)
-    integer                      :: i
+    integer,           intent(in)  :: length
+    complex(kind=dbl), intent(out) :: arr(*)
+    integer                        :: i
     
     do concurrent ( i = 1:length )
       arr(i) = czero
