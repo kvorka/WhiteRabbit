@@ -4,7 +4,7 @@ module sph_unitvec_op
   
   pure function ervs_fn(np, cajml) result(cjm)
     integer,           intent(in)  :: np
-    complex(kind=dbl), intent(in)  :: cajml(:)
+    complex(kind=dbl), intent(in)  :: cajml(*)
     complex(kind=dbl), allocatable :: cjm(:)
     integer                        :: ij, ijm
     real(kind=dbl)                 :: fac1, fac2
@@ -15,8 +15,8 @@ module sph_unitvec_op
       cjm(1) = -cajml(1)
     
     do ij = 1, np
-      fac1 = +sqrt( ( ij   ) / ( 2*ij + 1._dbl ) )
-      fac2 = -sqrt( ( ij+1 ) / ( 2*ij + 1._dbl ) )
+      fac1 = +sqrt((ij  )/(2*ij+one))
+      fac2 = -sqrt((ij+1)/(2*ij+one))
       
       do concurrent ( ijm = ij*(ij+1)/2+1 : ij*(ij+1)/2+ij+1 )
         cjm(ijm) = fac1 * cajml(3*ijm-4) + fac2 * cajml(3*ijm-2)
@@ -27,7 +27,7 @@ module sph_unitvec_op
   
   pure function ersv_fn(np, cajm) result(cjml)
     integer,           intent(in)  :: np
-    complex(kind=dbl), intent(in)  :: cajm(:)
+    complex(kind=dbl), intent(in)  :: cajm(*)
     complex(kind=dbl), allocatable :: cjml(:)
     integer                        :: ij, ijm
     real(kind=dbl)                 :: fac1, fac2
@@ -38,8 +38,8 @@ module sph_unitvec_op
       cjml(1) = -cajm(1)
     
     do ij = 1, np
-      fac1 = +sqrt( (ij  ) / ( 2*ij+1._dbl ) )
-      fac2 = -sqrt( (ij+1) / ( 2*ij+1._dbl ) )
+      fac1 = +sqrt((ij  )/(2*ij+one))
+      fac2 = -sqrt((ij+1)/(2*ij+one))
       
       do concurrent ( ijm = ij*(ij+1)/2+1 : ij*(ij+1)/2+ij+1 )
         cjml(3*ijm-4) = fac1 * cajm(ijm)
@@ -49,36 +49,11 @@ module sph_unitvec_op
     
   end function ersv_fn
   
-  pure function ervv_fn(np, cajml) result(cjml)
-    integer,           intent(in)  :: np
-    complex(kind=dbl), intent(in)  :: cajml(:)
-    complex(kind=dbl), allocatable :: cjml(:)
-    integer                        :: ij, ijm
-    complex(kind=dbl)              :: fac1, fac2
-    
-    allocate( cjml(3*(np*(np+1)/2+np)+1) ) ; cjml = czero
-    
-    ij = 0
-      cjml(1) = czero
-    
-    do ij = 1, np
-      fac1 = sqrt( ( ij   ) / ( 2*ij+1._dbl ) ) * cunit
-      fac2 = sqrt( ( ij+1 ) / ( 2*ij+1._dbl ) ) * cunit
-      
-      do concurrent ( ijm = ij*(ij+1)/2+1 : ij*(ij+1)/2+ij+1 )
-        cjml(3*ijm-4) = fac2 * cajml(3*ijm-3)
-        cjml(3*ijm-3) = fac2 * cajml(3*ijm-4) + fac1 * cajml(3*ijm-2)
-        cjml(3*ijm-2) =                         fac1 * cajml(3*ijm-3)
-      end do
-    end do
-    
-  end function ervv_fn
-  
   pure subroutine ezvv_sub(np, fac, cajml, cjml)
     integer,           intent(in)    :: np
     real(kind=dbl),    intent(in)    :: fac
-    complex(kind=dbl), intent(in)    :: cajml(:)
-    complex(kind=dbl), intent(inout) :: cjml(:,:)
+    complex(kind=dbl), intent(in)    :: cajml(*)
+    complex(kind=dbl), intent(inout) :: cjml(3,*)
     integer                          :: ij, im, ijm, jm0, jm1, jm2
     complex(kind=dbl)                :: cfac
     
@@ -134,11 +109,11 @@ module sph_unitvec_op
         jm0 = 3 * ( (ij  )*(ij+1) / 2 + im )
         jm2 = 3 * ( (ij+1)*(ij+2) / 2 + im )
         
-        cjml(1,ijm) = cjml(1,ijm) + ( sqrt((ij-1)*((ij  )**2-im**2)/(2*ij-1._dbl)) * cajml(jm1  ) /  ij       - &
-                                    &                                           im * cajml(jm0-1) /  ij         ) * cfac
-        cjml(2,ijm) = cjml(2,ijm) + ( sqrt((ij+1)*((ij  )**2-im**2)/(2*ij+1._dbl)) * cajml(jm1+1) /  ij       - &
-                                    &                                           im * cajml(jm0  ) / (ij*(ij+1)) ) * cfac
-        cjml(3,ijm) = cjml(3,ijm) + (                                           im * cajml(jm0+1) /     (ij+1)  ) * cfac
+        cjml(1,ijm) = cjml(1,ijm) + ( sqrt((ij-1)*(ij**2-im**2)/(2*ij-1._dbl)) * cajml(jm1  ) /  ij       - &
+                                    &                                       im * cajml(jm0-1) /  ij         ) * cfac
+        cjml(2,ijm) = cjml(2,ijm) + ( sqrt((ij+1)*(ij**2-im**2)/(2*ij+1._dbl)) * cajml(jm1+1) /  ij       - &
+                                    &                                       im * cajml(jm0  ) / (ij*(ij+1)) ) * cfac
+        cjml(3,ijm) = cjml(3,ijm) + (                                       im * cajml(jm0+1) /     (ij+1)  ) * cfac
       end do
       
   end subroutine ezvv_sub
