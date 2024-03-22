@@ -1,5 +1,6 @@
 program ConvergenceIce
   use IceConstants
+  use sph_norms
   use OutputMod
   implicit none
   
@@ -13,30 +14,25 @@ program ConvergenceIce
   subroutine convergence_curve_ice_sub(path_in, path_out)
     character(len=*), intent(in) :: path_out, path_in
     integer                      :: in, ijm, error
-    real(kind=dbl)               :: L2
-    complex(kind=dbl)            :: coeff
+    complex(kind=dbl)            :: coeffs(jmax_ice*(jmax_ice+1)/2+jmax_ice+1)
     
     open(unit=8, file=path_out, status='new', action='write'); in = 0
-      do
-        open(unit=7, file=path_in//trim(adjustl(int2str_fn(in)))//'.dat', status='old', action='read', iostat=error)
+    
+    do
+      open(unit=7, file=path_in//trim(adjustl(int2str_fn(in)))//'.dat', status='old', action='read', iostat=error)
+      
+        if (error /= 0) exit
         
-          if (error /= 0) then 
-            exit
-          else
-            L2 = 0._dbl
-            
-            do
-              read(7,*,iostat=error) ijm, coeff ; if (error /= 0) exit
-              
-              L2 = L2 + abs( coeff )**2
-            end do
-          end if
-          
-          write(8,*) in, sqrt(L2)
-        close(7)
+        do ijm = 1, jmax_ice*(jmax_ice+1)/2+jmax_ice+1
+          read(7,*) error, coeffs(ijm)
+        end do
         
-        in = in + 1
-      end do
+        write(8,*) in, snorm_fn(jmax_ice, coeffs)
+      close(7)
+      
+      in = in + 1
+    end do
+    
     close(8)
     
   end subroutine convergence_curve_ice_sub
