@@ -1,11 +1,17 @@
 submodule (SphericalHarmonics) Init_SphericalHarmonics
   implicit none ; contains
   
+  pure subroutine grid_nothing_sub(nfour, nstep, grid)
+    integer,                intent(in)    :: nfour, nstep
+    real(kind=dbl), target, intent(inout) :: grid(*)
+  end subroutine grid_nothing_sub
+  
   module subroutine init_harmonics_sub(this, jmax)
     class(T_lateralGrid), intent(inout) :: this
     integer,              intent(in)    :: jmax
     integer                             :: i, k, j, m, n, ncnt
     real(kind=dbl)                      :: xincr, x, y, fx, fy
+    complex(kind=dbl),    allocatable   :: cc(:), cr(:)
     
     if ( .not. ( any( addmissible_jmax == jmax ) ) ) then
       write(*,*) 'Due to FFT, this value of jmax is prohibited. Please, see table of admissible values in SphericalHarmonics.f90'
@@ -87,7 +93,30 @@ submodule (SphericalHarmonics) Init_SphericalHarmonics
     
     call this%fourtrans%init_sub( this%nFourier )
     
-    this%tolm = 0.1_dbl; call this%vctol_sub()
+    allocate( cc(this%jms2), cr(this%jms2) )
+    
+    call random_number( cc(1:this%jmax2+1)%re )
+    call random_number( cc(this%jmax2+2:)%re )
+    call random_number( cc(this%jmax2+2:)%im )
+    
+    this%tolm = 0.1_dbl
+    do
+      call zero_carray_sub( this%jms2, cr(1) )
+      
+      call this%lege_transform_sub( 1, 1, cc(1), cr(1), grid_nothing_sub )
+      
+      if ( maxval( abs( abs(cc/cr) - 1 ) ) <= 1.0d-4 ) then
+        exit
+      else if ( this%tolm < 1.0d-100) then
+        this%tolm = 1.0d-90
+        exit
+      else
+        write(*,*) maxval( abs( abs(cc/cr) - 1 ) )
+        this%tolm = this%tolm / 10
+      end if
+    end do
+    
+    deallocate( cc, cr )
     
     allocate( this%maxm(this%nLegendre) ) ; this%maxm = this%jmax2
     

@@ -29,8 +29,8 @@ module SphericalHarmonics
     !Generic scalar transforms and needed routines
     procedure :: get_maxm_fn, lege_transform_sub
     
-    !Precision setting and transforms
-    procedure :: vctol_sub, vcsum_sub, vcst_sub, vcvv_sub, vcvgv_sub, vcvv_vcvgv_sub
+    !Transforms
+    procedure :: vcsum_sub, vcst_sub, vcvv_sub, vcvgv_sub, vcvv_vcvgv_sub
     
   end type T_lateralGrid
   
