@@ -56,7 +56,7 @@ module OceanMod
   
   subroutine iter_ocean_sub(this)
     class(T_ocean), intent(inout) :: this
-    integer                       :: k
+    integer                       :: k, ijm
     
     this%flux_up = czero
     
@@ -68,10 +68,13 @@ module OceanMod
     do k = 1, this%n_iter
       this%t = this%t + this%dt
         call this%time_scheme_sub()
-        this%flux_up = this%flux_up + this%qr_jm_fn(this%nd)
+        
+        do concurrent ( ijm = 1:this%jms )
+          this%flux_up(ijm) = this%flux_up(ijm) + this%qr_fn(this%nd,ijm)
+        end do
     end do
     
-    this%flux_up = this%flux_up / ( this%flux_up(1)%re / sqrt(4*pi) )
+    this%flux_up = this%flux_up / ( this%flux_up(1)%re / s4pi )
     
     call this%vypis_ocean_sub()
     

@@ -214,14 +214,18 @@ module IceCrustMod
     call this%EE_temp_sub(flux)
     call this%EE_mech_sub(flux)
     
-    this%sol%v_dn = this%vr_jm_fn(1) - this%Raf * ( this%qr_jm_fn(1) - flux(1:this%jms) )
-    this%sol%v_up = this%vr_jm_fn(this%nd)
-    
     this%sol%v_dn(1) = czero
     this%sol%v_up(1) = czero
     
-    this%sol%u_dn = this%sol%u_dn + this%sol%v_dn * this%dt
-    this%sol%u_up = this%sol%u_up + this%sol%v_up * this%dt
+    do concurrent ( ijm = 2:this%jms )
+      this%sol%v_dn(ijm) = this%vr_fn(1,ijm) - this%Raf * ( this%qr_fn(1,ijm) - flux(ijm) )
+      this%sol%v_up(ijm) = this%vr_fn(this%nd,ijm)
+    end do
+    
+    do concurrent ( ijm = 1:this%jms )
+      this%sol%u_dn(ijm) = this%sol%u_dn(ijm) + this%sol%v_dn(ijm) * this%dt
+      this%sol%u_up(ijm) = this%sol%u_up(ijm) + this%sol%v_up(ijm) * this%dt
+    end do
     
     do concurrent ( ijm = 2:this%jms )
       this%sol%t_dn(ijm) = this%sol%u_dn(ijm) - this%Vdelta_fn(1      ,ijm)
@@ -287,8 +291,9 @@ module IceCrustMod
     class(T_iceCrust), intent(inout) :: this
     complex(kind=dbl), intent(in)    :: flux(:)
     integer                          :: ir, ij, ijm
+    complex(kind=dbl)                :: buoy
     
-    !$omp parallel do private (ir,ij)
+    !$omp parallel do private (ir,ij,buoy)
     do ijm = 2, this%jms
       ij = this%j_indx(ijm)
 
@@ -296,9 +301,11 @@ module IceCrustMod
         this%rsph1(ir,ijm) = -( this%sol%u_dn(ijm) - this%Vdelta_fn(1,ijm) - this%Raf * (this%qr_fn(ir,ijm) - flux(ijm)) * this%dt )
         this%rsph2(ir,ijm) = czero
       
-      do concurrent ( ir = 2:this%nd )
-        this%rsph1(ir,ijm) = -sqrt((ij  )/(2*ij+1._dbl)) * this%buoy_rr_jm_fn(ir,ijm)
-        this%rsph2(ir,ijm) = +sqrt((ij+1)/(2*ij+1._dbl)) * this%buoy_rr_jm_fn(ir,ijm)
+      do ir = 2, this%nd
+        buoy = this%Ra * this%alpha_fn(ir) * this%gravity%g_fn( this%rad_grid%rr(ir) ) * this%sol%temp_fn(ir,ijm)
+        
+        this%rsph1(ir,ijm) = -sqrt((ij  )/(2*ij+one)) * buoy
+        this%rsph2(ir,ijm) = +sqrt((ij+1)/(2*ij+one)) * buoy
       end do
       
       ir = this%nd+1

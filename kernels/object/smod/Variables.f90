@@ -13,12 +13,13 @@ submodule(PhysicalObject) Variables
   module pure complex(kind=dbl) function vr_fn(this, ir, ijm)
     class(T_physicalObject), intent(in) :: this
     integer,                 intent(in) :: ir, ijm
-    real(kind=dbl)                      :: j, cj1, cj2, cr1, cr2
+    integer                             :: j
+    real(kind=dbl)                      :: cj1, cj2, cr1, cr2
     
-    j = real(this%j_indx(ijm), kind=dbl)
+    j = this%j_indx(ijm)
     
-    cj1 = sqrt( (j  ) / (2*j+1) ) ; cr1 = this%rad_grid%c(ir,-1)
-    cj2 = sqrt( (j+1) / (2*j+1) ) ; cr2 = this%rad_grid%c(ir,+1)
+    cj1 = sqrt( (j  ) / (2*j+one) ) ; cr1 = this%rad_grid%c(ir,-1)
+    cj2 = sqrt( (j+1) / (2*j+one) ) ; cr2 = this%rad_grid%c(ir,+1)
     
     vr_fn = cr1 * ( cj1 * this%sol%velocity_fn(ir  ,-1,ijm) - cj2 * this%sol%velocity_fn(ir  ,+1,ijm) ) + &
           & cr2 * ( cj1 * this%sol%velocity_fn(ir+1,-1,ijm) - cj2 * this%sol%velocity_fn(ir+1,+1,ijm) )
@@ -28,35 +29,14 @@ submodule(PhysicalObject) Variables
   module pure complex(kind=dbl) function qr_fn(this, ir, ijm)
     class(T_physicalObject), intent(in) :: this
     integer,                 intent(in) :: ir, ijm
-    real(kind=dbl)                      :: j
+    integer                             :: j
     
-    j = real(this%j_indx(ijm), kind=dbl)
+    j = this%j_indx(ijm)
     
-    qr_fn = sqrt( (j  ) / (2*j+1) ) * this%sol%flux_fn(ir,-1,ijm) - &
-          & sqrt( (j+1) / (2*j+1) ) * this%sol%flux_fn(ir,+1,ijm)
+    qr_fn = sqrt( (j  ) / (2*j+one) ) * this%sol%flux_fn(ir,-1,ijm) - &
+          & sqrt( (j+1) / (2*j+one) ) * this%sol%flux_fn(ir,+1,ijm)
     
   end function qr_fn
-  
-  module pure function qr_jm_fn(this, ir) result(qr)
-    class(T_physicalObject), intent(in) :: this
-    integer,                 intent(in) :: ir
-    complex(kind=dbl),      allocatable :: qr(:)
-    
-    allocate( qr(this%jms) ) ; qr = ervs_fn( this%jmax, this%sol%flux_jml_fn(ir) )
-    
-  end function qr_jm_fn
-  
-  module pure function vr_jm_fn(this, ir) result(vr)
-    class(T_physicalObject), intent(in) :: this
-    integer,                 intent(in) :: ir
-    complex(kind=dbl),      allocatable :: vr(:)
-    
-    allocate( vr(this%jms) )
-    
-    vr = ervs_fn( this%jmax, this%rad_grid%c(ir,-1) * this%sol%velocity_jml_fn(ir  ) + &
-       &                     this%rad_grid%c(ir,+1) * this%sol%velocity_jml_fn(ir+1)   )
-    
-  end function vr_jm_fn
   
   module pure subroutine dv_dr_rr_jml_sub(this, ir, v, dv)
     class(T_physicalObject), intent(in)  :: this

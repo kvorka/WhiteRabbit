@@ -1,14 +1,6 @@
 submodule(PhysicalObject) Forces
   implicit none ; contains
   
-  module pure complex(kind=dbl) function buoy_rr_jm_fn(this, ir, ijm)
-    class(T_physicalObject), intent(in) :: this
-    integer,                 intent(in) :: ir, ijm
-    
-    buoy_rr_jm_fn = this%Ra * this%alpha_fn(ir) * this%gravity%g_fn( this%rad_grid%rr(ir) ) * this%sol%temp_fn(ir,ijm)
-    
-  end function buoy_rr_jm_fn
-  
   module pure subroutine coriolis_rr_jml_sub(this, v, coriolis)
     class(T_physicalObject), intent(in)    :: this
     complex(kind=dbl),       intent(in)    :: v(:)
@@ -35,8 +27,8 @@ submodule(PhysicalObject) Forces
     fac = this%Ra * this%alpha_fn(ir) * this%gravity%g_fn( this%rad_grid%rr(ir) )
     
     do ij = 1, this%jmax
-      fac1 = -sqrt( (ij  ) / (2*ij+1._dbl) ) * fac
-      fac2 = +sqrt( (ij+1) / (2*ij+1._dbl) ) * fac
+      fac1 = -sqrt( (ij  ) / (2*ij+one) ) * fac
+      fac2 = +sqrt( (ij+1) / (2*ij+one) ) * fac
       
       do concurrent ( ijm = ij*(ij+1)/2+1:ij*(ij+1)/2+ij+1 )
         force(1,ijm) = force(1,ijm) + fac1 * T(ijm)

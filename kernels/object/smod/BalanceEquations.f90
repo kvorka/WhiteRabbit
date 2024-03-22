@@ -3,7 +3,7 @@ submodule (PhysicalObject) BalanceEquations
   
   module real(kind=dbl) function laws_mech_fn(this)
     class(T_physicalObject), intent(in) :: this
-    integer                             :: ir
+    integer                             :: ir, ijm
     real(kind=dbl)                      :: bndpow, heatpow, buoypow
     real(kind=dbl),    allocatable      :: power_i(:)
     complex(kind=dbl), allocatable      :: gdrho_jm(:), rvelc_jm(:)
@@ -31,20 +31,33 @@ submodule (PhysicalObject) BalanceEquations
       
       buoypow = this%rad_grid%intV_fn( power_i )
     
-    deallocate( power_i, gdrho_jm, rvelc_jm )
+    deallocate( power_i, gdrho_jm )
     
     select case( this%mechanic_bnd )
       case( 'shape' )
-        !Power of boundary forces
-        bndpow = this%Rad * this%gd * this%rd**2 * scalproduct_fn(this%jmax, this%sol%t_dn, this%vr_jm_fn(1)) - &
-               & this%Rau * this%gu * this%ru**2 * scalproduct_fn(this%jmax, this%sol%t_up, this%vr_jm_fn(this%nd))
+        !Power of the bottom boundary
+        do concurrent ( ijm = 1:this%jms )
+          rvelc_jm(ijm) = this%vr_fn(1,ijm)
+        end do
         
+        bndpow = this%Rad * this%gd * this%rd**2 * scalproduct_fn(this%jmax, this%sol%t_dn, rvelc_jm)
+        
+        !Power of the upper boundary
+        do concurrent ( ijm = 1:this%jms )
+          rvelc_jm(ijm) = this%vr_fn(this%nd,ijm)
+        end do
+        
+        bndpow = bndpow - this%Rau * this%gu * this%ru**2 * scalproduct_fn(this%jmax, this%sol%t_up, rvelc_jm)
+        
+        !Resulting law
         laws_mech_fn = bndpow / ( heatpow - buoypow )
         
       case default  
         laws_mech_fn = buoypow / heatpow
         
     end select
+    
+    deallocate( rvelc_jm )
     
   end function laws_mech_fn
   
@@ -93,20 +106,20 @@ submodule (PhysicalObject) BalanceEquations
     integer,                 intent(in) :: ijm
     integer                             :: ir
     complex(kind=dbl)                   :: press_topo_d, press_topo_u, press_buoy
-    complex(kind=dbl),      allocatable :: drho(:)
+    complex(kind=dbl),      allocatable :: dbuoy(:)
     
     press_topo_d = this%Rad * this%rd**2 * this%gd * this%sol%t_dn(ijm)
     press_topo_u = this%Rau * this%ru**2 * this%gu * this%sol%t_up(ijm)
     
-    allocate( drho(this%nd+1) )
+    allocate( dbuoy(this%nd+1) )
     
       do ir = 1, this%nd+1
-        drho(ir) = this%buoy_rr_jm_fn(ir,ijm)
+        dbuoy(ir) = this%Ra * this%alpha_fn(ir) * this%gravity%g_fn(this%rad_grid%rr(ir)) * this%sol%temp_fn(ir,ijm)
       end do
       
-      press_buoy = this%rad_grid%intV_fn( drho )
+      press_buoy = this%rad_grid%intV_fn( dbuoy )
     
-    deallocate( drho )
+    deallocate( dbuoy )
     
     laws_force_fn = c2r_fn( press_topo_u / ( press_topo_d + press_buoy ) )
     
