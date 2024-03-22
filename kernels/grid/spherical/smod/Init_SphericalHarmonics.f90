@@ -24,13 +24,9 @@ submodule (SphericalHarmonics) Init_SphericalHarmonics
     this%jmv  = 3 * ( jmax   *(jmax+1)/2 +  jmax   ) + 1
     this%jmv1 = 3 * ((jmax+1)*(jmax+2)/2 + (jmax+1)) + 1
     
-    this%jmt  = 5 * ((jmax  )*(jmax+1)/2 + (jmax  )) + 1
-    
     this%nFourier  = 3*(this%jmax2+1)
     this%nLegendre = ( 3*(this%jmax2+1)/2+1 ) / 2 + 1
     if ( mod(this%nLegendre,2) /= 0 ) this%nLegendre = this%nLegendre+1
-    
-    this%scale = 1 / ( 8 * this%nLegendre**2 * sqrt(pi) )
 
     allocate( this%roots(this%nLegendre) )
     
@@ -68,25 +64,25 @@ submodule (SphericalHarmonics) Init_SphericalHarmonics
     
     do m = 0, this%jmax2
       do j = m+1, this%jmax2
-        this%amjrr(m*this%jmax3-m*(m+1)/2+j+1) = sqrt((2*j-1._dbl)*(2*j+1._dbl)                          /(        (j-m)*(j+m)))
-        this%bmjrr(m*this%jmax3-m*(m+1)/2+j+1) = sqrt(             (2*j+1._dbl)*(j-m-1._dbl)*(j+m-1._dbl)/((2*j-3)*(j-m)*(j+m)))
+        this%amjrr(m*this%jmax3-m*(m+1)/2+j+1) = sqrt((2*j-1)*(2*j+one)                /(        (j-m)*(j+m)))
+        this%bmjrr(m*this%jmax3-m*(m+1)/2+j+1) = sqrt(        (2*j+one)*(j-m-1)*(j+m-1)/((2*j-3)*(j-m)*(j+m)))
       end do
     end do
     
     allocate( this%pmm(this%nLegendre,0:this%jmax2) )
     
     do i = 1, this%nLegendre
-      this%pmm(i,0) = 1._dbl
+      this%pmm(i,0) = one / sqrt(4*pi)
       
       do m = 1, this%jmax2
-        this%pmm(i,m) = -sqrt( ( 2*m+1 ) / ( 2._dbl * m ) * (1-this%roots(i)**2) ) * this%pmm(i,m-1)
+        this%pmm(i,m) = -sqrt( (2*m+one) / (2*m) * (1-this%roots(i)**2) ) * this%pmm(i,m-1)
       end do
     end do
     
     allocate( this%fftLege(this%nLegendre) )
     
     do i = 1, this%nLegendre
-      this%fftLege(i) = (1-this%roots(i)**2) / lege_fn(2*this%nLegendre-1, this%roots(i))**2
+      this%fftLege(i) = pi * (1-this%roots(i)**2) / ( this%nLegendre * lege_fn(2*this%nLegendre-1, this%roots(i)) )**2
     end do
     
     call this%fourtrans%init_sub( this%nFourier )

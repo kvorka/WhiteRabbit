@@ -10,9 +10,9 @@ module SphericalHarmonics
                                                & 247, 253, 267, 285, 297, 317, 321, 357, 381, 397, 429, 447, 477, 483, 497       ]
   
   type, public :: T_lateralGrid
-    integer,                     private :: jmax, jmax1, jmax2, jmax3, jms, jms1, jms2, jmv, jmv1, jmt, nLegendre, nFourier
+    integer,                     private :: jmax, jmax1, jmax2, jmax3, jms, jms1, jms2, jmv, jmv1, nLegendre, nFourier
     integer,        allocatable, private :: maxm(:)
-    real(kind=dbl),              private :: tolm, scale
+    real(kind=dbl),              private :: tolm
     real(kind=dbl), allocatable, private :: roots(:), fftLege(:), amjrr(:), bmjrr(:), pmm(:,:)
     type(T_fft),                 private :: fourtrans
     
@@ -27,7 +27,7 @@ module SphericalHarmonics
                & scal2vecscal_mj_to_jm_sub, gradvec2vec_jmlk_to_jml_sub, devtens2scal_jml2_to_mj_sub, scal2devtens_mj_to_jml2_sub
     
     !Generic scalar transforms and needed routines
-    procedure :: get_maxm_fn, rescale_sub, lege_transform_sub
+    procedure :: get_maxm_fn, lege_transform_sub
     
     !Precision setting and transforms
     procedure :: vctol_sub, vcsum_sub, vcst_sub, vcvv_sub, vcvgv_sub, vcvv_vcvgv_sub
@@ -100,12 +100,6 @@ module SphericalHarmonics
       complex(kind=dbl),    intent(in)  :: cr(ncr,*)
       complex(kind=dbl),    intent(out) :: ctjml2(*)
     end subroutine scal2devtens_mj_to_jml2_sub
-    
-    module pure subroutine rescale_sub( this, arr, length )
-      class(T_lateralGrid), intent(in)    :: this
-      integer,              intent(in)    :: length
-      complex(kind=dbl),    intent(inout) :: arr(*)
-    end subroutine rescale_sub
     
     module pure integer function get_maxm_fn(this, i, i2)
       class(T_lateralGrid), intent(in) :: this

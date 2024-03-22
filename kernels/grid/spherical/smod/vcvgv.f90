@@ -55,9 +55,6 @@ submodule (SphericalHarmonics) vcvgv
     !Cleaning
     deallocate( cc, cr )
     
-    !Rescaling
-    call this%rescale_sub( cjm(1), 3*this%jms )
-    
   end subroutine vcvgv_sub
   
 end submodule vcvgv

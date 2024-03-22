@@ -47,9 +47,6 @@ submodule (SphericalHarmonics) vcst
     !Cleaning
     deallocate( cc, cr )
     
-    !Rescaling
-    call this%rescale_sub( cjml2(1), this%jmt )
-    
   end subroutine vcst_sub
   
 end submodule vcst

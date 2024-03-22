@@ -45,9 +45,6 @@ submodule (SphericalHarmonics) vcvv
     !Cleaning
     deallocate( cc, cr )
     
-    !Rescaling
-    call this%rescale_sub( cjm(1), this%jms )
-    
   end subroutine vcvv_sub
   
 end submodule vcvv

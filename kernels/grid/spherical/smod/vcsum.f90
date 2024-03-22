@@ -40,9 +40,6 @@ submodule (SphericalHarmonics) vcsum
     !Cleaning
     deallocate( cr, cc )
     
-    !Rescaling
-    call this%rescale_sub( cjm(1), this%jms )
-    
   end subroutine vcsum_sub
   
 end submodule vcsum

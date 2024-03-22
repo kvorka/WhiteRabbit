@@ -1,18 +1,6 @@
 submodule (SphericalHarmonics) lege_transform
   implicit none; contains
   
-  module pure subroutine rescale_sub( this, arr, length )
-    class(T_lateralGrid), intent(in)    :: this
-    integer,              intent(in)    :: length
-    complex(kind=dbl),    intent(inout) :: arr(*)
-    integer                             :: ijm
-    
-    do concurrent ( ijm = 1:length )
-      arr(ijm) = this%scale * arr(ijm)
-    end do
-    
-  end subroutine rescale_sub
-  
   module pure integer function get_maxm_fn(this, i, i2)
     class(T_lateralGrid), intent(in) :: this
     integer,              intent(in) :: i, i2
