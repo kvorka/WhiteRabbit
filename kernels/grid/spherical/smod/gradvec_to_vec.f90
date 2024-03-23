@@ -55,7 +55,7 @@ submodule (SphericalHarmonics) gradvec_to_vec
         sum2(1) = czero; sum2(2) = czero
         sum3(1) = czero; sum3(2) = czero
         
-        do l = max(abs(m-1), j-1), min(this%jmax, j+1)
+        do l = j-1, min(this%jmax, j+1)
           lmj = 3*(l*(l+1)/2+m-1)+j-l
           
           !every time
