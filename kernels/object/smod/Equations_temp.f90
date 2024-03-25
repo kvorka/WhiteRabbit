@@ -27,7 +27,7 @@ submodule (PhysicalObject) Equations_temp
     
     !$omp parallel do
     do ij = ijstart, ijend
-      call this%mat%temp(ij)%fill_sub( this%matica_temp_fn(j_in=ij, a_in=this%cf),  this%matica_temp_fn(j_in=ij, a_in=this%cf-1) )
+      call this%mat%temp(ij)%fill_sub( this%mat_temp_fn(j_in=ij, a_in=this%cf),  this%mat_temp_fn(j_in=ij, a_in=this%cf-1) )
     end do
     !$omp end parallel do
     

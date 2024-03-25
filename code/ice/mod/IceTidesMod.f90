@@ -26,7 +26,8 @@ module IceTidesMod
     class(T_iceTides), intent(inout) :: this
     
     call this%init_ice_sub(jmax_in=2, rheol_in='viscel', n_iter=n_iter_tides, noharm=.true.)
-      this%cf = 1._dbl ; this%andrade = .true.
+      this%cf = 1._dbl
+      this%andrade = .true.
     
     call this%init_eq_mech_sub( rhs=.true. , nl=.false. )
     

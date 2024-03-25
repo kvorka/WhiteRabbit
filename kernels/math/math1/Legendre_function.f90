@@ -18,7 +18,8 @@ module Legendre_function
       ft = lege_fn(2*nL, t)
       
       if ( abs(ft) < 1.0d-15 ) then
-        xnode_fn = t ; exit
+        xnode_fn = t
+        exit
       end if
       
       if (fx1*ft < zero) then
@@ -30,7 +31,8 @@ module Legendre_function
       end if
       
       if ( (x2 - x1)/abs(x1) < 1.0d-15 ) then
-        xnode_fn = (x1 + x2)/2 ; exit
+        xnode_fn = (x1 + x2)/2
+        exit
       end if
     end do
     
@@ -46,7 +48,7 @@ module Legendre_function
     lege_fn = x
     
     do i = 2, deg
-      p2      = lege_fn * x - p1 + lege_fn * x - (lege_fn * x - p1) / i
+      p2      = lege_fn * x + (lege_fn * x - p1) * ( 1 - one / i )
       p1      = lege_fn
       lege_fn = p2
     end do

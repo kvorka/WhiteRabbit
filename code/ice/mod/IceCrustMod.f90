@@ -162,17 +162,22 @@ module IceCrustMod
   end subroutine solve_iceCrust_sub
   
     function II_stress_iceCrust_fn(this) result(II_stress)
-      class(T_iceCrust), intent(in) :: this
-      integer                       :: ir
-      real(kind=dbl), allocatable   :: II_stress(:)
+      class(T_iceCrust), intent(in)  :: this
+      integer                        :: ir
+      real(kind=dbl)                 :: facstress
+      real(kind=dbl),    allocatable :: II_stress(:)
+      complex(kind=dbl), allocatable :: devtens(:)
       
-      allocate( II_stress(this%nd) )
+      facstress = (this%viscU * this%kappaU / this%D_ud**2) / s4pi
+      
+      allocate( II_stress(this%nd), devtens(this%jmt) )
       
       do ir = 1, this%nd
-        II_stress(ir) = tnorm_fn( this%jmax, this%sol%deviatoric_stress_jml2_fn(ir) )
+        devtens       = this%sol%deviatoric_stress_jml2_fn(ir)
+        II_stress(ir) = sqrt( tensproduct_fn(this%jmax, devtens, devtens) ) * facstress
       end do
       
-      II_stress = II_stress * (this%viscU * this%kappaU / this%D_ud**2) / sqrt(4*pi)
+      deallocate( devtens )
       
     end function II_stress_iceCrust_fn
   

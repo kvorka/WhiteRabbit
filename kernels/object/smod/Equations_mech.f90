@@ -27,8 +27,8 @@ submodule (PhysicalObject) Equations_mech
     
     !$omp parallel do
     do ij = ijstart, ijend
-      call this%mat%mech(ij)%fill_sub( this%matica_mech_fn(j_in=ij, a_in=this%cf  ), &
-                                     & this%matica_mech_fn(j_in=ij, a_in=this%cf-1)  )
+      call this%mat%mech(ij)%fill_sub( this%mat_mech_fn(j_in=ij, a_in=this%cf  ), &
+                                     & this%mat_mech_fn(j_in=ij, a_in=this%cf-1)  )
     end do
     !$omp end parallel do
     

@@ -25,8 +25,8 @@ submodule (PhysicalObject) Equations_torr
     
     !$omp parallel do
     do ij = ijstart, ijend
-      call this%mat%torr(ij)%fill_sub( this%matica_torr_fn(j_in=ij, a_in=this%cf  ), &
-                                     & this%matica_torr_fn(j_in=ij, a_in=this%cf-1)  )
+      call this%mat%torr(ij)%fill_sub( this%mat_torr_fn(j_in=ij, a_in=this%cf  ), &
+                                     & this%mat_torr_fn(j_in=ij, a_in=this%cf-1)  )
     end do
     !$omp end parallel do
     

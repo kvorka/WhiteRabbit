@@ -32,6 +32,7 @@ submodule (PhysicalObject) Init_object
     
     this%jms  =   ( this%jmax*(this%jmax+1)/2+this%jmax ) + 1
     this%jmv  = 3*( this%jmax*(this%jmax+1)/2+this%jmax ) + 1
+    this%jmt  = 5*( this%jmax*(this%jmax+1)/2+this%jmax ) + 1
     
     if (.not. this%noobj) then
       call this%rad_grid%init_sub(this%nd, this%rd, this%ru, this%grid_type)

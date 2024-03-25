@@ -27,7 +27,7 @@ program ConvergenceIce
           read(7,*) error, coeffs(ijm)
         end do
         
-        write(8,*) in, snorm_fn(jmax_ice, coeffs)
+        write(8,*) in,  scalproduct_fn( jmax_ice, coeffs, coeffs )
       close(7)
       
       in = in + 1

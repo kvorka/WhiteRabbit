@@ -8,7 +8,7 @@ submodule(IceMod) ParametersIce
 
     if ( this%rad_grid%r(i) < this%rad_grid%r(this%nd) - this%hC ) then
        temp = this%Tu + ( this%Td-this%Tu ) * c2r_fn( this%rad_grid%c(i,-1) * this%sol%temp_fn(i  ,1) + &
-                                                    & this%rad_grid%c(i,+1) * this%sol%temp_fn(i+1,1)   ) / sqrt(4*pi)
+                                                    & this%rad_grid%c(i,+1) * this%sol%temp_fn(i+1,1)   ) / s4pi
        
        lambdaI = 0.4685_dbl + 488.12_dbl / temp
     else
@@ -23,7 +23,7 @@ submodule(IceMod) ParametersIce
     class(T_ice),  intent(in) :: this
     integer,       intent(in) :: i
     
-    cp_ice_fn = ( 185._dbl + 7.037_dbl * ( this%Tu + (this%Td-this%Tu) * c2r_fn( this%sol%temp_fn(i,1) ) / sqrt(4*pi) ) ) / this%cU
+    cp_ice_fn = ( 185._dbl + 7.037_dbl * ( this%Tu + (this%Td-this%Tu) * c2r_fn( this%sol%temp_fn(i,1) ) / s4pi ) ) / this%cU
     
   end function cp_ice_fn
   
@@ -51,24 +51,30 @@ submodule(IceMod) ParametersIce
   end function alpha_ice_fn
   
   module pure real(kind=dbl) function visc_ice_fn(this, i)
-    class(T_ice),      intent(in) :: this
-    integer,           intent(in) :: i
-    real(kind=dbl)                :: temp, stress, visc
+    class(T_ice),      intent(in)  :: this
+    integer,           intent(in)  :: i
+    real(kind=dbl)                 :: fac1, fac2, factemp, facstress, temp, stress, visc
+    complex(kind=dbl), allocatable :: devtens(:)
     
-    temp = this%Tu + (this%Td-this%Tu) * real( this%rad_grid%c(i,-1) * this%sol%temp_fn(i  ,1) +          &
-                                             & this%rad_grid%c(i,+1) * this%sol%temp_fn(i+1,1) , kind=dbl ) / sqrt(4*pi)
+    fac1 = this%rad_grid%c(i,-1)
+    fac2 = this%rad_grid%c(i,+1)
     
-    stress = (this%viscU * this%kappaU / this%D_ud**2) * tnorm_fn( this%jmax, this%sol%deviatoric_stress_jml2_fn(i) ) / sqrt(4*pi)
+    factemp   = this%Td-this%Tu
+    facstress = this%viscU * this%kappaU / this%D_ud**2
+    
+    allocate( devtens(this%jmt) ) ; devtens = this%sol%deviatoric_stress_jml2_fn(i)
+      
+      temp   = factemp   * c2r_fn( fac1 * this%sol%temp_fn(i,1) + fac2 * this%sol%temp_fn(i+1,1) ) / s4pi + this%Tu
+      stress = facstress * sqrt( tensproduct_fn(this%jmax, devtens, devtens) ) / s4pi
+      
+    deallocate( devtens )
     
     visc = min( goldsby_visc_fn(this%diam, temp, stress), this%cutoff )
-    
-    if ( .not. this%andrade ) then
-      visc_ice_fn = visc
-    else
-      visc_ice_fn = andrade_visc_fn(this%mu, this%omega, visc)
-    end if
-    
-    visc_ice_fn = visc_ice_fn / this%viscU
+      if ( .not. this%andrade ) then
+        visc_ice_fn = visc / this%viscU
+      else
+        visc_ice_fn = andrade_visc_fn(this%mu, this%omega, visc) / this%viscU
+      end if
     
   end function visc_ice_fn
   
