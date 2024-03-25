@@ -111,7 +111,6 @@ submodule (SphericalHarmonics) Init_SphericalHarmonics
         this%tolm = 1.0d-90
         exit
       else
-        write(*,*) maxval( abs( abs(cc/cr) - 1 ) )
         this%tolm = this%tolm / 10
       end if
     end do
