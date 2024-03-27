@@ -1,17 +1,17 @@
 submodule (SphericalHarmonics) vcvv
   implicit none ; contains
   
-  pure subroutine grid_op_vcvv_sub(nfour, nstep, grid)
-    integer,                intent(in)    :: nfour, nstep
+  pure subroutine grid_op_vcvv_sub(nfour, grid)
+    integer,                intent(in)    :: nfour
     real(kind=dbl), target, intent(inout) :: grid(*)
     integer                               :: i, i2
     real(kind=dbl), pointer               :: gout(:,:), gin(:,:,:)
     
-    gin(1:6,1:nstep,1:nfour) => grid(1:6*nstep*nfour)
-    gout(1:nstep,1:nfour)    => grid(1:  nstep*nfour)
+    gin(1:6,1:4,1:nfour) => grid(1:24*nfour)
+    gout(1:4,1:nfour)    => grid(1: 4*nfour)
     
     do i = 1, nfour
-      do i2 = 1, nstep
+      do i2 = 1, 4
         gout(i2,i) = gin(1,i2,i) * gin(4,i2,i) + gin(2,i2,i) * gin(5,i2,i) + gin(3,i2,i) * gin(6,i2,i)
       end do
     end do

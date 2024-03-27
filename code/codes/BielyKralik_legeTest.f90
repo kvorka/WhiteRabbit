@@ -8,14 +8,14 @@ program BielyKralik_legeTest
   complex(kind=dbl), allocatable :: scal1(:), scal2(:), scal3(:)
   
   !Inicializuj vypocet
-  jcut = 497
+  jcut = 997
   
   call sph%init_sub(jcut)
   
   allocate( scal1(jcut*(jcut+1)/2+jcut+1), scal2(jcut*(jcut+1)/2+jcut+1), scal3(jcut*(jcut+1)/2+jcut+1) )
   
   scal1 = czero
-  scal2 = czero ; scal2(1) = cmplx(sqrt(4*pi), 0._dbl, kind=dbl)
+  scal2 = czero ; scal2(1) = cs4pi
   scal3 = czero
   
   do j = 0, jcut
@@ -34,9 +34,9 @@ program BielyKralik_legeTest
 
   call sph%vcsum_sub( scal1, scal2, scal3 )
 
-  write(*,*) 'vcsum: ', maxval(abs(scal1(:)-scal3(:)))
-  
+  write(*,*) 'vcsum: ', maxval( abs( (scal1(:)-scal3(:)) / scal1(:) ) )
+
   !Cistenie
-  call sph%deallocate_sub()
+  !call sph%deallocate_sub()
 
 end program BielyKralik_legeTest

@@ -1,17 +1,17 @@
 submodule (SphericalHarmonics) vcsum
   implicit none ; contains
   
-  pure subroutine grid_op_vcsum_sub(nfour, nstep, grid)
-    integer,                intent(in)    :: nfour, nstep
+  pure subroutine grid_op_vcsum_sub(nfour, grid)
+    integer,                intent(in)    :: nfour
     real(kind=dbl), target, intent(inout) :: grid(*)
     integer                               :: i, i2
     real(kind=dbl), pointer               :: gout(:,:), gin(:,:,:)
     
-    gin(1:2,1:nstep,1:nfour) => grid(1:2*nstep*nfour)
-    gout(1:nstep,1:nfour)    => grid(1:  nstep*nfour)
+    gin(1:2,1:4,1:nfour) => grid(1:8*nfour)
+    gout(1:4,1:nfour)    => grid(1:4*nfour)
     
     do i = 1, nfour
-      do i2 = 1, nstep
+      do i2 = 1, 4
         gout(i2,i) = gin(1,i2,i) * gin(2,i2,i)
       end do
     end do

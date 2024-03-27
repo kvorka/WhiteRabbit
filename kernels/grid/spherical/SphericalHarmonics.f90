@@ -5,15 +5,13 @@ module SphericalHarmonics
   use Fourier_transform
   implicit none
   
-  integer, parameter :: addmissible_jmax(47) = [   5,   7,   9,  13,  15,  21,  27,  29,  33,  37,  45, 47,  51,  57,  61,  69,  &
+  integer, parameter :: addmissible_jmax(48) = [   5,   7,   9,  13,  15,  21,  27,  29,  33,  37,  45, 47,  51,  57,  61,  69,  &
                                                &  77,  87,  93,  97, 105, 117, 125, 141, 147, 157, 159, 177, 189, 197, 213, 237, &
-                                               & 247, 253, 267, 285, 297, 317, 321, 357, 381, 397, 429, 447, 477, 483, 497       ]
+                                               & 247, 253, 267, 285, 297, 317, 321, 357, 381, 397, 429, 447, 477, 483, 497, 997  ]
   
   type, public :: T_lateralGrid
     integer,                     private :: jmax, jmax1, jmax2, jmax3, jms, jms1, jms2, jmv, jmv1, nLegendre, nFourier
-    integer,        allocatable, private :: maxm(:)
-    real(kind=dbl),              private :: tolm
-    real(kind=dbl), allocatable, private :: roots(:), fftLege(:), amjrr(:), bmjrr(:), pmm(:,:)
+    real(kind=dbl), allocatable, private :: cosx(:), weight(:), amj(:), bmj(:), cmm(:)
     type(T_fft),                 private :: fourtrans
     
     contains
@@ -27,7 +25,7 @@ module SphericalHarmonics
                & scal2vecscal_mj_to_jm_sub, gradvec2vec_jmlk_to_jml_sub, devtens2scal_jml2_to_mj_sub, scal2devtens_mj_to_jml2_sub
     
     !Generic scalar transforms and needed routines
-    procedure :: get_maxm_fn, lege_transform_sub
+    procedure :: lege_transform_sub
     
     !Transforms
     procedure :: vcsum_sub, vcst_sub, vcvv_sub, vcvgv_sub, vcvv_vcvgv_sub
@@ -101,11 +99,6 @@ module SphericalHarmonics
       complex(kind=dbl),    intent(out) :: ctjml2(*)
     end subroutine scal2devtens_mj_to_jml2_sub
     
-    module pure integer function get_maxm_fn(this, i, i2)
-      class(T_lateralGrid), intent(in) :: this
-      integer,              intent(in) :: i, i2
-    end function get_maxm_fn
-    
     module pure subroutine lege_transform_sub(this, nforw, nback, cc, cr, grid_sub)
       class(T_lateralGrid), intent(in)    :: this
       integer,              intent(in)    :: nforw, nback
@@ -113,16 +106,12 @@ module SphericalHarmonics
       complex(kind=dbl),    intent(inout) :: cr(nforw,*)
       
       interface
-        module pure subroutine grid_sub(nfour, nstep, gxyz)
-          integer,                intent(in)    :: nfour, nstep
+        module pure subroutine grid_sub(nfour, gxyz)
+          integer,                intent(in)    :: nfour
           real(kind=dbl), target, intent(inout) :: gxyz(*)
         end subroutine grid_sub
       end interface
     end subroutine lege_transform_sub
-    
-    module subroutine vctol_sub(this)
-      class(T_lateralGrid), intent(inout) :: this
-    end subroutine vctol_sub
     
     module pure subroutine vcsum_sub(this, cajm, cbjm, cjm)
       class(T_lateralGrid), intent(in)  :: this

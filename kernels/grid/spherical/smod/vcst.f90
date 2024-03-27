@@ -1,18 +1,18 @@
 submodule (SphericalHarmonics) vcst
   implicit none ; contains
   
-  pure subroutine grid_op_vcst_sub(nfour, nstep, grid)
-    integer,                intent(in)    :: nfour, nstep
+  pure subroutine grid_op_vcst_sub(nfour, grid)
+    integer,                intent(in)    :: nfour
     real(kind=dbl), target, intent(inout) :: grid(*)
     integer                               :: i, i2
     real(kind=dbl)                        :: tmp
     real(kind=dbl), pointer               :: gin(:,:,:), gout(:,:,:)
     
-    gin(1:6,1:nstep,1:nfour)  => grid(1:6*nstep*nfour)
-    gout(1:5,1:nstep,1:nfour) => grid(1:5*nstep*nfour)
+    gin(1:6,1:4,1:nfour)  => grid(1:24*nfour)
+    gout(1:5,1:4,1:nfour) => grid(1:20*nfour)
     
     do i = 1, nfour
-      do i2 = 1, nstep
+      do i2 = 1, 4
         tmp = gin(1,i2,i)
         
         gout(1,i2,i) = gin(2,i2,i) * tmp
