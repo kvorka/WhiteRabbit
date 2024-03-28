@@ -2,13 +2,13 @@
 ###########################################################################################
 ####                              COMPILER SET UP                                      ####
 ###########################################################################################
-compile="gfortran-12 -Ofast -march=native -flto=auto -fwhole-program -fopenmp -fcheck=all"
+compile="gfortran-12 -Ofast -march=native -flto=auto -fwhole-program -fopenmp"
 
 ###########################################################################################
 ####                              POSSIBLE CODE SETTINGS                               ####
 ####       test_speed, ocean_convection, ice_ocean, ocean_tides, ice_deformation       ####
 ###########################################################################################
-code_type="test_legendre"
+code_type="test_speed"
 
 ###########################################################################################
 ####                    COMPILATION OF THE BASELINE, DIRS SET UP                       ####

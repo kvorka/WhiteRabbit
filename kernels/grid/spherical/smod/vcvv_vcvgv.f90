@@ -10,11 +10,11 @@ submodule (SphericalHarmonics) vcvv_vcvgv
     
     allocate( tmp(3) )
     
-    gin(1:3,1:5,1:4,1:nfour) => grid(1:60*nfour)
-    gout(1:4,1:4,1:nfour)    => grid(1:16*nfour)
+    gin(1:3,1:5,1:8,1:nfour) => grid(1:120*nfour)
+    gout(1:4,1:8,1:nfour)    => grid(1: 32*nfour)
     
     do i = 1, nfour
-      do i2 = 1, 4
+      do i2 = 1, 8
         tmp = gin(1:3,1,i2,i)
         
         gout(1,i2,i) = gin(1,2,i2,i) * tmp(1) + gin(2,2,i2,i) * tmp(2) + gin(3,2,i2,i) * tmp(3)

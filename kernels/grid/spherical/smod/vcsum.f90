@@ -7,11 +7,11 @@ submodule (SphericalHarmonics) vcsum
     integer                               :: i, i2
     real(kind=dbl), pointer               :: gout(:,:), gin(:,:,:)
     
-    gin(1:2,1:4,1:nfour) => grid(1:8*nfour)
-    gout(1:4,1:nfour)    => grid(1:4*nfour)
+    gin(1:2,1:8,1:nfour) => grid(1:16*nfour)
+    gout(1:8,1:nfour)    => grid(1: 8*nfour)
     
     do i = 1, nfour
-      do i2 = 1, 4
+      do i2 = 1, 8
         gout(i2,i) = gin(1,i2,i) * gin(2,i2,i)
       end do
     end do
