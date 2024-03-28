@@ -28,7 +28,7 @@ submodule (SphericalHarmonics) vcvv_vcvgv
     
   end subroutine grid_op_vcvv_vcvgv_sub
   
-  module pure subroutine vcvv_vcvgv_sub(this, ri, q, dv_r, v, cjm)
+  module subroutine vcvv_vcvgv_sub(this, ri, q, dv_r, v, cjm)
     class(T_lateralGrid), intent(in)  :: this
     real(kind=dbl),       intent(in)  :: ri
     complex(kind=dbl),    intent(in)  :: dv_r(*), q(*), v(*)

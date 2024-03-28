@@ -33,10 +33,10 @@ module Fourier_transform
     end subroutine fft_deallocate_sub
     
     module pure subroutine fft_r2c_exec_sub(this, m, x, cx)
-      class(T_fft),      intent(in)    :: this
-      integer,           intent(in)    :: m
-      real(kind=dbl),    intent(inout) :: x(m,2,*)
-      complex(kind=dbl), intent(out)   :: cx(m,*)
+      class(T_fft),   intent(in)    :: this
+      integer,        intent(in)    :: m
+      real(kind=dbl), intent(inout) :: x(m,2,*)
+      real(kind=dbl), intent(out)   :: cx(m,2,*)
     end subroutine fft_r2c_exec_sub
     
     pure module subroutine fft_r2c_sub(this, m, x)
@@ -46,10 +46,10 @@ module Fourier_transform
     end subroutine fft_r2c_sub
     
     module pure subroutine fft_c2r_exec_sub(this, m, cx, x)
-      class(T_fft),      intent(in)  :: this
-      integer,           intent(in)  :: m
-      complex(kind=dbl), intent(in)  :: cx(m,*)
-      real(kind=dbl),    intent(out) :: x(m,2,*)
+      class(T_fft),   intent(in)  :: this
+      integer,        intent(in)  :: m
+      real(kind=dbl), intent(in)  :: cx(m,2,*)
+      real(kind=dbl), intent(out) :: x(m,2,*)
     end subroutine fft_c2r_exec_sub
     
     module pure subroutine fft_c2r_sub(this, m, x)

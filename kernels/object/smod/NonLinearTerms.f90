@@ -1,7 +1,7 @@
 submodule (PhysicalObject) NonLinearTerms
   implicit none ; contains
   
-  module pure subroutine mvgradT_sub(this, i, mvgradT)
+  module subroutine mvgradT_sub(this, i, mvgradT)
     class(T_physicalObject), intent(in)  :: this
     integer,                 intent(in)  :: i
     complex(kind=dbl),       intent(out) :: mvgradT(:)
@@ -40,7 +40,7 @@ submodule (PhysicalObject) NonLinearTerms
     
   end subroutine coriolis_sub
   
-  module pure subroutine coriolis_vgradv_sub(this, i)
+  module subroutine coriolis_vgradv_sub(this, i)
     class(T_physicalObject), intent(inout) :: this
     integer,                 intent(in)    :: i
     integer                                :: ijm, i1
@@ -73,7 +73,7 @@ submodule (PhysicalObject) NonLinearTerms
     
   end subroutine coriolis_vgradv_sub
   
-  module pure subroutine fullnl_sub(this, i)
+  module subroutine fullnl_sub(this, i)
     class(T_physicalObject), intent(inout) :: this
     integer,                 intent(in)    :: i
     integer                                :: ijm, i1

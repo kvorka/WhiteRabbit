@@ -18,7 +18,7 @@ submodule (SphericalHarmonics) vcsum
     
   end subroutine grid_op_vcsum_sub
   
-  module pure subroutine vcsum_sub(this, cajm, cbjm, cjm)
+  module subroutine vcsum_sub(this, cajm, cbjm, cjm)
     class(T_lateralGrid), intent(in)  :: this
     complex(kind=dbl),    intent(in)  :: cajm(*), cbjm(*)
     complex(kind=dbl),    intent(out) :: cjm(*)

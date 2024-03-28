@@ -25,7 +25,7 @@ submodule (SphericalHarmonics) vcst
     
   end subroutine grid_op_vcst_sub
   
-  module pure subroutine vcst_sub(this, cajm, cbjml2, cjml2)
+  module subroutine vcst_sub(this, cajm, cbjml2, cjml2)
     class(T_lateralGrid), intent(in)  :: this
     complex(kind=dbl),    intent(in)  :: cajm(*), cbjml2(*)
     complex(kind=dbl),    intent(out) :: cjml2(*)

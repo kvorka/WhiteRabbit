@@ -1,4 +1,5 @@
 module SphericalHarmonics
+  use iso_c_binding
   use Nulify
   use Clebsch_Gordan
   use Legendre_function
@@ -99,11 +100,11 @@ module SphericalHarmonics
       complex(kind=dbl),    intent(out) :: ctjml2(*)
     end subroutine scal2devtens_mj_to_jml2_sub
     
-    module pure subroutine lege_transform_sub(this, nforw, nback, cc, cr, grid_sub)
-      class(T_lateralGrid), intent(in)    :: this
-      integer,              intent(in)    :: nforw, nback
-      complex(kind=dbl),    intent(in)    :: cc(nback,*)
-      complex(kind=dbl),    intent(inout) :: cr(nforw,*)
+    module subroutine lege_transform_sub(this, nforw, nback, cc, cr, grid_sub)
+      class(T_lateralGrid),    intent(in)    :: this
+    integer,                   intent(in)    :: nforw, nback
+    complex(kind=dbl), target, intent(in)    :: cc(nback,*)
+    complex(kind=dbl), target, intent(inout) :: cr(nforw,*)
       
       interface
         module pure subroutine grid_sub(nfour, gxyz)
@@ -113,32 +114,32 @@ module SphericalHarmonics
       end interface
     end subroutine lege_transform_sub
     
-    module pure subroutine vcsum_sub(this, cajm, cbjm, cjm)
+    module subroutine vcsum_sub(this, cajm, cbjm, cjm)
       class(T_lateralGrid), intent(in)  :: this
       complex(kind=dbl),    intent(in)  :: cajm(*), cbjm(*)
       complex(kind=dbl),    intent(out) :: cjm(*)
     end subroutine vcsum_sub
     
-    module pure subroutine vcst_sub(this, cajm, cbjml2, cjml2)
+    module subroutine vcst_sub(this, cajm, cbjml2, cjml2)
       class(T_lateralGrid), intent(in)  :: this
       complex(kind=dbl),    intent(in)  :: cajm(*), cbjml2(*)
       complex(kind=dbl),    intent(out) :: cjml2(*)
     end subroutine vcst_sub
     
-    module pure subroutine vcvv_sub(this, cajml, cbjml, cjm)
+    module subroutine vcvv_sub(this, cajml, cbjml, cjm)
       class(T_lateralGrid), intent(in)  :: this
       complex(kind=dbl),    intent(in)  :: cajml(*), cbjml(*)
       complex(kind=dbl),    intent(out) :: cjm(*)
     end subroutine vcvv_sub
     
-    module pure subroutine vcvgv_sub(this, ri, dv_r, v, cjm)
+    module subroutine vcvgv_sub(this, ri, dv_r, v, cjm)
       class(T_lateralGrid), intent(in)  :: this
       real(kind=dbl),       intent(in)  :: ri
       complex(kind=dbl),    intent(in)  :: v(*), dv_r(*)
       complex(kind=dbl),    intent(out) :: cjm(*)
     end subroutine vcvgv_sub
     
-    module pure subroutine vcvv_vcvgv_sub(this, ri, q, dv_r, v, cjm)
+    module subroutine vcvv_vcvgv_sub(this, ri, q, dv_r, v, cjm)
       class(T_lateralGrid), intent(in)  :: this
       real(kind=dbl),       intent(in)  :: ri
       complex(kind=dbl),    intent(in)  :: dv_r(*), q(*), v(*)
