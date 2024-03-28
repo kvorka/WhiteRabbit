@@ -36,11 +36,11 @@ submodule (SphericalHarmonics) lege_transform
       sumS = zero
       
       !The backward (towards grid) sum over associated Legendre polynomials
-      pssym(1:4,1:2,1:nback) => ssym
-      pasym(1:4,1:2,1:nback) => asym
+      pssym(1:4,1:2,1:nback) => ssym(1:8*nback)
+      pasym(1:4,1:2,1:nback) => asym(1:8*nback)
       
-      psumN(1:nback,1:4,1:2,0:this%jmax2) => sumN
-      psumS(1:nback,1:4,1:2,0:this%jmax2) => sumS
+      psumN(1:nback,1:4,1:2,0:this%jmax2) => sumN(1:8*nback*this%jmax3)
+      psumS(1:nback,1:4,1:2,0:this%jmax2) => sumS(1:8*nback*this%jmax3)
       
       do m = 0, this%jmax2
         ssym = zero
@@ -112,19 +112,16 @@ submodule (SphericalHarmonics) lege_transform
       call this%fourtrans%exec_r2c_sub( 4*nforw, grid(1), sumS(1) )
       
       !The forward (towards space) sum over associated Legendre polynomials
-      pssym(1:4,1:2,1:nforw) => ssym
-      pasym(1:4,1:2,1:nforw) => asym
+      pssym(1:4,1:2,1:nforw) => ssym(1:8*nforw)
+      pasym(1:4,1:2,1:nforw) => asym(1:8*nforw)
       
-      psumN(1:nforw,1:4,1:2,0:this%jmax2) => sumN
-      psumS(1:nforw,1:4,1:2,0:this%jmax2) => sumS
-      
-      psumN(1:nforw,1:4,2,0) = zero
-      psumS(1:nforw,1:4,2,0) = zero
+      psumN(1:nforw,1:4,1:2,0:this%jmax2) => sumN(1:8*nforw*this%jmax3)
+      psumS(1:nforw,1:4,1:2,0:this%jmax2) => sumS(1:8*nforw*this%jmax3)
       
       do m = 0, this%jmax2
         do concurrent ( i2=1:nforw, i1=1:2, i0=1:4 )
-          pssym(i0,i1,i2) = weight(i2) * ( psumN(i2,i0,i1,m) + psumS(i2,i0,i1,m) )
-          pasym(i0,i1,i2) = weight(i2) * ( psumN(i2,i0,i1,m) - psumS(i2,i0,i1,m) )
+          pssym(i0,i1,i2) = weight(i0) * ( psumN(i2,i0,i1,m) + psumS(i2,i0,i1,m) )
+          pasym(i0,i1,i2) = weight(i0) * ( psumN(i2,i0,i1,m) - psumS(i2,i0,i1,m) )
         end do
         
         if ( m == 0 ) then

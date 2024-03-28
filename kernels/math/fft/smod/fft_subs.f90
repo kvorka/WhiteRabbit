@@ -55,8 +55,8 @@ submodule (Fourier_transform) fft_subs
     end do
     
     do concurrent ( i3 = 2:this%np, i2=1:2, i1 = 1:m )
-      cx(i1,i2,i3) = x(i1,i3,i3)
-      cx(i1,i2,i3) = x(i1,i3,i3)
+      cx(i1,i2,i3) = x(i1,i2,i3)
+      cx(i1,i2,i3) = x(i1,i2,i3)
     end do
     
   end subroutine fft_r2c_exec_sub
