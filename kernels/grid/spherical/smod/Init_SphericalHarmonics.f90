@@ -60,7 +60,7 @@ submodule (SphericalHarmonics) Init_SphericalHarmonics
         y = x + xincr; fy = lege_fn(2*this%nLegendre, y)
       end do
     
-    allocate( this%amj(this%jms2), this%bmj(this%jms2), this%cmm(this%jms2) )
+    allocate( this%amj(this%jms2), this%bmj(this%jms2), this%cmm(0:this%jms2) )
     
     do m = 0, this%jmax2
       if ( m == 0 ) then

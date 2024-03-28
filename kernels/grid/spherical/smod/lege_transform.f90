@@ -7,7 +7,7 @@ submodule (SphericalHarmonics) lege_transform
     complex(kind=dbl), target, intent(in)    :: cc(nback,*)
     complex(kind=dbl), target, intent(inout) :: cr(nforw,*)
     integer                                  :: i1, i2, i3, i, j, m, mj
-    real(kind=dbl),            allocatable   :: pmm(:), pmj(:), pmj1(:), pmj2(:), cosx(:), sinx(:), weight(:), grid(:)
+    real(kind=dbl),            allocatable   :: pmm(:), pmj(:), pmj1(:), pmj2(:), cosx(:), sinx(:), weight(:)
     real(kind=dbl), pointer                  :: pcc(:,:,:), pcr(:,:,:), pssym(:,:,:), pasym(:,:,:), psumN(:,:,:,:), psumS(:,:,:,:)
     real(kind=dbl), target,    allocatable   :: ssym(:), asym(:), sumN(:), sumS(:)
     type(c_ptr)                              :: cptr
@@ -24,8 +24,8 @@ submodule (SphericalHarmonics) lege_transform
     cptr = c_loc(cr); call c_f_pointer(cptr, pcr, shape=[2,nforw,this%jms2])
     
     !Allocating needed memory :: step is set to 4
-    allocate( pmm(4), pmj(4), pmj1(4), pmj2(4), cosx(4), sinx(4), weight(4), ssym(8*nback), asym(8*nback), &
-            & sumN(8*nback*this%jmax3), sumS(8*nback*this%jmax3), grid(4*nback*this%nFourier) )
+    allocate( pmm(4), pmj(4), pmj1(4), pmj2(4), cosx(4), sinx(4), weight(4), ssym(8*nback), &
+            & asym(8*nback), sumN(4*nback*this%nFourier), sumS(4*nback*this%nFourier)       )
     
     !Stepping of the algorithm :: 4
     do i = 1, this%nLegendre, 4
@@ -39,11 +39,11 @@ submodule (SphericalHarmonics) lege_transform
       !**************************************************************************************************************!
       !The backward (towards grid) sum over associated Legendre polynomials *****************************************!
       !**************************************************************************************************************!
-      pssym(1:2,1:4,1:nback) => ssym(1:8*nback)
-      pasym(1:2,1:4,1:nback) => asym(1:8*nback)
+      pssym(1:4,1:2,1:nback) => ssym(1:8*nback)
+      pasym(1:4,1:2,1:nback) => asym(1:8*nback)
       
-      psumN(1:2,1:nback,1:4,0:this%jmax2) => sumN(1:8*nback*this%jmax3)
-      psumS(1:2,1:nback,1:4,0:this%jmax2) => sumS(1:8*nback*this%jmax3)
+      psumN(1:nback,1:4,1:2,0:this%jmax2) => sumN(1:8*nback*this%jmax3)
+      psumS(1:nback,1:4,1:2,0:this%jmax2) => sumS(1:8*nback*this%jmax3)
       
       do m = 0, this%jmax2
         ssym = zero
@@ -62,8 +62,8 @@ submodule (SphericalHarmonics) lege_transform
           pmj1(1:4) = zero
           pmj(1:4)  = pmm(1:4)
           
-          do concurrent ( i1 = 1:nback, i2 = 1:4, i3 = 1:2 )
-            pssym(i3,i2,i1) = pssym(i3,i2,i1) + pcc(i3,i1,mj) * pmj(i2)
+          do concurrent ( i1 = 1:nback, i2 = 1:2 )
+            pssym(1:4,i2,i1) = pssym(1:4,i2,i1) + pcc(i2,i1,mj) * pmj(1:4)
           end do
           
         do j = 1, (this%jmax2-m)/2
@@ -71,83 +71,70 @@ submodule (SphericalHarmonics) lege_transform
           
           pmj2(1:4) = pmj1(1:4)
           pmj1(1:4) = pmj(1:4)
+          pmj(1:4)  = this%amj(mj-1) * cosx(1:4) * pmj1(1:4) - this%bmj(mj-1) * pmj2(1:4)
           
-          do concurrent ( i2=1:4 )
-            pmj(i2)  = this%amj(mj-1) * cosx(i2) * pmj1(i2) - this%bmj(mj-1) * pmj2(i2)
-          end do
-          
-          do concurrent ( i1=1:nback, i2=1:4, i3=1:2 )
-            pasym(i3,i2,i1) = pasym(i3,i2,i1) + pcc(i3,i1,mj-1) * pmj(i2)
+          do concurrent ( i1 = 1:nback, i2 = 1:2 )
+            pasym(1:4,i2,i1) = pasym(1:4,i2,i1) + pcc(i2,i1,mj-1) * pmj(1:4)
           end do
           
           pmj2(1:4) = pmj1(1:4)
           pmj1(1:4) = pmj(1:4)
+          pmj(1:4)  = this%amj(mj) * cosx(1:4) * pmj1(1:4) - this%bmj(mj) * pmj2(1:4)
           
-          do concurrent ( i2=1:4 )
-            pmj(i2)  = this%amj(mj) * cosx(i2) * pmj1(i2) - this%bmj(mj) * pmj2(i2)
-          end do
-          
-          do concurrent ( i1=1:nback, i2=1:4, i3=1:2 )
-            pssym(i3,i2,i1) = pssym(i3,i2,i1) + pcc(i3,i1,mj) * pmj(i2)
+          do concurrent ( i1 = 1:nback, i2 = 1:2 )
+            pssym(1:4,i2,i1) = pssym(1:4,i2,i1) + pcc(i2,i1,mj) * pmj(1:4)
           end do
         end do
         
         if ( mod((this%jmax2-m),2) /= 0 ) then
           pmj2(1:4) = pmj1(1:4)
           pmj1(1:4) = pmj(1:4)
+          pmj(1:4)  = this%amj(mj+1) * cosx(1:4) * pmj1(1:4) - this%bmj(mj+1) * pmj2(1:4)
           
-          do concurrent ( i2=1:4 )
-            pmj(i2)  = this%amj(mj+1) * cosx(i2) * pmj1(i2) - this%bmj(mj+1) * pmj2(i2)
-          end do
-          
-          do concurrent ( i1=1:nback, i2=1:4, i3=1:2 )
-            pasym(i3,i2,i1) = pasym(i3,i2,i1) + pcc(i3,i1,mj+1) * pmj(i2)
+          do concurrent ( i1 = 1:nback, i2 = 1:2 )
+            pasym(1:4,i2,i1) = pasym(1:4,i2,i1) + pcc(i2,i1,mj+1) * pmj(1:4)
           end do
         end if
         
         do concurrent ( i2=1:4, i1=1:nback, i3=1:2 )
-          psumN(i3,i1,i2,m) = pssym(i3,i2,i1) + pasym(i3,i2,i1)
-          psumS(i3,i1,i2,m) = pssym(i3,i2,i1) - pasym(i3,i2,i1)
+          psumN(i1,i2,i3,m) = pssym(i2,i3,i1) + pasym(i2,i3,i1)
+          psumS(i1,i2,i3,m) = pssym(i2,i3,i1) - pasym(i2,i3,i1)
         end do
       end do
       
-      do concurrent ( i2=1:4, i1=1:nback )
-        psumN(2,i1,i2,0) = zero
-        psumS(2,i1,i2,0) = zero
-      end do
+      psumN(1:nback,1:4,2,0) = zero
+      psumS(1:nback,1:4,2,0) = zero
       
       !**************************************************************************************************************!
       !The backward (towards grid) fft, grid operations and the forward fft (towards space) *************************!
       !**************************************************************************************************************!
-      call this%fourtrans%exec_c2r_sub( 4*nback, sumN(1), grid(1) )
-      call grid_sub( this%nFourier, grid(1) )
-      call this%fourtrans%exec_r2c_sub( 4*nforw, grid(1), sumN(1) )
+      call this%fourtrans%exec_c2r_sub( 4*nback, sumN(1) )
+      call grid_sub( this%nFourier, sumN(1) )
+      call this%fourtrans%exec_r2c_sub( 4*nforw, sumN(1) )
       
-      call this%fourtrans%exec_c2r_sub( 4*nback, sumS(1), grid(1) )
-      call grid_sub( this%nFourier, grid(1) )
-      call this%fourtrans%exec_r2c_sub( 4*nforw, grid(1), sumS(1) )
+      call this%fourtrans%exec_c2r_sub( 4*nback, sumS(1) )
+      call grid_sub( this%nFourier, sumS(1) )
+      call this%fourtrans%exec_r2c_sub( 4*nforw, sumS(1) )
       
       !**************************************************************************************************************!
       !The forward (towards space) sum over associated Legendre polynomials *****************************************!
       !**************************************************************************************************************!
-      pssym(1:2,1:4,1:nforw) => ssym(1:8*nforw)
-      pasym(1:2,1:4,1:nforw) => asym(1:8*nforw)
+      pssym(1:4,1:2,1:nforw) => ssym(1:8*nforw)
+      pasym(1:4,1:2,1:nforw) => asym(1:8*nforw)
       
-      psumN(1:2,1:nforw,1:4,0:this%jmax2) => sumN(1:8*nforw*this%jmax3)
-      psumS(1:2,1:nforw,1:4,0:this%jmax2) => sumS(1:8*nforw*this%jmax3)
+      psumN(1:nforw,1:4,1:2,0:this%jmax2) => sumN(1:8*nforw*this%jmax3)
+      psumS(1:nforw,1:4,1:2,0:this%jmax2) => sumS(1:8*nforw*this%jmax3)
+      
+      psumN(1:nforw,1:4,2,0) = zero
+      psumS(1:nforw,1:4,2,0) = zero
       
       do m = 0, this%jmax2
-        do concurrent ( i2=1:4, i1=1:nforw, i3=1:2 )
-          pssym(i3,i2,i1) = weight(i2) * ( psumN(i3,i1,i2,m) + psumS(i3,i1,i2,m) )
-          pasym(i3,i2,i1) = weight(i2) * ( psumN(i3,i1,i2,m) - psumS(i3,i1,i2,m) )
+        do concurrent ( i1=1:nforw, i3=1:2, i2=1:4 )
+          pssym(i2,i3,i1) = weight(i2) * ( psumN(i1,i2,i3,m) + psumS(i1,i2,i3,m) )
+          pasym(i2,i3,i1) = weight(i2) * ( psumN(i1,i2,i3,m) - psumS(i1,i2,i3,m) )
         end do
         
         if ( m == 0 ) then
-          do concurrent ( i1=1:nforw, i2=1:4 )
-            pssym(2,i2,i1) = zero
-            pasym(2,i2,i1) = zero
-          end do
-          
           pmm(1:4) = this%cmm(0)
         else
           pmm(1:4) = this%cmm(m) * sinx(1:4) * pmm(1:4)
@@ -160,8 +147,9 @@ submodule (SphericalHarmonics) lege_transform
           pmj1(1:4) = zero
           pmj(1:4)  = pmm(1:4)
           
-          do concurrent ( i1=1:nforw , i2=1:4, i3=1:2 )
-            pcr(i3,i1,mj) = pcr(i3,i1,mj) + pmj(i2) * pssym(i3,i2,i1)
+          do concurrent ( i1=1:nforw )
+            pcr(1,i1,mj) = pcr(1,i1,mj) + sum( pmj(1:4) * pssym(1:4,1,i1) )
+            pcr(2,i1,mj) = pcr(2,i1,mj) + sum( pmj(1:4) * pssym(1:4,2,i1) )
           end do
         
         do j = 1, (this%jmax2-m)/2
@@ -169,44 +157,38 @@ submodule (SphericalHarmonics) lege_transform
           
           pmj2(1:4) = pmj1(1:4)
           pmj1(1:4) = pmj(1:4)
+          pmj(1:4)  = this%amj(mj-1) * cosx(1:4) * pmj1(1:4) - this%bmj(mj-1) * pmj2(1:4)
           
-          do concurrent ( i2=1:4 )
-            pmj(i2)  = this%amj(mj-1) * cosx(i2) * pmj1(i2) - this%bmj(mj-1) * pmj2(i2)
-          end do
-          
-          do concurrent ( i1=1:nforw , i2=1:4, i3=1:2 )
-            pcr(i3,i1,mj-1) = pcr(i3,i1,mj-1) + pmj(i2) * pasym(i3,i2,i1)
+          do concurrent ( i1=1:nforw )
+            pcr(1,i1,mj-1) = pcr(1,i1,mj-1) + sum( pmj(1:4) * pasym(1:4,1,i1) )
+            pcr(2,i1,mj-1) = pcr(2,i1,mj-1) + sum( pmj(1:4) * pasym(1:4,2,i1) )
           end do
           
           pmj2(1:4) = pmj1(1:4)
           pmj1(1:4) = pmj(1:4)
+          pmj(1:4)  = this%amj(mj) * cosx(1:4) * pmj1(1:4) - this%bmj(mj) * pmj2(1:4)
           
-          do concurrent ( i2=1:4 )
-            pmj(i2) = this%amj(mj) * cosx(i2) * pmj1(i2) - this%bmj(mj) * pmj2(i2)
-          end do
-          
-          do concurrent ( i1=1:nforw , i2=1:4, i3=1:2 )
-            pcr(i3,i1,mj) = pcr(i3,i1,mj) + pmj(i2) * pssym(i3,i2,i1)
+          do concurrent ( i1=1:nforw )
+            pcr(1,i1,mj) = pcr(1,i1,mj) + sum( pmj(1:4) * pssym(1:4,1,i1) )
+            pcr(2,i1,mj) = pcr(2,i1,mj) + sum( pmj(1:4) * pssym(1:4,2,i1) )
           end do
         end do
         
         if ( mod(this%jmax2-m,2) /= 0 ) then
           pmj2(1:4) = pmj1(1:4)
           pmj1(1:4) = pmj(1:4)
+          pmj(1:4)  = this%amj(mj+1) * cosx(1:4) * pmj1(1:4) - this%bmj(mj+1) * pmj2(1:4)
           
-          do concurrent ( i2=1:4 )
-            pmj(i2) = this%amj(mj+1) * cosx(i2) * pmj1(i2) - this%bmj(mj+1) * pmj2(i2)
-          end do
-          
-          do concurrent ( i1=1:nforw , i2=1:4, i3=1:2 )
-            pcr(i3,i1,mj+1) = pcr(i3,i1,mj+1) + pmj(i2) * pasym(i3,i2,i1)
+          do concurrent ( i1=1:nforw )
+            pcr(1,i1,mj+1) = pcr(1,i1,mj+1) + sum( pmj(1:4) * pasym(1:4,1,i1) )
+            pcr(2,i1,mj+1) = pcr(2,i1,mj+1) + sum( pmj(1:4) * pasym(1:4,2,i1) )
           end do
         end if
       end do
     end do
     
     !Cleaning
-    deallocate( pmm, pmj, pmj1, pmj2, cosx, sinx, weight, ssym, asym, sumN, sumS, grid )
+    deallocate( pmm, pmj, pmj1, pmj2, cosx, sinx, weight, ssym, asym, sumN, sumS )
     
   end subroutine lege_transform_sub
   
