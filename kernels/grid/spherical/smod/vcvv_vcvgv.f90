@@ -10,11 +10,11 @@ submodule (SphericalHarmonics) vcvv_vcvgv
     
     allocate( tmp(3) )
     
-    gin(1:3,1:5,1:8,1:nfour) => grid(1:120*nfour)
-    gout(1:4,1:8,1:nfour)    => grid(1: 32*nfour)
+    gin(1:3,1:5,1:4,1:nfour) => grid(1:60*nfour)
+    gout(1:4,1:4,1:nfour)    => grid(1:16*nfour)
     
     do i = 1, nfour
-      do i2 = 1, 8
+      do i2 = 1, 4
         tmp = gin(1:3,1,i2,i)
         
         gout(1,i2,i) = gin(1,2,i2,i) * tmp(1) + gin(2,2,i2,i) * tmp(2) + gin(3,2,i2,i) * tmp(3)
@@ -28,7 +28,7 @@ submodule (SphericalHarmonics) vcvv_vcvgv
     
   end subroutine grid_op_vcvv_vcvgv_sub
   
-  module subroutine vcvv_vcvgv_sub(this, ri, q, dv_r, v, cjm)
+  module pure subroutine vcvv_vcvgv_sub(this, ri, q, dv_r, v, cjm)
     class(T_lateralGrid), intent(in)  :: this
     real(kind=dbl),       intent(in)  :: ri
     complex(kind=dbl),    intent(in)  :: dv_r(*), q(*), v(*)

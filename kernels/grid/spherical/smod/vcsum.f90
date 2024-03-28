@@ -7,18 +7,18 @@ submodule (SphericalHarmonics) vcsum
     integer                               :: i, i2
     real(kind=dbl), pointer               :: gout(:,:), gin(:,:,:)
     
-    gin(1:2,1:8,1:nfour) => grid(1:16*nfour)
-    gout(1:8,1:nfour)    => grid(1: 8*nfour)
+    gin(1:2,1:4,1:nfour) => grid(1:8*nfour)
+    gout(1:4,1:nfour)    => grid(1:4*nfour)
     
     do i = 1, nfour
-      do i2 = 1, 8
+      do i2 = 1, 4
         gout(i2,i) = gin(1,i2,i) * gin(2,i2,i)
       end do
     end do
     
   end subroutine grid_op_vcsum_sub
   
-  module subroutine vcsum_sub(this, cajm, cbjm, cjm)
+  module pure subroutine vcsum_sub(this, cajm, cbjm, cjm)
     class(T_lateralGrid), intent(in)  :: this
     complex(kind=dbl),    intent(in)  :: cajm(*), cbjm(*)
     complex(kind=dbl),    intent(out) :: cjm(*)

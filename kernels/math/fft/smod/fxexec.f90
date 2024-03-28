@@ -1,6 +1,26 @@
 submodule (Fourier_transform) fxexec
   implicit none ; contains
   
+  module pure subroutine fft_c2r_exec_sub(this, m, cx, x)
+    class(T_fft),      intent(in)  :: this
+    integer,           intent(in)  :: m
+    complex(kind=dbl), intent(in)  :: cx(m,*)
+    real(kind=dbl),    intent(out) :: x(m,2,*)
+    integer                        :: i1, i2, i3
+    
+    do concurrent ( i3 = 1:this%np, i1 = 1:m )
+      x(i1,1,i3) = cx(i1,i3)%re
+      x(i1,2,i3) = cx(i1,i3)%im
+    end do
+    
+    do concurrent ( i3 = this%np+1:this%n/2, i2 = 1:2, i1 = 1:m )
+      x(i1,i2,i3) = zero
+    end do
+    
+    call this%fft_c2r_sub( m,  x )
+    
+  end subroutine fft_c2r_exec_sub
+  
   module pure subroutine fft_c2r_sub(this, m, x)
     class(T_fft),   intent(in)    :: this
     integer,        intent(in)    :: m
@@ -84,7 +104,28 @@ submodule (Fourier_transform) fxexec
     
   end subroutine fft_c2r_sub
   
-  pure module subroutine fft_r2c_sub(this, m, x)
+  module pure subroutine fft_r2c_exec_sub(this, m, x, cx)
+    class(T_fft),      intent(in)    :: this
+    integer,           intent(in)    :: m
+    real(kind=dbl),    intent(inout) :: x(m,2,*)
+    complex(kind=dbl), intent(out)   :: cx(m,*)
+    integer                          :: i1, i2
+    
+    call this%fft_r2c_sub( m, x )
+    
+    do concurrent ( i1 = 1:m )
+      cx(i1,1)%re = x(i1,1,1)
+      cx(i1,1)%im = zero
+    end do
+    
+    do concurrent ( i2 = 2:this%np, i1 = 1:m )
+      cx(i1,i2)%re = x(i1,1,i2)
+      cx(i1,i2)%im = x(i1,2,i2)
+    end do
+    
+  end subroutine fft_r2c_exec_sub
+  
+  module pure subroutine fft_r2c_sub(this, m, x)
     class(T_fft),   intent(in)    :: this
     integer,        intent(in)    :: m
     real(kind=dbl), intent(inout) :: x(m,2,0:this%n/2-1)
