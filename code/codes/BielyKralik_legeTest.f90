@@ -1,14 +1,15 @@
 program BielyKralik_legeTest
+  use omp_lib
   use SphericalHarmonics
   implicit none
 
   type(T_lateralGrid)            :: sph
   integer                        :: jcut, j, m, jm
-  real(kind=dbl)                 :: xrand
+  real(kind=dbl)                 :: xrand, tstart, tend
   complex(kind=dbl), allocatable :: scal1(:), scal2(:), scal3(:)
   
   !Inicializuj vypocet
-  jcut = 213
+  jcut = 497
   
   call sph%init_sub(jcut)
   
@@ -32,11 +33,13 @@ program BielyKralik_legeTest
     end do
   end do
 
+  tstart = omp_get_wtime()
   call sph%vcsum_sub( scal1, scal2, scal3 )
+  tend = omp_get_wtime(); write(*,*) "vcsum time: ", tend-tstart
 
   write(*,*) 'vcsum: ', maxval( abs( (scal1(:)-scal3(:)) / scal1(:) ) )
 
   !Cistenie
-  !call sph%deallocate_sub()
+  call sph%deallocate_sub()
 
 end program BielyKralik_legeTest
