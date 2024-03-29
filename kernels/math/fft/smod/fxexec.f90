@@ -8,7 +8,12 @@ submodule (Fourier_transform) fxexec
     real(kind=dbl),    intent(out) :: x(m,2,*)
     integer                        :: i1, i2, i3
     
-    do concurrent ( i3 = 1:this%np, i1 = 1:m )
+    do concurrent ( i1 = 1:m )
+      x(i1,1,1) = cx(i1,1)%re
+      x(i1,2,1) = zero
+    end do
+    
+    do concurrent ( i3 = 2:this%np, i1 = 1:m )
       x(i1,1,i3) = cx(i1,i3)%re
       x(i1,2,i3) = cx(i1,i3)%im
     end do
