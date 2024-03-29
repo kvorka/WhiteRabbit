@@ -100,11 +100,11 @@ module SphericalHarmonics
       complex(kind=dbl),    intent(out) :: ctjml2(*)
     end subroutine scal2devtens_mj_to_jml2_sub
     
-    module pure subroutine lege_transform_sub(this, nforw, nback, cc, cr, grid_sub)
+    module pure subroutine lege_transform_sub(this, nf, nb, cc, cr, grid_sub)
       class(T_lateralGrid), intent(in)    :: this
-      integer,              intent(in)    :: nforw, nback
-      complex(kind=dbl),    intent(in)    :: cc(nback,*)
-      complex(kind=dbl),    intent(inout) :: cr(nforw,*)
+      integer,              intent(in)    :: nf, nb
+      complex(kind=dbl),    intent(in)    :: cc(nb,*)
+      complex(kind=dbl),    intent(inout) :: cr(nf,*)
       
       interface
         module pure subroutine grid_sub(nfour, gxyz)
