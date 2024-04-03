@@ -1,25 +1,25 @@
 submodule (SphericalHarmonics) vcvgv
   implicit none ; contains
   
-  pure subroutine grid_op_vcvgv_sub(nfour, grid)
-    integer,                intent(in)    :: nfour
+  pure subroutine grid_op_vcvgv_sub(step, nfour, grid)
+    integer,                intent(in)    :: nfour, step
     real(kind=dbl), target, intent(inout) :: grid(*)
-    integer                               :: i, i2
+    integer                               :: i1, i2
     real(kind=dbl), pointer               :: gout(:,:,:), gin(:,:,:,:)
     real(kind=dbl), allocatable           :: tmp(:)
     
-    gin(1:3,1:4,1:4,1:nfour) => grid(1:48*nfour)
-    gout(1:3,1:4,1:nfour)    => grid(1:12*nfour)
+    gin(1:3,1:4,1:step,1:nfour) => grid(1:12*step*nfour)
+    gout(1:3,1:step,1:nfour)    => grid(1: 3*step*nfour)
     
     allocate( tmp(3) )
     
-    do i = 1, nfour
-      do i2 = 1, 4
-        tmp = gin(1:3,1,i2,i)
+    do i1 = 1, nfour
+      do i2 = 1, step
+        tmp = gin(1:3,1,i2,i1)
         
-        gout(1,i2,i) = gin(1,2,i2,i) * tmp(1) + gin(2,2,i2,i) * tmp(2) + gin(3,2,i2,i) * tmp(3)
-        gout(2,i2,i) = gin(1,3,i2,i) * tmp(1) + gin(2,3,i2,i) * tmp(2) + gin(3,3,i2,i) * tmp(3)
-        gout(3,i2,i) = gin(1,4,i2,i) * tmp(1) + gin(2,4,i2,i) * tmp(2) + gin(3,4,i2,i) * tmp(3)
+        gout(1,i2,i1) = sum( gin(1:3,2,i2,i1) * tmp(1:3) )
+        gout(2,i2,i1) = sum( gin(1:3,3,i2,i1) * tmp(1:3) )
+        gout(3,i2,i1) = sum( gin(1:3,4,i2,i1) * tmp(1:3) )
       end do
     end do
     

@@ -107,8 +107,8 @@ module SphericalHarmonics
       complex(kind=dbl),    intent(inout) :: cr(nf,*)
       
       interface
-        module pure subroutine grid_sub(nfour, gxyz)
-          integer,                intent(in)    :: nfour
+        module pure subroutine grid_sub(step, nfour, gxyz)
+          integer,                intent(in)    :: nfour, step
           real(kind=dbl), target, intent(inout) :: gxyz(*)
         end subroutine grid_sub
       end interface

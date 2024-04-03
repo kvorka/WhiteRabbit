@@ -1,25 +1,25 @@
 submodule (SphericalHarmonics) vcst
   implicit none ; contains
   
-  pure subroutine grid_op_vcst_sub(nfour, grid)
-    integer,                intent(in)    :: nfour
+  pure subroutine grid_op_vcst_sub(step, nfour, grid)
+    integer,                intent(in)    :: nfour, step
     real(kind=dbl), target, intent(inout) :: grid(*)
-    integer                               :: i, i2
+    integer                               :: i1, i2
     real(kind=dbl)                        :: tmp
     real(kind=dbl), pointer               :: gin(:,:,:), gout(:,:,:)
     
-    gin(1:6,1:4,1:nfour)  => grid(1:24*nfour)
-    gout(1:5,1:4,1:nfour) => grid(1:20*nfour)
+    gin(1:6,1:step,1:nfour)  => grid(1:6*step*nfour)
+    gout(1:5,1:step,1:nfour) => grid(1:5*step*nfour)
     
-    do i = 1, nfour
-      do i2 = 1, 4
-        tmp = gin(1,i2,i)
+    do i1 = 1, nfour
+      do i2 = 1, step
+        tmp = gin(1,i2,i1)
         
-        gout(1,i2,i) = gin(2,i2,i) * tmp
-        gout(2,i2,i) = gin(3,i2,i) * tmp
-        gout(3,i2,i) = gin(4,i2,i) * tmp
-        gout(4,i2,i) = gin(5,i2,i) * tmp
-        gout(5,i2,i) = gin(6,i2,i) * tmp
+        gout(1,i2,i1) = gin(2,i2,i1) * tmp
+        gout(2,i2,i1) = gin(3,i2,i1) * tmp
+        gout(3,i2,i1) = gin(4,i2,i1) * tmp
+        gout(4,i2,i1) = gin(5,i2,i1) * tmp
+        gout(5,i2,i1) = gin(6,i2,i1) * tmp
       end do
     end do
     

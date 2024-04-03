@@ -26,7 +26,7 @@ submodule (SphericalHarmonics) Init_SphericalHarmonics
     
     this%nFourier  = 3*(this%jmax2+1)
     this%nLegendre = ( 3*(this%jmax2+1)/2+1 ) / 2 + 1
-    if ( mod(this%nLegendre,8) /= 0 ) this%nLegendre = this%nLegendre+8-mod(this%nLegendre,8)
+    if ( mod(this%nLegendre,4) /= 0 ) this%nLegendre = this%nLegendre+4-mod(this%nLegendre,4)
 
     allocate( this%cosx(this%nLegendre) )
     
