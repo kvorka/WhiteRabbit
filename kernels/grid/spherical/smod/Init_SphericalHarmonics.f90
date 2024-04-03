@@ -8,35 +8,43 @@ submodule (SphericalHarmonics) Init_SphericalHarmonics
     real(kind=dbl)                      :: xincr, x, y, fx, fy
     
     if ( .not. ( any( addmissible_jmax == jmax ) ) ) then
-      write(*,*) 'Due to FFT, this value of jmax is prohibited. Please, see table of admissible values in SphericalHarmonics.f90'
+      write(*,*) 'Due to FFT, this value of jmax is prohibited.'
       stop
     end if
     
-    this%jmax2 = jmax+2
-    this%jmax3 = jmax+3
+    this%jmax2     = jmax+2
+    this%jmax3     = jmax+3
+    
+    this%nFourier  = 3 * this%jmax3
+    
+    this%nLegendre = ( 3 * this%jmax3 / 2 + 1 ) / 2 + 1
+    this%nLegendre = this%nLegendre+4-mod(this%nLegendre,4)
+    
     call this%reindexing%init_sub(jmax)
+    call this%fourtrans%init_sub( this%nFourier )
     
-    this%nFourier  = 3 * (this%jmax2+1)
-    this%nLegendre = ( this%nFourier/2+1 ) / 2 + 1
-    if ( mod(this%nLegendre,4) /= 0 ) this%nLegendre = this%nLegendre+4-mod(this%nLegendre,4)
-
-    allocate( this%cosx(this%nLegendre) )
+    allocate( this%cosx(this%nLegendre) ) ; n = this%nLegendre
     
-    n = this%nLegendre
-      do
-        n = 2*n; xincr = one/n
-        if (xincr < 1.0d-15) exit
-
-        ncnt = 0
-        x = zero; fx = lege_fn(2*this%nLegendre, x)
-        do i = 1, n
-          y = x + xincr; fy = lege_fn(2*this%nLegendre, y)
-          if (fx*fy < zero) ncnt = ncnt+1
-          x = y; fx = fy
-        end do
-
-        if (ncnt == this%nLegendre) exit
+    do
+      n = 2*n; xincr = one/n
+      if (xincr < 1.0d-15) exit
+      
+      ncnt = 0
+      x  = zero
+      fx = lege_fn(2*this%nLegendre, x)
+      
+      do i = 1, n
+        y  = x + xincr
+        fy = lege_fn(2*this%nLegendre, y)
+        
+        if (fx*fy < zero) ncnt = ncnt+1
+        
+        x  = y
+        fx = fy
       end do
+      
+      if (ncnt == this%nLegendre) exit
+    end do
 
     i = 0
     x = zero     ; fx = lege_fn(2*this%nLegendre, x)
@@ -52,7 +60,7 @@ submodule (SphericalHarmonics) Init_SphericalHarmonics
         y = x + xincr; fy = lege_fn(2*this%nLegendre, y)
       end do
     
-    allocate( this%amj(this%reindexing%jms2), this%bmj(this%reindexing%jms2), this%cmm(0:jmax+2) )
+    allocate( this%amj(this%reindexing%jms2), this%bmj(this%reindexing%jms2), this%cmm(0:this%jmax2) )
     
     do m = 0, this%jmax2
       if ( m == 0 ) then
@@ -72,8 +80,6 @@ submodule (SphericalHarmonics) Init_SphericalHarmonics
     do i = 1, this%nLegendre
       this%weight(i) = pi * (1-this%cosx(i)**2) / ( this%nLegendre * lege_fn(2*this%nLegendre-1, this%cosx(i)) )**2
     end do
-    
-    call this%fourtrans%init_sub( this%nFourier )
     
   end subroutine init_harmonics_sub
   
