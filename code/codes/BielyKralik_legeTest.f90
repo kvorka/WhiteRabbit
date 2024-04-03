@@ -9,7 +9,7 @@ program BielyKralik_legeTest
   complex(kind=dbl), allocatable :: scal1(:), scal2(:), scal3(:)
   
   !Inicializuj vypocet
-  jcut = 213
+  jcut = 997
   
   call sph%init_sub(jcut)
   
@@ -34,7 +34,7 @@ program BielyKralik_legeTest
   end do
 
   tstart = omp_get_wtime()
-  call sph%vcsum_sub( scal1, scal2, scal3 )
+  call sph%vcss_sub( scal1, scal2, scal3 )
   tend = omp_get_wtime(); write(*,*) "vcsum time: ", tend-tstart
 
   write(*,*) 'vcsum: ', maxval( abs( (scal1(:)-scal3(:)) / scal1(:) ) )

@@ -1,12 +1,12 @@
-submodule (SphericalHarmonics) scal_to_scal
+submodule (Sphsvt) scal_to_scal
   implicit none; contains
   
   module pure subroutine scal2scal_jm_to_mj_sub(this, cjm, cab, ncab, cabpadding)
-    class(T_lateralGrid), intent(in)    :: this
-    integer,              intent(in)    :: ncab, cabpadding
-    complex(kind=dbl),    intent(in)    :: cjm(*)
-    complex(kind=dbl),    intent(inout) :: cab(ncab,*)
-    integer                             :: m, j
+    class(T_sphsvt),   intent(in)    :: this
+    integer,           intent(in)    :: ncab, cabpadding
+    complex(kind=dbl), intent(in)    :: cjm(*)
+    complex(kind=dbl), intent(inout) :: cab(ncab,*)
+    integer                          :: m, j
     
     do m = 0, this%jmax
       do j = m, this%jmax
@@ -17,11 +17,11 @@ submodule (SphericalHarmonics) scal_to_scal
   end subroutine scal2scal_jm_to_mj_sub
   
   module pure subroutine scal2scal_mj_to_jm_sub(this, cr, ncr, crpadding, cjm, ncjm, cjmpadding)
-    class(T_lateralGrid), intent(in)    :: this
-    integer,              intent(in)    :: ncr, ncjm, crpadding, cjmpadding
-    complex(kind=dbl),    intent(in)    :: cr(ncr,*)
-    complex(kind=dbl),    intent(inout) :: cjm(ncjm,*)
-    integer                             :: j, m, ijm, imj
+    class(T_sphsvt),   intent(in)    :: this
+    integer,           intent(in)    :: ncr, ncjm, crpadding, cjmpadding
+    complex(kind=dbl), intent(in)    :: cr(ncr,*)
+    complex(kind=dbl), intent(inout) :: cjm(ncjm,*)
+    integer                          :: j, m, ijm, imj
     
     do j = 0, this%jmax
       m = 0

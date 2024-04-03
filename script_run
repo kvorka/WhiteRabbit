@@ -17,6 +17,9 @@ $compile -c kernels/math/Math.f90
 $compile -c kernels/math/math1/*.f90
 $compile -c kernels/math/sph/*.f90
 
+$compile -c kernels/math/mathsphsvt/Sphsvt.f90
+$compile -c kernels/math/mathsphsvt/smod/*.f90
+
 $compile -c kernels/math/fft/Fourier_transform.f90
 $compile -c kernels/math/fft/smod/*.f90
 

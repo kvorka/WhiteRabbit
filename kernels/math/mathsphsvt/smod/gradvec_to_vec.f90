@@ -1,15 +1,15 @@
-submodule (SphericalHarmonics) gradvec_to_vec
+submodule (Sphsvt) gradvec_to_vec
   implicit none; contains
   
   module pure subroutine gradvec2vec_jmlk_to_jml_sub(this, ri, v, dv_r, cab, ncab, cabpadding)
-    class(T_lateralGrid), intent(in)    :: this
-    integer,              intent(in)    :: cabpadding, ncab
-    real(kind=dbl),       intent(in)    :: ri
-    complex(kind=dbl),    intent(in)    :: v(*), dv_r(*)
-    complex(kind=dbl),    intent(inout) :: cab(ncab,*)
-    integer                             :: j, m, l, lmj, ijml, i1
-    real(kind=dbl)                      :: cleb, fac1, fac2, fac3, fac4
-    complex(kind=dbl), allocatable      :: sum1(:), sum2(:), sum3(:)
+    class(T_sphsvt),   intent(in)    :: this
+    integer,           intent(in)    :: cabpadding, ncab
+    real(kind=dbl),    intent(in)    :: ri
+    complex(kind=dbl), intent(in)    :: v(*), dv_r(*)
+    complex(kind=dbl), intent(inout) :: cab(ncab,*)
+    integer                          :: j, m, l, lmj, ijml, i1
+    real(kind=dbl)                   :: cleb, fac1, fac2, fac3, fac4
+    complex(kind=dbl), allocatable   :: sum1(:), sum2(:), sum3(:)
     
     allocate( sum1(2), sum2(2), sum3(2) )
     

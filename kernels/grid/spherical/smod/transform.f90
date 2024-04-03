@@ -1,4 +1,4 @@
-submodule (SphericalHarmonics) lege_transform
+submodule (SphericalHarmonics) transform
   implicit none; contains
   
   pure subroutine pmj_mmset_4_sub(m, cmm, snx, pmm, pmj2, pmj1, pmj0)
@@ -274,7 +274,7 @@ submodule (SphericalHarmonics) lege_transform
     
   end subroutine pmj_forward_rcb_16_sub
   
-  module pure subroutine lege_transform_sub(this, nf, nb, cc, cr, grid_sub)
+  module pure subroutine transform_sub(this, nf, nb, cc, cr, grid_sub)
     class(T_lateralGrid), intent(in)    :: this
     integer,              intent(in)    :: nf, nb
     complex(kind=dbl),    intent(in)    :: cc(nb,*)
@@ -519,6 +519,6 @@ submodule (SphericalHarmonics) lege_transform
     !Cleaning
     deallocate( pmm, pmj0, pmj1, pmj2, csx, snx, ssm, asm, sumN, sumS, grid )
     
-  end subroutine lege_transform_sub
+  end subroutine transform_sub
   
-end submodule lege_transform
+end submodule transform

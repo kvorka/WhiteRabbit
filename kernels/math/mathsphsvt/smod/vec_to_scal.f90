@@ -1,14 +1,14 @@
-submodule (SphericalHarmonics) vec_to_scal
+submodule (Sphsvt) vec_to_scal
   implicit none; contains
   
   module pure subroutine vec2scal_jml_to_mj_sub(this, cab, ncab, cc)
-    class(T_lateralGrid), intent(in)  :: this
-    integer,              intent(in)  :: ncab
-    complex(kind=dbl),    intent(in)  :: cab(ncab,*)
-    complex(kind=dbl),    intent(out) :: cc(3,ncab,*)
-    integer                           :: j, m, l, mj, lmj, i1
-    real(kind=dbl)                    :: cleb
-    complex(kind=dbl), allocatable    :: sum1(:), sum2(:), sum3(:)
+    class(T_sphsvt),   intent(in)  :: this
+    integer,           intent(in)  :: ncab
+    complex(kind=dbl), intent(in)  :: cab(ncab,*)
+    complex(kind=dbl), intent(out) :: cc(3,ncab,*)
+    integer                        :: j, m, l, mj, lmj, i1
+    real(kind=dbl)                 :: cleb
+    complex(kind=dbl), allocatable :: sum1(:), sum2(:), sum3(:)
     
     allocate( sum1(ncab), sum2(ncab), sum3(ncab) )
     

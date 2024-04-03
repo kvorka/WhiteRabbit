@@ -12,20 +12,12 @@ submodule (SphericalHarmonics) Init_SphericalHarmonics
       stop
     end if
     
-    this%jmax  = jmax
-    this%jmax1 = jmax+1
     this%jmax2 = jmax+2
     this%jmax3 = jmax+3
-
-    this%jms  =     ( jmax   *(jmax+1)/2 +  jmax   ) + 1
-    this%jms1 =     ((jmax+1)*(jmax+2)/2 + (jmax+1)) + 1
-    this%jms2 =     ((jmax+2)*(jmax+3)/2 + (jmax+2)) + 1
-
-    this%jmv  = 3 * ( jmax   *(jmax+1)/2 +  jmax   ) + 1
-    this%jmv1 = 3 * ((jmax+1)*(jmax+2)/2 + (jmax+1)) + 1
+    call this%reindexing%init_sub(jmax)
     
-    this%nFourier  = 3*(this%jmax2+1)
-    this%nLegendre = ( 3*(this%jmax2+1)/2+1 ) / 2 + 1
+    this%nFourier  = 3 * (this%jmax2+1)
+    this%nLegendre = ( this%nFourier/2+1 ) / 2 + 1
     if ( mod(this%nLegendre,4) /= 0 ) this%nLegendre = this%nLegendre+4-mod(this%nLegendre,4)
 
     allocate( this%cosx(this%nLegendre) )
@@ -60,7 +52,7 @@ submodule (SphericalHarmonics) Init_SphericalHarmonics
         y = x + xincr; fy = lege_fn(2*this%nLegendre, y)
       end do
     
-    allocate( this%amj(this%jms2), this%bmj(this%jms2), this%cmm(0:this%jms2) )
+    allocate( this%amj(this%reindexing%jms2), this%bmj(this%reindexing%jms2), this%cmm(0:jmax+2) )
     
     do m = 0, this%jmax2
       if ( m == 0 ) then

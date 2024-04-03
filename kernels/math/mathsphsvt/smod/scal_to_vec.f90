@@ -1,13 +1,13 @@
-submodule (SphericalHarmonics) scal_to_vec
+submodule (Sphsvt) scal_to_vec
   implicit none; contains
   
   module pure subroutine scal2vecscal_mj_to_jm_sub(this, cr, ncr, crpadding, cjm, ncjm, cjmpadding)
-    class(T_lateralGrid), intent(in)    :: this
-    integer,              intent(in)    :: ncr, crpadding, ncjm, cjmpadding
-    complex(kind=dbl),    intent(inout) :: cr(ncr,*)
-    complex(kind=dbl),    intent(inout) :: cjm(ncjm,*)
-    integer                             :: i, j, m, mj, mj1, mj2, ijm
-    complex(kind=dbl)                   :: cr12
+    class(T_sphsvt),   intent(in)    :: this
+    integer,           intent(in)    :: ncr, crpadding, ncjm, cjmpadding
+    complex(kind=dbl), intent(inout) :: cr(ncr,*)
+    complex(kind=dbl), intent(inout) :: cjm(ncjm,*)
+    integer                          :: i, j, m, mj, mj1, mj2, ijm
+    complex(kind=dbl)                :: cr12
     
     do concurrent ( mj = 1:this%jms2 )
       cr12               = ( +cr(crpadding,mj) + cr(crpadding+1,mj) * cunit ) * sq2_1

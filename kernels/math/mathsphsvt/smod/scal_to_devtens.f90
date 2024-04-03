@@ -1,14 +1,14 @@
-submodule (SphericalHarmonics) scal_to_devtens
+submodule (Sphsvt) scal_to_devtens
   implicit none; contains
   
   module pure subroutine scal2devtens_mj_to_jml2_sub(this, cr, ncr, crpadding, ctjml2)
-    class(T_lateralGrid), intent(in) :: this
-    integer,              intent(in)  :: ncr, crpadding
-    complex(kind=dbl),    intent(in)  :: cr(ncr,*)
-    complex(kind=dbl),    intent(out) :: ctjml2(*)
-    integer                           :: j, m, l, k, i1, lm, ijml2
-    complex(kind=dbl)                 :: csum
-    complex(kind=dbl), allocatable    :: caux(:)
+    class(T_sphsvt),   intent(in) :: this
+    integer,           intent(in)  :: ncr, crpadding
+    complex(kind=dbl), intent(in)  :: cr(ncr,*)
+    complex(kind=dbl), intent(out) :: ctjml2(*)
+    integer                        :: j, m, l, k, i1, lm, ijml2
+    complex(kind=dbl)              :: csum
+    complex(kind=dbl), allocatable :: caux(:)
     
     allocate( caux(0:4) )
     

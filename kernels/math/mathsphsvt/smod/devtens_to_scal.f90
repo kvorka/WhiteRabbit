@@ -1,13 +1,13 @@
-submodule (SphericalHarmonics) devtens_to_scal
+submodule (Sphsvt) devtens_to_scal
   implicit none; contains
   
   module pure subroutine devtens2scal_jml2_to_mj_sub(this, ctjml2, cr, ncr, crpadding)
-    class(T_lateralGrid), intent(in)    :: this
-    integer,              intent(in)    :: ncr, crpadding
-    complex(kind=dbl),    intent(in)    :: ctjml2(*)
-    complex(kind=dbl),    intent(inout) :: cr(ncr,*)
-    integer                             :: j, m, l, k, lm
-    complex(kind=dbl)                   :: csum, cpom
+    class(T_sphsvt),   intent(in)    :: this
+    integer,           intent(in)    :: ncr, crpadding
+    complex(kind=dbl), intent(in)    :: ctjml2(*)
+    complex(kind=dbl), intent(inout) :: cr(ncr,*)
+    integer                          :: j, m, l, k, lm
+    complex(kind=dbl)                :: csum, cpom
     
     do k = -2, 2
       do l = 0, this%jmax2
