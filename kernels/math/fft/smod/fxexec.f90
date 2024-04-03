@@ -31,13 +31,13 @@ submodule (Fourier_transform) fxexec
     integer,        intent(in)    :: m
     real(kind=dbl), intent(inout) :: x(m,2,0:this%n/2-1)
     integer                       :: iv, i, isj, j, isj2
-    real(kind=dbl)                :: temp, tempre1, tempim1, tempre2, tempim2, t1, t2
+    real(kind=dbl)                :: tempre1, tempim1, tempre2, tempim2, t1, t2
     real(kind=dbl), allocatable   :: y(:,:)
     
     do concurrent ( iv = 1:m )
-      temp      = x(iv,1,0)
+      tempre1   = x(iv,1,0)
       x(iv,1,0) = x(iv,1,0) + x(iv,2,0)
-      x(iv,2,0) = temp      - x(iv,2,0)
+      x(iv,2,0) = tempre1   - x(iv,2,0)
     end do
     
     do i = 1, (this%n-2)/4
@@ -86,19 +86,26 @@ submodule (Fourier_transform) fxexec
         j = j + 1
         
       else
-        y(1:m,1:2) = x(1:m,1:2,isj)
+        do concurrent ( i = 1:2, iv = 1:m )
+          y(iv,i) = x(iv,i,isj)
+        end do
         
         do
           j    = j + 1
           isj2 = this%it(j)
           
           if ( isj2 < 0 ) then
-            x(1:m,1:2,isj)      = x(1:m,1:2,isj2-imm)
-            x(1:m,1:2,isj2-imm) = y(1:m,1:2)
+            do concurrent ( i = 1:2, iv = 1:m )
+              x(iv,i,isj)      = x(iv,i,isj2-imm)
+              x(iv,i,isj2-imm) = y(iv,i)
+            end do
             
             j = j + 1 ; exit
           else
-            x(1:m,1:2,isj) = x(1:m,1:2,isj2)
+            do concurrent ( i = 1:2, iv = 1:m )
+              x(iv,i,isj) = x(iv,i,isj2)
+            end do
+            
             isj = isj2
           end if
         end do
@@ -135,7 +142,7 @@ submodule (Fourier_transform) fxexec
     integer,        intent(in)    :: m
     real(kind=dbl), intent(inout) :: x(m,2,0:this%n/2-1)
     integer                       :: iv, i, isj, j, isj2
-    real(kind=dbl)                :: scal, temp, addre, addim, subim, subre, tempre, tempim, t1, t2
+    real(kind=dbl)                :: scal, addre, addim, subim, subre, tempre, tempim, t1, t2
     real(kind=dbl), allocatable   :: y(:,:)
     
     select case ( mod(this%it(this%n/2-1),4)+2 )
@@ -159,19 +166,27 @@ submodule (Fourier_transform) fxexec
       if (isj < 0) then
         j = j + 1
       else
-        y(1:m,1:2) = x(1:m,1:2,isj)
+        do concurrent ( i = 1:2, iv = 1:m )
+          y(iv,i) = x(iv,i,isj)
+        end do
         
         do
           j    = j + 1
           isj2 = this%it(j)
           
           if ( isj2 < 0 ) then
-            x(1:m,1:2,isj)      = x(1:m,1:2,isj2-imm)
-            x(1:m,1:2,isj2-imm) = y(1:m,1:2)
+            do concurrent ( i = 1:2, iv = 1:m )
+              x(iv,i,isj)      = x(iv,i,isj2-imm)
+              x(iv,i,isj2-imm) = y(iv,i)
+            end do
             
-            j = j + 1 ; exit
+            j = j + 1
+            exit
           else
-            x(1:m,1:2,isj) = x(1:m,1:2,isj2)
+            do concurrent ( i = 1:2, iv = 1:m )
+              x(iv,i,isj) = x(iv,i,isj2)
+            end do
+            
             isj = isj2
           end if
         end do
@@ -180,12 +195,12 @@ submodule (Fourier_transform) fxexec
     
     deallocate( y )
     
-    scal = 1._dbl / this%n
+    scal = one / this%n
     
     do concurrent ( iv = 1:m )
-       temp      =        x(iv,1,0) * scal
-       x(iv,1,0) = temp + x(iv,2,0) * scal
-       x(iv,2,0) = temp - x(iv,2,0) * scal
+       tempre    =          x(iv,1,0) * scal
+       x(iv,1,0) = tempre + x(iv,2,0) * scal
+       x(iv,2,0) = tempre - x(iv,2,0) * scal
     end do
     
     scal = scal / 2
