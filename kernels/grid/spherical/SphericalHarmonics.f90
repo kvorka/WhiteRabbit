@@ -1,6 +1,7 @@
 module SphericalHarmonics
   use Nulify
   use Legendre_function
+  use Legendre_poly
   use Fourier_transform
   use Sphsvt
   implicit none
