@@ -3,10 +3,10 @@ program OutputOcean
   use OutputMod
   implicit none
   
-  integer, parameter, private :: n_out = 120
-  integer, parameter, private :: jms   =    (jmax_ocean  )*(jmax_ocean+1)/2 + (jmax_ocean  )  + 1
-  integer, parameter, private :: jms1  =    (jmax_ocean+1)*(jmax_ocean+2)/2 + (jmax_ocean+1)  + 1
-  integer, parameter, private :: jmv   = 3*((jmax_ocean  )*(jmax_ocean+1)/2 + (jmax_ocean  )) + 1
+  integer, parameter :: n_out = 120
+  integer, parameter :: jms   =    (jmax_ocean  )*(jmax_ocean+1)/2 + (jmax_ocean  )  + 1
+  integer, parameter :: jms1  =    (jmax_ocean+1)*(jmax_ocean+2)/2 + (jmax_ocean+1)  + 1
+  integer, parameter :: jmv   = 3*((jmax_ocean  )*(jmax_ocean+1)/2 + (jmax_ocean  )) + 1
   
   call nuss_curve_sub()
   
