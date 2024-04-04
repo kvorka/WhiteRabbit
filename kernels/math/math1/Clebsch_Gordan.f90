@@ -41,11 +41,11 @@ module Clebsch_Gordan
       
       case (0)
         select case (j-j1)
-          case (+2); cleb2_fn =      sqrt((3 * (j+m-1) * (j-m-1) * (j+m) * (j-m)) / ((2*j-3) * (2*j-2) * (2*j-one) * j))
-          case (+1); cleb2_fn = +m * sqrt((3 *                     (j+m) * (j-m)) / ((  j-1) * (  j+1) * (2*j-one) * j))
+          case (+2); cleb2_fn =      sqrt((3 * (j+m-one) * (j-m-1) * (j+m  ) * (j-m  )) / ((2*j-3) * (2*j-2) * (2*j-1) * (  j  )))
+          case (+1); cleb2_fn = +m * sqrt((3 *      one  *           (j+m  ) * (j-m  )) / ((  j-1) * (  j+1) * (2*j-1) * (  j  )))
           case ( 0); cleb2_fn = (3 * m**2 - j * (j+1) ) / sqrt((2*j-one) * j * (j+1) * (2*j+3))
-          case (-1); cleb2_fn = -m * sqrt((3 * (j+m+one) *           (j-m+1)          ) / ((j+1) * (2*j+3) * (  j+2) * (  j  )))
-          case (-2); cleb2_fn =      sqrt((3 * (j+m+one) * (j+m+2) * (j-m+1) * (j-m+2)) / ((j+1) * (2*j+3) * (2*j+4) * (2*j+5)))
+          case (-1); cleb2_fn = -m * sqrt((3 * (j+m+one) *           (j-m+1)          ) / ((  j+1) * (2*j+3) * (  j+2) * (  j  )))
+          case (-2); cleb2_fn =      sqrt((3 * (j+m+one) * (j+m+2) * (j-m+1) * (j-m+2)) / ((  j+1) * (2*j+3) * (2*j+4) * (2*j+5)))
         end select
         
       case (1)

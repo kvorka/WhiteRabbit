@@ -1,6 +1,30 @@
-module Legendre_poly
+module Legendre_polynom
   use Math
   implicit none; contains
+  
+  pure subroutine legep_factors_sub(jmax, amj, bmj, cmm)
+    integer,                     intent(in)  :: jmax
+    real(kind=dbl), allocatable, intent(out) :: amj(:), bmj(:), cmm(:)
+    integer                                  :: jms, m, j
+    
+    jms = (jmax+2)*(jmax+1)/2
+    
+    allocate( amj(jms), bmj(jms), cmm(0:jmax) )
+    
+    do m = 0, jmax
+      if ( m == 0 ) then
+        cmm(m) = one / s4pi
+      else
+        cmm(m) = -sqrt( (2*m+one) / (2*m) )
+      end if
+      
+      do j = m+1, jmax
+        amj(m*(jmax+1)-m*(m+1)/2+j+1) = sqrt((2*j-1)*(2*j+one)                /(        (j-m)*(j+m)))
+        bmj(m*(jmax+1)-m*(m+1)/2+j+1) = sqrt(        (2*j+one)*(j-m-1)*(j+m-1)/((2*j-3)*(j-m)*(j+m)))
+      end do
+    end do
+    
+  end subroutine legep_factors_sub
   
   pure subroutine pmj_mmset_4_sub(m, cmm, snx, pmm, pmj2, pmj1, pmj0)
     integer,        intent(in)    :: m
@@ -275,4 +299,4 @@ module Legendre_poly
     
   end subroutine pmj_forward_rcb_16_sub
   
-end module Legendre_poly
+end module Legendre_polynom

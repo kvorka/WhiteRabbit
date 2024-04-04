@@ -1,7 +1,7 @@
 module SphericalHarmonics
   use Nulify
   use Legendre_function
-  use Legendre_poly
+  use Legendre_polynom
   use Fourier_transform
   use Sphsvt
   implicit none
@@ -11,7 +11,7 @@ module SphericalHarmonics
                                                & 247, 253, 267, 285, 297, 317, 321, 357, 381, 397, 429, 447, 477, 483, 497, 997  ]
   
   type, public :: T_lateralGrid
-    integer,                     private :: jmax2, jmax3, nLegendre, nFourier
+    integer,                     private :: jmax, nLegendre, nFourier
     real(kind=dbl), allocatable, private :: cosx(:), weight(:), amj(:), bmj(:), cmm(:)
     type(T_fft),                 private :: fourtrans
     type(T_sphsvt),              private :: reindexing

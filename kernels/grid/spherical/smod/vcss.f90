@@ -26,7 +26,7 @@ submodule (SphericalHarmonics) vcss
     
     !Array preparation
     allocate( cc(2*this%reindexing%jms2) ); call zero_carray_sub( 2*this%reindexing%jms2, cc(1) )
-    allocate( cr(this%reindexing%jms2)   ); call zero_carray_sub(   this%reindexing%jms2, cr(1) )
+    allocate( cr(  this%reindexing%jms2) ); call zero_carray_sub(   this%reindexing%jms2, cr(1) )
     
     call this%reindexing%scal2scal_jm_to_mj_sub( cajm(1), cc(1), 2, 1 )
     call this%reindexing%scal2scal_jm_to_mj_sub( cbjm(1), cc(1), 2, 2 )
