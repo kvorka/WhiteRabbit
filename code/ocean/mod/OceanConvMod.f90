@@ -29,10 +29,15 @@ module OceanConvMod
     integer                           :: ir, ijm
     real(kind=dbl)                    :: dt
     
-    ijm = 1 ; ir = 1
-      this%rtemp(ir,ijm) = cs4pi
+    !ir = 1 ; ijm = 1
+      this%rtemp(1,1) = cs4pi
     
     !$omp parallel
+    !$omp do
+    do ijm = 2, this%jms
+      this%rsph2(this%nd+1,ijm) = -this%St * this%qr_fn(this%nd,ijm)
+    end do
+    
     !$omp do collapse (2)
     do ijm = 1, this%jms
       do ir = 2, this%nd

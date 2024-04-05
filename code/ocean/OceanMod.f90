@@ -41,7 +41,8 @@ module OceanMod
     this%Pr = Pr_ocean
     this%Ra = Ra_ocean
     this%Ek = Ek_ocean
-    thiS%Cl = Kl_ocean
+    this%Cl = Kl_ocean
+    this%St = St_ocean
     
     this%D_ud         = D_ud_ocean
     this%rheology     = rheology_ocean

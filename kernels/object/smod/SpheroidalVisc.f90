@@ -33,10 +33,10 @@ submodule (PhysicalObject) SpheroidalVisc
         matica(16,1) = -sqrt((3  )      /(2*(2*j-1)*(2*j+3)))
         matica(17,1) = -sqrt((j  )*(j+2)/(  (2*j+1)*(2*j+3)))
         
-        matica(11,2) = +sqrt(j  )*grid%c(1,-1)
-        matica(12,2) = -sqrt(j+1)*grid%c(1,-1)
-        matica(17,2) = +sqrt(j  )*grid%c(1,+1)
-        matica(18,2) = -sqrt(j+1)*grid%c(1,+1)
+        matica(11,2) = +sqrt((j  )/(2*j+1)) * grid%c(1,-1)
+        matica(12,2) = -sqrt((j+1)/(2*j+1)) * grid%c(1,-1)
+        matica(17,2) = +sqrt((j  )/(2*j+1)) * grid%c(1,+1)
+        matica(18,2) = -sqrt((j+1)/(2*j+1)) * grid%c(1,+1)
       
       case('noslp')
         matica(12,1) = grid%c(1,-1)
@@ -129,10 +129,10 @@ submodule (PhysicalObject) SpheroidalVisc
         matica(10,6*this%nd+1) = -sqrt((3  )      /(2*(2*j-1)*(2*j+3)))
         matica(11,6*this%nd+1) = -sqrt((j  )*(j+2)/(  (2*j+1)*(2*j+3)))
         
-        matica( 5,6*this%nd+2) = +sqrt(j  )*grid%c(this%nd,-1)
-        matica( 6,6*this%nd+2) = -sqrt(j+1)*grid%c(this%nd,-1)
-        matica(11,6*this%nd+2) = +sqrt(j  )*grid%c(this%nd,+1)
-        matica(12,6*this%nd+2) = -sqrt(j+1)*grid%c(this%nd,+1)
+        matica( 5,6*this%nd+2) = +sqrt((j  )/(2*j+1)) * grid%c(this%nd,-1)
+        matica( 6,6*this%nd+2) = -sqrt((j+1)/(2*j+1)) * grid%c(this%nd,-1)
+        matica(11,6*this%nd+2) = +sqrt((j  )/(2*j+1)) * grid%c(this%nd,+1)
+        matica(12,6*this%nd+2) = -sqrt((j+1)/(2*j+1)) * grid%c(this%nd,+1)
       
       case('noslp')
         matica( 6,6*this%nd+1) = grid%c(this%nd,-1)
@@ -178,10 +178,10 @@ submodule (PhysicalObject) SpheroidalVisc
         matica(16,1) = -sqrt((3  )      /(2*(2*j-1)*(2*j+3)))
         matica(17,1) = -sqrt((j  )*(j+2)/(  (2*j+1)*(2*j+3)))
         
-        matica(11,2) = +sqrt(j  )*grid%c(1,-1)
-        matica(12,2) = -sqrt(j+1)*grid%c(1,-1)
-        matica(17,2) = +sqrt(j  )*grid%c(1,+1)
-        matica(18,2) = -sqrt(j+1)*grid%c(1,+1)
+        matica(11,2) = +sqrt(j  ) * grid%c(1,-1)
+        matica(12,2) = -sqrt(j+1) * grid%c(1,-1)
+        matica(17,2) = +sqrt(j  ) * grid%c(1,+1)
+        matica(18,2) = -sqrt(j+1) * grid%c(1,+1)
       
       case('noslp')
         matica(12,1) = grid%c(1,-1)

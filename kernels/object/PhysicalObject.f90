@@ -15,7 +15,7 @@ module PhysicalObject
     character(len=5)               :: thermal_bnd, mechanic_bnd, grid_type
     logical                        :: noharm, noobj
     integer                        :: nd, jmax, jms, jmv, jmt, n_iter, poc
-    real(kind=dbl)                 :: t, dt, cf, ab, rd, ru, r_ud, D_ud, gd, gu, Pr, Ra, Ek, Cl, Ds, Raf, Ramu, Rad, Rau
+    real(kind=dbl)                 :: t, dt, cf, ab, rd, ru, r_ud, D_ud, gd, gu, Pr, Ra, Ek, St, Cl, Ds, Raf, Ramu, Rad, Rau
     integer,           allocatable :: j_indx(:)
     complex(kind=dbl), allocatable :: flux_up(:), htide(:,:), rsph1(:,:), rsph2(:,:), rtorr(:,:), rtemp(:,:), &
                                     &                         nsph1(:,:), nsph2(:,:), ntorr(:,:), ntemp(:,:)
