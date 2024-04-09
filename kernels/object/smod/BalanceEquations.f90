@@ -25,7 +25,7 @@ submodule (PhysicalObject) BalanceEquations
     
       do ir = 1, this%nd+1
         gdrho_jm = this%Ra * this%alpha_fn(ir) * this%gravity%g_fn( this%rad_grid%rr(ir) ) * this%sol%temp_jm_fn(ir)
-        rvelc_jm = ervs_fn(this%jmax, this%sol%velocity_jml_fn(ir))
+        call ervs_sub(this%jmax, this%sol%velocity_jml_fn(ir), rvelc_jm)
         
         power_i(ir) = scalproduct_fn( this%jmax, gdrho_jm, rvelc_jm )
       end do
@@ -37,17 +37,11 @@ submodule (PhysicalObject) BalanceEquations
     select case( this%mechanic_bnd )
       case( 'shape' )
         !Power of the bottom boundary
-        do concurrent ( ijm = 1:this%jms )
-          rvelc_jm(ijm) = this%vr_fn(1,ijm)
-        end do
-        
+        call this%vr_jm_sub( 1, rvelc_jm )
         bndpow = this%Rad * this%gd * this%rd**2 * scalproduct_fn(this%jmax, this%sol%t_dn, rvelc_jm)
         
         !Power of the upper boundary
-        do concurrent ( ijm = 1:this%jms )
-          rvelc_jm(ijm) = this%vr_fn(this%nd,ijm)
-        end do
-        
+        call this%vr_jm_sub( this%nd, rvelc_jm )
         bndpow = bndpow - this%Rau * this%gu * this%ru**2 * scalproduct_fn(this%jmax, this%sol%t_up, rvelc_jm)
         
         !Resulting law

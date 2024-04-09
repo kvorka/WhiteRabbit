@@ -2,14 +2,12 @@ module sph_unitvec_op
   use Math
   implicit none; public; contains
   
-  pure function ervs_fn(np, cajml) result(cjm)
+  pure subroutine ervs_sub(np, cajml, cjm)
     integer,           intent(in)  :: np
     complex(kind=dbl), intent(in)  :: cajml(*)
-    complex(kind=dbl), allocatable :: cjm(:)
+    complex(kind=dbl), intent(out) :: cjm(*)
     integer                        :: ij, ijm
     real(kind=dbl)                 :: fac1, fac2
-    
-    allocate( cjm(np*(np+1)/2+np+1) ) ; cjm = czero
     
     ij = 0
       cjm(1) = -cajml(1)
@@ -23,7 +21,7 @@ module sph_unitvec_op
       end do
     end do
     
-  end function ervs_fn
+  end subroutine ervs_sub
   
   pure function ersv_fn(np, cajm) result(cjml)
     integer,           intent(in)  :: np

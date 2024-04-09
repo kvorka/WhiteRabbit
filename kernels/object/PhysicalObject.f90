@@ -35,7 +35,7 @@ module PhysicalObject
     & dv_dr_rr_jml_sub, mgradT_rr_jml_sub, coriolis_vgradv_sub, coriolis_sub, laws_temp_fn, laws_mech_fn, buoy_rr_jml_sub,        &
     & coriolis_rr_jml_sub, global_rotation_sub, mvgradT_sub, fullnl_sub, mat_temp_fn, mat_mech_fn, mat_torr_fn, init_eq_temp_sub, &
     & init_eq_mech_sub, init_eq_torr_sub, prepare_mat_mech_sub, prepare_mat_temp_sub, prepare_mat_torr_sub, solve_temp_sub,       &
-    & solve_torr_sub, solve_mech_sub, volume_heating_fn, laws_force_fn
+    & solve_torr_sub, solve_mech_sub, volume_heating_fn, laws_force_fn, vr_jm_sub
     
   end type T_physicalObject
   
@@ -91,6 +91,12 @@ module PhysicalObject
       class(T_physicalObject), intent(in) :: this
       integer,                 intent(in) :: ir, ijm
     end function vr_fn
+    
+    module pure subroutine vr_jm_sub(this, ir, vr_jm)
+      class(T_physicalObject), intent(in)  :: this
+      integer,                 intent(in)  :: ir
+      complex(kind=dbl),       intent(out) :: vr_jm(*)
+    end subroutine vr_jm_sub
     
     module pure complex(kind=dbl) function qr_fn(this, ir, ijm)
       class(T_physicalObject), intent(in) :: this
