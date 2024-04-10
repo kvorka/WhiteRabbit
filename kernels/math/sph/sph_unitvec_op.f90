@@ -23,30 +23,6 @@ module sph_unitvec_op
     
   end subroutine ervs_sub
   
-  pure function ersv_fn(np, cajm) result(cjml)
-    integer,           intent(in)  :: np
-    complex(kind=dbl), intent(in)  :: cajm(*)
-    complex(kind=dbl), allocatable :: cjml(:)
-    integer                        :: ij, ijm
-    real(kind=dbl)                 :: fac1, fac2
-    
-    allocate( cjml(3*(np*(np+1)/2+np)+1) ) ; cjml = czero
-    
-    ij = 0
-      cjml(1) = -cajm(1)
-    
-    do ij = 1, np
-      fac1 = +sqrt((ij  )/(2*ij+one))
-      fac2 = -sqrt((ij+1)/(2*ij+one))
-      
-      do concurrent ( ijm = ij*(ij+1)/2+1 : ij*(ij+1)/2+ij+1 )
-        cjml(3*ijm-4) = fac1 * cajm(ijm)
-        cjml(3*ijm-2) = fac2 * cajm(ijm)
-      end do
-    end do
-    
-  end function ersv_fn
-  
   pure subroutine ezvv_sub(np, fac, cajml, cjml)
     integer,           intent(in)    :: np
     real(kind=dbl),    intent(in)    :: fac

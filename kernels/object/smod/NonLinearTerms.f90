@@ -77,6 +77,7 @@ submodule (PhysicalObject) NonLinearTerms
     class(T_physicalObject), intent(inout) :: this
     integer,                 intent(in)    :: i
     integer                                :: ijm, i1
+    real(kind=dbl)                         :: fac
     complex(kind=dbl),       allocatable   :: v(:), dv(:), T(:), dT(:), nlm(:,:)
     
     allocate( v(this%jmv) , dv(this%jmv) ) ; call this%dv_dr_rr_jml_sub(i, v, dv)
@@ -88,8 +89,10 @@ submodule (PhysicalObject) NonLinearTerms
     
     select case (this%scaling)
       case ('basics')
+        fac = 1 / this%Pr
+        
         do concurrent ( ijm = 1:this%jms, i1 = 2:4 )
-          nlm(i1,ijm) = nlm(i1,ijm) / this%Pr
+          nlm(i1,ijm) = nlm(i1,ijm) * fac
         end do
     end select
     

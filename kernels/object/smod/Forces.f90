@@ -30,7 +30,7 @@ submodule(PhysicalObject) Forces
       fac1 = -sqrt( (ij  ) / (2*ij+one) ) * fac
       fac2 = +sqrt( (ij+1) / (2*ij+one) ) * fac
       
-      do concurrent ( ijm = ij*(ij+1)/2+1:ij*(ij+1)/2+ij+1 )
+      do concurrent ( ijm = jm(ij,0):jm(ij,ij) )
         force(1,ijm) = force(1,ijm) + fac1 * T(ijm)
         force(3,ijm) = force(3,ijm) + fac2 * T(ijm)
       end do

@@ -30,7 +30,7 @@ submodule(PhysicalObject) Variables
     class(T_physicalObject), intent(in)  :: this
     integer,                 intent(in)  :: ir
     complex(kind=dbl),       intent(out) :: vr_jm(*)
-    integer                              :: j, m, ijm, ijml
+    integer                              :: ij, ijm
     real(kind=dbl)                       :: cj1, cj2, cr1, cr2
     complex(kind=dbl),       allocatable :: v1(:), v2(:)
     
@@ -40,16 +40,13 @@ submodule(PhysicalObject) Variables
     allocate( v1(this%jmv) ) ; v1 = this%sol%velocity_jml_fn(ir  )
     allocate( v2(this%jmv) ) ; v2 = this%sol%velocity_jml_fn(ir+1)
     
-    do j = 1, this%jmax
-      cj1 = sqrt( (j  ) / (2*j+one) )
-      cj2 = sqrt( (j+1) / (2*j+one) )
+    do ij = 1, this%jmax
+      cj1 = sqrt( (ij  ) / (2*ij+one) )
+      cj2 = sqrt( (ij+1) / (2*ij+one) )
       
-      do m = 0, j
-        ijm  = jm(j,m)
-        ijml = jml(j,m,-1)
-        
-        vr_jm(ijm) = cr1 * ( cj1 * v1(ijml) - cj2 * v1(ijml+2) ) + &
-                   & cr2 * ( cj1 * v2(ijml) - cj2 * v2(ijml+2) )
+      do concurrent ( ijm = jm(ij,0):jm(ij,ij) )
+        vr_jm(ijm) = cr1 * ( cj1 * v1(3*ijm-4) - cj2 * v1(3*ijm-2) ) + &
+                   & cr2 * ( cj1 * v2(3*ijm-4) - cj2 * v2(3*ijm-2) )
       end do
     end do
     
