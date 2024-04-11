@@ -35,7 +35,8 @@ module PhysicalObject
     & dv_dr_rr_jml_sub, mgradT_rr_jml_sub, coriolis_vgradv_sub, coriolis_sub, laws_temp_fn, laws_mech_fn, buoy_rr_jml_sub,        &
     & coriolis_rr_jml_sub, global_rotation_sub, mvgradT_sub, fullnl_sub, mat_temp_fn, mat_mech_fn, mat_torr_fn, init_eq_temp_sub, &
     & init_eq_mech_sub, init_eq_torr_sub, prepare_mat_mech_sub, prepare_mat_temp_sub, prepare_mat_torr_sub, solve_temp_sub,       &
-    & solve_torr_sub, solve_mech_sub, volume_heating_fn, laws_force_fn, vr_jm_sub
+    & solve_torr_sub, solve_mech_sub, volume_heating_fn, laws_force_fn, vr_jm_sub, vr_rr_jm_sub, er_buoy_rr_jm_sub,               &
+    & viscdissip_power_fn, buoyancy_power_fn
     
   end type T_physicalObject
   
@@ -98,6 +99,12 @@ module PhysicalObject
       complex(kind=dbl),       intent(out) :: vr_jm(*)
     end subroutine vr_jm_sub
     
+    module pure subroutine vr_rr_jm_sub(this, ir, vr_jm)
+      class(T_physicalObject), intent(in)  :: this
+      integer,                 intent(in)  :: ir
+      complex(kind=dbl),       intent(out) :: vr_jm(*)
+    end subroutine vr_rr_jm_sub
+    
     module pure complex(kind=dbl) function qr_fn(this, ir, ijm)
       class(T_physicalObject), intent(in) :: this
       integer,                 intent(in) :: ir, ijm
@@ -121,6 +128,12 @@ module PhysicalObject
       complex(kind=dbl),       intent(in)    :: v(:)
       complex(kind=dbl),       intent(inout) :: coriolis(:,:)
     end subroutine coriolis_rr_jml_sub
+    
+    module pure subroutine er_buoy_rr_jm_sub(this, ir, force)
+      class(T_physicalObject), intent(in)  :: this
+      integer,                 intent(in)  :: ir
+      complex(kind=dbl),       intent(out) :: force(*)
+    end subroutine er_buoy_rr_jm_sub
     
     module pure subroutine buoy_rr_jml_sub(this, ir, T, force)
       class(T_physicalObject), intent(in)    :: this
@@ -153,6 +166,16 @@ module PhysicalObject
       class(T_physicalObject), intent(inout) :: this
       integer,                 intent(in)    :: i
     end subroutine coriolis_sub
+    
+    module pure function viscdissip_power_fn(this) result(power)
+      class(T_physicalObject), intent(in)  :: this
+      real(kind=dbl)                       :: power
+    end function viscdissip_power_fn
+    
+    module pure function buoyancy_power_fn(this) result(power)
+      class(T_physicalObject), intent(in)  :: this
+      real(kind=dbl)                       :: power
+    end function buoyancy_power_fn
     
     module pure function mat_temp_fn(this, j_in, a_in) result(matica)
       class(T_physicalObject), intent(in) :: this

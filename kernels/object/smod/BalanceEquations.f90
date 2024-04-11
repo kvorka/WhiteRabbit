@@ -5,36 +5,18 @@ submodule (PhysicalObject) BalanceEquations
     class(T_physicalObject), intent(in) :: this
     integer                             :: ir, ijm
     real(kind=dbl)                      :: bndpow, heatpow, buoypow
-    real(kind=dbl),    allocatable      :: power_i(:)
-    complex(kind=dbl), allocatable      :: gdrho_jm(:), rvelc_jm(:), devstress_jm(:)
+    complex(kind=dbl), allocatable      :: rvelc_jm(:)
     
     !Viscous dissipation
-    allocate( power_i(this%nd) )
-    
-      do ir = 1, this%nd
-        power_i(ir)  = tensnorm2_fn( this%jmax, this%sol%deviatoric_stress_jml2_fn(ir) ) / this%visc_fn(ir) / 2
-      end do
-      
-      heatpow = this%rad_grid%intV_fn( power_i )
-    
-    deallocate( power_i )
+    heatpow = this%viscdissip_power_fn()
     
     !Buoyancy power
-    allocate( power_i(this%nd+1) , gdrho_jm(this%jms), rvelc_jm(this%jms) )
-    
-      do ir = 1, this%nd+1
-        gdrho_jm = this%Ra * this%alpha_fn(ir) * this%gravity%g_fn( this%rad_grid%rr(ir) ) * this%sol%temp_jm_fn(ir)
-        call ervs_sub(this%jmax, this%sol%velocity_jml_fn(ir), rvelc_jm)
-        
-        power_i(ir) = scalproduct_fn( this%jmax, gdrho_jm, rvelc_jm )
-      end do
-      
-      buoypow = this%rad_grid%intV_fn( power_i )
-    
-    deallocate( power_i, gdrho_jm )
+    buoypow = this%buoyancy_power_fn()
     
     select case( this%mechanic_bnd )
       case( 'shape' )
+        allocate( rvelc_jm(this%jms) )
+        
         !Power of the bottom boundary
         call this%vr_jm_sub( 1, rvelc_jm )
         bndpow = this%Rad * this%gd * this%rd**2 * scalproduct_fn(this%jmax, this%sol%t_dn, rvelc_jm)
@@ -46,12 +28,12 @@ submodule (PhysicalObject) BalanceEquations
         !Resulting law
         laws_mech_fn = bndpow / ( heatpow - buoypow )
         
+        deallocate( rvelc_jm )
+        
       case default  
         laws_mech_fn = buoypow / heatpow
         
     end select
-    
-    deallocate( rvelc_jm )
     
   end function laws_mech_fn
   

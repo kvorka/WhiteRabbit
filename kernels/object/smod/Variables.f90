@@ -54,6 +54,29 @@ submodule(PhysicalObject) Variables
     
   end subroutine vr_jm_sub
   
+  module pure subroutine vr_rr_jm_sub(this, ir, vr_jm)
+    class(T_physicalObject), intent(in)  :: this
+    integer,                 intent(in)  :: ir
+    complex(kind=dbl),       intent(out) :: vr_jm(*)
+    integer                              :: ij, ijm
+    real(kind=dbl)                       :: cj1, cj2
+    complex(kind=dbl),       allocatable :: v(:)
+    
+    allocate( v(this%jmv) ) ; v = this%sol%velocity_jml_fn(ir)
+    
+    do ij = 1, this%jmax
+      cj1 = sqrt( (ij  ) / (2*ij+one) )
+      cj2 = sqrt( (ij+1) / (2*ij+one) )
+      
+      do concurrent ( ijm = jm(ij,0):jm(ij,ij) )
+        vr_jm(ijm) = cj1 * v(3*ijm-4) - cj2 * v(3*ijm-2)
+      end do
+    end do
+    
+    deallocate( v )
+    
+  end subroutine vr_rr_jm_sub
+  
   module pure complex(kind=dbl) function qr_fn(this, ir, ijm)
     class(T_physicalObject), intent(in) :: this
     integer,                 intent(in) :: ir, ijm
