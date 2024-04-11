@@ -41,4 +41,32 @@ submodule (PhysicalObject) Powers
     
   end function viscdissip_power_fn
   
+  module pure function bottombnd_power_fn(this) result(power)
+    class(T_physicalObject), intent(in) :: this
+    real(kind=dbl)                      :: power
+    complex(kind=dbl), allocatable      :: rvelc_jm(:)
+    
+    allocate( rvelc_jm(this%jms) )
+    
+    call this%vr_jm_sub( 1, rvelc_jm )
+    power = this%Rad * this%gd * this%rd**2 * scalproduct_fn(this%jmax, this%sol%t_dn, rvelc_jm)
+    
+    deallocate( rvelc_jm )
+    
+  end function bottombnd_power_fn
+  
+  module pure function upperbnd_power_fn(this) result(power)
+    class(T_physicalObject), intent(in) :: this
+    real(kind=dbl)                      :: power
+    complex(kind=dbl), allocatable      :: rvelc_jm(:)
+    
+    allocate( rvelc_jm(this%jms) )
+    
+    call this%vr_jm_sub( this%nd, rvelc_jm )
+    power = -this%Rau * this%gu * this%ru**2 * scalproduct_fn(this%jmax, this%sol%t_up, rvelc_jm)
+    
+    deallocate( rvelc_jm )
+    
+  end function upperbnd_power_fn
+  
 end submodule Powers

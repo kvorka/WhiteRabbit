@@ -3,35 +3,14 @@ submodule (PhysicalObject) BalanceEquations
   
   module real(kind=dbl) function laws_mech_fn(this)
     class(T_physicalObject), intent(in) :: this
-    integer                             :: ir, ijm
-    real(kind=dbl)                      :: bndpow, heatpow, buoypow
-    complex(kind=dbl), allocatable      :: rvelc_jm(:)
-    
-    !Viscous dissipation
-    heatpow = this%viscdissip_power_fn()
-    
-    !Buoyancy power
-    buoypow = this%buoyancy_power_fn()
     
     select case( this%mechanic_bnd )
       case( 'shape' )
-        allocate( rvelc_jm(this%jms) )
-        
-        !Power of the bottom boundary
-        call this%vr_jm_sub( 1, rvelc_jm )
-        bndpow = this%Rad * this%gd * this%rd**2 * scalproduct_fn(this%jmax, this%sol%t_dn, rvelc_jm)
-        
-        !Power of the upper boundary
-        call this%vr_jm_sub( this%nd, rvelc_jm )
-        bndpow = bndpow - this%Rau * this%gu * this%ru**2 * scalproduct_fn(this%jmax, this%sol%t_up, rvelc_jm)
-        
-        !Resulting law
-        laws_mech_fn = bndpow / ( heatpow - buoypow )
-        
-        deallocate( rvelc_jm )
+        laws_mech_fn = ( this%bottombnd_power_fn()  + this%upperbnd_power_fn() ) / &
+                     & ( this%viscdissip_power_fn() - this%buoyancy_power_fn() )
         
       case default  
-        laws_mech_fn = buoypow / heatpow
+        laws_mech_fn = this%buoyancy_power_fn() / this%viscdissip_power_fn()
         
     end select
     

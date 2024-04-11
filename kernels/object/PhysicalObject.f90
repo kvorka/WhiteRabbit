@@ -36,7 +36,7 @@ module PhysicalObject
     & coriolis_rr_jml_sub, global_rotation_sub, mvgradT_sub, fullnl_sub, mat_temp_fn, mat_mech_fn, mat_torr_fn, init_eq_temp_sub, &
     & init_eq_mech_sub, init_eq_torr_sub, prepare_mat_mech_sub, prepare_mat_temp_sub, prepare_mat_torr_sub, solve_temp_sub,       &
     & solve_torr_sub, solve_mech_sub, volume_heating_fn, laws_force_fn, vr_jm_sub, vr_rr_jm_sub, er_buoy_rr_jm_sub,               &
-    & viscdissip_power_fn, buoyancy_power_fn
+    & viscdissip_power_fn, buoyancy_power_fn, bottombnd_power_fn, upperbnd_power_fn
     
   end type T_physicalObject
   
@@ -176,6 +176,16 @@ module PhysicalObject
       class(T_physicalObject), intent(in)  :: this
       real(kind=dbl)                       :: power
     end function buoyancy_power_fn
+    
+    module pure function bottombnd_power_fn(this) result(power)
+      class(T_physicalObject), intent(in) :: this
+      real(kind=dbl)                      :: power
+    end function bottombnd_power_fn
+    
+    module pure function upperbnd_power_fn(this) result(power)
+      class(T_physicalObject), intent(in) :: this
+      real(kind=dbl)                      :: power
+    end function upperbnd_power_fn
     
     module pure function mat_temp_fn(this, j_in, a_in) result(matica)
       class(T_physicalObject), intent(in) :: this
