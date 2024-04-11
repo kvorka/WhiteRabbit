@@ -4,7 +4,7 @@ submodule (PhysicalObject) VolumeMeassures
   module pure real(kind=dbl) function nuss_fn(this)
     class(T_physicalObject), intent(in) :: this
     
-    nuss_fn = c2r_fn( -this%sol%flux_fn(this%nd,1,1) ) / this%r_ud / s4pi
+    nuss_fn = c2r_fn( -this%sol%flux_fn(this%nd,1,1) ) / ( this%r_ud * s4pi )
     
   end function nuss_fn
   
@@ -12,43 +12,40 @@ submodule (PhysicalObject) VolumeMeassures
     class(T_physicalObject), intent(in)           :: this
     character(len=*),        intent(in), optional :: choice
     integer                                       :: ir
-    real(kind=dbl),         allocatable           :: field_vals(:)
-    complex(kind=dbl),      allocatable           :: v(:)
+    real(kind=dbl),          allocatable          :: field_vals(:)
     
-    allocate( field_vals(this%nd+1), v(this%jmv) )
+    allocate( field_vals(this%nd+1) )
     
-    do ir = 1, this%nd+1
-      if ( ( present(choice) ) .and. ( choice == 'convective' ) ) then
-        v = this%sol%conv_velocity_jml_fn(ir)
-      else
-        v = this%sol%velocity_jml_fn(ir)
-      end if
-      
-      field_vals(ir) = dotproduct_fn( this%jmax, v, v )
-    end do
+    if ( ( present(choice) ) .and. ( choice == 'convective' ) ) then
+      do ir = 1, this%nd+1
+        field_vals(ir) = vectnorm2_fn( this%jmax, this%sol%conv_velocity_jml_fn(ir) )
+      end do
+    else
+      do ir = 1, this%nd+1
+        field_vals(ir) = vectnorm2_fn( this%jmax, this%sol%velocity_jml_fn(ir) )
+      end do
+    end if
     
     reynolds_fn = sqrt( this%rad_grid%intV_fn( field_vals ) / this%rad_grid%volume )
     
-    deallocate( field_vals, v )
+    deallocate( field_vals )
     
   end function reynolds_fn
   
   module pure real(kind=dbl) function volume_heating_fn(this)
-    class(T_physicalObject), intent(in) :: this
-    integer                             :: ir
-    real(kind=dbl),         allocatable :: field_vals(:)
-    complex(kind=dbl),      allocatable :: devtens(:)
+    class(T_physicalObject), intent(in)  :: this
+    integer                              :: ir
+    real(kind=dbl),          allocatable :: field_vals(:)
     
-    allocate( field_vals(this%nd), devtens(this%jmt) )
+    allocate( field_vals(this%nd) )
     
     do ir = 1, this%nd
-      devtens        = this%sol%deviatoric_stress_jml2_fn(ir)
-      field_vals(ir) = tensproduct_fn( this%jmax, devtens, devtens )
+      field_vals(ir) = tensnorm2_fn( this%jmax, this%sol%deviatoric_stress_jml2_fn(ir) )
     end do
     
     volume_heating_fn = this%rad_grid%intV_fn( field_vals ) / 2
     
-    deallocate(field_vals)
+    deallocate( field_vals )
     
   end function volume_heating_fn
 

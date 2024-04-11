@@ -9,11 +9,10 @@ submodule (PhysicalObject) BalanceEquations
     complex(kind=dbl), allocatable      :: gdrho_jm(:), rvelc_jm(:), devstress_jm(:)
     
     !Viscous dissipation
-    allocate( power_i(this%nd), devstress_jm(this%jmt) )
+    allocate( power_i(this%nd) )
     
       do ir = 1, this%nd
-        devstress_jm = this%sol%deviatoric_stress_jml2_fn(ir)
-        power_i(ir)  = tensproduct_fn( this%jmax, devstress_jm, devstress_jm ) / this%visc_fn(ir) / 2
+        power_i(ir)  = tensnorm2_fn( this%jmax, this%sol%deviatoric_stress_jml2_fn(ir) ) / this%visc_fn(ir) / 2
       end do
       
       heatpow = this%rad_grid%intV_fn( power_i )
@@ -74,8 +73,9 @@ submodule (PhysicalObject) BalanceEquations
             fac2 = this%rad_grid%c(ir,+1) * this%cp_fn(ir+1)
             fac3 = 1 / this%lambda_fn(ir)
             
-            heat(ir) = dotproduct_fn( this%jmax , fac1 * this%sol%velocity_jml_fn(ir) + fac2 * this%sol%velocity_jml_fn(ir+1) , &
-                                                & fac3 * this%sol%flux_jml_fn(ir)                                               )
+            heat(ir) = dotproduct_fn( this%jmax , fac1 * this%sol%velocity_jml_fn(ir)  + &
+                                                & fac2 * this%sol%velocity_jml_fn(ir+1), &
+                                                & fac3 * this%sol%flux_jml_fn(ir)        )
             
             heattide(ir) = this%htide_fn(ir,1)
           end do
