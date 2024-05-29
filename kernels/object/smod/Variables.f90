@@ -40,6 +40,9 @@ submodule(PhysicalObject) Variables
     allocate( v1(this%jmv) ) ; v1 = this%sol%velocity_jml_fn(ir  )
     allocate( v2(this%jmv) ) ; v2 = this%sol%velocity_jml_fn(ir+1)
     
+    !ij = 0
+      vr_jm(1) = czero
+    
     do ij = 1, this%jmax
       cj1 = sqrt( (ij  ) / (2*ij+one) )
       cj2 = sqrt( (ij+1) / (2*ij+one) )
@@ -64,6 +67,9 @@ submodule(PhysicalObject) Variables
     
     allocate( v(this%jmv) ) ; v = this%sol%velocity_jml_fn(ir)
     
+    !ij = 0
+      vr_jm(1) = czero
+
     do ij = 1, this%jmax
       cj1 = sqrt( (ij  ) / (2*ij+one) )
       cj2 = sqrt( (ij+1) / (2*ij+one) )

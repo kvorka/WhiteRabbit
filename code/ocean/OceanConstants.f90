@@ -11,12 +11,12 @@ module OceanConstants
   character(len=*), parameter :: grid_type_ocean    = 'chebv'
   character(len=*), parameter :: rheology_ocean     = 'viscos'
   character(len=*), parameter :: thermal_bnd_ocean  = 'basic'
-  character(len=*), parameter :: mechanic_bnd_ocean = 'frees'
+  character(len=*), parameter :: mechanic_bnd_ocean = 'noslp'
   character(len=*), parameter :: gravity_ocean      = 'new'
   character(len=*), parameter :: scaling_ocean      = 'basics'
   
   !Nastavovanie konstant pre konvektivny vypocet
-  real(kind=dbl), parameter :: r_ud_ocean = 0.8_dbl
+  real(kind=dbl), parameter :: r_ud_ocean = 0.6_dbl
   real(kind=dbl), parameter :: D_ud_ocean = 1.0d5
   
   !Nastavovanie konstant pre slapovy vypocet
@@ -31,7 +31,7 @@ module OceanConstants
   real(kind=dbl), parameter :: Ra_ocean = 1.0d7
   real(kind=dbl), parameter :: Ek_ocean = 1.0d-4
   real(kind=dbl), parameter :: Kl_ocean = 0._dbl
-  real(kind=dbl), parameter :: St_ocean = Ra_ocean * Ek_ocean**2 / Pr_ocean / 1e3
+  real(kind=dbl), parameter :: St_ocean = 0._dbl
   
   !Nastavovanie pociatocneho stavu
   logical, parameter :: init_through_file_ocean = .false.

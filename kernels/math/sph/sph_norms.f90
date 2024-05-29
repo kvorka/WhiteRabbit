@@ -9,7 +9,7 @@ module sph_norms
     real(kind=dbl)                :: sp
     
     !j == 0
-    sp = cajm(1)%re * cbjm(1)%re
+    sp = c2r_fn( cajm(1) * conjg( cbjm(1) ) )
     
     !higher degrees
     do j = 1, np
@@ -32,17 +32,17 @@ module sph_norms
     real(kind=dbl)                :: vp
     
     !j == 0
-    vp = cajml(1)%re * cbjml(1)%re
+    vp = c2r_fn( cajml(1) * conjg(cbjml(1)) )
     
     !higher degrees
     do j = 1, np
       !m == 0
       indx = 3*(j*(j+1)/2)-1
-      vp   = vp + c2r_fn( dot_product( cajml(indx:indx+2), cbjml(indx:indx+2) ) )
+      vp   = vp + sum( c2r_fn( cajml(indx:indx+2) * conjg(cbjml(indx:indx+2)) ) )
       
       do m = 1, j
         indx = 3*(j*(j+1)/2+m)-1
-        vp   = vp + 2 * c2r_fn( dot_product( cajml(indx:indx+2), cbjml(indx:indx+2) ) )
+        vp   = vp + 2 * sum( c2r_fn( cajml(indx:indx+2) * conjg(cbjml(indx:indx+2)) ) )
       end do
     end do
     
@@ -55,21 +55,21 @@ module sph_norms
     real(kind=dbl)                :: tp
     
     !j == 0
-    tp = cajml2(1)%re * cbjml2(1)%re
+    tp = c2r_fn( cajml2(1) * conjg(cbjml2(1)) ) 
     
     !j == 1
-    tp = tp +     c2r_fn( dot_product( cajml2(4: 6), cbjml2(4: 6) ) ) + &
-            & 2 * c2r_fn( dot_product( cajml2(9:11), cbjml2(9:11) ) )
+    tp = tp +     sum( c2r_fn( cajml2(4: 6) * conjg(cbjml2(4: 6)) ) ) + &
+            & 2 * sum( c2r_fn( cajml2(9:11) * conjg(cbjml2(9:11)) ) )
     
     !higher degrees
     do j = 2, np
       !m == 0
       indx = 5*(j*(j+1)/2)-3
-      tp   = tp + c2r_fn( dot_product( cajml2(indx:indx+4), cbjml2(indx:indx+4) ) )
+      tp   = tp + sum( c2r_fn( cajml2(indx:indx+4) * conjg(cbjml2(indx:indx+4)) ) )
       
       do m = 1, j
         indx = 5*(j*(j+1)/2+m)-3
-        tp   = tp + 2 * c2r_fn( dot_product( cajml2(indx:indx+4), cbjml2(indx:indx+4) ) )
+        tp   = tp + 2 * sum( c2r_fn( cajml2(indx:indx+4) * conjg(cbjml2(indx:indx+4)) ) )
       end do
     end do
     
@@ -82,7 +82,7 @@ module sph_norms
     real(kind=dbl)                :: sp
     
     !j == 0
-    sp = ( cajm(1)%re )**2
+    sp = c2r_fn( cajm(1) * conjg( cajm(1) ) )
     
     !higher degrees
     do j = 1, np
@@ -105,17 +105,17 @@ module sph_norms
     real(kind=dbl)                :: vp
     
     !j == 0
-    vp = ( cajml(1)%re )**2
+    vp = c2r_fn( cajml(1) * conjg(cajml(1)) )
     
     !higher degrees
     do j = 1, np
       !m == 0
       indx = 3*(j*(j+1)/2)-1
-      vp   = vp + c2r_fn( dot_product( cajml(indx:indx+2), cajml(indx:indx+2) ) )
+      vp   = vp + sum( c2r_fn( cajml(indx:indx+2) * conjg(cajml(indx:indx+2)) ) )
       
       do m = 1, j
         indx = 3*(j*(j+1)/2+m)-1
-        vp   = vp + 2 * c2r_fn( dot_product( cajml(indx:indx+2), cajml(indx:indx+2) ) )
+        vp   = vp + 2 * sum( c2r_fn( cajml(indx:indx+2) * conjg(cajml(indx:indx+2)) ) )
       end do
     end do
     
@@ -128,21 +128,21 @@ module sph_norms
     real(kind=dbl)                :: tp
     
     !j == 0
-    tp = ( cajml2(1)%re )**2
+    tp = c2r_fn( cajml2(1) * conjg(cajml2(1)) ) 
     
     !j == 1
-    tp = tp +     c2r_fn( dot_product( cajml2(4: 6), cajml2(4: 6) ) ) + &
-            & 2 * c2r_fn( dot_product( cajml2(9:11), cajml2(9:11) ) )
+    tp = tp +     sum( c2r_fn( cajml2(4: 6) * conjg(cajml2(4: 6)) ) ) + &
+            & 2 * sum( c2r_fn( cajml2(9:11) * conjg(cajml2(9:11)) ) )
     
     !higher degrees
     do j = 2, np
       !m == 0
       indx = 5*(j*(j+1)/2)-3
-      tp   = tp + c2r_fn( dot_product( cajml2(indx:indx+4), cajml2(indx:indx+4) ) )
+      tp   = tp + sum( c2r_fn( cajml2(indx:indx+4) * conjg(cajml2(indx:indx+4)) ) )
       
       do m = 1, j
         indx = 5*(j*(j+1)/2+m)-3
-        tp   = tp + 2 * c2r_fn( dot_product( cajml2(indx:indx+4), cajml2(indx:indx+4) ) )
+        tp   = tp + 2 * sum( c2r_fn( cajml2(indx:indx+4) * conjg(cajml2(indx:indx+4)) ) )
       end do
     end do
     
