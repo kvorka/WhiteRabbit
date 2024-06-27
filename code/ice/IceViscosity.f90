@@ -23,7 +23,7 @@ module IceViscosity
   pure real(kind=dbl) function goldsby_visc_fn(diam, temperature, stress)
     real(kind=dbl), intent(in) :: diam, temperature, stress
     
-    if ( stress > 0._dbl) then
+    if ( stress > zero ) then
       goldsby_visc_fn = 1 / ( 1 / vdiff_visc_fn(diam, temperature)        +                                       &
                             & 1 / gbdiff_visc_fn(diam, temperature)       +                                       &
                             & 1 / disl_visc_fn(diam, temperature, stress) +                                       &

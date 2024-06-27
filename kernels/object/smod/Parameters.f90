@@ -5,7 +5,7 @@ submodule(PhysicalObject) Parameters
     class(T_physicalObject), intent(in) :: this
     integer,                 intent(in) :: i
     
-    lambda_fn = 1._dbl
+    lambda_fn = one
     
   end function lambda_fn
   
@@ -13,7 +13,7 @@ submodule(PhysicalObject) Parameters
     class(T_physicalObject), intent(in) :: this
     integer,                 intent(in) :: i
     
-    cp_fn = 1._dbl
+    cp_fn = one
     
   end function cp_fn
   
@@ -21,7 +21,7 @@ submodule(PhysicalObject) Parameters
     class(T_physicalObject), intent(in) :: this
     integer,                 intent(in) :: i
     
-    visc_fn = 1._dbl
+    visc_fn = one
     
   end function visc_fn
   
@@ -29,7 +29,7 @@ submodule(PhysicalObject) Parameters
     class(T_physicalObject), intent(in) :: this
     integer,                 intent(in) :: i
     
-    alpha_fn = 1._dbl
+    alpha_fn = one
     
   end function alpha_fn
   

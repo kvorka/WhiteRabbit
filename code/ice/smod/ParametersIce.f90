@@ -29,8 +29,8 @@ submodule(IceMod) ParametersIce
   
   module pure real(kind=dbl) function alpha_ice_fn(this, i)
     real(kind=dbl), parameter :: A0 = 128.2147_dbl
-    real(kind=dbl), parameter :: A1 = 0._dbl
-    real(kind=dbl), parameter :: A2 = 0._dbl
+    !real(kind=dbl), parameter :: A1 = zero
+    !real(kind=dbl), parameter :: A2 = zero
     real(kind=dbl), parameter :: A3 = -1.3152d-6
     real(kind=dbl), parameter :: A4 = +2.4837d-8
     real(kind=dbl), parameter :: A5 = -1.6064d-10

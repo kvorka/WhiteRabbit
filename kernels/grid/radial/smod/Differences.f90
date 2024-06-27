@@ -8,7 +8,7 @@ submodule (RadialGrid) Differences
     if ( i == 1 ) then
       select case (p)
         case (-2)
-          d = 0._dbl
+          d = zero
         
         case (-1)
           d = ( ( this%r(i) - this%rr(i+1) ) +                                   &
@@ -45,7 +45,7 @@ submodule (RadialGrid) Differences
               &                                / ( this%rr(i+1) - this%rr(i  ) )
           
         case (+2)
-          d = 0._dbl
+          d = zero
         
       end select
       
@@ -106,7 +106,7 @@ submodule (RadialGrid) Differences
     if ( i == 2 ) then
       select case (p)
         case (-2)
-          dd = 0._dbl
+          dd = zero
         
         case (-1)
           dd = ( ( this%rr(i) - this%r(i)   ) +                                 &
@@ -143,7 +143,7 @@ submodule (RadialGrid) Differences
                &                                / ( this%r(i) - this%r(i-1) )
         
         case (+2)
-          dd = 0._dbl
+          dd = zero
         
       end select
     

@@ -8,7 +8,7 @@ submodule (Fourier_transform) fxinit
     integer                     :: j, k, l, i, is, ic, i4, it1, isj, ipc, ip, ipd
     integer,        allocatable :: ipn(:), itc(:), itw(:), iw(:)
     
-    allocate( ipn(4), itc(2:5), itw(0:n-1) , iw(n-2) ) ; ipn = [5,4,3,2] ; t = 0._dbl ; iw = 0 ; itw = 0
+    allocate( ipn(4), itc(2:5), itw(0:n-1) , iw(n-2) ) ; ipn = [5,4,3,2] ; t = zero ; iw = 0 ; itw = 0
     
     itc = 0 ; j = n
       do i = 5, 2, -1

@@ -34,7 +34,7 @@ submodule(IceMod) GravDeformIce
     
     deallocate( field )
     
-    if ( m == 0 ) Vdelta_ice_fn%im = 0._dbl
+    if ( m == 0 ) Vdelta_ice_fn%im = zero
     
   end function Vdelta_ice_fn
   

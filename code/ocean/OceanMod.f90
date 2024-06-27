@@ -175,7 +175,7 @@ module OceanMod
       call this%prepare_mat_mech_sub( ijstart=1 , ijend=this%jmax )
     
     ab_help = this%ab
-    this%ab = 1._dbl
+    this%ab = one
     
       call this%time_scheme_sub()
       call this%vypis_ocean_sub()

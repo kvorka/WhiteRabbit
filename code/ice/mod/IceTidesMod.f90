@@ -26,13 +26,13 @@ module IceTidesMod
     class(T_iceTides), intent(inout) :: this
     
     call this%init_ice_sub(jmax_in=2, rheol_in='viscel', n_iter=n_iter_tides, noharm=.true.)
-      this%cf = 1._dbl
+      this%cf = one
       this%andrade = .true.
     
     call this%init_eq_mech_sub( rhs=.true. , nl=.false. )
     
-    allocate( this%stress_prof(this%nd) ) ; this%stress_prof = 0._dbl
-    allocate( this%temp_prof(this%nd)   ) ; this%temp_prof   = 0._dbl
+    allocate( this%stress_prof(this%nd) ) ; this%stress_prof = zero
+    allocate( this%temp_prof(this%nd)   ) ; this%temp_prof   = zero
 
   end subroutine init_iceTides_sub
     
@@ -42,12 +42,12 @@ module IceTidesMod
     integer                          :: n
     real(kind=dbl)                   :: P, Pglobal
     
-    call this%sol%nulify_sub() ; Pglobal = 0._dbl
+    call this%sol%nulify_sub() ; Pglobal = zero
     
     this%stress_prof = stress_prof(:)
     this%temp_prof   = temp_prof(:)
     
-    this%t = 0._dbl
+    this%t = zero
     this%dt = this%period / this%n_iter ; this%htide = czero
     
     do

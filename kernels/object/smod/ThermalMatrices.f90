@@ -41,11 +41,11 @@ submodule (PhysicalObject) ThermalMatrices
       end if
       
       matica(3, 3*(i-1)+2) = +sqrt((j  )/(2*j+1))*(-1/(grid%rr(i+1)-grid%rr(i)) + (j+1)/grid%r(i)/2) * this%lambda_fn(i)
-      matica(4, 3*(i-1)+2) = 1._dbl
+      matica(4, 3*(i-1)+2) = one
       matica(6, 3*(i-1)+2) = +sqrt((j  )/(2*j+1))*(+1/(grid%rr(i+1)-grid%rr(i)) + (j+1)/grid%r(i)/2) * this%lambda_fn(i)
       
       matica(2, 3*(i-1)+3) = -sqrt((j+1)/(2*j+1))*(-1/(grid%rr(i+1)-grid%rr(i)) - (j  )/grid%r(i)/2) * this%lambda_fn(i)
-      matica(4, 3*(i-1)+3) = 1._dbl
+      matica(4, 3*(i-1)+3) = one
       matica(5, 3*(i-1)+3) = -sqrt((j+1)/(2*j+1))*(+1/(grid%rr(i+1)-grid%rr(i)) - (j  )/grid%r(i)/2) * this%lambda_fn(i)
     end do
     
@@ -114,13 +114,13 @@ submodule (PhysicalObject) ThermalMatrices
     
       matica( 2,3*(i-1)+2) = +sqrt((j  )/(2*j+1))*(grid%d(i,-2)                               ) * this%lambda_fn(i)
       matica( 5,3*(i-1)+2) = +sqrt((j  )/(2*j+1))*(grid%d(i,-1) + grid%c(i,-1)*(j+1)/grid%r(i)) * this%lambda_fn(i)
-      matica( 6,3*(i-1)+2) = 1._dbl
+      matica( 6,3*(i-1)+2) = one
       matica( 8,3*(i-1)+2) = +sqrt((j  )/(2*j+1))*(grid%d(i,+1) + grid%c(i,+1)*(j+1)/grid%r(i)) * this%lambda_fn(i)
       matica(11,3*(i-1)+2) = +sqrt((j  )/(2*j+1))*(grid%d(i,+2)                               ) * this%lambda_fn(i)
       
       matica( 1,3*(i-1)+3) = -sqrt((j+1)/(2*j+1))*(grid%d(i,-2)                               ) * this%lambda_fn(i)
       matica( 4,3*(i-1)+3) = -sqrt((j+1)/(2*j+1))*(grid%d(i,-1) - grid%c(i,-1)*(j  )/grid%r(i)) * this%lambda_fn(i)
-      matica( 6,3*(i-1)+3) = 1._dbl
+      matica( 6,3*(i-1)+3) = one
       matica( 7,3*(i-1)+3) = -sqrt((j+1)/(2*j+1))*(grid%d(i,+1) - grid%c(i,+1)*(j  )/grid%r(i)) * this%lambda_fn(i)
       matica(10,3*(i-1)+3) = -sqrt((j+1)/(2*j+1))*(grid%d(i,+2)                               ) * this%lambda_fn(i)
     end do

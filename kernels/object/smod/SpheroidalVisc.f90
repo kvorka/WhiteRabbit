@@ -88,7 +88,7 @@ submodule (PhysicalObject) SpheroidalVisc
       
       matica( 3,6*(i-1)+4) = -2*sqrt((j-1)/(2*j-1))*(grid%d(i,-2)                           )*this%visc_fn(i)
       matica( 9,6*(i-1)+4) = -2*sqrt((j-1)/(2*j-1))*(grid%d(i,-1) + grid%c(i,-1)*j/grid%r(i))*this%visc_fn(i)
-      matica(11,6*(i-1)+4) = 1._dbl
+      matica(11,6*(i-1)+4) = one
       matica(15,6*(i-1)+4) = -2*sqrt((j-1)/(2*j-1))*(grid%d(i,+1) + grid%c(i,+1)*j/grid%r(i))*this%visc_fn(i)
       matica(21,6*(i-1)+4) = -2*sqrt((j-1)/(2*j-1))*(grid%d(i,+2)                           )*this%visc_fn(i)
       
@@ -96,7 +96,7 @@ submodule (PhysicalObject) SpheroidalVisc
       matica( 3,6*(i-1)+5) = -2*sqrt((j  )*(2*j-1)/(6*(2*j+1)*(2*j+3)))*(grid%d(i,-2)                             )*this%visc_fn(i)
       matica( 8,6*(i-1)+5) = +2*sqrt((j+1)*(2*j+3)/(6*(2*j-1)*(2*j+1)))*(grid%d(i,-1)-grid%c(i,-1)*(j-1)/grid%r(i))*this%visc_fn(i)
       matica( 9,6*(i-1)+5) = -2*sqrt((j  )*(2*j-1)/(6*(2*j+1)*(2*j+3)))*(grid%d(i,-1)+grid%c(i,-1)*(j+2)/grid%r(i))*this%visc_fn(i)
-      matica(12,6*(i-1)+5) = 1._dbl
+      matica(12,6*(i-1)+5) = one
       matica(14,6*(i-1)+5) = +2*sqrt((j+1)*(2*j+3)/(6*(2*j-1)*(2*j+1)))*(grid%d(i,+1)-grid%c(i,+1)*(j-1)/grid%r(i))*this%visc_fn(i)
       matica(15,6*(i-1)+5) = -2*sqrt((j  )*(2*j-1)/(6*(2*j+1)*(2*j+3)))*(grid%d(i,+1)+grid%c(i,+1)*(j+2)/grid%r(i))*this%visc_fn(i)
       matica(20,6*(i-1)+5) = +2*sqrt((j+1)*(2*j+3)/(6*(2*j-1)*(2*j+1)))*(grid%d(i,+2)                             )*this%visc_fn(i)
@@ -104,7 +104,7 @@ submodule (PhysicalObject) SpheroidalVisc
       
       matica( 2,6*(i-1)+6) = +2*sqrt((j+2)/(2*j+3))*(grid%d(i,-2)                               )*this%visc_fn(i)
       matica( 8,6*(i-1)+6) = +2*sqrt((j+2)/(2*j+3))*(grid%d(i,-1) - grid%c(i,-1)*(j+1)/grid%r(i))*this%visc_fn(i)
-      matica(12,6*(i-1)+6) = 1._dbl
+      matica(12,6*(i-1)+6) = one
       matica(14,6*(i-1)+6) = +2*sqrt((j+2)/(2*j+3))*(grid%d(i,+1) - grid%c(i,+1)*(j+1)/grid%r(i))*this%visc_fn(i)
       matica(20,6*(i-1)+6) = +2*sqrt((j+2)/(2*j+3))*(grid%d(i,+2)                               )*this%visc_fn(i)
     end do
@@ -233,7 +233,7 @@ submodule (PhysicalObject) SpheroidalVisc
       
       matica( 3,6*(i-1)+4) = -2*sqrt((j-1)/(2*j-1))*(grid%d(i,-2)                           )
       matica( 9,6*(i-1)+4) = -2*sqrt((j-1)/(2*j-1))*(grid%d(i,-1) + grid%c(i,-1)*j/grid%r(i))
-      matica(11,6*(i-1)+4) = 1._dbl
+      matica(11,6*(i-1)+4) = one
       matica(15,6*(i-1)+4) = -2*sqrt((j-1)/(2*j-1))*(grid%d(i,+1) + grid%c(i,+1)*j/grid%r(i))
       matica(21,6*(i-1)+4) = -2*sqrt((j-1)/(2*j-1))*(grid%d(i,+2)                           )
       
@@ -241,7 +241,7 @@ submodule (PhysicalObject) SpheroidalVisc
       matica( 3,6*(i-1)+5) = -2*sqrt((j  )*(2*j-1)/(6*(2*j+1)*(2*j+3)))*(grid%d(i,-2)                             )
       matica( 8,6*(i-1)+5) = +2*sqrt((j+1)*(2*j+3)/(6*(2*j-1)*(2*j+1)))*(grid%d(i,-1)-grid%c(i,-1)*(j-1)/grid%r(i))
       matica( 9,6*(i-1)+5) = -2*sqrt((j  )*(2*j-1)/(6*(2*j+1)*(2*j+3)))*(grid%d(i,-1)+grid%c(i,-1)*(j+2)/grid%r(i))
-      matica(12,6*(i-1)+5) = 1._dbl
+      matica(12,6*(i-1)+5) = one
       matica(14,6*(i-1)+5) = +2*sqrt((j+1)*(2*j+3)/(6*(2*j-1)*(2*j+1)))*(grid%d(i,+1)-grid%c(i,+1)*(j-1)/grid%r(i))
       matica(15,6*(i-1)+5) = -2*sqrt((j  )*(2*j-1)/(6*(2*j+1)*(2*j+3)))*(grid%d(i,+1)+grid%c(i,+1)*(j+2)/grid%r(i))
       matica(20,6*(i-1)+5) = +2*sqrt((j+1)*(2*j+3)/(6*(2*j-1)*(2*j+1)))*(grid%d(i,+2)                             )
@@ -249,7 +249,7 @@ submodule (PhysicalObject) SpheroidalVisc
       
       matica( 2,6*(i-1)+6) = +2*sqrt((j+2)/(2*j+3))*(grid%d(i,-2)                               )
       matica( 8,6*(i-1)+6) = +2*sqrt((j+2)/(2*j+3))*(grid%d(i,-1) - grid%c(i,-1)*(j+1)/grid%r(i))
-      matica(12,6*(i-1)+6) = 1._dbl
+      matica(12,6*(i-1)+6) = one
       matica(14,6*(i-1)+6) = +2*sqrt((j+2)/(2*j+3))*(grid%d(i,+1) - grid%c(i,+1)*(j+1)/grid%r(i))
       matica(20,6*(i-1)+6) = +2*sqrt((j+2)/(2*j+3))*(grid%d(i,+2)                               )
     end do
@@ -362,17 +362,17 @@ submodule (PhysicalObject) SpheroidalVisc
       matica(13, 6*(i-1)+3) = -sqrt(j+1)*(+1/dr + (j+2)/grid%r(i)/2)
       
       matica( 5, 6*(i-1)+4) = -2*sqrt((j-1)/(2*j-1))*(-1/dr + j/grid%r(i)/2) * this%visc_fn(i)
-      matica( 7, 6*(i-1)+4) = 1._dbl
+      matica( 7, 6*(i-1)+4) = one
       matica(11, 6*(i-1)+4) = -2*sqrt((j-1)/(2*j-1))*(+1/dr + j/grid%r(i)/2) * this%visc_fn(i)
   
       matica( 4, 6*(i-1)+5) = +2*sqrt((j+1)*(2*j+3)/(6*(2*j-1)*(2*j+1)))*(-1/dr - (j-1)/grid%r(i)/2) * this%visc_fn(i)
       matica( 5, 6*(i-1)+5) = -2*sqrt((j  )*(2*j-1)/(6*(2*j+1)*(2*j+3)))*(-1/dr + (j+2)/grid%r(i)/2) * this%visc_fn(i)
-      matica( 8, 6*(i-1)+5) = 1._dbl
+      matica( 8, 6*(i-1)+5) = one
       matica(10, 6*(i-1)+5) = +2*sqrt((j+1)*(2*j+3)/(6*(2*j-1)*(2*j+1)))*(+1/dr - (j-1)/grid%r(i)/2) * this%visc_fn(i)
       matica(11, 6*(i-1)+5) = -2*sqrt((j  )*(2*j-1)/(6*(2*j+1)*(2*j+3)))*(+1/dr + (j+2)/grid%r(i)/2) * this%visc_fn(i)
       
       matica( 4, 6*(i-1)+6) = +2*sqrt((j+2)/(2*j+3))*(-1/dr - (j+1)/grid%r(i)/2) * this%visc_fn(i)
-      matica( 8, 6*(i-1)+6) = 1._dbl
+      matica( 8, 6*(i-1)+6) = one
       matica(10, 6*(i-1)+6) = +2*sqrt((j+2)/(2*j+3))*(+1/dr - (j+1)/grid%r(i)/2) * this%visc_fn(i)
     end do
     

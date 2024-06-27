@@ -27,11 +27,11 @@ module OceanConstants
   real(kind=dbl), parameter, private :: rho        = 1e3     !kg/m3
   real(kind=dbl), parameter          :: stress_dim = D_ud_ocean**3 * nu * (2*pi / period)**2
   
-  real(kind=dbl), parameter :: Pr_ocean = 1._dbl
+  real(kind=dbl), parameter :: Pr_ocean = one
   real(kind=dbl), parameter :: Ra_ocean = 1.0d7
   real(kind=dbl), parameter :: Ek_ocean = 1.0d-4
-  real(kind=dbl), parameter :: Kl_ocean = 0._dbl
-  real(kind=dbl), parameter :: St_ocean = 0._dbl
+  real(kind=dbl), parameter :: Kl_ocean = zero
+  real(kind=dbl), parameter :: St_ocean = zero
   
   !Nastavovanie pociatocneho stavu
   logical, parameter :: init_through_file_ocean = .false.

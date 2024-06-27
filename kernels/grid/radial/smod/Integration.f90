@@ -20,7 +20,7 @@ submodule(RadialGrid) Integration
         end do
       end if
       
-      radial_integral_real_fn = 0._dbl
+      radial_integral_real_fn = zero
         do i = 2, this%nd
           radial_integral_real_fn = radial_integral_real_fn + ( this%r(i) - this%r(i-1) ) * field_help(i)
         end do
@@ -48,7 +48,7 @@ submodule(RadialGrid) Integration
         end do
       end if
     
-      volumetric_integral_real_fn = 0._dbl
+      volumetric_integral_real_fn = zero
         do i = 2, this%nd
           volumetric_integral_real_fn = volumetric_integral_real_fn + ( this%r(i) - this%r(i-1) ) * field_help(i)
         end do

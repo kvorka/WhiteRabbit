@@ -21,8 +21,8 @@ program OutputOcean
     real(kind=dbl)  :: t, dt, Nuss, Re, sumNuss, sumRe
     
     n = 0
-      sumNuss = 0._dbl
-      sumRe   = 0._dbl
+      sumNuss = zero
+      sumRe   = zero
     
     open(unit=1, file=path_nuss, status='old', action='read')
     

@@ -38,13 +38,13 @@ submodule (PhysicalObject) ToroidalVisc
       
       matica( 2,3*(i-1)+2) = -2*sqrt((j-1)/(2*(2*j+1)))*(grid%d(i,-2)                               )
       matica( 5,3*(i-1)+2) = -2*sqrt((j-1)/(2*(2*j+1)))*(grid%d(i,-1) + grid%c(i,-1)*(j+1)/grid%r(i))
-      matica( 6,3*(i-1)+2) = 1._dbl
+      matica( 6,3*(i-1)+2) = one
       matica( 8,3*(i-1)+2) = -2*sqrt((j-1)/(2*(2*j+1)))*(grid%d(i,+1) + grid%c(i,+1)*(j+1)/grid%r(i))
       matica(11,3*(i-1)+2) = -2*sqrt((j-1)/(2*(2*j+1)))*(grid%d(i,+2)                               )
       
       matica( 1,3*(i-1)+3) = +2*sqrt((j+2)/(2*(2*j+1)))*(grid%d(i,-2)                               )
       matica( 4,3*(i-1)+3) = +2*sqrt((j+2)/(2*(2*j+1)))*(grid%d(i,-1) - grid%c(i,-1)*(j  )/grid%r(i))
-      matica( 6,3*(i-1)+3) = 1._dbl
+      matica( 6,3*(i-1)+3) = one
       matica( 7,3*(i-1)+3) = +2*sqrt((j+2)/(2*(2*j+1)))*(grid%d(i,+1) - grid%c(i,+1)*(j  )/grid%r(i))
       matica(10,3*(i-1)+3) = +2*sqrt((j+2)/(2*(2*j+1)))*(grid%d(i,+2)                               )
     end do
@@ -100,13 +100,13 @@ submodule (PhysicalObject) ToroidalVisc
       
       matica( 2,3*(i-1)+2) = -2*sqrt((j-1)/(2*(2*j+1)))*(grid%d(i,-2)                               )
       matica( 5,3*(i-1)+2) = -2*sqrt((j-1)/(2*(2*j+1)))*(grid%d(i,-1) + grid%c(i,-1)*(j+1)/grid%r(i))
-      matica( 6,3*(i-1)+2) = 1._dbl
+      matica( 6,3*(i-1)+2) = one
       matica( 8,3*(i-1)+2) = -2*sqrt((j-1)/(2*(2*j+1)))*(grid%d(i,+1) + grid%c(i,+1)*(j+1)/grid%r(i))
       matica(11,3*(i-1)+2) = -2*sqrt((j-1)/(2*(2*j+1)))*(grid%d(i,+2)                               )
       
       matica( 1,3*(i-1)+3) = +2*sqrt((j+2)/(2*(2*j+1)))*(grid%d(i,-2)                               )
       matica( 4,3*(i-1)+3) = +2*sqrt((j+2)/(2*(2*j+1)))*(grid%d(i,-1) - grid%c(i,-1)*(j  )/grid%r(i))
-      matica( 6,3*(i-1)+3) = 1._dbl
+      matica( 6,3*(i-1)+3) = one
       matica( 7,3*(i-1)+3) = +2*sqrt((j+2)/(2*(2*j+1)))*(grid%d(i,+1) - grid%c(i,+1)*(j  )/grid%r(i))
       matica(10,3*(i-1)+3) = +2*sqrt((j+2)/(2*(2*j+1)))*(grid%d(i,+2)                               )
     end do

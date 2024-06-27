@@ -30,7 +30,7 @@ module IceCrustMod
    
     call this%init_ice_sub(jmax_in = jmax_ice, rheol_in = 'viscel', n_iter = n_iter_ice)
     
-    this%cf = 1._dbl
+    this%cf = one
 
     call this%init_eq_temp_sub( rhs=.true. , nl=.true.  )
     call this%init_eq_mech_sub( rhs=.true. , nl=.false. )

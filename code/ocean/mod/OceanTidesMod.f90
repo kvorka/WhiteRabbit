@@ -58,7 +58,7 @@ module OceanTidesMod
     class(T_oceanTides), intent(inout) :: this
     integer                            :: k
     
-    this%heating = 0._dbl; this%number_of_periods = this%number_of_periods + 1
+    this%heating = zero; this%number_of_periods = this%number_of_periods + 1
 
     do k = 1, this%n_iter
       this%k_of_period = k ; call this%time_scheme_sub()

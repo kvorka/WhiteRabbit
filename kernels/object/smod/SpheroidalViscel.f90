@@ -37,7 +37,7 @@ submodule (PhysicalObject) SpheroidalViscel
         matica( 8, 6*(i-1)+1) = +sqrt((j-1)        /   (2*j-1)         )*(grid%dd(i,-1) - grid%cc(i,-1)*(j-2)/grid%rr(i))
         matica( 9, 6*(i-1)+1) = -sqrt((j  )        /(3*(2*j+1)        ))*(grid%dd(i,-1) + grid%cc(i,-1)*(j+1)/grid%rr(i))
         matica(10, 6*(i-1)+1) = -sqrt((j+1)*(2*j+3)/(6*(2*j-1)*(2*j+1)))*(grid%dd(i,-1) + grid%cc(i,-1)*(j+1)/grid%rr(i))
-        matica(12, 6*(i-1)+1) = 0._dbl
+        matica(12, 6*(i-1)+1) = zero
         matica(14, 6*(i-1)+1) = +sqrt((j-1)        /   (2*j-1)         )*(grid%dd(i,+1) - grid%cc(i,+1)*(j-2)/grid%rr(i))
         matica(15, 6*(i-1)+1) = -sqrt((j  )        /(3*(2*j+1)        ))*(grid%dd(i,+1) + grid%cc(i,+1)*(j+1)/grid%rr(i))
         matica(16, 6*(i-1)+1) = -sqrt((j+1)*(2*j+3)/(6*(2*j-1)*(2*j+1)))*(grid%dd(i,+1) + grid%cc(i,+1)*(j+1)/grid%rr(i))
@@ -51,7 +51,7 @@ submodule (PhysicalObject) SpheroidalViscel
         matica( 8, 6*(i-1)+2) = +sqrt((j+1)        /(3*(2*j+1)        ))*(grid%dd(i,-1) - grid%cc(i,-1)*(j  )/grid%rr(i))
         matica( 9, 6*(i-1)+2) = +sqrt((j  )*(2*j-1)/(6*(2*j+3)*(2*j+1)))*(grid%dd(i,-1) - grid%cc(i,-1)*(j  )/grid%rr(i))
         matica(10, 6*(i-1)+2) = -sqrt((j+2)        /(2*j+3)            )*(grid%dd(i,-1) + grid%cc(i,-1)*(j+3)/grid%rr(i))
-        matica(12, 6*(i-1)+2) = 0._dbl
+        matica(12, 6*(i-1)+2) = zero
         matica(14, 6*(i-1)+2) = +sqrt((j+1)        /(3*(2*j+1)        ))*(grid%dd(i,+1) - grid%cc(i,+1)*(j  )/grid%rr(i))
         matica(15, 6*(i-1)+2) = +sqrt((j  )*(2*j-1)/(6*(2*j+3)*(2*j+1)))*(grid%dd(i,+1) - grid%cc(i,+1)*(j  )/grid%rr(i))
         matica(16, 6*(i-1)+2) = -sqrt((j+2)        /(2*j+3)            )*(grid%dd(i,+1) + grid%cc(i,+1)*(j+3)/grid%rr(i))
@@ -71,7 +71,7 @@ submodule (PhysicalObject) SpheroidalViscel
       
       matica( 3, 6*(i-1)+4) = -2*sqrt((j-1)/(2*j-1))*(grid%d(i,-2)                           ) * this%Ramu
       matica( 9, 6*(i-1)+4) = -2*sqrt((j-1)/(2*j-1))*(grid%d(i,-1) + grid%c(i,-1)*j/grid%r(i)) * this%Ramu
-      matica(11, 6*(i-1)+4) = 1._dbl + this%Ramu * this%dt / this%visc_fn(i)
+      matica(11, 6*(i-1)+4) = one + this%Ramu * this%dt / this%visc_fn(i)
       matica(15, 6*(i-1)+4) = -2*sqrt((j-1)/(2*j-1))*(grid%d(i,+1) + grid%c(i,+1)*j/grid%r(i)) * this%Ramu
       matica(21, 6*(i-1)+4) = -2*sqrt((j-1)/(2*j-1))*(grid%d(i,+2)                           ) * this%Ramu
       
@@ -79,7 +79,7 @@ submodule (PhysicalObject) SpheroidalViscel
       matica( 3, 6*(i-1)+5) = -2*sqrt((j  )*(2*j-1)/(6*(2*j+1)*(2*j+3)))*(grid%d(i,-2)                               ) * this%Ramu
       matica( 8, 6*(i-1)+5) = +2*sqrt((j+1)*(2*j+3)/(6*(2*j-1)*(2*j+1)))*(grid%d(i,-1) - grid%c(i,-1)*(j-1)/grid%r(i)) * this%Ramu
       matica( 9, 6*(i-1)+5) = -2*sqrt((j  )*(2*j-1)/(6*(2*j+1)*(2*j+3)))*(grid%d(i,-1) + grid%c(i,-1)*(j+2)/grid%r(i)) * this%Ramu
-      matica(12, 6*(i-1)+5) = 1._dbl + this%Ramu * this%dt / this%visc_fn(i)
+      matica(12, 6*(i-1)+5) = one + this%Ramu * this%dt / this%visc_fn(i)
       matica(14, 6*(i-1)+5) = +2*sqrt((j+1)*(2*j+3)/(6*(2*j-1)*(2*j+1)))*(grid%d(i,+1) - grid%c(i,+1)*(j-1)/grid%r(i)) * this%Ramu
       matica(15, 6*(i-1)+5) = -2*sqrt((j  )*(2*j-1)/(6*(2*j+1)*(2*j+3)))*(grid%d(i,+1) + grid%c(i,+1)*(j+2)/grid%r(i)) * this%Ramu
       matica(20, 6*(i-1)+5) = +2*sqrt((j+1)*(2*j+3)/(6*(2*j-1)*(2*j+1)))*(grid%d(i,+2)                               ) * this%Ramu
@@ -87,7 +87,7 @@ submodule (PhysicalObject) SpheroidalViscel
       
       matica( 2, 6*(i-1)+6) = +2*sqrt((j+2)/(2*j+3))*(grid%d(i,-2)                               ) * this%Ramu
       matica( 8, 6*(i-1)+6) = +2*sqrt((j+2)/(2*j+3))*(grid%d(i,-1) - grid%c(i,-1)*(j+1)/grid%r(i)) * this%Ramu
-      matica(12, 6*(i-1)+6) = 1._dbl + this%Ramu * this%dt / this%visc_fn(i)
+      matica(12, 6*(i-1)+6) = one + this%Ramu * this%dt / this%visc_fn(i)
       matica(14, 6*(i-1)+6) = +2*sqrt((j+2)/(2*j+3))*(grid%d(i,+1) - grid%c(i,+1)*(j+1)/grid%r(i)) * this%Ramu
       matica(20, 6*(i-1)+6) = +2*sqrt((j+2)/(2*j+3))*(grid%d(i,+2)                               ) * this%Ramu
     end do
@@ -183,17 +183,17 @@ submodule (PhysicalObject) SpheroidalViscel
       matica(13, 6*(i-1)+3) = -sqrt(j+1)*(+1/dr + (j+2)/grid%r(i)/2)
       
       matica( 5, 6*(i-1)+4) = -2*sqrt((j-1)/(2*j-1))*(-1/dr + j/grid%r(i)/2) * this%visc_fn(i)
-      matica( 7, 6*(i-1)+4) = 1._dbl + this%Ramu * this%visc_fn(i) / this%dt
+      matica( 7, 6*(i-1)+4) = one + this%Ramu * this%visc_fn(i) / this%dt
       matica(11, 6*(i-1)+4) = -2*sqrt((j-1)/(2*j-1))*(+1/dr + j/grid%r(i)/2) * this%visc_fn(i)
       
       matica( 4, 6*(i-1)+5) = +2*sqrt((j+1)*(2*j+3)/(6*(2*j-1)*(2*j+1)))*(-1/dr - (j-1)/grid%r(i)/2) * this%visc_fn(i)
       matica( 5, 6*(i-1)+5) = -2*sqrt((j  )*(2*j-1)/(6*(2*j+1)*(2*j+3)))*(-1/dr + (j+2)/grid%r(i)/2) * this%visc_fn(i)
-      matica( 8, 6*(i-1)+5) = 1._dbl + this%Ramu * this%visc_fn(i) / this%dt 
+      matica( 8, 6*(i-1)+5) = one + this%Ramu * this%visc_fn(i) / this%dt 
       matica(10, 6*(i-1)+5) = +2*sqrt((j+1)*(2*j+3)/(6*(2*j-1)*(2*j+1)))*(+1/dr - (j-1)/grid%r(i)/2) * this%visc_fn(i)
       matica(11, 6*(i-1)+5) = -2*sqrt((j  )*(2*j-1)/(6*(2*j+1)*(2*j+3)))*(+1/dr + (j+2)/grid%r(i)/2) * this%visc_fn(i)
       
       matica( 4, 6*(i-1)+6) = +2*sqrt((j+2)/(2*j+3))*(-1/dr - (j+1)/grid%r(i)/2) * this%visc_fn(i)
-      matica( 8, 6*(i-1)+6) = 1._dbl + this%Ramu * this%visc_fn(i) / this%dt
+      matica( 8, 6*(i-1)+6) = one + this%Ramu * this%visc_fn(i) / this%dt
       matica(10, 6*(i-1)+6) = +2*sqrt((j+2)/(2*j+3))*(+1/dr - (j+1)/grid%r(i)/2) * this%visc_fn(i)
     end do
     
