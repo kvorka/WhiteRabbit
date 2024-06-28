@@ -13,7 +13,7 @@ module iceMod
     
     procedure :: init_ice_sub      => init_ice_sub
     procedure :: deallocate_sub    => deallocate_ice_sub
-                                  
+    
     procedure :: Vdelta_fn         => Vdelta_ice_fn
     procedure :: htide_fn          => htide_ice_4_fn
     procedure :: set_layers_sub    => set_layers_ice_sub
@@ -22,6 +22,9 @@ module iceMod
     procedure :: cp_fn             => cp_ice_fn
     procedure :: alpha_fn          => alpha_ice_fn
     procedure :: visc_fn           => visc_ice_fn
+    
+    procedure :: temperature_ice_r_fn, temperature_ice_rr_fn
+    procedure :: devstress_ice_r_fn
     
   end type T_ice
 
@@ -74,6 +77,21 @@ module iceMod
     module subroutine set_layers_ice_sub(this)
       class(T_ice),      intent(inout) :: this
     end subroutine set_layers_ice_sub
+    
+    module pure real(kind=dbl) function temperature_ice_r_fn(this, i)
+      class(T_ice),  intent(in) :: this
+      integer,       intent(in) :: i
+    end function temperature_ice_r_fn
+    
+    module pure real(kind=dbl) function temperature_ice_rr_fn(this, i)
+      class(T_ice),  intent(in) :: this
+      integer,       intent(in) :: i
+    end function temperature_ice_rr_fn
+    
+    module pure real(kind=dbl) function devstress_ice_r_fn(this, i)
+      class(T_ice),  intent(in) :: this
+      integer,       intent(in) :: i
+    end function devstress_ice_r_fn
   end interface
   
 end module iceMod

@@ -95,7 +95,7 @@ module IceCrustMod
       u_up1(:) = this%sol%u_up(:)
 
       !! Find tidal heating for given temperature rhs and stress field
-      this%dt = huge(0._dbl)
+      this%dt = huge(zero)
         do
           call this%tides%compute_sub( this%II_stress_fn(), this%avrg_temp_fn() )
           this%htide = this%tides%htide
