@@ -6,7 +6,7 @@ module Solution
     logical                        :: inittemp, initsfer, inittorr
     integer                        :: nd, jmax, jms, jmv, jmt
     complex(kind=dbl), allocatable :: u_dn(:), u_up(:), u_I2(:), u_C(:), v_dn(:), v_up(:), t_dn(:), t_up(:), &
-                                    & mech(:,:), temp(:,:), torr(:,:)
+                                    & mech(:,:), temp(:,:), torr(:,:), visc(:,:)
     
     contains
     
@@ -53,6 +53,10 @@ module Solution
     module pure subroutine init_layer_u_sub(this)
       class(T_solution), intent(inout) :: this
     end subroutine init_layer_u_sub
+    
+    module pure subroutine init_visc_sub(this)
+      class(T_solution), intent(inout) :: this
+    end subroutine init_visc_sub
     
     module pure complex(kind=dbl) function temp_fn(this, ir, ijm)
       class(T_solution), intent(in) :: this

@@ -71,7 +71,7 @@ module IceCrustMod
     allocate( Temp1(this%nd+1), Temp2(this%nd+1), u_up1(this%jms) )
     
     !! Seek for conductive solution with zero rhs at first
-    this%dt = huge(0._dbl)
+    this%dt = huge(zero)
       do
         Temp1 = this%sol%temp_i_fn(1)
         
@@ -132,29 +132,18 @@ module IceCrustMod
             call this%EE_sub()
           end if
           
-          if ( max( abs( this%sol%v_up( 4) * this%dt / this%sol%u_up( 4) ) , &
-                  & abs( this%sol%v_up( 6) * this%dt / this%sol%u_up( 6) ) , &
-                  & abs( this%sol%v_up(11) * this%dt / this%sol%u_up(11) ) , &   
-                  & abs( this%sol%v_up(13) * this%dt / this%sol%u_up(13) ) , & 
-                  & abs( this%sol%v_up(15) * this%dt / this%sol%u_up(15) )   ) < 1e-4 ) then 
+          if ( abs( this%sol%v_up(4) * this%dt / this%sol%u_up(4) ) < 1e-4 ) then 
             exit
           else if ( this%dt < 0.2_dbl ) then
-              if ( max( abs( this%sol%v_up( 4) * this%dt / this%sol%u_up( 4) ) , &
-                      & abs( this%sol%v_up( 6) * this%dt / this%sol%u_up( 6) ) , &
-                      & abs( this%sol%v_up(11) * this%dt / this%sol%u_up(11) ) , &   
-                      & abs( this%sol%v_up(13) * this%dt / this%sol%u_up(13) ) , & 
-                      & abs( this%sol%v_up(15) * this%dt / this%sol%u_up(15) )   ) < 1e-3 ) this%dt = 2 * this%dt
+              if ( abs( this%sol%v_up(4) * this%dt / this%sol%u_up(4) ) < 1e-3 ) this%dt = 2 * this%dt
           else
             this%dt = 0.48_dbl
           end if
         end do
       
       !! Stopping criterion
-      if ( max ( abs( (u_up1( 4)-this%sol%u_up( 4))/this%sol%u_up( 4) )  ,          &
-         &       abs( (u_up1( 6)-this%sol%u_up( 6))/this%sol%u_up( 6) )  ,          &
-         &       abs( (u_up1(11)-this%sol%u_up(11))/this%sol%u_up(11) )  ,          &
-         &       abs( (u_up1(13)-this%sol%u_up(13))/this%sol%u_up(13) )  ,          &
-         &       abs( (u_up1(15)-this%sol%u_up(15))/this%sol%u_up(15) )  ) < 1e-4 ) exit
+      write(*,*) abs( (u_up1(4)-this%sol%u_up(4))/this%sol%u_up(4) )
+      if ( abs( (u_up1(4)-this%sol%u_up(4))/this%sol%u_up(4) ) < 1e-4 ) exit
     end do
     
     deallocate( Temp1, Temp2, u_up1 ) ; call this%set_dt_sub()
@@ -164,20 +153,13 @@ module IceCrustMod
     function II_stress_iceCrust_fn(this) result(II_stress)
       class(T_iceCrust), intent(in)  :: this
       integer                        :: ir
-      real(kind=dbl)                 :: facstress
       real(kind=dbl),    allocatable :: II_stress(:)
-      complex(kind=dbl), allocatable :: devtens(:)
       
-      facstress = (this%viscU * this%kappaU / this%D_ud**2) / s4pi
+      allocate( II_stress(this%nd) )
       
-      allocate( II_stress(this%nd), devtens(this%jmt) )
-      
-      do ir = 1, this%nd
-        devtens       = this%sol%deviatoric_stress_jml2_fn(ir)
-        II_stress(ir) = sqrt( tensproduct_fn(this%jmax, devtens, devtens) ) * facstress
+      do concurrent ( ir = 1:this%nd )
+        II_stress(ir) = this%devstress_ice_r_fn(ir)
       end do
-      
-      deallocate( devtens )
       
     end function II_stress_iceCrust_fn
   
@@ -188,9 +170,8 @@ module IceCrustMod
       
       allocate( avrg_temp(this%nd) )
       
-      do ir = 1, this%nd
-        avrg_temp(ir) = this%Tu + (this%Td-this%Tu) * c2r_fn( this%rad_grid%c(ir,-1) * this%sol%temp_fn(ir  ,1) + &
-                                                            & this%rad_grid%c(ir,+1) * this%sol%temp_fn(ir+1,1)   ) / sqrt(4*pi)
+      do concurrent ( ir = 1:this%nd )
+        avrg_temp(ir) = this%temperature_ice_r_fn(ir)
       end do
       
     end function avrg_temp_iceCrust_fn

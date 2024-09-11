@@ -31,6 +31,7 @@ submodule (PhysicalObject) Init_object
     end if
     
     this%jms  =   ( this%jmax*(this%jmax+1)/2+this%jmax ) + 1
+    this%jms2 =   ( (this%jmax+2)*(this%jmax+3)/2+this%jmax+2 ) + 1
     this%jmv  = 3*( this%jmax*(this%jmax+1)/2+this%jmax ) + 1
     this%jmt  = 5*( this%jmax*(this%jmax+1)/2+this%jmax ) + 1
     

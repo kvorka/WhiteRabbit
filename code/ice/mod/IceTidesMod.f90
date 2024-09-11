@@ -13,7 +13,7 @@ module IceTidesMod
     procedure :: Vdelta_fn      => Vdelta_iceTides_fn
     procedure :: set_layers_sub => set_layers_iceTides_sub
     
-    procedure, private :: EE_mech_sub    => EE_mech_iceTides_sub
+    procedure, private :: EE_mech_sub => EE_mech_iceTides_sub
     
   end type T_iceTides
   
@@ -59,7 +59,7 @@ module IceTidesMod
       end do
           
       P = this%rad_grid%intV_fn( real(this%htide(:,1), kind=dbl) )
-        if ( abs(P-Pglobal) / P < 1.0d-6 ) then
+        if ( abs(P-Pglobal) / P < 1.0d-5 ) then
           exit
         else
           Pglobal    = P

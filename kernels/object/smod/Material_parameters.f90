@@ -1,4 +1,4 @@
-submodule(PhysicalObject) Parameters
+submodule(PhysicalObject) Material_parameters
   implicit none ; contains
   
   module pure real(kind=dbl) function lambda_fn(this, i)
@@ -33,4 +33,4 @@ submodule(PhysicalObject) Parameters
     
   end function alpha_fn
   
-end submodule Parameters
+end submodule Material_parameters

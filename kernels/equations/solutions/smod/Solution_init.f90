@@ -24,6 +24,8 @@ submodule(Solution) Solution_init
     if ( allocated(this%torr) ) this%torr = czero
     if ( allocated(this%mech) ) this%mech = czero
     
+    if ( allocated(this%visc) ) this%visc = czero
+    
     if ( allocated(this%u_dn) ) this%u_dn = czero
     if ( allocated(this%u_up) ) this%u_up = czero
     if ( allocated(this%u_I2) ) this%u_I2 = czero
@@ -43,6 +45,8 @@ submodule(Solution) Solution_init
     if ( allocated(this%temp) ) deallocate( this%temp )
     if ( allocated(this%torr) ) deallocate( this%torr )
     if ( allocated(this%mech) ) deallocate( this%mech )
+    
+    if ( allocated(this%visc) ) deallocate( this%visc )
     
     if ( allocated(this%u_dn) ) deallocate( this%u_dn )
     if ( allocated(this%u_up) ) deallocate( this%u_up )
@@ -110,5 +114,12 @@ submodule(Solution) Solution_init
     allocate( this%u_up(this%jms) ); this%u_up = czero
     
   end subroutine init_layer_u_sub
+  
+  module pure subroutine init_visc_sub(this)
+    class(T_solution), intent(inout) :: this
+    
+    allocate( this%visc(this%jms,this%nd) ); this%visc = czero
+    
+  end subroutine init_visc_sub
   
 end submodule Solution_init

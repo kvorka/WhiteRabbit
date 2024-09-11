@@ -11,7 +11,7 @@ program BielyKralik_ice
   !! Inicializacia pociatocneho odhadu pre variaciu tepelneho toku
   allocate( flux_up(icecr%jms) )
     flux_up    = czero
-    flux_up(4) = r2c_fn(0.17_dbl)
+    flux_up(4) = czero
   
   !!Vypocet
   do

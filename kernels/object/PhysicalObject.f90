@@ -14,7 +14,7 @@ module PhysicalObject
     character(len=6)               :: rheology, scaling
     character(len=5)               :: thermal_bnd, mechanic_bnd, grid_type
     logical                        :: noharm, noobj
-    integer                        :: nd, jmax, jms, jmv, jmt, n_iter, poc
+    integer                        :: nd, jmax, jms, jms2, jmv, jmt, n_iter, poc
     real(kind=dbl)                 :: t, dt, cf, ab, rd, ru, r_ud, D_ud, gd, gu, Pr, Ra, Ek, St, Cl, Ds, Raf, Ramu, Rad, Rau
     integer,           allocatable :: j_indx(:)
     complex(kind=dbl), allocatable :: flux_up(:), htide(:,:), rsph1(:,:), rsph2(:,:), rtorr(:,:), rtemp(:,:), &
@@ -31,12 +31,35 @@ module PhysicalObject
     procedure, pass :: init_objects_sub       => init_objects_sub
     procedure, pass :: deallocate_objects_sub => deallocate_objects_sub
     
-    procedure, pass :: lambda_fn, cp_fn, visc_fn, alpha_fn, set_dt_sub, reynolds_fn, vypis_sub, htide_fn, qr_fn, vr_fn, nuss_fn,  &
-    & dv_dr_rr_jml_sub, mgradT_rr_jml_sub, coriolis_vgradv_sub, coriolis_sub, laws_temp_fn, laws_mech_fn, buoy_rr_jml_sub,        &
-    & coriolis_rr_jml_sub, global_rotation_sub, mvgradT_sub, fullnl_sub, mat_temp_fn, mat_mech_fn, mat_torr_fn, init_eq_temp_sub, &
-    & init_eq_mech_sub, init_eq_torr_sub, prepare_mat_mech_sub, prepare_mat_temp_sub, prepare_mat_torr_sub, solve_temp_sub,       &
-    & solve_torr_sub, solve_mech_sub, volume_heating_fn, laws_force_fn, vr_jm_sub, vr_rr_jm_sub, er_buoy_rr_jm_sub,               &
-    & viscdissip_power_fn, buoyancy_power_fn, bottombnd_power_fn, upperbnd_power_fn
+    !Time stepping
+    procedure, pass :: set_dt_sub
+    
+    !Material parameters
+    procedure, pass :: lambda_fn, cp_fn, visc_fn, alpha_fn
+    
+    !Variables
+    procedure, pass :: htide_fn
+    procedure, pass :: tempr_fn, tempr_rr_fn, qr_fn, mgradT_rr_jml_sub
+    procedure, pass :: vr_fn, vr_rr_fn, vr_jm_sub, vr_rr_jm_sub, dv_dr_rr_jml_sub
+    
+    !Matrices, equations, solvers
+    procedure, pass :: init_eq_mech_sub, init_eq_torr_sub, init_eq_temp_sub
+    procedure, pass :: mat_temp_fn, mat_mech_fn, mat_torr_fn
+    procedure, pass :: prepare_mat_mech_sub, prepare_mat_temp_sub, prepare_mat_torr_sub
+    procedure, pass :: solve_temp_sub, solve_torr_sub, solve_mech_sub
+    
+    !Forces and non-linear terms
+    procedure, pass :: volume_heating_fn
+    procedure, pass :: global_rotation_sub
+    procedure, pass :: coriolis_sub, coriolis_rr_jml_sub
+    procedure, pass :: buoy_rr_jml_sub, er_buoy_rr_jm_sub
+    procedure, pass :: viscdissip_power_fn, buoyancy_power_fn, bottombnd_power_fn, upperbnd_power_fn
+    procedure, pass :: coriolis_vgradv_sub, mvgradT_sub, fullnl_sub
+    
+    !Output, control measures
+    procedure, pass :: vypis_sub
+    procedure, pass :: reynolds_fn, nuss_fn
+    procedure, pass :: laws_temp_fn, laws_mech_fn, laws_force_fn
     
   end type T_physicalObject
   
@@ -88,10 +111,25 @@ module PhysicalObject
       integer,                 intent(in) :: ir, ijm
     end function htide_fn
     
+    module pure complex(kind=dbl) function tempr_fn(this, ir, ijm)
+      class(T_physicalObject), intent(in) :: this
+      integer,                 intent(in) :: ir, ijm
+    end function tempr_fn
+    
+    module pure complex(kind=dbl) function tempr_rr_fn(this, ir, ijm)
+      class(T_physicalObject), intent(in) :: this
+      integer,                 intent(in) :: ir, ijm
+    end function tempr_rr_fn
+    
     module pure complex(kind=dbl) function vr_fn(this, ir, ijm)
       class(T_physicalObject), intent(in) :: this
       integer,                 intent(in) :: ir, ijm
     end function vr_fn
+    
+    module pure complex(kind=dbl) function vr_rr_fn(this, ir, ijm)
+      class(T_physicalObject), intent(in) :: this
+      integer,                 intent(in) :: ir, ijm
+    end function vr_rr_fn
     
     module pure subroutine vr_jm_sub(this, ir, vr_jm)
       class(T_physicalObject), intent(in)  :: this
