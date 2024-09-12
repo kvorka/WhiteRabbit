@@ -16,7 +16,7 @@ submodule(IceMod) VariablesIce
     integer                        :: ijm
     
     do concurrent ( ijm = 1:this%jms )
-      temperature(ijm) = this%Tu + ( this%Td-this%Tu ) * this%tempr_fn(i,ijm)
+      temperature(ijm) = this%tempr_fn(i,ijm)
     end do
     
   end subroutine temperature_ice_r_jm_sub

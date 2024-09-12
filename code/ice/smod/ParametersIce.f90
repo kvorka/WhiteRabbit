@@ -52,11 +52,18 @@ submodule(IceMod) ParametersIce
     integer,           intent(in)  :: i
     real(kind=dbl)                 :: visc
     
-    visc = min( goldsby_visc_fn( this%diam, this%temperature_ice_r_fn(i), this%devstress_ice_r_fn(i) ), this%cutoff )
+    if ( allocated(this%sol%visc) ) then
+      visc_ice_fn = c2r_fn( this%sol%visc(1,i) ) / s4pi
     
-    if ( this%andrade ) visc = andrade_visc_fn(this%mu, this%omega, visc)
-    
-    visc_ice_fn = visc / this%viscU
+    else 
+      visc = min( goldsby_visc_fn( this%diam, this%temperature_ice_r_fn(i), this%devstress_ice_r_fn(i) ), this%cutoff )
+      
+      if ( this%andrade ) then
+        visc_ice_fn = andrade_visc_fn(this%mu, this%omega, visc) / this%viscU
+      else
+        visc_ice_fn = visc / this%viscU
+      end if
+    end if
     
   end function visc_ice_fn
   

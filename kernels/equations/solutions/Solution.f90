@@ -16,7 +16,7 @@ module Solution
     procedure :: init_stemp_sub, init_storr_sub, init_smech_sub, init_layers_sub, init_layer_u_sub, temp_fn, flux_fn,        &
                & velocity_fn, deviatoric_stress_fn, temp_i_fn, flux_i_fn, velocity_i_fn, deviatoric_stress_i_fn, temp_jm_fn, &
                & temp_jm_sub, flux_jml_fn, flux_jml_sub, flux_jml_many_sub, velocity_jml_fn, velocity_jml_sub,               &
-               & velocity_jml_many_sub, conv_velocity_jml_fn, deviatoric_stress_jml2_fn
+               & velocity_jml_many_sub, conv_velocity_jml_fn, deviatoric_stress_jml2_fn, init_visc_sub
     
   end type T_solution
   

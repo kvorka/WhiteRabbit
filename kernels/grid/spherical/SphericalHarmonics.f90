@@ -11,16 +11,18 @@ module SphericalHarmonics
                                                & 247, 253, 267, 285, 297, 317, 321, 357, 381, 397, 429, 447, 477, 483, 497, 997  ]
   
   type, public :: T_lateralGrid
-    integer,                     private :: jmax, nLegendre, nFourier
+    integer,                     private :: jmax
+    integer,                     public  :: nLegendre, nFourier
     real(kind=dbl), allocatable, private :: cosx(:), weight(:), amj(:), bmj(:), cmm(:)
     type(T_fft),                 private :: fourtrans
-    type(T_sphsvt),              private :: reindexing
+    type(T_sphsvt),              public  :: reindexing
     
     contains
     
     procedure :: init_sub       => init_harmonics_sub
     procedure :: transform_sub
     procedure :: vcss_sub, vcst_sub, vcvv_sub, vcvgv_sub, vcvv_vcvgv_sub
+    procedure :: grid_to_space_sub, space_to_grid_sub
     procedure :: deallocate_sub => deallocate_harmonics_sub
     
   end type T_lateralGrid
@@ -48,6 +50,18 @@ module SphericalHarmonics
         end subroutine grid_sub
       end interface
     end subroutine transform_sub
+    
+    module pure subroutine space_to_grid_sub(this, cc, grid)
+      class(T_lateralGrid), intent(in)  :: this
+      complex(kind=dbl),    intent(in)  :: cc(*)
+      real(kind=dbl),       intent(out) :: grid(:,:,:)
+    end subroutine space_to_grid_sub
+    
+    module pure subroutine grid_to_space_sub(this, grid, cr)
+      class(T_lateralGrid), intent(in)    :: this
+      real(kind=dbl),       intent(inout) :: grid(:,:,:)
+      complex(kind=dbl),    intent(out)   :: cr(*)
+    end subroutine grid_to_space_sub
     
     module pure subroutine vcss_sub(this, cajm, cbjm, cjm)
       class(T_lateralGrid), intent(in)  :: this

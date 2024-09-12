@@ -34,6 +34,7 @@ module IceCrustMod
 
     call this%init_eq_temp_sub( rhs=.true. , nl=.true.  )
     call this%init_eq_mech_sub( rhs=.true. , nl=.false. )
+    call this%sol%init_visc_sub()
     
     call this%tides%init_sub()
     
@@ -88,7 +89,7 @@ module IceCrustMod
         call this%solve_temp_sub( ijmstart=1, ijmend=1, ijmstep=1, rematrix=.true., matxsol=.false. )
         
         if ( maxval(abs(this%sol%temp_i_fn(1) - Temp1)/abs(Temp1)) < 1e-8 ) exit
-      end do    
+      end do
     
     do
       !! Save latest value of shape
@@ -124,7 +125,9 @@ module IceCrustMod
         end do
       
       !! Solve for given tidal heating
-      call this%set_dt_sub() ; call this%sol%nulify_sub()
+      call this%set_dt_sub()
+      call this%sol%nulify_sub()
+      
         do
           if ( present(flux) ) then
             call this%EE_sub(flux_bnd=flux)
@@ -270,6 +273,8 @@ module IceCrustMod
     !$omp end parallel do
     
     call this%solve_temp_sub( ijmstart=2, ijmend=this%jms, ijmstep=1, rematrix=.true., matxsol=.true. )
+    
+    if ( allocated(this%sol%visc) ) call this%visc_ice_jm_sub()
     
   end subroutine EE_temp_iceCrust_sub
   
