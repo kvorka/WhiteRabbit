@@ -207,8 +207,8 @@ module IceCrustMod
     this%sol%v_up(1) = czero
     
     do concurrent ( ijm = 2:this%jms )
-      this%sol%v_dn(ijm) = this%vr_fn(1,ijm) - this%Raf * ( this%qr_fn(1,ijm) - flux(ijm) )
-      this%sol%v_up(ijm) = this%vr_fn(this%nd,ijm)
+      this%sol%v_dn(ijm) = this%vr_r_fn(1,ijm) - this%Raf * ( this%qr_r_fn(1,ijm) - flux(ijm) )
+      this%sol%v_up(ijm) = this%vr_r_fn(this%nd,ijm)
     end do
     
     do concurrent ( ijm = 1:this%jms )
@@ -262,7 +262,7 @@ module IceCrustMod
       rgrad_T = - ( c2r_fn( -this%sol%flux_fn(1,1,1) / sqrt(4*pi) ) / this%lambda_fn(1) )
       
       ir = 1
-        this%rtemp(1,ijm) = -( this%sol%u_dn(ijm) + ( this%vr_fn(1,ijm) + this%Raf * flux(ijm) ) * this%dt + &
+        this%rtemp(1,ijm) = -( this%sol%u_dn(ijm) + ( this%vr_r_fn(1,ijm) + this%Raf * flux(ijm) ) * this%dt + &
                              & this%Cl / ( rgrad_T - this%Cl ) * this%Vdelta_fn(1,ijm)                       )
       
       do concurrent ( ir = 2:this%nd )
@@ -270,7 +270,7 @@ module IceCrustMod
       end do
       
       ir = this%nd+1
-        this%rtemp(this%nd+1,ijm) = -( this%sol%u_up(ijm) + this%vr_fn(this%nd,ijm) * this%dt )
+        this%rtemp(this%nd+1,ijm) = -( this%sol%u_up(ijm) + this%vr_r_fn(this%nd,ijm) * this%dt )
     end do
     !$omp end parallel do
     
@@ -291,7 +291,8 @@ module IceCrustMod
       ij = this%j_indx(ijm)
 
       ir = 1
-        this%rsph1(ir,ijm) = -( this%sol%u_dn(ijm) - this%Vdelta_fn(1,ijm) - this%Raf * (this%qr_fn(ir,ijm) - flux(ijm)) * this%dt )
+        this%rsph1(ir,ijm) = -( this%sol%u_dn(ijm) - this%Vdelta_fn(1,ijm) -            &
+                              & this%Raf * (this%qr_r_fn(ir,ijm) - flux(ijm)) * this%dt )
         this%rsph2(ir,ijm) = czero
       
       do ir = 2, this%nd

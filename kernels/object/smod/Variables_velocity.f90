@@ -1,7 +1,7 @@
 submodule(PhysicalObject) Variables_velocity
   implicit none ; contains
   
-  module pure complex(kind=dbl) function vr_fn(this, ir, ijm)
+  module pure complex(kind=dbl) function vr_r_fn(this, ir, ijm)
     class(T_physicalObject), intent(in) :: this
     integer,                 intent(in) :: ir, ijm
     integer                             :: j
@@ -12,10 +12,10 @@ submodule(PhysicalObject) Variables_velocity
     cj1 = sqrt( (j  ) / (2*j+one) ) ; cr1 = this%rad_grid%c(ir,-1)
     cj2 = sqrt( (j+1) / (2*j+one) ) ; cr2 = this%rad_grid%c(ir,+1)
     
-    vr_fn = cr1 * ( cj1 * this%sol%velocity_fn(ir  ,-1,ijm) - cj2 * this%sol%velocity_fn(ir  ,+1,ijm) ) + &
-          & cr2 * ( cj1 * this%sol%velocity_fn(ir+1,-1,ijm) - cj2 * this%sol%velocity_fn(ir+1,+1,ijm) )
+    vr_r_fn = cr1 * ( cj1 * this%sol%velocity_fn(ir  ,-1,ijm) - cj2 * this%sol%velocity_fn(ir  ,+1,ijm) ) + &
+            & cr2 * ( cj1 * this%sol%velocity_fn(ir+1,-1,ijm) - cj2 * this%sol%velocity_fn(ir+1,+1,ijm) )
     
-  end function vr_fn
+  end function vr_r_fn
   
   module pure complex(kind=dbl) function vr_rr_fn(this, ir, ijm)
     class(T_physicalObject), intent(in) :: this
@@ -32,7 +32,7 @@ submodule(PhysicalObject) Variables_velocity
     
   end function vr_rr_fn
   
-  module pure subroutine vr_jm_sub(this, ir, vr_jm)
+  module pure subroutine vr_r_jm_sub(this, ir, vr_jm)
     class(T_physicalObject), intent(in)  :: this
     integer,                 intent(in)  :: ir
     complex(kind=dbl),       intent(out) :: vr_jm(*)
@@ -61,7 +61,7 @@ submodule(PhysicalObject) Variables_velocity
     
     deallocate( v1, v2 )
     
-  end subroutine vr_jm_sub
+  end subroutine vr_r_jm_sub
   
   module pure subroutine vr_rr_jm_sub(this, ir, vr_jm)
     class(T_physicalObject), intent(in)  :: this

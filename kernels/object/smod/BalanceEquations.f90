@@ -38,14 +38,14 @@ submodule (PhysicalObject) BalanceEquations
       case( 'shape' )
         !Power of the bottom boundary
         do concurrent ( ijm = 1:this%jms )
-          rvelc_jm(ijm) = this%vr_fn(1,ijm)
+          rvelc_jm(ijm) = this%vr_r_fn(1,ijm)
         end do
         
         bndpow = this%Rad * this%gd * this%rd**2 * scalproduct_fn(this%jmax, this%sol%t_dn, rvelc_jm)
         
         !Power of the upper boundary
         do concurrent ( ijm = 1:this%jms )
-          rvelc_jm(ijm) = this%vr_fn(this%nd,ijm)
+          rvelc_jm(ijm) = this%vr_r_fn(this%nd,ijm)
         end do
         
         bndpow = bndpow - this%Rau * this%gu * this%ru**2 * scalproduct_fn(this%jmax, this%sol%t_up, rvelc_jm)

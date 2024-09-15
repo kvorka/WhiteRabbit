@@ -41,8 +41,8 @@ module PhysicalObject
     
     !Variables
     procedure, pass :: htide_fn
-    procedure, pass :: tempr_fn, tempr_rr_fn, qr_fn, mgradT_rr_jml_sub
-    procedure, pass :: vr_fn, vr_rr_fn, vr_jm_sub, vr_rr_jm_sub, dv_dr_rr_jml_sub
+    procedure, pass :: temp_r_fn, temp_rr_fn, qr_r_fn, mgradT_rr_jml_sub
+    procedure, pass :: vr_r_fn, vr_rr_fn, vr_r_jm_sub, vr_rr_jm_sub, dv_dr_rr_jml_sub
     
     !Matrices, equations, solvers
     procedure, pass :: init_eq_mech_sub, init_eq_torr_sub, init_eq_temp_sub
@@ -113,31 +113,31 @@ module PhysicalObject
       integer,                 intent(in) :: ir, ijm
     end function htide_fn
     
-    module pure complex(kind=dbl) function tempr_fn(this, ir, ijm)
+    module pure complex(kind=dbl) function temp_r_fn(this, ir, ijm)
       class(T_physicalObject), intent(in) :: this
       integer,                 intent(in) :: ir, ijm
-    end function tempr_fn
+    end function temp_r_fn
     
-    module pure complex(kind=dbl) function tempr_rr_fn(this, ir, ijm)
+    module pure complex(kind=dbl) function temp_rr_fn(this, ir, ijm)
       class(T_physicalObject), intent(in) :: this
       integer,                 intent(in) :: ir, ijm
-    end function tempr_rr_fn
+    end function temp_rr_fn
     
-    module pure complex(kind=dbl) function vr_fn(this, ir, ijm)
+    module pure complex(kind=dbl) function vr_r_fn(this, ir, ijm)
       class(T_physicalObject), intent(in) :: this
       integer,                 intent(in) :: ir, ijm
-    end function vr_fn
+    end function vr_r_fn
     
     module pure complex(kind=dbl) function vr_rr_fn(this, ir, ijm)
       class(T_physicalObject), intent(in) :: this
       integer,                 intent(in) :: ir, ijm
     end function vr_rr_fn
     
-    module pure subroutine vr_jm_sub(this, ir, vr_jm)
+    module pure subroutine vr_r_jm_sub(this, ir, vr_jm)
       class(T_physicalObject), intent(in)  :: this
       integer,                 intent(in)  :: ir
       complex(kind=dbl),       intent(out) :: vr_jm(*)
-    end subroutine vr_jm_sub
+    end subroutine vr_r_jm_sub
     
     module pure subroutine vr_rr_jm_sub(this, ir, vr_jm)
       class(T_physicalObject), intent(in)  :: this
@@ -145,10 +145,10 @@ module PhysicalObject
       complex(kind=dbl),       intent(out) :: vr_jm(*)
     end subroutine vr_rr_jm_sub
     
-    module pure complex(kind=dbl) function qr_fn(this, ir, ijm)
+    module pure complex(kind=dbl) function qr_r_fn(this, ir, ijm)
       class(T_physicalObject), intent(in) :: this
       integer,                 intent(in) :: ir, ijm
-    end function qr_fn
+    end function qr_r_fn
     
     module pure subroutine dv_dr_rr_jml_sub(this, ir, v, dv)
       class(T_physicalObject), intent(in)  :: this

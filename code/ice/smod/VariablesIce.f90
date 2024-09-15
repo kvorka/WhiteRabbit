@@ -5,7 +5,7 @@ submodule(IceMod) VariablesIce
     class(T_ice), intent(in) :: this
     integer,      intent(in) :: i
     
-    temperature_ice_r_fn = this%Tu + ( this%Td-this%Tu ) * c2r_fn( this%tempr_fn(i,1) ) / s4pi
+    temperature_ice_r_fn = this%Tu + ( this%Td-this%Tu ) * c2r_fn( this%temp_r_fn(i,1) ) / s4pi
     
   end function temperature_ice_r_fn
   
@@ -16,7 +16,7 @@ submodule(IceMod) VariablesIce
     integer                        :: ijm
     
     do concurrent ( ijm = 1:this%jms )
-      temperature(ijm) = this%tempr_fn(i,ijm)
+      temperature(ijm) = this%temp_r_fn(i,ijm)
     end do
     
   end subroutine temperature_ice_r_jm_sub
@@ -25,7 +25,7 @@ submodule(IceMod) VariablesIce
     class(T_ice),  intent(in) :: this
     integer,       intent(in) :: i
     
-    temperature_ice_rr_fn = this%Tu + ( this%Td-this%Tu ) * c2r_fn( this%tempr_rr_fn(i,1) ) / s4pi
+    temperature_ice_rr_fn = this%Tu + ( this%Td-this%Tu ) * c2r_fn( this%temp_rr_fn(i,1) ) / s4pi
     
   end function temperature_ice_rr_fn
   

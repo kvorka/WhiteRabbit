@@ -1,34 +1,34 @@
 submodule(PhysicalObject) Variables_temperature
   implicit none ; contains
   
-  module pure complex(kind=dbl) function tempr_fn(this, ir, ijm)
+  module pure complex(kind=dbl) function temp_r_fn(this, ir, ijm)
     class(T_physicalObject), intent(in) :: this
     integer,                 intent(in) :: ir, ijm
     
-    tempr_fn = this%rad_grid%c(ir,-1) * this%sol%temp_fn(ir  ,ijm) + &
+    temp_r_fn = this%rad_grid%c(ir,-1) * this%sol%temp_fn(ir  ,ijm) + &
              & this%rad_grid%c(ir,+1) * this%sol%temp_fn(ir+1,ijm)
     
-  end function tempr_fn
+  end function temp_r_fn
   
-  module pure complex(kind=dbl) function tempr_rr_fn(this, ir, ijm)
+  module pure complex(kind=dbl) function temp_rr_fn(this, ir, ijm)
     class(T_physicalObject), intent(in) :: this
     integer,                 intent(in) :: ir, ijm
     
-    tempr_rr_fn = this%sol%temp_fn(ir,ijm)
+    temp_rr_fn = this%sol%temp_fn(ir,ijm)
     
-  end function tempr_rr_fn
+  end function temp_rr_fn
   
-  module pure complex(kind=dbl) function qr_fn(this, ir, ijm)
+  module pure complex(kind=dbl) function qr_r_fn(this, ir, ijm)
     class(T_physicalObject), intent(in) :: this
     integer,                 intent(in) :: ir, ijm
     integer                             :: j
     
     j = this%j_indx(ijm)
     
-    qr_fn = sqrt( (j  ) / (2*j+one) ) * this%sol%flux_fn(ir,-1,ijm) - &
-          & sqrt( (j+1) / (2*j+one) ) * this%sol%flux_fn(ir,+1,ijm)
+    qr_r_fn = sqrt( (j  ) / (2*j+one) ) * this%sol%flux_fn(ir,-1,ijm) - &
+            & sqrt( (j+1) / (2*j+one) ) * this%sol%flux_fn(ir,+1,ijm)
     
-  end function qr_fn
+  end function qr_r_fn
   
   module pure subroutine mgradT_rr_jml_sub(this, ir, T, gradT)
     class(T_physicalObject),     intent(in)  :: this

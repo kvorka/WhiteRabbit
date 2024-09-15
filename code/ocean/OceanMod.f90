@@ -71,7 +71,7 @@ module OceanMod
         call this%time_scheme_sub()
         
         do concurrent ( ijm = 1:this%jms )
-          this%flux_up(ijm) = this%flux_up(ijm) + this%qr_fn(this%nd,ijm)
+          this%flux_up(ijm) = this%flux_up(ijm) + this%qr_r_fn(this%nd,ijm)
         end do
     end do
     

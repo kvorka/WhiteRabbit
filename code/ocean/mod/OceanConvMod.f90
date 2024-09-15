@@ -35,7 +35,7 @@ module OceanConvMod
     !$omp parallel
     !$omp do
     do ijm = 2, this%jms
-      this%rsph2(this%nd+1,ijm) = -this%St * this%qr_fn(this%nd,ijm)
+      this%rsph2(this%nd+1,ijm) = -this%St * this%qr_r_fn(this%nd,ijm)
     end do
     
     !$omp do collapse (2)

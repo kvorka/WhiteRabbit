@@ -3,6 +3,8 @@ module iceMod
   use IceConstants
   use IceViscosity
   use IceConductivity
+  use IceCapacity
+  use IceExpansivity
   implicit none
   
   type, extends(T_physicalObject), abstract, public :: T_ice

@@ -44,10 +44,10 @@ submodule(IceMod) Init_ice
     this%hC      = hC_ice / this%D_ud
     this%omega   = omega
     
-    this%alphaU  = 1.0d-4
-    this%lambdaU = 0.4685_dbl + 488.12_dbl / this%Tu
-    this%cU      = 185._dbl + 7.037_dbl * this%Tu
-    this%viscU   = (this%Tu+this%Td)/2 * this%diam**2 * exp( 59.0d+3 / rgas / ( (this%Tu+this%Td)/2 ) ) / 9.0d-8 / 2
+    this%alphaU  = name_expansivity_fn( this%Tu )
+    this%lambdaU = name_conductivity_fn( this%Tu )
+    this%cU      = name_capacity_fn( this%Tu )
+    this%viscU   = goldsby_visc_fn( this%diam, (this%Tu+this%Td)/2, zero )
     this%kappaU  = this%lambdaU / ( this%cU * this%rhoI )
     
     this%period = 2 * pi / omega * ( this%kappaU / this%D_ud**2 )
