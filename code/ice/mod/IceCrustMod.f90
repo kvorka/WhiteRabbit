@@ -34,7 +34,9 @@ module IceCrustMod
 
     call this%init_eq_temp_sub( rhs=.true. , nl=.true.  )
     call this%init_eq_mech_sub( rhs=.true. , nl=.false. )
-    call this%sol%init_visc_sub()
+    
+    call this%mparams%init_visc_sub()
+    call this%mparams%init_conductivity_sub()
     
     call this%tides%init_sub()
     
@@ -79,18 +81,16 @@ module IceCrustMod
         ir = 1
           this%rtemp(ir,1) = cs4pi
         
-        do concurrent ( ir = 2:this%nd )
+        do concurrent ( ir = 2:this%nd+1 )
           this%rtemp(ir,1) = czero
         end do
-        
-        ir = this%nd+1
-          this%rtemp(ir,1) = czero
         
         call this%solve_temp_sub( ijmstart=1, ijmend=1, ijmstep=1, rematrix=.true., matxsol=.false. )
         
         if ( maxval(abs(this%sol%temp_i_fn(1) - Temp1)/abs(Temp1)) < 1e-8 ) exit
       end do
     
+    !! Start iterative solver from conductive solution
     do
       !! Save latest value of shape
       u_up1(:) = this%sol%u_up(:)
@@ -232,6 +232,8 @@ module IceCrustMod
     real(kind=dbl)                   :: rgrad_T
     complex(kind=dbl), allocatable   :: Temp(:), Temp1(:)
     
+    !! At first, iterate the degree zero to find correct value of temperature dependent material
+    !! parameters (conductivity, capacity and viscosity)
     ijm = 1
       allocate( Temp(this%nd+1), Temp1(this%nd+1) ); Temp = this%sol%temp_i_fn(ijm)
         do
@@ -274,7 +276,7 @@ module IceCrustMod
     
     call this%solve_temp_sub( ijmstart=2, ijmend=this%jms, ijmstep=1, rematrix=.true., matxsol=.true. )
     
-    if ( allocated(this%sol%visc) ) call this%visc_ice_jm_sub()
+    if ( this%mparams%initvisc ) call this%visc_ice_jm_sub()
     
   end subroutine EE_temp_iceCrust_sub
   

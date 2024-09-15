@@ -2,6 +2,7 @@ module iceMod
   use PhysicalObject
   use IceConstants
   use IceViscosity
+  use IceConductivity
   implicit none
   
   type, extends(T_physicalObject), abstract, public :: T_ice
@@ -25,7 +26,7 @@ module iceMod
     
     procedure :: temperature_ice_r_fn, temperature_ice_rr_fn, temperature_ice_r_jm_sub
     procedure :: devstress_ice_r_fn
-    procedure :: visc_ice_jm_sub
+    procedure :: visc_ice_jm_sub, lambda_ice_jm_sub
     
   end type T_ice
 
@@ -64,6 +65,10 @@ module iceMod
     module subroutine visc_ice_jm_sub(this)
       class(T_ice), intent(inout) :: this
     end subroutine visc_ice_jm_sub
+    
+    module subroutine lambda_ice_jm_sub(this)
+      class(T_ice), intent(inout) :: this
+    end subroutine lambda_ice_jm_sub
 
     module pure complex(kind=dbl) function htide_ice_4_fn(this, ir, ijm)
       class(T_ice), intent(in) :: this

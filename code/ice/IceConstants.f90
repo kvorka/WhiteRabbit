@@ -7,7 +7,7 @@ module IceConstants
   character(len=5), parameter :: thermal_bnd_ice  = 'phase'
   character(len=3), parameter :: gravity_ice      = 'hom'
   
-  integer, parameter :: nd_ice = 97
+  integer, parameter :: nd_ice = 81
   integer, parameter :: jmax_ice = 21
   integer, parameter :: n_iter_ice = 10000
   integer, parameter :: n_iter_tides = 1000

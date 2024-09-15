@@ -59,7 +59,7 @@ module IceTidesMod
       end do
           
       P = this%rad_grid%intV_fn( real(this%htide(:,1), kind=dbl) )
-        if ( abs(P-Pglobal) / P < 1.0d-5 ) then
+        if ( abs(P-Pglobal) / P < 1.0d-3 ) then
           exit
         else
           Pglobal    = P

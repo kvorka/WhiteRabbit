@@ -5,13 +5,13 @@ submodule(IceMod) ParametersIce
     class(T_ice),  intent(in) :: this
     integer,       intent(in) :: i
     real(kind=dbl)            :: lambdaI
-
+    
     if ( this%rad_grid%r(i) < this%ru - this%hC ) then
-       lambdaI = 0.4685_dbl + 488.12_dbl / this%temperature_ice_r_fn(i)
+      lambdaI = name_conductivity_fn( this%temperature_ice_r_fn(i) )
     else
-       lambdaI = this%lambdaC
+      lambdaI = this%lambdaC
     end if
-     
+    
     lambda_ice_fn = lambdaI / this%lambdaU
     
   end function lambda_ice_fn
@@ -52,8 +52,8 @@ submodule(IceMod) ParametersIce
     integer,           intent(in)  :: i
     real(kind=dbl)                 :: visc
     
-    if ( allocated(this%sol%visc) ) then
-      visc_ice_fn = c2r_fn( this%sol%visc(1,i) ) / s4pi
+    if ( this%mparams%initvisc ) then
+      visc_ice_fn = c2r_fn( this%mparams%visc(1,i) ) / s4pi
     
     else 
       visc = min( goldsby_visc_fn( this%diam, this%temperature_ice_r_fn(i), this%devstress_ice_r_fn(i) ), this%cutoff )

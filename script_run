@@ -2,7 +2,7 @@
 ###########################################################################################
 ####                              COMPILER SET UP                                      ####
 ###########################################################################################
-compile="gfortran-12 -Ofast -march=native -flto=auto -fwhole-program -fopenmp"
+compile="gfortran-13 -Ofast -march=native -flto=auto -fwhole-program -fopenmp"
 
 ###########################################################################################
 ####                              POSSIBLE CODE SETTINGS                               ####
@@ -41,6 +41,9 @@ $compile -c kernels/equations/matrices/smod/*.f90
 $compile -c kernels/gmodel/Gravity.f90
 $compile -c kernels/gmodel/smod/*.f90
 
+$compile -c kernels/mparams/Mparams.f90
+$compile -c kernels/mparams/smod/*.f90
+
 $compile -c kernels/object/PhysicalObject.f90
 $compile -c kernels/object/smod/*.f90
 
@@ -50,6 +53,7 @@ $compile -c code/ocean/mod/*.f90
 
 $compile -c code/ice/IceConstants.f90
 $compile -c code/ice/IceViscosity.f90
+$compile -c code/ice/IceConductivity.f90
 $compile -c code/ice/IceMod.f90
 $compile -c code/ice/smod/*.f90
 $compile -c code/ice/mod/IceTidesMod.f90

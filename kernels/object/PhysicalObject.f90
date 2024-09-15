@@ -6,6 +6,7 @@ module PhysicalObject
   use SphericalHarmonics
   use RadialGrid
   use Gravity
+  use Mparams
   use Solution
   use Matrices
   implicit none
@@ -23,6 +24,7 @@ module PhysicalObject
     type(T_radialGrid)  :: rad_grid
     type(T_lateralGrid) :: lat_grid
     type(T_gravity)     :: gravity
+    type(T_Mparams)     :: mparams
     type(T_matrices)    :: mat
     type(T_solution)    :: sol
     

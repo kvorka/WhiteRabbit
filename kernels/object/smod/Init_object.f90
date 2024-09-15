@@ -41,6 +41,7 @@ submodule (PhysicalObject) Init_object
       call this%sol%init_sub(this%nd, this%jmax)
       call this%mat%init_sub(this%nd, this%jmax, this%grid_type)
       call this%gravity%init_sub(gmod, g)
+      call this%mparams%init_sub(this%nd, this%jmax)
 
       allocate( this%j_indx(this%jms) )
       do j = 0, this%jmax
@@ -94,6 +95,7 @@ submodule (PhysicalObject) Init_object
       call this%sol%deallocate_sub()
       call this%mat%deallocate_sub()
       call this%rad_grid%deallocate_sub()
+      call this%mparams%deallocate_sub()
       
       if (.not. this%noharm) call this%lat_grid%deallocate_sub()
     end if
