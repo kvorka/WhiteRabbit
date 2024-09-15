@@ -9,17 +9,17 @@ submodule(IceMod) VariablesIce
     
   end function temperature_ice_r_fn
   
-  module pure subroutine temperature_ice_r_jm_sub(this, i, temperature)
+  module pure subroutine temp_ice_r_jm_sub(this, i, temp)
     class(T_ice),      intent(in)  :: this
     integer,           intent(in)  :: i
-    complex(kind=dbl), intent(out) :: temperature(:)
+    complex(kind=dbl), intent(out) :: temp(:)
     integer                        :: ijm
     
     do concurrent ( ijm = 1:this%jms )
-      temperature(ijm) = this%temp_r_fn(i,ijm)
+      temp(ijm) = this%temp_r_fn(i,ijm)
     end do
     
-  end subroutine temperature_ice_r_jm_sub
+  end subroutine temp_ice_r_jm_sub
   
   module pure real(kind=dbl) function temperature_ice_rr_fn(this, i)
     class(T_ice),  intent(in) :: this

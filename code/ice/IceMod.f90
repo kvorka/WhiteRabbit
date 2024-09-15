@@ -26,7 +26,7 @@ module iceMod
     procedure :: alpha_fn          => alpha_ice_fn
     procedure :: visc_fn           => visc_ice_fn
     
-    procedure :: temperature_ice_r_fn, temperature_ice_rr_fn, temperature_ice_r_jm_sub
+    procedure :: temperature_ice_r_fn, temperature_ice_rr_fn, temp_ice_r_jm_sub
     procedure :: devstress_ice_r_fn
     procedure :: visc_ice_jm_sub, lambda_ice_jm_sub
     
@@ -95,11 +95,11 @@ module iceMod
       integer,       intent(in) :: i
     end function temperature_ice_r_fn
     
-    module pure subroutine temperature_ice_r_jm_sub(this, i, temperature)
+    module pure subroutine temp_ice_r_jm_sub(this, i, temp)
       class(T_ice),      intent(in)  :: this
       integer,           intent(in)  :: i
-      complex(kind=dbl), intent(out) :: temperature(:)
-    end subroutine temperature_ice_r_jm_sub
+      complex(kind=dbl), intent(out) :: temp(:)
+    end subroutine temp_ice_r_jm_sub
     
     module pure real(kind=dbl) function temperature_ice_rr_fn(this, i)
       class(T_ice),  intent(in) :: this

@@ -76,6 +76,7 @@ module IceCrustMod
     !! Seek for conductive solution with zero rhs at first
     this%dt = huge(zero)
       do
+        call this%lambda_ice_jm_sub()
         Temp1 = this%sol%temp_i_fn(1)
         
         ir = 1
@@ -276,7 +277,8 @@ module IceCrustMod
     
     call this%solve_temp_sub( ijmstart=2, ijmend=this%jms, ijmstep=1, rematrix=.true., matxsol=.true. )
     
-    if ( this%mparams%initvisc ) call this%visc_ice_jm_sub()
+    if ( this%mparams%initvisc   ) call this%visc_ice_jm_sub()
+    if ( this%mparams%initlambda ) call this%lambda_ice_jm_sub()
     
   end subroutine EE_temp_iceCrust_sub
   

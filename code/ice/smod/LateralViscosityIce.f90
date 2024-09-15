@@ -16,7 +16,7 @@ submodule(IceMod) LateralViscosityIce
         avrgstress = this%devstress_ice_r_fn(ir)
         
         !Get the temperature field in jm indexing
-        call this%temperature_ice_r_jm_sub(ir, temperature_jm)
+        call this%temp_ice_r_jm_sub(ir, temperature_jm)
         
         !Zero the mj indexing holder and reindex the temperature field
         call zero_carray_sub(this%jms2, cc_mj)

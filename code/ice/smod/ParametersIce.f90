@@ -2,17 +2,18 @@ submodule(IceMod) ParametersIce
   implicit none ; contains
   
   module pure real(kind=dbl) function lambda_ice_fn(this, i)
-    class(T_ice),  intent(in) :: this
-    integer,       intent(in) :: i
-    real(kind=dbl)            :: lambdaI
+    class(T_ice), intent(in) :: this
+    integer,      intent(in) :: i
     
     if ( this%rad_grid%r(i) < this%ru - this%hC ) then
-      lambdaI = name_conductivity_fn( this%temperature_ice_r_fn(i) )
+      if ( this%mparams%initlambda ) then
+        lambda_ice_fn = c2r_fn( this%mparams%lambda(1,i) ) / s4pi
+      else
+        lambda_ice_fn = name_conductivity_fn( this%temperature_ice_r_fn(i) ) / this%lambdaU
+      end if
     else
-      lambdaI = this%lambdaC
+      lambda_ice_fn = this%lambdaC / this%lambdaU
     end if
-    
-    lambda_ice_fn = lambdaI / this%lambdaU
     
   end function lambda_ice_fn
   
