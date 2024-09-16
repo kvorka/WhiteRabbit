@@ -4,13 +4,12 @@ submodule(PhysicalObject) Variables_velocity
   module pure complex(kind=dbl) function vr_r_fn(this, ir, ijm)
     class(T_physicalObject), intent(in) :: this
     integer,                 intent(in) :: ir, ijm
-    integer                             :: j
-    real(kind=dbl)                      :: cj1, cj2, cr1, cr2
+    real(kind=dbl)                      :: j, cj1, cj2, cr1, cr2
     
-    j = this%j_indx(ijm)
+    j = i2r_fn( this%j_indx(ijm) )
     
-    cj1 = sqrt( (j  ) / (2*j+one) ) ; cr1 = this%rad_grid%c(ir,-1)
-    cj2 = sqrt( (j+1) / (2*j+one) ) ; cr2 = this%rad_grid%c(ir,+1)
+    cj1 = sqrt((j  )/(2*j+1)) ; cr1 = this%rad_grid%c(ir,-1)
+    cj2 = sqrt((j+1)/(2*j+1)) ; cr2 = this%rad_grid%c(ir,+1)
     
     vr_r_fn = cr1 * ( cj1 * this%sol%velocity_fn(ir  ,-1,ijm) - cj2 * this%sol%velocity_fn(ir  ,+1,ijm) ) + &
             & cr2 * ( cj1 * this%sol%velocity_fn(ir+1,-1,ijm) - cj2 * this%sol%velocity_fn(ir+1,+1,ijm) )
