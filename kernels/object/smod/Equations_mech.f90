@@ -39,7 +39,6 @@ submodule (PhysicalObject) Equations_mech
     integer,                 intent(in)           :: ijmstart, ijmend, ijmstep
     logical,                 intent(in)           :: rematrix, matxsol
     integer                                       :: ij, ijm, ir, is
-    real(kind=dbl), allocatable                   :: visc(:)
     
     if (rematrix) call this%prepare_mat_mech_sub( this%j_indx(ijmstart), this%j_indx(ijmend) )
     
@@ -76,11 +75,6 @@ submodule (PhysicalObject) Equations_mech
         !$omp end parallel do
       
       case ('viscel')
-        allocate( visc(this%nd) )
-          do concurrent ( ir=1:this%nd )
-            visc(ir) = this%visc_fn(ir)
-          end do
-        
         !$omp parallel do private (ir,is,ij)
         do ijm = ijmstart, ijmend, ijmstep
           ij = this%j_indx(ijm)
@@ -97,10 +91,10 @@ submodule (PhysicalObject) Equations_mech
             
             this%sol%mech(is  ,ijm) = this%rsph1(ir,ijm)
             this%sol%mech(is+1,ijm) = this%rsph2(ir,ijm)
-            this%sol%mech(is+3,ijm) = this%Ramu * visc(ir) * this%sol%mech(is+2,ijm) / this%dt
+            this%sol%mech(is+3,ijm) = this%Ramu * this%sol%mech(is+2,ijm) / this%dt
             this%sol%mech(is+2,ijm) = czero
-            this%sol%mech(is+4,ijm) = this%Ramu * visc(ir) * this%sol%mech(is+4,ijm) / this%dt
-            this%sol%mech(is+5,ijm) = this%Ramu * visc(ir) * this%sol%mech(is+5,ijm) / this%dt
+            this%sol%mech(is+4,ijm) = this%Ramu * this%sol%mech(is+4,ijm) / this%dt
+            this%sol%mech(is+5,ijm) = this%Ramu * this%sol%mech(is+5,ijm) / this%dt
           end do
             
           ir = this%nd+1
@@ -110,8 +104,6 @@ submodule (PhysicalObject) Equations_mech
           call this%mat%mech(ij)%luSolve_sub( this%sol%mech(:,ijm) )
         end do
         !$omp end parallel do
-        
-        deallocate( visc )
       end select
       
   end subroutine solve_mech_sub

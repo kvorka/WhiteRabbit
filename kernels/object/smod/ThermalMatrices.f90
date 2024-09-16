@@ -6,65 +6,73 @@ submodule (PhysicalObject) ThermalMatrices
     integer,                 intent(in)  :: j_in
     real(kind=dbl),          intent(in)  :: a_in
     real(kind=dbl),          allocatable :: matica(:,:)
-    integer                              :: i
+    integer                              :: ir, is
     real(kind=dbl)                       :: j, rgrad_T
     
-    allocate( matica(7,3*this%nd+1) ) ; matica = zero
+    allocate( matica(7,3*this%nd+1) ); associate(grid => this%rad_grid)
     
-    associate(grid => this%rad_grid); j = i2r_fn(j_in)
+    call zero_rarray_sub( 7*(3*this%nd+1), matica )
     
-    select case (this%thermal_bnd)
-      case('phase')
-        if ( j_in == 0 ) then
-          matica(4, 1) = 0.5_dbl
-          matica(7, 1) = 0.5_dbl
-        else
-          rgrad_T = - ( c2r_fn( -this%sol%flux_fn(1,1,1) ) / s4pi / this%lambda_fn(1) )
-            matica(4, 1) = 0.5_dbl / ( rgrad_T - this%Cl )
-            matica(5, 1) = -sqrt((j  )/(2*j+1)) * this%Raf * this%dt
-            matica(6, 1) = +sqrt((j+1)/(2*j+1)) * this%Raf * this%dt
-            matica(7, 1) = 0.5_dbl / ( rgrad_T - this%Cl )
+    j = i2r_fn(j_in)
+    
+    ir = 1
+      is = 1
+        select case (this%thermal_bnd)
+          case('phase')
+            if ( j_in == 0 ) then
+              matica(4,is) = grid%c(ir,-1)
+              matica(7,is) = grid%c(ir,+1)
+            else
+              rgrad_T = - ( c2r_fn( -this%sol%flux_fn(ir,1,1) ) / s4pi / this%lambda_fn(ir) )
+                matica(4,is) = grid%c(ir,-1) / ( rgrad_T - this%Cl )
+                matica(5,is) = -sqrt((j  )/(2*j+1)) * this%Raf * this%dt
+                matica(6,is) = +sqrt((j+1)/(2*j+1)) * this%Raf * this%dt
+                matica(7,is) = grid%c(ir,+1) / ( rgrad_T - this%Cl )
+            end if
+          
+          case('basic')
+            matica(4,is) = grid%c(ir,-1)
+            matica(7,is) = grid%c(ir,+1)
+        end select
+    
+    do ir = 1, this%nd
+      is = 3*(ir-1)+1
+        
+        if (ir > 1) then
+          matica(2,is) = +a_in*sqrt((j  )/(2*j+1))*(grid%hdd(ir,-1) - grid%cc(ir,-1)*(j-1)/grid%rr(ir)) / this%cp_fn(ir)
+          matica(3,is) = -a_in*sqrt((j+1)/(2*j+1))*(grid%hdd(ir,-1) + grid%cc(ir,-1)*(j+2)/grid%rr(ir)) / this%cp_fn(ir)
+          matica(4,is) = 1/this%dt
+          matica(5,is) = +a_in*sqrt((j  )/(2*j+1))*(grid%hdd(ir,+1) - grid%cc(ir,+1)*(j-1)/grid%rr(ir)) / this%cp_fn(ir)
+          matica(6,is) = -a_in*sqrt((j+1)/(2*j+1))*(grid%hdd(ir,+1) + grid%cc(ir,+1)*(j+2)/grid%rr(ir)) / this%cp_fn(ir)
         end if
-      
-      case('basic')
-        matica(4, 1) = 0.5_dbl
-        matica(7, 1) = 0.5_dbl
-    end select
-    
-    do i = 1, this%nd
-      if (i > 1) then
-        matica(2, 3*(i-1)+1) = +a_in*sqrt((j  )/(2*j+1))*(-1/(grid%r(i)-grid%r(i-1)) - (j-1)/grid%rr(i)/2) / this%cp_fn(i)
-        matica(3, 3*(i-1)+1) = -a_in*sqrt((j+1)/(2*j+1))*(-1/(grid%r(i)-grid%r(i-1)) + (j+2)/grid%rr(i)/2) / this%cp_fn(i)
-        matica(4, 3*(i-1)+1) = 1/this%dt
-        matica(5, 3*(i-1)+1) = +a_in*sqrt((j  )/(2*j+1))*(+1/(grid%r(i)-grid%r(i-1)) - (j-1)/grid%rr(i)/2) / this%cp_fn(i)
-        matica(6, 3*(i-1)+1) = -a_in*sqrt((j+1)/(2*j+1))*(+1/(grid%r(i)-grid%r(i-1)) + (j+2)/grid%rr(i)/2) / this%cp_fn(i)
-      end if
-      
-      matica(3, 3*(i-1)+2) = +sqrt((j  )/(2*j+1))*(-1/(grid%rr(i+1)-grid%rr(i)) + (j+1)/grid%r(i)/2) * this%lambda_fn(i)
-      matica(4, 3*(i-1)+2) = one
-      matica(6, 3*(i-1)+2) = +sqrt((j  )/(2*j+1))*(+1/(grid%rr(i+1)-grid%rr(i)) + (j+1)/grid%r(i)/2) * this%lambda_fn(i)
-      
-      matica(2, 3*(i-1)+3) = -sqrt((j+1)/(2*j+1))*(-1/(grid%rr(i+1)-grid%rr(i)) - (j  )/grid%r(i)/2) * this%lambda_fn(i)
-      matica(4, 3*(i-1)+3) = one
-      matica(5, 3*(i-1)+3) = -sqrt((j+1)/(2*j+1))*(+1/(grid%rr(i+1)-grid%rr(i)) - (j  )/grid%r(i)/2) * this%lambda_fn(i)
+        
+        matica(3,is+1) = +sqrt((j  )/(2*j+1))*(grid%hd(ir,-1) + grid%c(ir,-1)*(j+1)/grid%r(ir))
+        matica(4,is+1) = 1 / this%lambda_fn(ir)
+        matica(6,is+1) = +sqrt((j  )/(2*j+1))*(grid%hd(ir,+1) + grid%c(ir,+1)*(j+1)/grid%r(ir))
+        
+        matica(2,is+2) = -sqrt((j+1)/(2*j+1))*(grid%hd(ir,-1) - grid%c(ir,-1)*(j  )/grid%r(ir))
+        matica(4,is+2) = 1 / this%lambda_fn(ir)
+        matica(5,is+2) = -sqrt((j+1)/(2*j+1))*(grid%hd(ir,+1) - grid%c(ir,+1)*(j  )/grid%r(ir))
     end do
     
-    select case (this%thermal_bnd)
-      case('phase')
-        if ( j_in == 0 ) then
-          matica(1, 3*this%nd+1) = 0.5_dbl
-          matica(4, 3*this%nd+1) = 0.5_dbl
-        else
-          rgrad_T = - ( c2r_fn( -this%sol%flux_fn(this%nd,1,1) ) / s4pi / this%lambda_fn(this%nd) )
-            matica(1, 3*this%nd+1) = 0.5_dbl / rgrad_T
-            matica(4, 3*this%nd+1) = 0.5_dbl / rgrad_T
-        end if
-      
-      case('basic')
-        matica(1, 3*this%nd+1) = 0.5_dbl
-        matica(4, 3*this%nd+1) = 0.5_dbl
-    end select
-    
+    ir = this%nd
+      is = 3*this%nd+1
+        select case (this%thermal_bnd)
+          case('phase')
+            if ( j_in == 0 ) then
+              matica(1,is) = grid%c(ir,-1)
+              matica(4,is) = grid%c(ir,+1)
+            else
+              rgrad_T = - ( c2r_fn( -this%sol%flux_fn(ir,1,1) ) / s4pi / this%lambda_fn(ir) )
+                matica(1,is) = grid%c(ir,-1) / rgrad_T
+                matica(4,is) = grid%c(ir,+1) / rgrad_T
+            end if
+          
+          case('basic')
+            matica(1,is) = grid%c(ir,-1)
+            matica(4,is) = grid%c(ir,+1)
+        end select
+        
     end associate
     
   end function matica_temp_hom_fn
@@ -74,72 +82,80 @@ submodule (PhysicalObject) ThermalMatrices
     integer,                 intent(in) :: j_in
     real(kind=dbl),          intent(in) :: a_in
     real(kind=dbl),         allocatable :: matica(:,:)
-    integer                             :: i
+    integer                             :: ir, is
     real(kind=dbl)                      :: j, q
 
-    allocate(matica(11,3*this%nd+1) ) ; matica = zero
+    allocate(matica(11,3*this%nd+1) ); associate( grid => this%rad_grid )
     
-    associate( grid => this%rad_grid ); j = i2r_fn(j_in)
+    call zero_rarray_sub( 11*(3*this%nd+1), matica )
     
-    select case (this%thermal_bnd)
-      case('phase')
-        if ( j_in == 0 ) then
-          matica(6,1) = grid%c(1,-1)
-          matica(9,1) = grid%c(1,+1)
-        else
-          q = -real(-this%sol%flux_fn(1,1,1), kind=dbl) / sqrt(4*pi) / this%lambda_fn(1)
-            matica(6,1) = grid%c(1,-1) / q
-            matica(7,1) = -sqrt((j  )/(2*j+1)) * this%Raf * this%dt
-            matica(8,1) = +sqrt((j+1)/(2*j+1)) * this%Raf * this%dt
-            matica(9,1) = grid%c(1,+1) / q
+    j = i2r_fn(j_in)
+    
+    ir = 1
+      is = 1
+        select case (this%thermal_bnd)
+          case('phase')
+            if ( j_in == 0 ) then
+              matica(6,is) = grid%c(ir,-1)
+              matica(9,is) = grid%c(ir,+1)
+            else
+              q = -real(-this%sol%flux_fn(ir,1,1), kind=dbl) / s4pi / this%lambda_fn(ir)
+                matica(6,is) = grid%c(ir,-1) / q
+                matica(7,is) = -sqrt((j  )/(2*j+1)) * this%Raf * this%dt
+                matica(8,is) = +sqrt((j+1)/(2*j+1)) * this%Raf * this%dt
+                matica(9,is) = grid%c(ir,+1) / q
+            end if
+          
+          case('basic')
+            matica(6,is) = grid%c(ir,-1)
+            matica(9,is) = grid%c(ir,+1)
+        end select
+    
+    do ir = 1, this%nd
+      is = 3*(ir-1)+1
+      
+        if (ir > 1) then
+          matica( 1,is) = +a_in*sqrt((j  )/(2*j+1))*(grid%dd(ir,-2)                                   ) / this%cp_fn(ir)
+          matica( 2,is) = -a_in*sqrt((j+1)/(2*j+1))*(grid%dd(ir,-2)                                   ) / this%cp_fn(ir)
+          matica( 4,is) = +a_in*sqrt((j  )/(2*j+1))*(grid%dd(ir,-1) - grid%cc(ir,-1)*(j-1)/grid%rr(ir)) / this%cp_fn(ir)
+          matica( 5,is) = -a_in*sqrt((j+1)/(2*j+1))*(grid%dd(ir,-1) + grid%cc(ir,-1)*(j+2)/grid%rr(ir)) / this%cp_fn(ir)
+          matica( 6,is) = 1 / this%dt
+          matica( 7,is) = +a_in*sqrt((j  )/(2*j+1))*(grid%dd(ir,+1) - grid%cc(ir,+1)*(j-1)/grid%rr(ir)) / this%cp_fn(ir)
+          matica( 8,is) = -a_in*sqrt((j+1)/(2*j+1))*(grid%dd(ir,+1) + grid%cc(ir,+1)*(j+2)/grid%rr(ir)) / this%cp_fn(ir)
+          matica(10,is) = +a_in*sqrt((j  )/(2*j+1))*(grid%dd(ir,+2)                                   ) / this%cp_fn(ir)
+          matica(11,is) = -a_in*sqrt((j+1)/(2*j+1))*(grid%dd(ir,+2)                                   ) / this%cp_fn(ir)
         end if
-      
-      case('basic')
-        matica(6,1) = grid%c(1,-1)
-        matica(9,1) = grid%c(1,+1)
-    end select
-    
-    do i = 1, this%nd
-      if (i > 1) then
-        matica( 1,3*(i-1)+1) = +a_in*sqrt((j  )/(2*j+1))*(grid%dd(i,-2)                                 ) / this%cp_fn(i)
-        matica( 2,3*(i-1)+1) = -a_in*sqrt((j+1)/(2*j+1))*(grid%dd(i,-2)                                 ) / this%cp_fn(i)
-        matica( 4,3*(i-1)+1) = +a_in*sqrt((j  )/(2*j+1))*(grid%dd(i,-1) - grid%cc(i,-1)*(j-1)/grid%rr(i)) / this%cp_fn(i)
-        matica( 5,3*(i-1)+1) = -a_in*sqrt((j+1)/(2*j+1))*(grid%dd(i,-1) + grid%cc(i,-1)*(j+2)/grid%rr(i)) / this%cp_fn(i)
-        matica( 6,3*(i-1)+1) = 1/this%dt
-        matica( 7,3*(i-1)+1) = +a_in*sqrt((j  )/(2*j+1))*(grid%dd(i,+1) - grid%cc(i,+1)*(j-1)/grid%rr(i)) / this%cp_fn(i)
-        matica( 8,3*(i-1)+1) = -a_in*sqrt((j+1)/(2*j+1))*(grid%dd(i,+1) + grid%cc(i,+1)*(j+2)/grid%rr(i)) / this%cp_fn(i)
-        matica(10,3*(i-1)+1) = +a_in*sqrt((j  )/(2*j+1))*(grid%dd(i,+2)                                 ) / this%cp_fn(i)
-        matica(11,3*(i-1)+1) = -a_in*sqrt((j+1)/(2*j+1))*(grid%dd(i,+2)                                 ) / this%cp_fn(i)
-      end if
-    
-      matica( 2,3*(i-1)+2) = +sqrt((j  )/(2*j+1))*(grid%d(i,-2)                               ) * this%lambda_fn(i)
-      matica( 5,3*(i-1)+2) = +sqrt((j  )/(2*j+1))*(grid%d(i,-1) + grid%c(i,-1)*(j+1)/grid%r(i)) * this%lambda_fn(i)
-      matica( 6,3*(i-1)+2) = one
-      matica( 8,3*(i-1)+2) = +sqrt((j  )/(2*j+1))*(grid%d(i,+1) + grid%c(i,+1)*(j+1)/grid%r(i)) * this%lambda_fn(i)
-      matica(11,3*(i-1)+2) = +sqrt((j  )/(2*j+1))*(grid%d(i,+2)                               ) * this%lambda_fn(i)
-      
-      matica( 1,3*(i-1)+3) = -sqrt((j+1)/(2*j+1))*(grid%d(i,-2)                               ) * this%lambda_fn(i)
-      matica( 4,3*(i-1)+3) = -sqrt((j+1)/(2*j+1))*(grid%d(i,-1) - grid%c(i,-1)*(j  )/grid%r(i)) * this%lambda_fn(i)
-      matica( 6,3*(i-1)+3) = one
-      matica( 7,3*(i-1)+3) = -sqrt((j+1)/(2*j+1))*(grid%d(i,+1) - grid%c(i,+1)*(j  )/grid%r(i)) * this%lambda_fn(i)
-      matica(10,3*(i-1)+3) = -sqrt((j+1)/(2*j+1))*(grid%d(i,+2)                               ) * this%lambda_fn(i)
+        
+        matica( 2,is+1) = +sqrt((j  )/(2*j+1))*(grid%d(ir,-2)                                 )
+        matica( 5,is+1) = +sqrt((j  )/(2*j+1))*(grid%d(ir,-1) + grid%c(ir,-1)*(j+1)/grid%r(ir))
+        matica( 6,is+1) = 1 / this%lambda_fn(ir)
+        matica( 8,is+1) = +sqrt((j  )/(2*j+1))*(grid%d(ir,+1) + grid%c(ir,+1)*(j+1)/grid%r(ir))
+        matica(11,is+1) = +sqrt((j  )/(2*j+1))*(grid%d(ir,+2)                                 )
+        
+        matica( 1,is+2) = -sqrt((j+1)/(2*j+1))*(grid%d(ir,-2)                                 )
+        matica( 4,is+2) = -sqrt((j+1)/(2*j+1))*(grid%d(ir,-1) - grid%c(ir,-1)*(j  )/grid%r(ir))
+        matica( 6,is+2) = 1 / this%lambda_fn(ir)
+        matica( 7,is+2) = -sqrt((j+1)/(2*j+1))*(grid%d(ir,+1) - grid%c(ir,+1)*(j  )/grid%r(ir))
+        matica(10,is+2) = -sqrt((j+1)/(2*j+1))*(grid%d(ir,+2)                                 )
     end do
     
-    select case (this%thermal_bnd)
-      case('phase')
-        if ( j_in == 0 ) then
-          matica(3,3*this%nd+1) = grid%c(this%nd,-1)
-          matica(6,3*this%nd+1) = grid%c(this%nd,+1)
-        else
-          q = -real(-this%sol%flux_fn(this%nd,1,1), kind=dbl) / sqrt(4*pi) / this%lambda_fn(this%nd)
-            matica(3,3*this%nd+1) = grid%c(this%nd,-1) / q
-            matica(6,3*this%nd+1) = grid%c(this%nd,+1) / q    
-        end if
-      
-      case('basic')
-        matica(3,3*this%nd+1) = grid%c(this%nd,-1)
-        matica(6,3*this%nd+1) = grid%c(this%nd,+1)
-    end select
+    ir = this%nd
+      is = 3*ir+1
+        select case (this%thermal_bnd)
+          case('phase')
+            if ( j_in == 0 ) then
+              matica(3,is) = grid%c(ir,-1)
+              matica(6,is) = grid%c(ir,+1)
+            else
+              q = -real(-this%sol%flux_fn(ir,1,1), kind=dbl) / s4pi / this%lambda_fn(ir)
+                matica(3,is) = grid%c(ir,-1) / q
+                matica(6,is) = grid%c(ir,+1) / q    
+            end if
+          
+          case('basic')
+            matica(3,is) = grid%c(ir,-1)
+            matica(6,is) = grid%c(ir,+1)
+        end select
     
     end associate
     

@@ -6,58 +6,66 @@ submodule (PhysicalObject) ToroidalVisc
     integer,                 intent(in) :: j_in
     real(kind=dbl),          intent(in) :: a_in
     real(kind=dbl),         allocatable :: matica(:,:)
-    integer                             :: i
+    integer                             :: ir, is
     real(kind=dbl)                      :: j
 
-    allocate( matica(11, 3*this%nd+1) ) ; matica = zero
-  
-    associate( grid => this%rad_grid ); j = i2r_fn(j_in)
+    allocate( matica(11, 3*this%nd+1) ); associate( grid => this%rad_grid )
     
-    select case (this%mechanic_bnd)
-      case('frees')
-        matica(7,1) = +sqrt((j-1)/(2*(2*j+1)))
-        matica(8,1) = -sqrt((j+2)/(2*(2*j+1)))
-      
-      case('noslp')
-        matica(6,1) = grid%c(1,-1)
-        matica(9,1) = grid%c(1,+1)
-    end select
+    call zero_rarray_sub( 11*(3*this%nd+1), matica )
+    
+    j = i2r_fn(j_in)
+    
+    ir = 1
+      is = 1
+        select case (this%mechanic_bnd)
+          case('frees')
+            matica(7,is) = +sqrt((j-1)/(2*(2*j+1)))
+            matica(8,is) = -sqrt((j+2)/(2*(2*j+1)))
+          
+          case('noslp')
+            matica(6,is) = grid%c(ir,-1)
+            matica(9,is) = grid%c(ir,+1)
+        end select
   
-    do i = 1, this%nd
-      if (i > 1) then
-        matica( 1,3*(i-1)+1) = +a_in*sqrt((j-1)/(2*(2*j+1)))*(grid%dd(i,-2)                                 )
-        matica( 2,3*(i-1)+1) = -a_in*sqrt((j+2)/(2*(2*j+1)))*(grid%dd(i,-2)                                 )
-        matica( 4,3*(i-1)+1) = +a_in*sqrt((j-1)/(2*(2*j+1)))*(grid%dd(i,-1) - grid%cc(i,-1)*(j-1)/grid%rr(i))
-        matica( 5,3*(i-1)+1) = -a_in*sqrt((j+2)/(2*(2*j+1)))*(grid%dd(i,-1) + grid%cc(i,-1)*(j+2)/grid%rr(i))
-        matica( 6,3*(i-1)+1) = -1/(this%Pr * this%dt)
-        matica( 7,3*(i-1)+1) = +a_in*sqrt((j-1)/(2*(2*j+1)))*(grid%dd(i,+1) - grid%cc(i,+1)*(j-1)/grid%rr(i))
-        matica( 8,3*(i-1)+1) = -a_in*sqrt((j+2)/(2*(2*j+1)))*(grid%dd(i,+1) + grid%cc(i,+1)*(j+2)/grid%rr(i))
-        matica(10,3*(i-1)+1) = +a_in*sqrt((j-1)/(2*(2*j+1)))*(grid%dd(i,+2)                                 )
-        matica(11,3*(i-1)+1) = -a_in*sqrt((j+2)/(2*(2*j+1)))*(grid%dd(i,+2)                                 )
-      end if
-      
-      matica( 2,3*(i-1)+2) = -2*sqrt((j-1)/(2*(2*j+1)))*(grid%d(i,-2)                               )
-      matica( 5,3*(i-1)+2) = -2*sqrt((j-1)/(2*(2*j+1)))*(grid%d(i,-1) + grid%c(i,-1)*(j+1)/grid%r(i))
-      matica( 6,3*(i-1)+2) = one
-      matica( 8,3*(i-1)+2) = -2*sqrt((j-1)/(2*(2*j+1)))*(grid%d(i,+1) + grid%c(i,+1)*(j+1)/grid%r(i))
-      matica(11,3*(i-1)+2) = -2*sqrt((j-1)/(2*(2*j+1)))*(grid%d(i,+2)                               )
-      
-      matica( 1,3*(i-1)+3) = +2*sqrt((j+2)/(2*(2*j+1)))*(grid%d(i,-2)                               )
-      matica( 4,3*(i-1)+3) = +2*sqrt((j+2)/(2*(2*j+1)))*(grid%d(i,-1) - grid%c(i,-1)*(j  )/grid%r(i))
-      matica( 6,3*(i-1)+3) = one
-      matica( 7,3*(i-1)+3) = +2*sqrt((j+2)/(2*(2*j+1)))*(grid%d(i,+1) - grid%c(i,+1)*(j  )/grid%r(i))
-      matica(10,3*(i-1)+3) = +2*sqrt((j+2)/(2*(2*j+1)))*(grid%d(i,+2)                               )
+    do ir = 1, this%nd
+      is = 3*(ir-1)+1
+        
+        if (ir > 1) then
+          matica( 2,is) = -a_in*sqrt((j+2)/(2*(2*j+1)))*(grid%dd(ir,-2)                                   )
+          matica( 1,is) = +a_in*sqrt((j-1)/(2*(2*j+1)))*(grid%dd(ir,-2)                                   )
+          matica( 4,is) = +a_in*sqrt((j-1)/(2*(2*j+1)))*(grid%dd(ir,-1) - grid%cc(ir,-1)*(j-1)/grid%rr(ir))
+          matica( 5,is) = -a_in*sqrt((j+2)/(2*(2*j+1)))*(grid%dd(ir,-1) + grid%cc(ir,-1)*(j+2)/grid%rr(ir))
+          matica( 6,is) = -1 / ( this%Pr * this%dt )
+          matica( 7,is) = +a_in*sqrt((j-1)/(2*(2*j+1)))*(grid%dd(ir,+1) - grid%cc(ir,+1)*(j-1)/grid%rr(ir))
+          matica( 8,is) = -a_in*sqrt((j+2)/(2*(2*j+1)))*(grid%dd(ir,+1) + grid%cc(ir,+1)*(j+2)/grid%rr(ir))
+          matica(10,is) = +a_in*sqrt((j-1)/(2*(2*j+1)))*(grid%dd(ir,+2)                                   )
+          matica(11,is) = -a_in*sqrt((j+2)/(2*(2*j+1)))*(grid%dd(ir,+2)                                   )
+        end if
+        
+        matica( 2,is+1) = -2*sqrt((j-1)/(2*(2*j+1)))*(grid%d(ir,-2)                                 )
+        matica( 5,is+1) = -2*sqrt((j-1)/(2*(2*j+1)))*(grid%d(ir,-1) + grid%c(ir,-1)*(j+1)/grid%r(ir))
+        matica( 6,is+1) = 1 / this%visc_fn(ir)
+        matica( 8,is+1) = -2*sqrt((j-1)/(2*(2*j+1)))*(grid%d(ir,+1) + grid%c(ir,+1)*(j+1)/grid%r(ir))
+        matica(11,is+1) = -2*sqrt((j-1)/(2*(2*j+1)))*(grid%d(ir,+2)                                 )
+        
+        matica( 1,is+2) = +2*sqrt((j+2)/(2*(2*j+1)))*(grid%d(ir,-2)                                 )
+        matica( 4,is+2) = +2*sqrt((j+2)/(2*(2*j+1)))*(grid%d(ir,-1) - grid%c(ir,-1)*(j  )/grid%r(ir))
+        matica( 6,is+2) = 1 / this%visc_fn(ir)
+        matica( 7,is+2) = +2*sqrt((j+2)/(2*(2*j+1)))*(grid%d(ir,+1) - grid%c(ir,+1)*(j  )/grid%r(ir))
+        matica(10,is+2) = +2*sqrt((j+2)/(2*(2*j+1)))*(grid%d(ir,+2)                                 )
     end do
     
-    select case (this%mechanic_bnd)
-      case('frees')
-        matica(4,3*this%nd+1) = +sqrt((j-1)/(2*(2*j+1)))
-        matica(5,3*this%nd+1) = -sqrt((j+2)/(2*(2*j+1)))
-        
-      case('noslp')
-        matica(3,3*this%nd+1) = grid%c(this%nd,-1)
-        matica(6,3*this%nd+1) = grid%c(this%nd,+1)
-    end select
+    ir = this%nd
+      is = 3*this%nd+1
+        select case (this%mechanic_bnd)
+          case('frees')
+            matica(4,is) = +sqrt((j-1)/(2*(2*j+1)))
+            matica(5,is) = -sqrt((j+2)/(2*(2*j+1)))
+            
+          case('noslp')
+            matica(3,is) = grid%c(ir,-1)
+            matica(6,is) = grid%c(ir,+1)
+        end select
     
     end associate
   
@@ -68,58 +76,67 @@ submodule (PhysicalObject) ToroidalVisc
     integer,                 intent(in) :: j_in
     real(kind=dbl),          intent(in) :: a_in
     real(kind=dbl),         allocatable :: matica(:,:)
-    integer                             :: i
-    real(kind=dbl)                      :: j
+    integer                             :: ir, is
+    real(kind=dbl)                      :: j, pref
 
-    allocate( matica(11, 3*this%nd+1) ) ; matica = zero
-  
-    associate( grid => this%rad_grid ); j = i2r_fn(j_in)
+    allocate( matica(11, 3*this%nd+1) ); associate( grid => this%rad_grid )
     
-    select case (this%mechanic_bnd)
-      case('frees')
-        matica(7,1) = +sqrt((j-1)/(2*(2*j+1)))
-        matica(8,1) = -sqrt((j+2)/(2*(2*j+1)))
-      
-      case('noslp')
-        matica(6,1) = grid%c(1,-1)
-        matica(9,1) = grid%c(1,+1)
-    end select
-  
-    do i = 1, this%nd
-      if (i > 1) then
-        matica( 1,3*(i-1)+1) = +this%Ek * a_in * sqrt((j-1)/(2*(2*j+1)))*(grid%dd(i,-2)                                 )
-        matica( 2,3*(i-1)+1) = -this%Ek * a_in * sqrt((j+2)/(2*(2*j+1)))*(grid%dd(i,-2)                                 )
-        matica( 4,3*(i-1)+1) = +this%Ek * a_in * sqrt((j-1)/(2*(2*j+1)))*(grid%dd(i,-1) - grid%cc(i,-1)*(j-1)/grid%rr(i))
-        matica( 5,3*(i-1)+1) = -this%Ek * a_in * sqrt((j+2)/(2*(2*j+1)))*(grid%dd(i,-1) + grid%cc(i,-1)*(j+2)/grid%rr(i))
-        matica( 6,3*(i-1)+1) = -1/(this%dt)
-        matica( 7,3*(i-1)+1) = +this%Ek * a_in * sqrt((j-1)/(2*(2*j+1)))*(grid%dd(i,+1) - grid%cc(i,+1)*(j-1)/grid%rr(i))
-        matica( 8,3*(i-1)+1) = -this%Ek * a_in * sqrt((j+2)/(2*(2*j+1)))*(grid%dd(i,+1) + grid%cc(i,+1)*(j+2)/grid%rr(i))
-        matica(10,3*(i-1)+1) = +this%Ek * a_in * sqrt((j-1)/(2*(2*j+1)))*(grid%dd(i,+2)                                 )
-        matica(11,3*(i-1)+1) = -this%Ek * a_in * sqrt((j+2)/(2*(2*j+1)))*(grid%dd(i,+2)                                 )
-      end if
-      
-      matica( 2,3*(i-1)+2) = -2*sqrt((j-1)/(2*(2*j+1)))*(grid%d(i,-2)                               )
-      matica( 5,3*(i-1)+2) = -2*sqrt((j-1)/(2*(2*j+1)))*(grid%d(i,-1) + grid%c(i,-1)*(j+1)/grid%r(i))
-      matica( 6,3*(i-1)+2) = one
-      matica( 8,3*(i-1)+2) = -2*sqrt((j-1)/(2*(2*j+1)))*(grid%d(i,+1) + grid%c(i,+1)*(j+1)/grid%r(i))
-      matica(11,3*(i-1)+2) = -2*sqrt((j-1)/(2*(2*j+1)))*(grid%d(i,+2)                               )
-      
-      matica( 1,3*(i-1)+3) = +2*sqrt((j+2)/(2*(2*j+1)))*(grid%d(i,-2)                               )
-      matica( 4,3*(i-1)+3) = +2*sqrt((j+2)/(2*(2*j+1)))*(grid%d(i,-1) - grid%c(i,-1)*(j  )/grid%r(i))
-      matica( 6,3*(i-1)+3) = one
-      matica( 7,3*(i-1)+3) = +2*sqrt((j+2)/(2*(2*j+1)))*(grid%d(i,+1) - grid%c(i,+1)*(j  )/grid%r(i))
-      matica(10,3*(i-1)+3) = +2*sqrt((j+2)/(2*(2*j+1)))*(grid%d(i,+2)                               )
+    call zero_rarray_sub( 11*(3*this%nd+1), matica )
+    
+    j    = i2r_fn(j_in)
+    pref = a_in * this%Ek
+    
+    ir = 1
+      is = 1
+        select case (this%mechanic_bnd)
+          case('frees')
+            matica(7,is) = +sqrt((j-1)/(2*(2*j+1)))
+            matica(8,is) = -sqrt((j+2)/(2*(2*j+1)))
+          
+          case('noslp')
+            matica(6,is) = grid%c(ir,-1)
+            matica(9,is) = grid%c(ir,+1)
+        end select
+    
+    do ir = 1, this%nd
+      is = 3*(ir-1)+1
+        
+        if (ir > 1) then
+          matica( 1,is) = +pref * sqrt((j-1)/(2*(2*j+1)))*(grid%dd(ir,-2)                                   )
+          matica( 2,is) = -pref * sqrt((j+2)/(2*(2*j+1)))*(grid%dd(ir,-2)                                   )
+          matica( 4,is) = +pref * sqrt((j-1)/(2*(2*j+1)))*(grid%dd(ir,-1) - grid%cc(ir,-1)*(j-1)/grid%rr(ir))
+          matica( 5,is) = -pref * sqrt((j+2)/(2*(2*j+1)))*(grid%dd(ir,-1) + grid%cc(ir,-1)*(j+2)/grid%rr(ir))
+          matica( 6,is) = -1 / this%dt
+          matica( 7,is) = +pref * sqrt((j-1)/(2*(2*j+1)))*(grid%dd(ir,+1) - grid%cc(ir,+1)*(j-1)/grid%rr(ir))
+          matica( 8,is) = -pref * sqrt((j+2)/(2*(2*j+1)))*(grid%dd(ir,+1) + grid%cc(ir,+1)*(j+2)/grid%rr(ir))
+          matica(10,is) = +pref * sqrt((j-1)/(2*(2*j+1)))*(grid%dd(ir,+2)                                   )
+          matica(11,is) = -pref * sqrt((j+2)/(2*(2*j+1)))*(grid%dd(ir,+2)                                   )
+        end if
+        
+        matica( 2,is+1) = -2*sqrt((j-1)/(2*(2*j+1)))*(grid%d(ir,-2)                                 )
+        matica( 5,is+1) = -2*sqrt((j-1)/(2*(2*j+1)))*(grid%d(ir,-1) + grid%c(ir,-1)*(j+1)/grid%r(ir))
+        matica( 6,is+1) = 1 / this%visc_fn(ir)
+        matica( 8,is+1) = -2*sqrt((j-1)/(2*(2*j+1)))*(grid%d(ir,+1) + grid%c(ir,+1)*(j+1)/grid%r(ir))
+        matica(11,is+1) = -2*sqrt((j-1)/(2*(2*j+1)))*(grid%d(ir,+2)                                 )
+        
+        matica( 1,is+2) = +2*sqrt((j+2)/(2*(2*j+1)))*(grid%d(ir,-2)                                 )
+        matica( 4,is+2) = +2*sqrt((j+2)/(2*(2*j+1)))*(grid%d(ir,-1) - grid%c(ir,-1)*(j  )/grid%r(ir))
+        matica( 6,is+2) = 1 / this%visc_fn(ir)
+        matica( 7,is+2) = +2*sqrt((j+2)/(2*(2*j+1)))*(grid%d(ir,+1) - grid%c(ir,+1)*(j  )/grid%r(ir))
+        matica(10,is+2) = +2*sqrt((j+2)/(2*(2*j+1)))*(grid%d(ir,+2)                                 )
     end do
     
-    select case (this%mechanic_bnd)
-      case('frees')
-        matica(4,3*this%nd+1) = +sqrt((j-1)/(2*(2*j+1)))
-        matica(5,3*this%nd+1) = -sqrt((j+2)/(2*(2*j+1)))
-        
-      case('noslp')
-        matica(3,3*this%nd+1) = grid%c(this%nd,-1)
-        matica(6,3*this%nd+1) = grid%c(this%nd,+1)
-    end select
+    ir = this%nd
+      is = 3*this%nd+1
+        select case (this%mechanic_bnd)
+          case('frees')
+            matica(4,is) = +sqrt((j-1)/(2*(2*j+1)))
+            matica(5,is) = -sqrt((j+2)/(2*(2*j+1)))
+            
+          case('noslp')
+            matica(3,is) = grid%c(ir,-1)
+            matica(6,is) = grid%c(ir,+1)
+        end select
     
     end associate
   

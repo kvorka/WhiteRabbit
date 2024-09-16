@@ -11,8 +11,11 @@ module RadialGrid
     
     procedure :: init_sub       => init_grid_sub
     procedure :: deallocate_sub => deallocate_grid_sub
-    procedure :: d, dd, c, cc, drr, interpolation_fn, volumetric_integral_real_fn, volumetric_integral_cmplx_fn, &
-               & radial_integral_real_fn, radial_integral_cmplx_fn
+    procedure :: hd, d, c
+    procedure :: hdd, dd, cc, drr
+    procedure :: interpolation_fn
+    procedure :: volumetric_integral_real_fn, volumetric_integral_cmplx_fn
+    procedure :: radial_integral_real_fn, radial_integral_cmplx_fn
     
     generic :: intV_fn => volumetric_integral_real_fn, volumetric_integral_cmplx_fn
     generic :: intR_fn => radial_integral_real_fn    , radial_integral_cmplx_fn
@@ -31,6 +34,11 @@ module RadialGrid
       class(T_radialGrid), intent(inout) :: this
     end subroutine deallocate_grid_sub
     
+    module pure real(kind=dbl) function hd(this, i, p)
+      class(T_radialGrid), intent(in) :: this
+      integer,             intent(in) :: i, p
+    end function hd
+    
     module pure real(kind=dbl) function d(this, i, p)
       class(T_radialGrid), intent(in) :: this
       integer,             intent(in) :: i, p
@@ -40,6 +48,11 @@ module RadialGrid
       class(T_radialGrid), intent(in) :: this
       integer,             intent(in) :: i, p
     end function c
+    
+    module pure real(kind=dbl) function hdd(this, i, p)
+      class(T_radialGrid), intent(in) :: this
+      integer,             intent(in) :: i, p
+    end function hdd
     
     module pure real(kind=dbl) function dd(this, i, p)
       class(T_radialGrid), intent(in) :: this

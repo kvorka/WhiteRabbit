@@ -44,11 +44,11 @@ submodule (PhysicalObject) Init_object
       call this%mparams%init_sub(this%nd, this%jmax)
 
       allocate( this%j_indx(this%jms) )
-      do j = 0, this%jmax
-        do m = 0, j
-          this%j_indx(j*(j+1)/2+m+1) = j
+        do j = 0, this%jmax
+          do m = 0, j
+            this%j_indx(j*(j+1)/2+m+1) = j
+          end do
         end do
-      end do
       
       this%gd = this%gravity%g_fn(this%rd)
       this%gu = this%gravity%g_fn(this%ru)
