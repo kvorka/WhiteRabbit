@@ -7,7 +7,7 @@ submodule (PhysicalObject) ThermalMatrices
     real(kind=dbl),          intent(in)  :: a_in
     real(kind=dbl),          allocatable :: matica(:,:)
     integer                              :: ir, is
-    real(kind=dbl)                       :: j, rgrad_T
+    real(kind=dbl)                       :: j, dT_dr
     
     allocate( matica(7,3*this%nd+1) ); associate(grid => this%rad_grid)
     
@@ -23,11 +23,11 @@ submodule (PhysicalObject) ThermalMatrices
               matica(4,is) = grid%c(ir,-1)
               matica(7,is) = grid%c(ir,+1)
             else
-              rgrad_T = - ( c2r_fn( -this%sol%flux_fn(ir,1,1) ) / s4pi / this%lambda_fn(ir) )
-                matica(4,is) = grid%c(ir,-1) / ( rgrad_T - this%Cl )
+              dT_dr = c2r_fn( this%dT_dr_r_fn(ir,1) ) / s4pi
+                matica(4,is) = grid%c(ir,-1) / ( dT_dr - this%Cl )
                 matica(5,is) = -sqrt((j  )/(2*j+1)) * this%Raf * this%dt
                 matica(6,is) = +sqrt((j+1)/(2*j+1)) * this%Raf * this%dt
-                matica(7,is) = grid%c(ir,+1) / ( rgrad_T - this%Cl )
+                matica(7,is) = grid%c(ir,+1) / ( dT_dr - this%Cl )
             end if
           
           case('basic')
@@ -63,9 +63,9 @@ submodule (PhysicalObject) ThermalMatrices
               matica(1,is) = grid%c(ir,-1)
               matica(4,is) = grid%c(ir,+1)
             else
-              rgrad_T = - ( c2r_fn( -this%sol%flux_fn(ir,1,1) ) / s4pi / this%lambda_fn(ir) )
-                matica(1,is) = grid%c(ir,-1) / rgrad_T
-                matica(4,is) = grid%c(ir,+1) / rgrad_T
+              dT_dr = c2r_fn( this%dT_dr_r_fn(ir,1) ) / s4pi
+                matica(1,is) = grid%c(ir,-1) / dT_dr
+                matica(4,is) = grid%c(ir,+1) / dT_dr
             end if
           
           case('basic')
@@ -83,7 +83,7 @@ submodule (PhysicalObject) ThermalMatrices
     real(kind=dbl),          intent(in) :: a_in
     real(kind=dbl),         allocatable :: matica(:,:)
     integer                             :: ir, is
-    real(kind=dbl)                      :: j, q
+    real(kind=dbl)                      :: j, dT_dr
 
     allocate(matica(11,3*this%nd+1) ); associate( grid => this%rad_grid )
     
@@ -99,11 +99,11 @@ submodule (PhysicalObject) ThermalMatrices
               matica(6,is) = grid%c(ir,-1)
               matica(9,is) = grid%c(ir,+1)
             else
-              q = -real(-this%sol%flux_fn(ir,1,1), kind=dbl) / s4pi / this%lambda_fn(ir)
-                matica(6,is) = grid%c(ir,-1) / q
+              dT_dr = c2r_fn( this%dT_dr_r_fn(ir,1) ) / s4pi
+                matica(6,is) = grid%c(ir,-1) / dT_dr
                 matica(7,is) = -sqrt((j  )/(2*j+1)) * this%Raf * this%dt
                 matica(8,is) = +sqrt((j+1)/(2*j+1)) * this%Raf * this%dt
-                matica(9,is) = grid%c(ir,+1) / q
+                matica(9,is) = grid%c(ir,+1) / dT_dr
             end if
           
           case('basic')
@@ -147,9 +147,9 @@ submodule (PhysicalObject) ThermalMatrices
               matica(3,is) = grid%c(ir,-1)
               matica(6,is) = grid%c(ir,+1)
             else
-              q = -real(-this%sol%flux_fn(ir,1,1), kind=dbl) / s4pi / this%lambda_fn(ir)
-                matica(3,is) = grid%c(ir,-1) / q
-                matica(6,is) = grid%c(ir,+1) / q    
+              dT_dr = c2r_fn( this%dT_dr_r_fn(ir,1) ) / s4pi
+                matica(3,is) = grid%c(ir,-1) / dT_dr
+                matica(6,is) = grid%c(ir,+1) / dT_dr
             end if
           
           case('basic')

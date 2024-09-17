@@ -220,7 +220,7 @@ submodule(Solution) Solution_spherical
   module pure subroutine temp_jm_many_sub(this, ir, temp1, temp2, temp3)
     class(T_solution), intent(in)  :: this
     integer,           intent(in)  :: ir
-    complex(kind=dbl), intent(out) :: temp1(*), temp2(*), temp3(*)
+    complex(kind=dbl), intent(out) :: temp1(:), temp2(:), temp3(:)
     integer                        :: ijm, is
     
     is = 3*(ir-1)+1

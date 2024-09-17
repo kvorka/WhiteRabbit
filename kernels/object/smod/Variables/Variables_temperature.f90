@@ -48,15 +48,15 @@ submodule(PhysicalObject) Variables_temperature
     select case (this%grid_type)
       case ('homog')
         fac1 = zero
-        fac2 = hd(ir,-1)
-        fac3 = hd(ir,+1)
+        fac2 = this%rad_grid%hd(ir,-1)
+        fac3 = this%rad_grid%hd(ir,+1)
         fac4 = zero
       
       case ('chebv')
-        fac1 = d(ir,-2)
-        fac2 = d(ir,-1)
-        fac3 = d(ir,+1)
-        fac4 = d(ir,+2)
+        fac1 = this%rad_grid%d(ir,-2)
+        fac2 = this%rad_grid%d(ir,-1)
+        fac3 = this%rad_grid%d(ir,+1)
+        fac4 = this%rad_grid%d(ir,+2)
         
     end select
     
@@ -137,7 +137,7 @@ submodule(PhysicalObject) Variables_temperature
   module pure subroutine dT_dr_rr_jm_sub(this, ir, T, dT)
     class(T_physicalObject), intent(in)  :: this
     integer,                 intent(in)  :: ir
-    complex(kind=dbl),       intent(out) :: T(*), dT(*)
+    complex(kind=dbl),       intent(out) :: T(:), dT(:)
     integer                              :: ijm
     real(kind=dbl)                       :: fac1, fac2, fac3
     complex(kind=dbl), allocatable       :: temp1(:), temp3(:)
@@ -156,7 +156,7 @@ submodule(PhysicalObject) Variables_temperature
     
     allocate( temp1(this%jms), temp3(this%jms) )
       
-      call this%sol%temp_jm_many_sub( ir-1, temp1(1), T(1), temp3(1) )
+      call this%sol%temp_jm_many_sub( ir-1, temp1, T, temp3 )
       
       do concurrent ( ijm = 1:this%jms )
         dT(ijm) = fac1 * temp1(ijm) + &
@@ -168,37 +168,40 @@ submodule(PhysicalObject) Variables_temperature
     
   end subroutine dT_dr_rr_jm_sub
   
-  module pure subroutine mgradT_rr_jml_sub(this, ir, T, gradT)
+  module pure subroutine gradT_rr_jml_sub(this, ir, T, gradT, sgn)
     class(T_physicalObject), intent(in)  :: this
-    integer,                 intent(in)  :: ir
-    complex(kind=dbl),       intent(out) :: T(*), gradT(*)
+    integer,                 intent(in)  :: ir, sgn
+    complex(kind=dbl),       intent(out) :: T(:), gradT(:)
     integer                              :: ij, im, ijm
-    real(kind=dbl)                       :: cj1, cj2
+    real(kind=dbl)                       :: cj1, cj2, cjr1, cjr2
     complex(kind=dbl),       allocatable :: dT_dr(:)
     
     allocate( dT_dr(this%jms) )
       
-      call this%dT_dr_rr_jm_sub( ir, T(1), dT_dr(1) )
+      call this%dT_dr_rr_jm_sub( ir, T, dT_dr )
       
       ij = 0
         im = 0
           gradT(1) = -dT_dr(1)
       
       do ij = 1, this%jmax
-        cj1 = +sqrt( (ij  ) / (2*ij+one) )
-        cj2 = -sqrt( (ij+1) / (2*ij+one) )
+        cj1 = +sqrt( (ij  ) / (2*ij+one) ) * sgn
+        cj2 = -sqrt( (ij+1) / (2*ij+one) ) * sgn
+        
+        cjr1 = +(ij+1) / this%rad_grid%rr(ir)
+        cjr2 = -(ij  ) / this%rad_grid%rr(ir)
         
         do im = 0, ij
           ijm = ij*(ij+1)/2+im+1
           
-          gradT(3*(ijm-1)-1) = -cj1 * ( dT_dr(ijm) + (ij+1) / this%rad_grid%rr(ir) * T(ijm) )
-          gradT(3*(ijm-1)  ) = -czero
-          gradT(3*(ijm+1)+1) = -cj2 * ( dT_dr(ijm) - (ij  ) / this%rad_grid%rr(ir) * T(ijm) )
+          gradT(3*(ijm-1)-1) = cj1 * ( dT_dr(ijm) + cjr1 * T(ijm) )
+          gradT(3*(ijm-1)  ) = czero
+          gradT(3*(ijm-1)+1) = cj2 * ( dT_dr(ijm) + cjr2 * T(ijm) )
         end do
       end do
       
     deallocate( dT_dr )
     
-  end subroutine mgradT_rr_jml_sub
+  end subroutine gradT_rr_jml_sub
   
 end submodule Variables_temperature

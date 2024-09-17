@@ -236,41 +236,30 @@ module IceCrustMod
     class(T_iceCrust), intent(inout) :: this
     complex(kind=dbl), intent(inout) :: flux(:)
     integer                          :: ir, ijm
-    real(kind=dbl)                   :: rgrad_T
-    complex(kind=dbl), allocatable   :: Temp(:), Temp1(:)
     
-    !! At first, iterate the degree zero to find correct value of temperature dependent material
-    !! parameters (conductivity, capacity and viscosity)
+    !! At first, solve for degree zero in order to find the new heat flux
     ijm = 1
-      allocate( Temp(this%nd+1), Temp1(this%nd+1) ); Temp = this%sol%temp_i_fn(ijm)
-        do
-          Temp1 = this%sol%temp_i_fn(ijm)
-          
-          ir = 1
-            this%rtemp(ir,ijm) = cs4pi
-          
-          do concurrent ( ir = 2:this%nd )
-            this%rtemp(ir,ijm) = Temp(ir) / this%dt + this%htide_fn(ir,ijm) + this%ntemp(ijm,ir)
-          end do
-          
-          ir = this%nd+1
-            this%rtemp(ir,ijm) = czero
-          
-          call this%solve_temp_sub( ijmstart=ijm, ijmend=ijm, ijmstep=1, rematrix=.true., matxsol=.false. )
-          
-          if ( maxval(abs(this%sol%temp_i_fn(ijm) - Temp1)/abs(Temp1)) < 1e-5 ) exit       
-        end do
-      deallocate( Temp, Temp1 )
-    
-      flux = flux * c2r_fn( -this%sol%flux_fn(1,1,1) / sqrt(4*pi) )
-    
-    !$omp parallel do private (ir, rgrad_T)
-    do ijm = 2, this%jms
-      rgrad_T = - ( c2r_fn( -this%sol%flux_fn(1,1,1) / sqrt(4*pi) ) / this%lambda_fn(1) )
-      
       ir = 1
-        this%rtemp(1,ijm) = -( this%sol%u_dn(ijm) + ( this%vr_r_fn(1,ijm) + this%Raf * flux(ijm) ) * this%dt + &
-                             & this%Cl / ( rgrad_T - this%Cl ) * this%Vdelta_fn(1,ijm)                       )
+        this%rtemp(ir,ijm) = cs4pi
+      
+      do concurrent ( ir = 2:this%nd )
+        this%rtemp(ir,ijm) = this%htide_fn(ir,ijm) + this%ntemp(ijm,ir)
+      end do
+      
+      ir = this%nd+1
+        this%rtemp(ir,ijm) = czero
+      
+      call this%solve_temp_sub( ijmstart=ijm, ijmend=ijm, ijmstep=1, rematrix=.true., matxsol=.true. )
+    
+    !! Update the heat flux
+    flux = flux * c2r_fn( -this%sol%flux_fn(1,1,1) / s4pi )
+    
+    !! Solve for other degrees
+    !$omp parallel do private (ir)
+    do ijm = 2, this%jms
+      ir = 1
+        this%rtemp(1,ijm) = -( this%sol%u_dn(ijm) + ( this%vr_r_fn(1,ijm) + this%Raf * flux(ijm) ) * this%dt +        &
+                             & this%Cl / ( c2r_fn( this%dT_dr_r_fn(ir,1) ) / s4pi - this%Cl ) * this%Vdelta_fn(1,ijm) )
       
       do concurrent ( ir = 2:this%nd )
         this%rtemp(ir,ijm) = this%htide_fn(ir,ijm) + this%ntemp(ijm,ir)

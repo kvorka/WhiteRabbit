@@ -2,7 +2,7 @@
 ###########################################################################################
 ####                              COMPILER SET UP                                      ####
 ###########################################################################################
-compile="gfortran-12 -Ofast -march=native -flto=auto -fwhole-program -fopenmp"
+compile="gfortran-12 -Ofast -march=native -flto=auto -fwhole-program -fbounds-check -fopenmp"
 
 ###########################################################################################
 ####                              POSSIBLE CODE SETTINGS                               ####
@@ -46,6 +46,11 @@ $compile -c kernels/mparams/smod/*.f90
 
 $compile -c kernels/object/PhysicalObject.f90
 $compile -c kernels/object/smod/*.f90
+$compile -c kernels/object/smod/Matrices/*.f90
+$compile -c kernels/object/smod/NonLinearTerms/*.f90
+$compile -c kernels/object/smod/Solvers/*.f90
+$compile -c kernels/object/smod/Variables/*.f90
+$compile -c kernels/object/smod/Other/*.f90
 
 $compile -c code/ocean/OceanConstants.f90
 $compile -c code/ocean/OceanMod.f90
