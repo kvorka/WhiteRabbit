@@ -1,22 +1,6 @@
 submodule(Solution) Solution_radial
   implicit none ; contains
   
-  module pure function temp_i_fn(this, ijm) result(temp)
-    class(T_solution), intent(in)  :: this
-    integer,           intent(in)  :: ijm
-    integer                        :: ir, is
-    complex(kind=dbl), allocatable :: temp(:)
-    
-    allocate( temp(this%nd+1) ) ; temp = czero
-    
-    if ( this%inittemp ) then
-      do concurrent ( ir = 1:this%nd+1 )
-        is = 3*(ir-1)+1 ; temp(ir) = this%temp(is,ijm)
-      end do
-    end if
-    
-  end function temp_i_fn
-  
   module pure function flux_i_fn(this, il, ijm) result(flux)
     class(T_solution), intent(in)  :: this
     integer,           intent(in)  :: il, ijm

@@ -69,14 +69,14 @@ module IceCrustMod
     class(T_iceCrust),           intent(inout) :: this
     complex(kind=dbl), optional, intent(in)    :: flux(:)
     integer                                    :: iter, ir
-    complex(kind=dbl), allocatable             :: Temp1(:), Temp2(:), u_up1(:)
+    complex(kind=dbl), allocatable             :: Temp1(:), Temp2(:), Temp3(:), u_up1(:)
     
     !! Seek for conductive solution with zero rhs at first
     this%dt = huge(zero)
     allocate( Temp1(this%nd+1), Temp2(this%nd+1) )
       
       do
-        call this%temp_irr_jm_sub(1, Temp1(1))
+        call this%temp_irr_jm_sub(1, Temp1)
         
           !! Solve for given lambda
           call this%lambda_ice_jm_sub()
@@ -90,12 +90,12 @@ module IceCrustMod
           
           call this%solve_temp_sub( ijmstart=1, ijmend=1, ijmstep=1, rematrix=.true., matxsol=.false. )
         
-        call this%temp_irr_jm_sub(1, Temp2(1)); if ( maxval(abs(Temp2 - Temp1)/abs(Temp1)) < 1e-8 ) exit
+        call this%temp_irr_jm_sub(1, Temp2); if ( maxval(abs(Temp2 - Temp1)/abs(Temp1)) < 1e-8 ) exit
       end do
       
     deallocate( Temp1, Temp2 )
     
-    allocate( Temp1(this%nd+1), Temp2(this%nd+1), u_up1(this%jms) )
+    allocate( Temp1(this%nd+1), Temp2(this%nd+1), Temp3(this%nd+1), u_up1(this%jms) )
     
     !! Start iterative solver from conductive solution
     do
@@ -105,13 +105,12 @@ module IceCrustMod
       !! Find tidal heating for given temperature rhs and stress field
       this%dt = huge(zero)
         do
+          call this%temp_irr_jm_sub(1, Temp1)
           call this%tides%compute_sub( this%II_stress_fn(), this%avrg_temp_fn() )
           this%htide = this%tides%htide
           
-          Temp2 = this%sol%temp_i_fn(1)
-          
           do
-            Temp1 = this%sol%temp_i_fn(1)
+            call this%temp_irr_jm_sub(1, Temp2)
             
             ir = 1
               this%rtemp(ir,1) = cs4pi
@@ -125,10 +124,10 @@ module IceCrustMod
             
             call this%solve_temp_sub( ijmstart=1, ijmend=1, ijmstep=1, rematrix=.true., matxsol=.false. )
             
-            if ( maxval(abs(this%sol%temp_i_fn(1) - Temp1)/abs(Temp1)) < 1e-8 ) exit
+            call this%temp_irr_jm_sub(1, Temp3) ; if ( maxval(abs(Temp3 - Temp2)/abs(Temp2)) < 1e-8 ) exit
           end do
           
-          if ( maxval(abs(this%sol%temp_i_fn(1) - Temp2)/abs(Temp2)) < 1e-6 ) exit
+          if ( maxval(abs(Temp2 - Temp1)/abs(Temp1)) < 1e-6 ) exit
         end do
       
       !! Solve for given tidal heating

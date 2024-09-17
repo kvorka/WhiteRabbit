@@ -13,7 +13,7 @@ submodule(PhysicalObject) Variables_temperature
   module pure subroutine temp_r_ijm_sub(this, ir, temp_r_ijm)
     class(T_physicalObject), intent(in)  :: this
     integer,                 intent(in)  :: ir
-    complex(kind=dbl),       intent(out) :: temp_r_ijm(*)
+    complex(kind=dbl),       intent(out) :: temp_r_ijm(:)
     integer                              :: ijm
     real(kind=dbl)                       :: cr1, cr2
     
@@ -30,7 +30,7 @@ submodule(PhysicalObject) Variables_temperature
   module pure subroutine temp_ir_jm_sub(this, ijm, temp_ir_jm)
     class(T_physicalObject), intent(in)  :: this
     integer,                 intent(in)  :: ijm
-    complex(kind=dbl),       intent(out) :: temp_ir_jm(*)
+    complex(kind=dbl),       intent(out) :: temp_ir_jm(:)
     integer                              :: ir
     
     do concurrent ( ir = 1:this%nd )
@@ -90,7 +90,7 @@ submodule(PhysicalObject) Variables_temperature
   module pure subroutine temp_rr_ijm_sub(this, ir, temp_rr_ijm)
     class(T_physicalObject), intent(in)  :: this
     integer,                 intent(in)  :: ir
-    complex(kind=dbl),       intent(out) :: temp_rr_ijm(*)
+    complex(kind=dbl),       intent(out) :: temp_rr_ijm(:)
     integer                              :: ijm
     
     do concurrent ( ijm = 1:this%jms )
@@ -102,7 +102,7 @@ submodule(PhysicalObject) Variables_temperature
   module pure subroutine temp_irr_jm_sub(this, ijm, temp_irr_jm)
     class(T_physicalObject), intent(in)  :: this
     integer,                 intent(in)  :: ijm
-    complex(kind=dbl),       intent(out) :: temp_irr_jm(*)
+    complex(kind=dbl),       intent(out) :: temp_irr_jm(:)
     integer                              :: ir
     
     do concurrent ( ir = 1:this%nd+1 )

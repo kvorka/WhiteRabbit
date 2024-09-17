@@ -95,13 +95,13 @@ module PhysicalObject
     module pure subroutine temp_r_ijm_sub(this, ir, temp_r_ijm)
       class(T_physicalObject), intent(in)  :: this
       integer,                 intent(in)  :: ir
-      complex(kind=dbl),       intent(out) :: temp_r_ijm(*)
+      complex(kind=dbl),       intent(out) :: temp_r_ijm(:)
     end subroutine temp_r_ijm_sub
     
     module pure subroutine temp_ir_jm_sub(this, ijm, temp_ir_jm)
       class(T_physicalObject), intent(in)  :: this
       integer,                 intent(in)  :: ijm
-      complex(kind=dbl),       intent(out) :: temp_ir_jm(*)
+      complex(kind=dbl),       intent(out) :: temp_ir_jm(:)
     end subroutine temp_ir_jm_sub
     
     module pure complex(kind=dbl) function dT_dr_r_fn(this, ir, ijm)
@@ -117,13 +117,13 @@ module PhysicalObject
     module pure subroutine temp_rr_ijm_sub(this, ir, temp_rr_ijm)
       class(T_physicalObject), intent(in)  :: this
       integer,                 intent(in)  :: ir
-      complex(kind=dbl),       intent(out) :: temp_rr_ijm(*)
+      complex(kind=dbl),       intent(out) :: temp_rr_ijm(:)
     end subroutine temp_rr_ijm_sub
     
     module pure subroutine temp_irr_jm_sub(this, ijm, temp_irr_jm)
       class(T_physicalObject), intent(in)  :: this
       integer,                 intent(in)  :: ijm
-      complex(kind=dbl),       intent(out) :: temp_irr_jm(*)
+      complex(kind=dbl),       intent(out) :: temp_irr_jm(:)
     end subroutine temp_irr_jm_sub
     
     module pure complex(kind=dbl) function dT_dr_rr_fn(this, ir, ijm)
