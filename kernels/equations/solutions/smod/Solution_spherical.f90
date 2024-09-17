@@ -217,6 +217,22 @@ submodule(Solution) Solution_spherical
     
   end subroutine velocity_jml_sub
   
+  module pure subroutine temp_jm_many_sub(this, ir, temp1, temp2, temp3)
+    class(T_solution), intent(in)  :: this
+    integer,           intent(in)  :: ir
+    complex(kind=dbl), intent(out) :: temp1(*), temp2(*), temp3(*)
+    integer                        :: ijm, is
+    
+    is = 3*(ir-1)+1
+    
+    do concurrent ( ijm = 1:this%jms )
+      temp1(ijm) = this%temp(is  ,ijm)
+      temp2(ijm) = this%temp(is+3,ijm)
+      temp3(ijm) = this%temp(is+6,ijm)
+    end do
+    
+  end subroutine temp_jm_many_sub
+  
   module pure subroutine velocity_jml_many_sub(this, ir, velocity1, velocity2, velocity3)
     class(T_solution), intent(in)  :: this
     integer,           intent(in)  :: ir

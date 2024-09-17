@@ -12,7 +12,7 @@ module RadialGrid
     procedure :: init_sub       => init_grid_sub
     procedure :: deallocate_sub => deallocate_grid_sub
     procedure :: hd, d, c
-    procedure :: hdd, dd, cc, drr
+    procedure :: hdd, dd, cc, hdrr, drr
     procedure :: interpolation_fn
     procedure :: volumetric_integral_real_fn, volumetric_integral_cmplx_fn
     procedure :: radial_integral_real_fn, radial_integral_cmplx_fn
@@ -63,6 +63,11 @@ module RadialGrid
       class(T_radialGrid), intent(in) :: this
       integer,             intent(in) :: i, p
     end function cc
+    
+    module pure real(kind=dbl) function hdrr(this, i, p)
+      class(T_radialGrid), intent(in) :: this
+      integer,             intent(in) :: i, p
+    end function hdrr
     
     module pure real(kind=dbl) function drr(this, i, p)
       class(T_radialGrid), intent(in) :: this

@@ -96,9 +96,17 @@ submodule(PhysicalObject) Variables_velocity
     real(kind=dbl)                       :: fac1, fac2, fac3
     complex(kind=dbl), allocatable       :: v1(:), v2(:)
     
-    fac1 = this%rad_grid%drr(ir,-1)
-    fac2 = this%rad_grid%drr(ir, 0)
-    fac3 = this%rad_grid%drr(ir,+1)
+    select case ( this%grid_type )
+      case ('homog')
+        fac1 = this%rad_grid%hdrr(ir,-1)
+        fac2 = this%rad_grid%hdrr(ir, 0)
+        fac3 = this%rad_grid%hdrr(ir,+1)
+        
+      case('chebv')
+        fac1 = this%rad_grid%drr(ir,-1)
+        fac2 = this%rad_grid%drr(ir, 0)
+        fac3 = this%rad_grid%drr(ir,+1)
+    end select
     
     allocate( v1(this%jmv), v2(this%jmv) )
       

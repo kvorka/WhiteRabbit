@@ -5,14 +5,17 @@ submodule (PhysicalObject) NonLinearTerms
     class(T_physicalObject), intent(in)  :: this
     integer,                 intent(in)  :: i
     complex(kind=dbl),       intent(out) :: mvgradT(:)
-    complex(kind=dbl),       allocatable :: v(:), q(:)
+    complex(kind=dbl),       allocatable :: v(:), T(:), gradT(:)
     
-    allocate( v(this%jmv) ); call this%sol%velocity_jml_sub(i, v)
-    allocate( q(this%jmv) ); call this%mgradT_rr_jml_sub(ir=i, gradT=q)
+    allocate( v(this%jmv) )
+      call this%sol%velocity_jml_sub(i, v)
     
-    call this%lat_grid%vcvv_sub( v, q, mvgradT )
+    allocate( T(this%jms), gradT(this%jmv) )
+      call this%mgradT_rr_jml_sub(i, T(1), gradT(1))
     
-    deallocate( v, q )
+    call this%lat_grid%vcvv_sub( v, gradT, mvgradT )
+    
+    deallocate( v, T, gradT )
     
   end subroutine mvgradT_sub
   
@@ -78,14 +81,14 @@ submodule (PhysicalObject) NonLinearTerms
     integer,                 intent(in)    :: i
     integer                                :: ijm, i1
     real(kind=dbl)                         :: fac
-    complex(kind=dbl),       allocatable   :: v(:), dv(:), T(:), dT(:), nlm(:,:)
+    complex(kind=dbl),       allocatable   :: v(:), dv(:), T(:), gradT(:), nlm(:,:)
     
     allocate( v(this%jmv) , dv(this%jmv) ) ; call this%dv_dr_rr_jml_sub(i, v, dv)
-    allocate( T(this%jms) , dT(this%jmv) ) ; call this%mgradT_rr_jml_sub(ir=i, T=T, gradT=dT)
+    allocate( T(this%jms) , gradT(this%jmv) ) ; call this%mgradT_rr_jml_sub(i, T, gradT)
     
-    allocate( nlm(4,this%jms) ) ; call this%lat_grid%vcvv_vcvgv_sub(this%rad_grid%rr(i), dT, dv, v, nlm)
+    allocate( nlm(4,this%jms) ) ; call this%lat_grid%vcvv_vcvgv_sub(this%rad_grid%rr(i), gradT, dv, v, nlm)
     
-    deallocate( dv, dT )
+    deallocate( dv, gradT )
     
     select case (this%scaling)
       case ('basics')

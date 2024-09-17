@@ -42,7 +42,7 @@ module PhysicalObject
     !Variables :: Thermal solution
     procedure, pass :: htide_fn
     procedure, pass :: temp_r_fn, temp_r_ijm_sub, temp_ir_jm_sub
-    procedure, pass :: temp_rr_fn, temp_rr_ijm_sub, temp_irr_jm_sub
+    procedure, pass :: temp_rr_fn, temp_rr_ijm_sub, temp_irr_jm_sub, dT_dr_rr_jm_sub
     procedure, pass :: qr_r_fn, qr_r_ijm_sub, qr_ir_jm_sub
     procedure, pass :: mgradT_rr_jml_sub
     
@@ -105,6 +105,11 @@ module PhysicalObject
       complex(kind=dbl),       intent(out) :: temp_ir_jm(*)
     end subroutine temp_ir_jm_sub
     
+    module pure complex(kind=dbl) function dT_dr_r_fn(this, ir, ijm)
+      class(T_physicalObject), intent(in) :: this
+      integer,                 intent(in) :: ir, ijm
+    end function dT_dr_r_fn
+    
     module pure complex(kind=dbl) function temp_rr_fn(this, ir, ijm)
       class(T_physicalObject), intent(in) :: this
       integer,                 intent(in) :: ir, ijm
@@ -121,6 +126,12 @@ module PhysicalObject
       integer,                 intent(in)  :: ijm
       complex(kind=dbl),       intent(out) :: temp_irr_jm(*)
     end subroutine temp_irr_jm_sub
+    
+    module pure subroutine dT_dr_rr_jm_sub(this, ir, T, dT)
+      class(T_physicalObject), intent(in)  :: this
+      integer,                 intent(in)  :: ir
+      complex(kind=dbl),       intent(out) :: T(*), dT(*)
+    end subroutine dT_dr_rr_jm_sub
     
     module pure complex(kind=dbl) function qr_r_fn(this, ir, ijm)
       class(T_physicalObject), intent(in) :: this
@@ -217,10 +228,9 @@ module PhysicalObject
     end subroutine dv_dr_rr_jml_sub
     
     module pure subroutine mgradT_rr_jml_sub(this, ir, T, gradT)
-      class(T_physicalObject),     intent(in)  :: this
-      integer,                     intent(in)  :: ir
-      complex(kind=dbl), optional, intent(out) :: T(:)
-      complex(kind=dbl),           intent(out) :: gradT(:)
+      class(T_physicalObject), intent(in)  :: this
+      integer,                 intent(in)  :: ir
+      complex(kind=dbl),       intent(out) :: T(*), gradT(*)
     end subroutine mgradT_rr_jml_sub
     
     module pure subroutine coriolis_rr_jml_sub(this, v, coriolis)
