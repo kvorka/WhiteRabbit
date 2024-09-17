@@ -1,24 +1,6 @@
 submodule(Solution) Solution_spherical
   implicit none ; contains
   
-  module pure function temp_jm_fn(this, ir) result(temp)
-    class(T_solution), intent(in)  :: this
-    integer,           intent(in)  :: ir
-    integer                        :: is, ijm
-    complex(kind=dbl), allocatable :: temp(:)
-    
-    allocate( temp(this%jms) ) ; temp = czero
-    
-    if ( this%inittemp ) then
-      is = 3*(ir-1)+1
-      
-      do concurrent ( ijm = 1:this%jms )
-        temp(ijm) = this%temp(is,ijm)
-      end do
-    end if
-    
-  end function temp_jm_fn
-  
   module pure function flux_jml_fn(this, ir) result(flux)
     class(T_solution), intent(in)  :: this
     integer,           intent(in)  :: ir
@@ -128,24 +110,6 @@ submodule(Solution) Solution_spherical
     end do
     
   end function deviatoric_stress_jml2_fn
-  
-  module pure subroutine temp_jm_sub(this, ir, temp)
-    class(T_solution), intent(in)  :: this
-    integer,           intent(in)  :: ir
-    complex(kind=dbl), intent(out) :: temp(:)
-    integer                        :: ijm, is
-    
-    temp = czero
-    
-    if ( this%inittemp ) then
-      is = 3*(ir-1)+1
-      
-      do concurrent ( ijm = 1:this%jms )
-        temp(ijm) = this%temp(ir,ijm)
-      end do
-    end if
-    
-  end subroutine temp_jm_sub
   
   module pure subroutine flux_jml_sub(this, ir, flux)
     class(T_solution), intent(in)  :: this

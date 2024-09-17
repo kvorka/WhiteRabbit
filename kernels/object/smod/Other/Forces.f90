@@ -20,10 +20,14 @@ submodule(PhysicalObject) Forces
     class(T_physicalObject), intent(in)  :: this
     integer,                 intent(in)  :: ir
     complex(kind=dbl),       intent(out) :: force(*)
+    integer                              :: ijm
     real(kind=dbl)                       :: fac
       
-    fac               = this%Ra * this%alpha_fn(ir) * this%gravity%g_fn( this%rad_grid%rr(ir) )
-    force(1:this%jms) = fac * this%sol%temp_jm_fn(ir)
+    fac = this%Ra * this%alpha_fn(ir) * this%gravity%g_fn( this%rad_grid%rr(ir) )
+    
+    do concurrent ( ijm = 1:this%jms )
+      force(ijm) = fac * this%temp_rr_fn(ir,ijm)
+    end do
     
   end subroutine er_buoy_rr_jm_sub
   

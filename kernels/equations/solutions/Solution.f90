@@ -13,9 +13,9 @@ module Solution
     procedure :: init_sub       => init_solution_sub
     procedure :: nulify_sub     => nulify_solution_sub
     procedure :: deallocate_sub => deallocate_solution_sub
-    procedure :: init_stemp_sub, init_storr_sub, init_smech_sub, init_layers_sub, init_layer_u_sub, temp_fn, flux_fn,        &
-               & velocity_fn, deviatoric_stress_fn, flux_i_fn, velocity_i_fn, deviatoric_stress_i_fn, temp_jm_fn,            &
-               & temp_jm_sub, flux_jml_fn, flux_jml_sub, flux_jml_many_sub, velocity_jml_fn, velocity_jml_sub,               &
+    procedure :: init_stemp_sub, init_storr_sub, init_smech_sub, init_layers_sub, init_layer_u_sub, temp_fn, flux_fn, &
+               & velocity_fn, deviatoric_stress_fn, flux_i_fn, velocity_i_fn, deviatoric_stress_i_fn,                 &
+               & flux_jml_fn, flux_jml_sub, flux_jml_many_sub, velocity_jml_fn, velocity_jml_sub,                     &
                & velocity_jml_many_sub, conv_velocity_jml_fn, deviatoric_stress_jml2_fn, temp_jm_many_sub
     
   end type T_solution
@@ -92,12 +92,6 @@ module Solution
       complex(kind=dbl), allocatable :: dstress(:)
     end function deviatoric_stress_i_fn
     
-    module pure function temp_jm_fn(this, ir) result(temp)
-      class(T_solution), intent(in)  :: this
-      integer,           intent(in)  :: ir
-      complex(kind=dbl), allocatable :: temp(:)
-    end function temp_jm_fn
-    
     module pure function flux_jml_fn(this, ir) result(flux)
       class(T_solution), intent(in)  :: this
       integer,           intent(in)  :: ir
@@ -122,12 +116,6 @@ module Solution
       integer,           intent(in)  :: ir
       complex(kind=dbl), intent(out) :: velocity1(:), velocity2(:), velocity3(:)
     end subroutine velocity_jml_many_sub
-    
-    module pure subroutine temp_jm_sub(this, ir, temp)
-      class(T_solution), intent(in)  :: this
-      integer,           intent(in)  :: ir
-      complex(kind=dbl), intent(out) :: temp(:)
-    end subroutine temp_jm_sub
     
     module pure subroutine temp_jm_many_sub(this, ir, temp1, temp2, temp3)
       class(T_solution), intent(in)  :: this
