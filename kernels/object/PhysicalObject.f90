@@ -41,9 +41,12 @@ module PhysicalObject
     
     !Variables :: Thermal solution
     procedure, pass :: htide_fn
-    procedure, pass :: temp_r_fn, temp_r_ijm_sub, temp_ir_jm_sub, dT_dr_r_fn
-    procedure, pass :: temp_rr_fn, temp_rr_ijm_sub, temp_irr_jm_sub, dT_dr_rr_fn, dT_dr_rr_jm_sub, gradT_rr_jml_sub
+    procedure, pass :: temp_r_fn, temp_r_ijm_sub, temp_ir_jm_sub, dT_dr_r_fn, dT_dr_r_ijm_sub, gradT_r_ijml_sub
+    procedure, pass :: temp_rr_fn, temp_rr_ijm_sub, temp_irr_jm_sub, dT_dr_rr_fn, dT_dr_rr_ijm_sub, gradT_rr_ijml_sub
+    procedure, pass :: q_r_fn, q_r_ijml_sub
     procedure, pass :: qr_r_fn, qr_r_ijm_sub, qr_ir_jm_sub
+    procedure, pass :: q_rr_fn, q_rr_ijml_sub, dq_dr_rr_fn, dq_dr_rr_ijml_sub, divq_rr_ijm_sub
+    procedure, pass :: qr_rr_fn, qr_rr_ijm_sub, qr_irr_jm_sub
     
     !Variables mechanical part of solution
     procedure, pass :: vr_r_fn, vr_rr_fn, vr_r_jm_sub, vr_rr_jm_sub, dv_dr_rr_jml_sub
@@ -109,6 +112,18 @@ module PhysicalObject
       integer,                 intent(in) :: ir, ijm
     end function dT_dr_r_fn
     
+    module pure subroutine dT_dr_r_ijm_sub(this, ir, dT_dr_r)
+      class(T_physicalObject), intent(in)  :: this
+      integer,                 intent(in)  :: ir
+      complex(kind=dbl),       intent(out) :: dT_dr_r(:)
+    end subroutine dT_dr_r_ijm_sub
+    
+    module pure subroutine gradT_r_ijml_sub(this, ir, gradT, sgn)
+      class(T_physicalObject), intent(in)  :: this
+      integer,                 intent(in)  :: ir, sgn
+      complex(kind=dbl),       intent(out) :: gradT(:)
+    end subroutine gradT_r_ijml_sub
+    
     module pure complex(kind=dbl) function temp_rr_fn(this, ir, ijm)
       class(T_physicalObject), intent(in) :: this
       integer,                 intent(in) :: ir, ijm
@@ -131,17 +146,28 @@ module PhysicalObject
       integer,                 intent(in) :: ir, ijm
     end function dT_dr_rr_fn
     
-    module pure subroutine dT_dr_rr_jm_sub(this, ir, T, dT)
+    module pure subroutine dT_dr_rr_ijm_sub(this, ir, T, dT)
       class(T_physicalObject), intent(in)  :: this
       integer,                 intent(in)  :: ir
       complex(kind=dbl),       intent(out) :: T(:), dT(:)
-    end subroutine dT_dr_rr_jm_sub
+    end subroutine dT_dr_rr_ijm_sub
     
-    module pure subroutine gradT_rr_jml_sub(this, ir, T, gradT, sgn)
+    module pure subroutine gradT_rr_ijml_sub(this, ir, T, gradT, sgn)
       class(T_physicalObject), intent(in)  :: this
       integer,                 intent(in)  :: ir, sgn
       complex(kind=dbl),       intent(out) :: T(:), gradT(:)
-    end subroutine gradT_rr_jml_sub
+    end subroutine gradT_rr_ijml_sub
+    
+    module pure complex(kind=dbl) function q_r_fn(this, ir, il, ijm)
+      class(T_physicalObject), intent(in) :: this
+      integer,                 intent(in) :: ir, il, ijm
+    end function q_r_fn
+    
+    module pure subroutine q_r_ijml_sub(this, ir, q_r_ijml)
+      class(T_physicalObject), intent(in)  :: this
+      integer,                 intent(in)  :: ir
+      complex(kind=dbl),       intent(out) :: q_r_ijml(:)
+    end subroutine q_r_ijml_sub
     
     module pure complex(kind=dbl) function qr_r_fn(this, ir, ijm)
       class(T_physicalObject), intent(in) :: this
@@ -159,6 +185,34 @@ module PhysicalObject
       integer,                 intent(in)  :: ijm
       complex(kind=dbl),       intent(out) :: qr_ir_jm(*)
     end subroutine qr_ir_jm_sub
+    
+    module pure complex(kind=dbl) function q_rr_fn(this, ir, il, ijm)
+      class(T_physicalObject), intent(in) :: this
+      integer,                 intent(in) :: ir, il, ijm
+    end function q_rr_fn
+    
+    module pure subroutine q_rr_ijml_sub(this, ir, q_rr_ijml)
+      class(T_physicalObject), intent(in)  :: this
+      integer,                 intent(in)  :: ir
+      complex(kind=dbl),       intent(out) :: q_rr_ijml(:)
+    end subroutine q_rr_ijml_sub
+    
+    module pure complex(kind=dbl) function dq_dr_rr_fn(this, ir, il, ijm)
+      class(T_physicalObject), intent(in) :: this
+      integer,                 intent(in) :: ir, il, ijm
+    end function dq_dr_rr_fn
+    
+    module pure subroutine dq_dr_rr_ijml_sub(this, ir, dq_dr_rr_ijml)
+      class(T_physicalObject), intent(in)  :: this
+      integer,                 intent(in)  :: ir
+      complex(kind=dbl),       intent(out) :: dq_dr_rr_ijml(:)
+    end subroutine dq_dr_rr_ijml_sub
+    
+    module pure subroutine divq_rr_ijm_sub(this, ir, divq_rr_ijm)
+      class(T_physicalObject), intent(in)  :: this
+      integer,                 intent(in)  :: ir
+      complex(kind=dbl),       intent(out) :: divq_rr_ijm(:)
+    end subroutine divq_rr_ijm_sub
     
     module pure complex(kind=dbl) function qr_rr_fn(this, ir, ijm)
       class(T_physicalObject), intent(in) :: this

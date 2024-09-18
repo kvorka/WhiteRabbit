@@ -1,33 +1,6 @@
 submodule(Solution) Solution_radial
   implicit none ; contains
   
-  module pure function flux_i_fn(this, il, ijm) result(flux)
-    class(T_solution), intent(in)  :: this
-    integer,           intent(in)  :: il, ijm
-    integer                        :: ir, is
-    complex(kind=dbl), allocatable :: flux(:)
-    
-    allocate( flux(this%nd) ) ; flux = czero
-    
-    if ( this%inittemp ) then
-      select case (il)
-        case (-1)
-          do concurrent ( ir = 1:this%nd )
-            is = 3*(ir-1)+1 ; flux(ir) = this%temp(is+1,ijm)
-          end do
-        
-        case ( 0)
-          flux = czero
-        
-        case (+1)
-          do concurrent ( ir = 1:this%nd )
-            is = 3*(ir-1)+1 ; flux(ir) = this%temp(is+2,ijm)
-          end do
-      end select
-    end if
-    
-  end function flux_i_fn
-  
   module pure function velocity_i_fn(this, il, ijm) result(velocity)
     class(T_solution), intent(in)  :: this
     integer,           intent(in)  :: il, ijm

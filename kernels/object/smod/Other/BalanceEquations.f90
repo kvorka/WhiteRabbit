@@ -67,21 +67,25 @@ submodule (PhysicalObject) BalanceEquations
     integer                             :: ir
     real(kind=dbl)                      :: fac1, fac2, fac3, flux_dn, flux_up, totheat, totheattide
     real(kind=dbl),         allocatable :: heat(:), heattide(:)
+    complex(kind=dbl),      allocatable :: cpv(:), gradT(:)
     
     flux_dn = c2r_fn( +this%sol%flux_fn(1,1,1)       * this%rd**2 )
     flux_up = c2r_fn( -this%sol%flux_fn(this%nd,1,1) * this%ru**2 )
     
     select case( this%thermal_bnd )
       case( 'phase' )
-        allocate( heat(this%nd), heattide(this%nd) )
+        allocate( heat(this%nd), heattide(this%nd), cpv(this%jmv), gradT(this%jmv) )
           
           do ir = 1, this%nd
             fac1 = this%rad_grid%c(ir,-1) * this%cp_fn(ir  )
             fac2 = this%rad_grid%c(ir,+1) * this%cp_fn(ir+1)
-            fac3 = 1 / this%lambda_fn(ir)
             
-            heat(ir) = dotproduct_fn( this%jmax , fac1 * this%sol%velocity_jml_fn(ir) + fac2 * this%sol%velocity_jml_fn(ir+1) , &
-                                                & fac3 * this%sol%flux_jml_fn(ir)                                               )
+            cpv = this%rad_grid%c(ir,-1) * this%cp_fn(ir  ) * this%sol%velocity_jml_fn(ir  ) + &
+                & this%rad_grid%c(ir,+1) * this%cp_fn(ir+1) * this%sol%velocity_jml_fn(ir+1)
+            
+            call this%gradT_r_ijml_sub( ir, gradT, -1 )
+            
+            heat(ir) = dotproduct_fn( this%jmax , cpv , gradT )
             
             heattide(ir) = this%htide_fn(ir,1)
           end do

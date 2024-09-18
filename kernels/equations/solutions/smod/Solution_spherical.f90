@@ -1,31 +1,6 @@
 submodule(Solution) Solution_spherical
   implicit none ; contains
   
-  module pure function flux_jml_fn(this, ir) result(flux)
-    class(T_solution), intent(in)  :: this
-    integer,           intent(in)  :: ir
-    complex(kind=dbl), allocatable :: flux(:)
-    integer                        :: is, ijm, ijml
-    
-    allocate( flux(this%jmv) ) ; flux = czero
-    
-    if ( this%inittemp ) then
-      is = 3*(ir-1)+1
-      
-      ijml = 1
-        flux(ijml) = this%temp(is+2,1)
-      
-      do concurrent ( ijm = 2:this%jms )
-        ijml = 3*(ijm-1)-1
-        
-        flux(ijml  ) = this%temp(is+1,ijm)
-        flux(ijml+1) = czero
-        flux(ijml+2) = this%temp(is+2,ijm)
-      end do
-    end if
-    
-  end function flux_jml_fn
-  
   module pure function velocity_jml_fn(this, ir) result(velocity)
     class(T_solution), intent(in)  :: this
     integer,           intent(in)  :: ir
@@ -111,31 +86,6 @@ submodule(Solution) Solution_spherical
     
   end function deviatoric_stress_jml2_fn
   
-  module pure subroutine flux_jml_sub(this, ir, flux)
-    class(T_solution), intent(in)  :: this
-    integer,           intent(in)  :: ir
-    complex(kind=dbl), intent(out) :: flux(:)
-    integer                        :: ijm, ijml, is
-    
-    flux = czero
-    
-    if ( this%inittemp ) then
-      is = 3*(ir-1)+1
-      
-      ijml = 1
-        flux(ijml) = this%temp(is+2,1)
-      
-      do concurrent ( ijm = 2:this%jms )
-        ijml = 3*(ijm-1)-1
-        
-        flux(ijml  ) = this%temp(is+1,ijm)
-        flux(ijml+1) = czero
-        flux(ijml+2) = this%temp(is+2,ijm)
-      end do
-    end if
-    
-  end subroutine flux_jml_sub
-  
   module pure subroutine velocity_jml_sub(this, ir, velocity)
     class(T_solution), intent(in)  :: this
     integer,           intent(in)  :: ir
@@ -181,22 +131,6 @@ submodule(Solution) Solution_spherical
     
   end subroutine velocity_jml_sub
   
-  module pure subroutine temp_jm_many_sub(this, ir, temp1, temp2, temp3)
-    class(T_solution), intent(in)  :: this
-    integer,           intent(in)  :: ir
-    complex(kind=dbl), intent(out) :: temp1(:), temp2(:), temp3(:)
-    integer                        :: ijm, is
-    
-    is = 3*(ir-1)+1
-    
-    do concurrent ( ijm = 1:this%jms )
-      temp1(ijm) = this%temp(is  ,ijm)
-      temp2(ijm) = this%temp(is+3,ijm)
-      temp3(ijm) = this%temp(is+6,ijm)
-    end do
-    
-  end subroutine temp_jm_many_sub
-  
   module pure subroutine velocity_jml_many_sub(this, ir, velocity1, velocity2, velocity3)
     class(T_solution), intent(in)  :: this
     integer,           intent(in)  :: ir
@@ -228,54 +162,5 @@ submodule(Solution) Solution_spherical
     end do
     
   end subroutine velocity_jml_many_sub
-  
-  module pure subroutine flux_jml_many_sub(this, ir, temp2, flux1, flux2)
-    class(T_solution),           intent(in)  :: this
-    integer,                     intent(in)  :: ir
-    complex(kind=dbl), optional, intent(out) :: temp2(:)
-    complex(kind=dbl),           intent(out) :: flux1(:), flux2(:)
-    integer                                  :: ijm, ijml, is
-    
-    is = 3*(ir-1)+2
-    
-    if ( present(temp2) ) then
-      ijml = 1
-        flux1(1) = this%temp(is+1,1)
-        temp2(1) = this%temp(is+2,1)
-        flux2(1) = this%temp(is+4,1)
-      
-      do concurrent ( ijm = 2:this%jms )
-        ijml = 3*(ijm-1)-1
-        
-        flux1(ijml  ) = this%temp(is,ijm)
-        flux1(ijml+1) = czero
-        flux1(ijml+2) = this%temp(is+1,ijm)
-        
-        temp2(ijm) = this%temp(is+2,ijm)
-        
-        flux2(ijml  ) = this%temp(is+3,ijm)
-        flux2(ijml+1) = czero
-        flux2(ijml+2) = this%temp(is+4,ijm)
-      end do
-    
-    else
-      ijml = 1
-        flux1(1) = this%temp(is+1,1)
-        flux2(1) = this%temp(is+4,1)
-      
-      do concurrent ( ijm = 2:this%jms )
-        ijml = 3*(ijm-1)-1
-        
-        flux1(ijml  ) = this%temp(is,ijm)
-        flux1(ijml+1) = czero
-        flux1(ijml+2) = this%temp(is+1,ijm)
-        
-        flux2(ijml  ) = this%temp(is+3,ijm)
-        flux2(ijml+1) = czero
-        flux2(ijml+2) = this%temp(is+4,ijm)
-      end do
-    end if
-    
-  end subroutine flux_jml_many_sub
   
 end submodule Solution_spherical
