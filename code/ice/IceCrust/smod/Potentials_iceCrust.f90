@@ -1,8 +1,8 @@
-submodule(IceMod) GravDeformIce
-  implicit none ; contains
+submodule (IceCrustMod) Potentials_iceCrust
+  implicit none; contains
   
-  module pure complex(kind=dbl) function Vdelta_ice_fn(this, ir, ijm)
-    class(T_ice),       intent(in) :: this
+  module pure complex(kind=dbl) function Vdelta_iceCrust_fn(this, ir, ijm)
+    class(T_iceCrust),  intent(in) :: this
     integer,            intent(in) :: ir, ijm
     integer                        :: k, j, m
     real(kind=dbl)                 :: ri, fac
@@ -25,21 +25,21 @@ submodule(IceMod) GravDeformIce
       end do
     end if
     
-    Vdelta_ice_fn = ( this%gravity%V_bnd_fn( j, m, ri, this%ru , this%rhoI           , this%sol%u_up(ijm) ) + &
-                    & this%gravity%V_bnd_fn( j, m, ri, this%rd , this%rhoW-this%rhoI , this%sol%u_dn(ijm) ) + &
-                    & this%gravity%V_bnd_fn( j, m, ri, this%rI2, this%rhoI2-this%rhoW, this%sol%u_I2(ijm) ) + &
-                    & this%gravity%V_bnd_fn( j, m, ri, this%rC , this%rhoC-this%rhoI2, this%sol%u_C(ijm)  ) + &
-                    & this%gravity%V_rho_fn( j, m, ri, field, this%rad_grid)                                + &
-                    & this%gravity%V_rt_fn(  j, m, ri ) ) / this%gravity%g_fn( ri )
+    Vdelta_iceCrust_fn = ( this%gravity%V_bnd_fn( j, m, ri, this%ru , this%rhoI           , this%sol%u_up(ijm) ) + &
+                         & this%gravity%V_bnd_fn( j, m, ri, this%rd , this%rhoW-this%rhoI , this%sol%u_dn(ijm) ) + &
+                         & this%gravity%V_bnd_fn( j, m, ri, this%rI2, this%rhoI2-this%rhoW, this%sol%u_I2(ijm) ) + &
+                         & this%gravity%V_bnd_fn( j, m, ri, this%rC , this%rhoC-this%rhoI2, this%sol%u_C(ijm)  ) + &
+                         & this%gravity%V_rho_fn( j, m, ri, field, this%rad_grid)                                + &
+                         & this%gravity%V_rt_fn(  j, m, ri ) ) / this%gravity%g_fn( ri )
     
     deallocate( field )
     
-    if ( m == 0 ) Vdelta_ice_fn%im = zero
+    if ( m == 0 ) Vdelta_iceCrust_fn%im = zero
     
-  end function Vdelta_ice_fn
+  end function Vdelta_iceCrust_fn
   
-  module subroutine set_layers_ice_sub(this)
-    class(T_ice),      intent(inout) :: this
+  module subroutine set_layers_iceCrust_sub(this)
+    class(T_iceCrust), intent(inout) :: this
     integer                          :: ir, j, m, ijm
     real(kind=dbl)                   :: a11, a12, a21, a22, det, fac
     complex(kind=dbl)                :: rhs1, rhs2
@@ -87,6 +87,6 @@ submodule(IceMod) GravDeformIce
     
     deallocate(field)
     
-  end subroutine set_layers_ice_sub
+  end subroutine set_layers_iceCrust_sub
   
-end submodule GravDeformIce
+end submodule Potentials_iceCrust

@@ -2,7 +2,7 @@
 ###########################################################################################
 ####                              COMPILER SET UP                                      ####
 ###########################################################################################
-compile="gfortran-12 -Ofast -march=native -flto=auto -fwhole-program -fopenmp -fbounds-check"
+compile="gfortran-12 -Ofast -march=native -flto=auto -fwhole-program -fopenmp"
 
 ###########################################################################################
 ####                              POSSIBLE CODE SETTINGS                               ####
@@ -59,10 +59,15 @@ $compile -c code/ocean/mod/*.f90
 
 $compile -c code/ice/modparams/*.f90
 $compile -c code/ice/IceConstants.f90
-$compile -c code/ice/IceMod.f90
-$compile -c code/ice/smod/*.f90
-$compile -c code/ice/mod/IceTidesMod.f90
-$compile -c code/ice/mod/IceCrustMod.f90
+
+$compile -c code/ice/IceMod/IceMod.f90
+$compile -c code/ice/IceMod/smod/*.f90
+
+$compile -c code/ice/IceTides/IceTidesMod.f90
+$compile -c code/ice/IceTides/smod/*.f90
+
+$compile -c code/ice/IceCrust/IceCrustMod.f90
+$compile -c code/ice/IceCrust/smod/*.f90
 
 rm -r -f data || true
 

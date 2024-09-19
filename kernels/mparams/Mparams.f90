@@ -2,22 +2,27 @@ module Mparams
   use Math
   
   type, public :: T_Mparams
-    logical                        :: initvisc, initviscradial
-    logical                        :: initlambda, initcp
+    logical                        :: initvisc, visc_radial
+    logical                        :: initlambda, lambda_radial
+    logical                        :: initcp, cp_radial
+    logical                        :: initalpha, alpha_radial
     integer                        :: nd, jmax, jms
-    complex(kind=dbl), allocatable :: visc_radial(:)
-    complex(kind=dbl), allocatable :: visc(:,:), lambda(:,:), cp(:,:)
+    complex(kind=dbl), allocatable :: visc(:,:), lambda(:,:), cp(:,:), alpha(:,:)
     
     contains
     
-    procedure :: init_sub              => init_mparams_sub
-    procedure :: deallocate_sub        => deallocate_mparams_sub
+    procedure :: init_sub       => init_mparams_sub
+    procedure :: deallocate_sub => deallocate_mparams_sub
 
     procedure :: init_visc_sub
-    procedure :: init_conductivity_sub
-    procedure :: init_capacity_sub
+    procedure :: init_lambda_sub
+    procedure :: init_cp_sub
+    procedure :: init_alpha_sub
     
     procedure :: init_visc_radial_sub
+    procedure :: init_lambda_radial_sub
+    procedure :: init_cp_radial_sub
+    procedure :: init_alpha_radial_sub
   
   end type T_Mparams
   
@@ -35,10 +40,6 @@ module Mparams
       class(T_Mparams), intent(inout) :: this
     end subroutine init_visc_sub
     
-    module subroutine init_visc_radial_sub(this)
-      class(T_Mparams), intent(inout) :: this
-    end subroutine init_visc_radial_sub
-    
     module subroutine init_cond_sub(this)
       class(T_Mparams), intent(inout) :: this
     end subroutine init_cond_sub
@@ -46,6 +47,26 @@ module Mparams
     module subroutine init_cap_sub(this)
       class(T_Mparams), intent(inout) :: this
     end subroutine init_cap_sub
+    
+    module subroutine init_alpha_sub(this)
+      class(T_Mparams), intent(inout) :: this
+    end subroutine init_alpha_sub
+    
+    module subroutine init_visc_radial_sub(this)
+      class(T_Mparams), intent(inout) :: this
+    end subroutine init_visc_radial_sub
+    
+    module subroutine init_lambda_radial_sub(this)
+      class(T_Mparams), intent(inout) :: this
+    end subroutine init_lambda_radial_sub
+    
+    module subroutine init_cp_radial_sub(this)
+      class(T_Mparams), intent(inout) :: this
+    end subroutine init_cp_radial_sub
+    
+    module subroutine init_alpha_radial_sub(this)
+      class(T_Mparams), intent(inout) :: this
+    end subroutine init_alpha_radial_sub
   end interface
 
 end module Mparams

@@ -5,7 +5,11 @@ submodule(PhysicalObject) Main_discretization
     class(T_physicalObject), intent(in) :: this
     integer,                 intent(in) :: ir
     
-    lambda_r_fn = one
+    if ( this%mparams%initlambda ) then
+      lambda_r_fn = s4pi / c2r_fn( this%mparams%lambda(1,ir) )
+    else
+      lambda_r_fn = one
+    end if
     
   end function lambda_r_fn
   
@@ -13,7 +17,12 @@ submodule(PhysicalObject) Main_discretization
     class(T_physicalObject), intent(in) :: this
     integer,                 intent(in) :: ir
     
-    cp_r_fn = one
+    if ( this%mparams%initcp ) then
+      cp_r_fn = s4pi * ( this%rad_grid%c(ir,-1) / c2r_fn( this%mparams%cp(1,ir  ) ) + &
+                       & this%rad_grid%c(ir,+1) / c2r_fn( this%mparams%cp(1,ir+1) )   )
+    else
+      cp_r_fn = one
+    end if
     
   end function cp_r_fn
   
@@ -21,7 +30,11 @@ submodule(PhysicalObject) Main_discretization
     class(T_physicalObject), intent(in) :: this
     integer,                 intent(in) :: ir
     
-    visc_r_fn = one
+    if ( this%mparams%initvisc ) then
+      visc_r_fn = s4pi / c2r_fn( this%mparams%visc(1,ir) )
+    else
+      visc_r_fn = one
+    end if
     
   end function visc_r_fn
   
@@ -29,7 +42,12 @@ submodule(PhysicalObject) Main_discretization
     class(T_physicalObject), intent(in) :: this
     integer,                 intent(in) :: ir
     
-    alpha_r_fn = one
+    if ( this%mparams%initalpha ) then
+      alpha_r_fn = ( this%rad_grid%c(ir,-1) * c2r_fn( this%mparams%alpha(1,ir  ) ) + &
+                   & this%rad_grid%c(ir,+1) * c2r_fn( this%mparams%alpha(1,ir+1) )   ) / s4pi
+    else
+      alpha_r_fn = one
+    end if
     
   end function alpha_r_fn
   
