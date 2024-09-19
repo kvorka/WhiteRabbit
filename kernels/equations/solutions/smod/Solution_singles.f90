@@ -1,29 +1,6 @@
 submodule(Solution) Solution_singles
   implicit none ; contains
   
-  module pure complex(kind=dbl) function velocity_fn(this, ir, il, ijm)
-    class(T_solution), intent(in) :: this
-    integer,           intent(in) :: ir, ijm, il
-    integer                       :: isp, ist
-    
-    velocity_fn = czero
-    
-    if ( ijm >= 2 ) then
-      isp = 6*(ir-1)+1
-      ist = 3*(ir-1)+1
-      
-      select case (il)
-        case (-1)
-          if ( this%initsfer ) velocity_fn = this%mech(isp,ijm)
-        case ( 0)
-          if ( this%inittorr ) velocity_fn = this%torr(ist,ijm)
-        case (+1)
-          if ( this%initsfer ) velocity_fn = this%mech(isp+1,ijm)
-      end select
-    end if
-    
-  end function velocity_fn
-  
   module pure complex(kind=dbl) function deviatoric_stress_fn(this, ir, il, ijm)
     class(T_solution), intent(in) :: this
     integer,           intent(in) :: ir, ijm, il

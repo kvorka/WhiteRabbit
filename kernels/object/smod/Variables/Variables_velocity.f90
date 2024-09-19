@@ -1,6 +1,23 @@
 submodule(PhysicalObject) Variables_velocity
   implicit none ; contains
   
+  module pure complex(kind=dbl) function v_r_fn(this, ir, il, ijm)
+    class(T_physicalObject), intent(in) :: this
+    integer,                 intent(in) :: ir, il, ijm
+    
+    v_r_fn = this%rad_grid%c(ir,-1) * this%sol%velocity_fn(ir  ,il,ijm) + &
+           & this%rad_grid%c(ir,+1) * this%sol%velocity_fn(ir+1,il,ijm)
+    
+  end function v_r_fn
+  
+  module pure complex(kind=dbl) function v_rr_fn(this, ir, il, ijm)
+    class(T_physicalObject), intent(in) :: this
+    integer,                 intent(in) :: ir, il, ijm
+    
+    v_rr_fn = this%sol%velocity_fn(ir,il,ijm)
+    
+  end function v_rr_fn
+  
   module pure complex(kind=dbl) function vr_r_fn(this, ir, ijm)
     class(T_physicalObject), intent(in) :: this
     integer,                 intent(in) :: ir, ijm

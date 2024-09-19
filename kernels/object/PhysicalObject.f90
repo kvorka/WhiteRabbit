@@ -49,6 +49,8 @@ module PhysicalObject
     procedure, pass :: qr_rr_fn, qr_rr_ijm_sub, qr_irr_jm_sub
     
     !Variables mechanical part of solution
+    procedure, pass :: v_r_fn
+    procedure, pass :: v_rr_fn
     procedure, pass :: vr_r_fn, vr_rr_fn, vr_r_jm_sub, vr_rr_jm_sub, dv_dr_rr_jml_sub
     
     !Matrices, equations, solvers
@@ -89,7 +91,7 @@ module PhysicalObject
       class(T_physicalObject), intent(inout) :: this
     end subroutine deallocate_objects_sub
     
-    !Interfaces :: Thermal solutions
+    !Interfaces :: Variables temperature
     module pure complex(kind=dbl) function temp_r_fn(this, ir, ijm)
       class(T_physicalObject), intent(in) :: this
       integer,                 intent(in) :: ir, ijm
@@ -158,6 +160,7 @@ module PhysicalObject
       complex(kind=dbl),       intent(out) :: T(:), gradT(:)
     end subroutine gradT_rr_ijml_sub
     
+    !! Interfaces :: variables heat flux
     module pure complex(kind=dbl) function q_r_fn(this, ir, il, ijm)
       class(T_physicalObject), intent(in) :: this
       integer,                 intent(in) :: ir, il, ijm
@@ -231,6 +234,45 @@ module PhysicalObject
       complex(kind=dbl),       intent(out) :: qr_irr_jm(2:this%nd)
     end subroutine qr_irr_jm_sub
     
+    !Interfaces :: Variables velocity
+    module pure complex(kind=dbl) function v_r_fn(this, ir, il, ijm)
+      class(T_physicalObject), intent(in) :: this
+      integer,                 intent(in) :: ir, il, ijm
+    end function v_r_fn
+    
+    module pure complex(kind=dbl) function v_rr_fn(this, ir, il, ijm)
+      class(T_physicalObject), intent(in) :: this
+      integer,                 intent(in) :: ir, il, ijm
+    end function v_rr_fn
+    
+    module pure complex(kind=dbl) function vr_r_fn(this, ir, ijm)
+      class(T_physicalObject), intent(in) :: this
+      integer,                 intent(in) :: ir, ijm
+    end function vr_r_fn
+    
+    module pure complex(kind=dbl) function vr_rr_fn(this, ir, ijm)
+      class(T_physicalObject), intent(in) :: this
+      integer,                 intent(in) :: ir, ijm
+    end function vr_rr_fn
+    
+    module pure subroutine vr_r_jm_sub(this, ir, vr_jm)
+      class(T_physicalObject), intent(in)  :: this
+      integer,                 intent(in)  :: ir
+      complex(kind=dbl),       intent(out) :: vr_jm(*)
+    end subroutine vr_r_jm_sub
+    
+    module pure subroutine vr_rr_jm_sub(this, ir, vr_jm)
+      class(T_physicalObject), intent(in)  :: this
+      integer,                 intent(in)  :: ir
+      complex(kind=dbl),       intent(out) :: vr_jm(*)
+    end subroutine vr_rr_jm_sub
+    
+    module pure subroutine dv_dr_rr_jml_sub(this, ir, v, dv)
+      class(T_physicalObject), intent(in)  :: this
+      integer,                 intent(in)  :: ir
+      complex(kind=dbl),       intent(out) :: dv(:), v(:)
+    end subroutine dv_dr_rr_jml_sub
+    
     !Interfaces :: to be continued
     module subroutine vypis_sub(this, filenum, path, quantity)
       class(T_physicalObject), intent(in) :: this
@@ -262,34 +304,6 @@ module PhysicalObject
       class(T_physicalObject), intent(in) :: this
       integer,                 intent(in) :: ir, ijm
     end function htide_fn
-    
-    module pure complex(kind=dbl) function vr_r_fn(this, ir, ijm)
-      class(T_physicalObject), intent(in) :: this
-      integer,                 intent(in) :: ir, ijm
-    end function vr_r_fn
-    
-    module pure complex(kind=dbl) function vr_rr_fn(this, ir, ijm)
-      class(T_physicalObject), intent(in) :: this
-      integer,                 intent(in) :: ir, ijm
-    end function vr_rr_fn
-    
-    module pure subroutine vr_r_jm_sub(this, ir, vr_jm)
-      class(T_physicalObject), intent(in)  :: this
-      integer,                 intent(in)  :: ir
-      complex(kind=dbl),       intent(out) :: vr_jm(*)
-    end subroutine vr_r_jm_sub
-    
-    module pure subroutine vr_rr_jm_sub(this, ir, vr_jm)
-      class(T_physicalObject), intent(in)  :: this
-      integer,                 intent(in)  :: ir
-      complex(kind=dbl),       intent(out) :: vr_jm(*)
-    end subroutine vr_rr_jm_sub
-    
-    module pure subroutine dv_dr_rr_jml_sub(this, ir, v, dv)
-      class(T_physicalObject), intent(in)  :: this
-      integer,                 intent(in)  :: ir
-      complex(kind=dbl),       intent(out) :: dv(:), v(:)
-    end subroutine dv_dr_rr_jml_sub
     
     module pure subroutine coriolis_rr_jml_sub(this, v, coriolis)
       class(T_physicalObject), intent(in)    :: this

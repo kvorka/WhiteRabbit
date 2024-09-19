@@ -17,10 +17,12 @@ module Solution
     procedure :: init_stemp_sub, temp_fn, flux_fn
     procedure :: temp_rr_many1_sub
     procedure :: temp_jm_many1_sub, temp_jm_many2_sub, temp_jm_many3_sub, temp_jm_many4_sub
+    procedure :: flux_r_il_many1_sub, flux_r_many1_sub
     procedure :: flux_jml_many1_sub, flux_jml_many2_sub, flux_jml_many3_sub, flux_jml_many4_sub
     
-    procedure :: init_storr_sub, init_smech_sub
-    procedure :: velocity_fn, velocity_i_fn, velocity_jml_fn, velocity_jml_sub, velocity_jml_many_sub, conv_velocity_jml_fn
+    procedure :: init_storr_sub, init_smech_sub, velocity_fn
+    procedure :: velocity_rr_il_many1_sub, velocity_rr_many1_sub
+    procedure :: velocity_i_fn, velocity_jml_fn, velocity_jml_sub, velocity_jml_many_sub, conv_velocity_jml_fn
     procedure :: deviatoric_stress_fn, deviatoric_stress_i_fn, deviatoric_stress_jml2_fn
     
     procedure :: init_layers_sub, init_layer_u_sub
@@ -86,6 +88,18 @@ module Solution
       integer,           intent(in) :: ir, il, ijm
     end function flux_fn
     
+    module pure subroutine flux_r_il_many1_sub(this, il, ijm, flux1)
+      class(T_solution), intent(in)  :: this
+      integer,           intent(in)  :: il, ijm
+      complex(kind=dbl), intent(out) :: flux1(:)
+    end subroutine flux_r_il_many1_sub
+    
+    module pure subroutine flux_r_many1_sub(this, ijm, flux1)
+      class(T_solution), intent(in)  :: this
+      integer,           intent(in)  :: ijm
+      complex(kind=dbl), intent(out) :: flux1(:,:)
+    end subroutine flux_r_many1_sub
+    
     module pure subroutine flux_jml_many1_sub(this, ir, flux1)
       class(T_solution), intent(in)  :: this
       integer,           intent(in)  :: ir
@@ -130,6 +144,18 @@ module Solution
       class(T_solution), intent(in) :: this
       integer,           intent(in) :: ir, il, ijm
     end function velocity_fn
+    
+    module pure subroutine velocity_rr_il_many1_sub(this, il, ijm, velocity1)
+      class(T_solution), intent(in)  :: this
+      integer,           intent(in)  :: il, ijm
+      complex(kind=dbl), intent(out) :: velocity1(:)
+    end subroutine velocity_rr_il_many1_sub
+    
+    module pure subroutine velocity_rr_many1_sub(this, ijm, velocity1)
+      class(T_solution), intent(in)  :: this
+      integer,           intent(in)  :: ijm
+      complex(kind=dbl), intent(out) :: velocity1(:,:)
+    end subroutine velocity_rr_many1_sub
     
     module pure complex(kind=dbl) function deviatoric_stress_fn(this, ir, il, ijm)
       class(T_solution), intent(in) :: this

@@ -39,11 +39,18 @@ submodule(PhysicalObject) Variables_temperature
     integer,                 intent(in)  :: ijm
     complex(kind=dbl),       intent(out) :: temp_ir_jm(:)
     integer                              :: ir
+    complex(kind=dbl),       allocatable :: temp1(:)
     
-    do concurrent ( ir = 1:this%nd )
-      temp_ir_jm(ijm) = this%rad_grid%c(ir,-1) * this%sol%temp_fn(ir  ,ijm) + &
-                      & this%rad_grid%c(ir,+1) * this%sol%temp_fn(ir+1,ijm)
-    end do
+    allocate( temp1(this%nd+1) )
+      
+      call this%sol%temp_rr_many1_sub( ijm, temp1 )
+      
+      do concurrent ( ir = 1:this%nd )
+        temp_ir_jm(ijm) = this%rad_grid%c(ir,-1) * temp1(ir  ) + &
+                        & this%rad_grid%c(ir,+1) * temp1(ir+1)
+      end do
+    
+    deallocate( temp1 )
     
   end subroutine temp_ir_jm_sub
   
