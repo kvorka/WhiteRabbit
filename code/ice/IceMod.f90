@@ -31,8 +31,8 @@ module iceMod
     procedure :: visc_r_fn    => visc_r_ice_fn
     procedure :: visc_rr_fn   => visc_rr_ice_fn
     
-    procedure :: temperature_ice_r_fn, temperature_ice_rr_fn
-    procedure :: devstress_ice_r_fn, devstress_ice_rr_fn
+    procedure :: average_temperature_ice_ir_fn, average_temperature_ice_irr_fn
+    procedure :: average_stress_ice_ir_fn, average_stress_ice_irr_fn
     procedure :: visc_ice_jm_sub, lambda_ice_jm_sub
     
   end type T_ice
@@ -115,25 +115,25 @@ module iceMod
       class(T_ice),      intent(inout) :: this
     end subroutine set_layers_ice_sub
     
-    module pure real(kind=dbl) function temperature_ice_r_fn(this, i)
+    module pure real(kind=dbl) function average_temperature_ice_ir_fn(this, ir)
       class(T_ice),  intent(in) :: this
-      integer,       intent(in) :: i
-    end function temperature_ice_r_fn
+      integer,       intent(in) :: ir
+    end function average_temperature_ice_ir_fn
     
-    module pure real(kind=dbl) function temperature_ice_rr_fn(this, i)
+    module pure real(kind=dbl) function average_temperature_ice_irr_fn(this, ir)
       class(T_ice),  intent(in) :: this
-      integer,       intent(in) :: i
-    end function temperature_ice_rr_fn
+      integer,       intent(in) :: ir
+    end function average_temperature_ice_irr_fn
     
-    module pure real(kind=dbl) function devstress_ice_r_fn(this, i)
+    module pure real(kind=dbl) function average_stress_ice_ir_fn(this, ir)
       class(T_ice),  intent(in) :: this
-      integer,       intent(in) :: i
-    end function devstress_ice_r_fn
+      integer,       intent(in) :: ir
+    end function average_stress_ice_ir_fn
     
-    module pure real(kind=dbl) function devstress_ice_rr_fn(this, i)
+    module pure real(kind=dbl) function average_stress_ice_irr_fn(this, ir)
       class(T_ice),  intent(in) :: this
-      integer,       intent(in) :: i
-    end function devstress_ice_rr_fn
+      integer,       intent(in) :: ir
+    end function average_stress_ice_irr_fn
   end interface
   
 end module iceMod

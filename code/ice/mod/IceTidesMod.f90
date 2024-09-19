@@ -3,7 +3,6 @@ module IceTidesMod
   implicit none
     
   type, extends(T_ice), public :: T_iceTides
-    real(kind=dbl), allocatable, private :: stress_prof(:), temp_prof(:)
     
     contains
     
@@ -22,30 +21,40 @@ module IceTidesMod
   
   contains
   
-  subroutine init_iceTides_sub(this)
+  subroutine init_iceTides_sub(this, latvisc)
     class(T_iceTides), intent(inout) :: this
+    logical,           intent(in)    :: latvisc
     
     call this%init_ice_sub(jmax_in=2, rheol_in='viscel', n_iter=n_iter_tides, noharm=.true.)
       this%cf = one
-      this%andrade = .true.
     
     call this%init_eq_mech_sub( rhs=.true. , nl=.false. )
     
-    allocate( this%stress_prof(this%nd) ) ; this%stress_prof = zero
-    allocate( this%temp_prof(this%nd)   ) ; this%temp_prof   = zero
-
+    if ( latvisc ) then
+      call this%mparams%init_visc_sub()
+    else
+      call this%mparams%init_visc_radial_sub()
+    end if
+    
   end subroutine init_iceTides_sub
     
-  subroutine compute_iceTides_sub(this, stress_prof, temp_prof)
+  subroutine compute_iceTides_sub(this, visc_prof)
     class(T_iceTides), intent(inout) :: this
-    real(kind=dbl),    intent(in)    :: stress_prof(:), temp_prof(:)
-    integer                          :: n
+    complex(kind=dbl), intent(in)    :: visc_prof(this%nd,*)
+    integer                          :: ijm, ir, n
     real(kind=dbl)                   :: P, Pglobal
     
     call this%sol%nulify_sub() ; Pglobal = zero
     
-    this%stress_prof = stress_prof(:)
-    this%temp_prof   = temp_prof(:)
+    if ( this%mparams%initvisc ) then
+      do concurrent ( ijm = 1:this%jms, ir = 1:this%nd )
+        this%mparams%visc(ir,ijm) = visc_prof(ir,ijm)
+      end do
+    else
+      do concurrent ( ir = 1:this%nd )
+        this%mparams%visc_radial(ir) = visc_prof(ir,1)
+      end do
+    end if
     
     this%t = zero
     this%dt = this%period / this%n_iter ; this%htide = czero
@@ -141,21 +150,27 @@ module IceTidesMod
       end do
         
     end subroutine set_layers_iceTides_sub
-  
+    
+    subroutine andrade_visc_iceTides_sub(this, visc_prof_jm)
+      class(T_iceTides), intent(in) :: this
+      complex(kind=dbl), intent(in) :: visc_prof_jm(:,:)
+      
+      !***********************************!
+      ! Treba napisat prechod na grid pre !
+      ! slapovu viskozitu.                !
+      !***********************************!
+      
+    end subroutine andrade_visc_iceTides_sub
+    
     pure real(kind=dbl) function visc_iceTides_fn(this, ir)
       class(T_iceTides), intent(in) :: this
       integer,           intent(in) :: ir
-      real(kind=dbl)                :: visc, temp
       
-      visc = min( goldsby_visc_fn(this%diam, this%temp_prof(ir), this%stress_prof(ir)), this%cutoff )
-      
-      if ( .not. this%andrade ) then
-        visc_iceTides_fn = visc
+      if ( this%mparams%initvisc ) then
+        visc_iceTides_fn = c2r_fn( this%mparams%visc(1,ir) ) / s4pi
       else
-        visc_iceTides_fn = andrade_visc_fn(this%mu, this%omega, visc)
+        visc_iceTides_fn = c2r_fn( this%visc_radial(ir) )
       end if
-      
-      visc_iceTides_fn = visc_iceTides_fn / this%viscU
       
     end function visc_iceTides_fn
   

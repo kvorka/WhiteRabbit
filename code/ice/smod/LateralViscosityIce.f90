@@ -15,7 +15,7 @@ submodule(IceMod) LateralViscosityIce
         !$omp parallel do private(i1, i2, i3, avrgstress, temp_jm, cc_mj, grid)
         do ir = 1, this%nd
           !Usefull for viscosity computation
-          avrgstress = this%devstress_ice_r_fn(ir)
+          avrgstress = this%average_stress_ice_ir_fn(ir)
           
           !Get the temperature field in jm indexing
           call this%temp_r_ijm_sub(ir, temp_jm)
@@ -34,12 +34,11 @@ submodule(IceMod) LateralViscosityIce
           if ( this%andrade ) then
             do concurrent ( i3 = 1:2, i2 = 1:this%lat_grid%nFourier, i1 = 1:this%lat_grid%nLegendre )
               grid(i1,i2,i3) = min( goldsby_visc_fn( this%diam, grid(i1,i2,i3), avrgstress ), this%cutoff )
-              grid(i1,i2,i3) = andrade_visc_fn( this%mu, this%omega, grid(i1,i2,i3) ) / this%viscU
+              grid(i1,i2,i3) = andrade_visc_fn( this%mu, this%omega, grid(i1,i2,i3) )
             end do
           else
             do concurrent ( i3 = 1:2, i2 = 1:this%lat_grid%nFourier, i1 = 1:this%lat_grid%nLegendre )
               grid(i1,i2,i3) = min( goldsby_visc_fn( this%diam, grid(i1,i2,i3), avrgstress ), this%cutoff )
-              grid(i1,i2,i3) = grid(i1,i2,i3) / this%viscU
             end do
           end if
           

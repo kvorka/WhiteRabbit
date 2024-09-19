@@ -35,10 +35,10 @@ module IceCrustMod
     call this%init_eq_temp_sub( rhs=.true. , nl=.true.  )
     call this%init_eq_mech_sub( rhs=.true. , nl=.false. )
     
-    !call this%mparams%init_visc_sub()
+    call this%mparams%init_visc_sub()
     !call this%mparams%init_conductivity_sub()
     
-    call this%tides%init_sub()
+    call this%tides%init_sub( latvisc=this%mparams%initvisc )
     
   end subroutine init_iceCrust_sub
 
@@ -106,7 +106,7 @@ module IceCrustMod
       this%dt = huge(zero)
         do
           call this%temp_irr_jm_sub(1, Temp1)
-          call this%tides%compute_sub( this%II_stress_fn(), this%avrg_temp_fn() )
+          call this%tides%compute_sub( this%mparams%visc )
           this%htide = this%tides%htide
           
           do
@@ -167,7 +167,7 @@ module IceCrustMod
       allocate( II_stress(this%nd) )
       
       do concurrent ( ir = 1:this%nd )
-        II_stress(ir) = this%devstress_ice_r_fn(ir)
+        II_stress(ir) = this%average_stress_ice_ir_fn(ir)
       end do
       
     end function II_stress_iceCrust_fn
@@ -180,7 +180,7 @@ module IceCrustMod
       allocate( avrg_temp(this%nd) )
       
       do concurrent ( ir = 1:this%nd )
-        avrg_temp(ir) = this%temperature_ice_r_fn(ir)
+        avrg_temp(ir) = this%average_temperature_ice_ir_fn(ir)
       end do
       
     end function avrg_temp_iceCrust_fn
