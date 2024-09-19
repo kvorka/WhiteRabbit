@@ -17,11 +17,11 @@ submodule(IceMod) GravDeformIce
     
     if (ir == 1) then
       do concurrent ( k = 1:this%nd+1 )
-        field(k) = fac * this%alpha_fn(k) * this%sol%temp_fn(k,ijm) * ( this%rd / this%rad_grid%rr(k) ) ** (j-1)
+        field(k) = fac * this%alpha_rr_fn(k) * this%temp_rr_fn(k,ijm) * ( this%rd / this%rad_grid%rr(k) ) ** (j-1)
       end do
     else if (ir == this%nd) then
       do concurrent ( k = 1:this%nd+1 )
-        field(k) = fac * this%alpha_fn(k) * this%sol%temp_fn(k,ijm) * ( this%rad_grid%rr(k) / this%ru ) ** (j+2)
+        field(k) = fac * this%alpha_rr_fn(k) * this%temp_rr_fn(k,ijm) * ( this%rad_grid%rr(k) / this%ru ) ** (j+2)
       end do
     end if
     
@@ -63,7 +63,7 @@ submodule(IceMod) GravDeformIce
         ijm = jm(j,m)
         
         do concurrent ( ir = 1:this%nd+1 )
-          field(ir) = fac * this%alpha_fn(ir) * this%sol%temp_fn(ir,ijm) * (this%rI2/this%rad_grid%rr(ir))**(j-1)
+          field(ir) = fac * this%alpha_rr_fn(ir) * this%temp_rr_fn(ir,ijm) * (this%rI2/this%rad_grid%rr(ir))**(j-1)
         end do
         
         rhs1 = -( this%gravity%V_bnd_fn(j,m,this%rI2,this%ru,this%rhoI          ,this%sol%u_up(ijm)+this%sol%v_up(ijm)*this%dt ) + &
@@ -72,7 +72,7 @@ submodule(IceMod) GravDeformIce
                 & this%gravity%V_rt_fn( j,m,this%rI2) )
         
         do concurrent ( ir = 1:this%nd+1 )
-          field(ir) = fac * this%alpha_fn(ir) * this%sol%temp_fn(ir,ijm) * (this%rC/this%rad_grid%rr(ir))**(j-1)
+          field(ir) = fac * this%alpha_rr_fn(ir) * this%temp_rr_fn(ir,ijm) * (this%rC/this%rad_grid%rr(ir))**(j-1)
         end do
         
         rhs2 = -( this%gravity%V_bnd_fn(j,m,this%rC,this%ru,this%rhoI          ,this%sol%u_up(ijm)+this%sol%v_up(ijm)*this%dt ) + &

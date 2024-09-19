@@ -7,11 +7,8 @@ submodule (PhysicalObject) NonLinearTerms
     complex(kind=dbl),       intent(out) :: mvgradT(:)
     complex(kind=dbl),       allocatable :: v(:), T(:), gradT(:)
     
-    allocate( v(this%jmv) )
-      call this%sol%velocity_jml_sub(i, v)
-    
-    allocate( T(this%jms), gradT(this%jmv) )
-      call this%gradT_rr_ijml_sub(i, T, gradT, -1)
+    allocate( v(this%jmv) ); call this%v_rr_ijml_sub(i, v)
+    allocate( T(this%jms), gradT(this%jmv) ); call this%gradT_rr_ijml_sub(i, T, gradT, -1)
     
     call this%lat_grid%vcvv_sub( v, gradT, mvgradT )
     
@@ -25,7 +22,7 @@ submodule (PhysicalObject) NonLinearTerms
     integer                                :: ijm
     complex(kind=dbl),       allocatable   :: v(:), nlm(:,:)
     
-    allocate( v(this%jmv) ) ; call this%sol%velocity_jml_sub(i, v)
+    allocate( v(this%jmv) ) ; call this%v_rr_ijml_sub(i, v)
     
     allocate( nlm(3,this%jms) ) ; nlm = czero
     

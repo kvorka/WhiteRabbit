@@ -10,6 +10,30 @@ submodule(PhysicalObject) Variables_velocity
     
   end function v_r_fn
   
+  module pure subroutine v_r_ijml_sub(this, ir, v_r_ijml)
+    class(T_physicalObject), intent(in)  :: this
+    integer,                 intent(in)  :: ir
+    complex(kind=dbl),       intent(out) :: v_r_ijml(:)
+    integer                              :: ijml
+    real(kind=dbl)                       :: cr1, cr2
+    complex(kind=dbl),       allocatable :: velocity1(:), velocity2(:)
+    
+    cr1 = this%rad_grid%c(ir,-1)
+    cr2 = this%rad_grid%c(ir,+1)
+    
+    allocate( velocity1(this%jmv), velocity2(this%jmv) )
+      
+      call this%sol%velocity_jml_many2_sub( ir, velocity1, velocity2 )
+      
+      do concurrent ( ijml = 1:this%jmv )
+        v_r_ijml(ijml) = cr1 * velocity1(ijml) + &
+                       & cr2 * velocity2(ijml)
+      end do
+      
+    deallocate( velocity1, velocity2 )
+    
+  end subroutine v_r_ijml_sub
+  
   module pure complex(kind=dbl) function v_rr_fn(this, ir, il, ijm)
     class(T_physicalObject), intent(in) :: this
     integer,                 intent(in) :: ir, il, ijm
@@ -17,6 +41,15 @@ submodule(PhysicalObject) Variables_velocity
     v_rr_fn = this%sol%velocity_fn(ir,il,ijm)
     
   end function v_rr_fn
+  
+  module pure subroutine v_rr_ijml_sub(this, ir, v_rr_ijml)
+    class(T_physicalObject), intent(in)  :: this
+    integer,                 intent(in)  :: ir
+    complex(kind=dbl),       intent(out) :: v_rr_ijml(:)
+    
+    call this%sol%velocity_jml_many1_sub( ir, v_rr_ijml )
+    
+  end subroutine v_rr_ijml_sub
   
   module pure complex(kind=dbl) function vr_r_fn(this, ir, ijm)
     class(T_physicalObject), intent(in) :: this
@@ -51,7 +84,7 @@ submodule(PhysicalObject) Variables_velocity
   module pure subroutine vr_r_jm_sub(this, ir, vr_jm)
     class(T_physicalObject), intent(in)  :: this
     integer,                 intent(in)  :: ir
-    complex(kind=dbl),       intent(out) :: vr_jm(*)
+    complex(kind=dbl),       intent(out) :: vr_jm(:)
     integer                              :: ij, ijm
     real(kind=dbl)                       :: cj1, cj2, cr1, cr2
     complex(kind=dbl),       allocatable :: v1(:), v2(:)
@@ -59,22 +92,23 @@ submodule(PhysicalObject) Variables_velocity
     cr1 = this%rad_grid%c(ir,-1)
     cr2 = this%rad_grid%c(ir,+1)
     
-    allocate( v1(this%jmv) ) ; v1 = this%sol%velocity_jml_fn(ir  )
-    allocate( v2(this%jmv) ) ; v2 = this%sol%velocity_jml_fn(ir+1)
-    
-    !ij = 0
-      vr_jm(1) = czero
-    
-    do ij = 1, this%jmax
-      cj1 = sqrt( (ij  ) / (2*ij+one) )
-      cj2 = sqrt( (ij+1) / (2*ij+one) )
+    allocate( v1(this%jmv), v2(this%jmv) )
       
-      do concurrent ( ijm = jm(ij,0):jm(ij,ij) )
-        vr_jm(ijm) = cr1 * ( cj1 * v1(3*ijm-4) - cj2 * v1(3*ijm-2) ) + &
-                   & cr2 * ( cj1 * v2(3*ijm-4) - cj2 * v2(3*ijm-2) )
+      call this%sol%velocity_jml_many2_sub( ir, v1, v2 )
+      
+      !ij = 0
+        vr_jm(1) = czero
+      
+      do ij = 1, this%jmax
+        cj1 = sqrt( (ij  ) / (2*ij+one) )
+        cj2 = sqrt( (ij+1) / (2*ij+one) )
+        
+        do concurrent ( ijm = jm(ij,0):jm(ij,ij) )
+          vr_jm(ijm) = cr1 * ( cj1 * v1(3*ijm-4) - cj2 * v1(3*ijm-2) ) + &
+                     & cr2 * ( cj1 * v2(3*ijm-4) - cj2 * v2(3*ijm-2) )
+        end do
       end do
-    end do
-    
+      
     deallocate( v1, v2 )
     
   end subroutine vr_r_jm_sub
@@ -82,25 +116,27 @@ submodule(PhysicalObject) Variables_velocity
   module pure subroutine vr_rr_jm_sub(this, ir, vr_jm)
     class(T_physicalObject), intent(in)  :: this
     integer,                 intent(in)  :: ir
-    complex(kind=dbl),       intent(out) :: vr_jm(*)
+    complex(kind=dbl),       intent(out) :: vr_jm(:)
     integer                              :: ij, ijm
     real(kind=dbl)                       :: cj1, cj2
     complex(kind=dbl),       allocatable :: v(:)
     
-    allocate( v(this%jmv) ) ; v = this%sol%velocity_jml_fn(ir)
-    
-    !ij = 0
-      vr_jm(1) = czero
-
-    do ij = 1, this%jmax
-      cj1 = sqrt( (ij  ) / (2*ij+one) )
-      cj2 = sqrt( (ij+1) / (2*ij+one) )
+    allocate( v(this%jmv) )
       
-      do concurrent ( ijm = jm(ij,0):jm(ij,ij) )
-        vr_jm(ijm) = cj1 * v(3*ijm-4) - cj2 * v(3*ijm-2)
+      call this%sol%velocity_jml_many1_sub( ir, v )
+      
+      !ij = 0
+        vr_jm(1) = czero
+        
+      do ij = 1, this%jmax
+        cj1 = sqrt( (ij  ) / (2*ij+one) )
+        cj2 = sqrt( (ij+1) / (2*ij+one) )
+        
+        do concurrent ( ijm = jm(ij,0):jm(ij,ij) )
+          vr_jm(ijm) = cj1 * v(3*ijm-4) - cj2 * v(3*ijm-2)
+        end do
       end do
-    end do
-    
+      
     deallocate( v )
     
   end subroutine vr_rr_jm_sub
@@ -127,7 +163,7 @@ submodule(PhysicalObject) Variables_velocity
     
     allocate( v1(this%jmv), v2(this%jmv) )
       
-      call this%sol%velocity_jml_many_sub(ir-1, v1, v, v2)
+      call this%sol%velocity_jml_many3_sub(ir-1, v1, v, v2)
       
       do concurrent ( ijml = 1:this%jmv )
         dv(ijml) = fac1 * v1(ijml) + fac2 * v(ijml) + fac3 * v2(ijml)

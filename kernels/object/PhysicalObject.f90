@@ -37,7 +37,8 @@ module PhysicalObject
     procedure, pass :: set_dt_sub
     
     !Material parameters
-    procedure, pass :: lambda_fn, cp_fn, visc_fn, alpha_fn
+    procedure, pass :: lambda_r_fn, cp_r_fn, visc_r_fn, alpha_r_fn
+    procedure, pass :: lambda_rr_fn, cp_rr_fn, visc_rr_fn, alpha_rr_fn
     
     !Variables :: Thermal solution
     procedure, pass :: htide_fn
@@ -49,8 +50,8 @@ module PhysicalObject
     procedure, pass :: qr_rr_fn, qr_rr_ijm_sub, qr_irr_jm_sub
     
     !Variables mechanical part of solution
-    procedure, pass :: v_r_fn
-    procedure, pass :: v_rr_fn
+    procedure, pass :: v_r_fn, v_r_ijml_sub
+    procedure, pass :: v_rr_fn, v_rr_ijml_sub
     procedure, pass :: vr_r_fn, vr_rr_fn, vr_r_jm_sub, vr_rr_jm_sub, dv_dr_rr_jml_sub
     
     !Matrices, equations, solvers
@@ -240,10 +241,22 @@ module PhysicalObject
       integer,                 intent(in) :: ir, il, ijm
     end function v_r_fn
     
+    module pure subroutine v_r_ijml_sub(this, ir, v_r_ijml)
+      class(T_physicalObject), intent(in)  :: this
+      integer,                 intent(in)  :: ir
+      complex(kind=dbl),       intent(out) :: v_r_ijml(:)
+    end subroutine v_r_ijml_sub
+    
     module pure complex(kind=dbl) function v_rr_fn(this, ir, il, ijm)
       class(T_physicalObject), intent(in) :: this
       integer,                 intent(in) :: ir, il, ijm
     end function v_rr_fn
+    
+    module pure subroutine v_rr_ijml_sub(this, ir, v_rr_ijml)
+      class(T_physicalObject), intent(in)  :: this
+      integer,                 intent(in)  :: ir
+      complex(kind=dbl),       intent(out) :: v_rr_ijml(:)
+    end subroutine v_rr_ijml_sub
     
     module pure complex(kind=dbl) function vr_r_fn(this, ir, ijm)
       class(T_physicalObject), intent(in) :: this
@@ -258,13 +271,13 @@ module PhysicalObject
     module pure subroutine vr_r_jm_sub(this, ir, vr_jm)
       class(T_physicalObject), intent(in)  :: this
       integer,                 intent(in)  :: ir
-      complex(kind=dbl),       intent(out) :: vr_jm(*)
+      complex(kind=dbl),       intent(out) :: vr_jm(:)
     end subroutine vr_r_jm_sub
     
     module pure subroutine vr_rr_jm_sub(this, ir, vr_jm)
       class(T_physicalObject), intent(in)  :: this
       integer,                 intent(in)  :: ir
-      complex(kind=dbl),       intent(out) :: vr_jm(*)
+      complex(kind=dbl),       intent(out) :: vr_jm(:)
     end subroutine vr_rr_jm_sub
     
     module pure subroutine dv_dr_rr_jml_sub(this, ir, v, dv)
@@ -273,32 +286,53 @@ module PhysicalObject
       complex(kind=dbl),       intent(out) :: dv(:), v(:)
     end subroutine dv_dr_rr_jml_sub
     
+    !Interfaces :: material parameters
+    module pure real(kind=dbl) function lambda_r_fn(this, ir)
+      class(T_physicalObject), intent(in) :: this
+      integer,                 intent(in) :: ir
+    end function lambda_r_fn
+    
+    module pure real(kind=dbl) function cp_r_fn(this, ir)
+      class(T_physicalObject), intent(in) :: this
+      integer,                 intent(in) :: ir
+    end function cp_r_fn
+    
+    module pure real(kind=dbl) function visc_r_fn(this, ir)
+      class(T_physicalObject), intent(in) :: this
+      integer,                 intent(in) :: ir
+    end function visc_r_fn
+    
+    module pure real(kind=dbl) function alpha_r_fn(this, ir)
+      class(T_physicalObject), intent(in) :: this
+      integer,                 intent(in) :: ir
+    end function alpha_r_fn
+    
+    module pure real(kind=dbl) function lambda_rr_fn(this, ir)
+      class(T_physicalObject), intent(in) :: this
+      integer,                 intent(in) :: ir
+    end function lambda_rr_fn
+    
+    module pure real(kind=dbl) function cp_rr_fn(this, ir)
+      class(T_physicalObject), intent(in) :: this
+      integer,                 intent(in) :: ir
+    end function cp_rr_fn
+    
+    module pure real(kind=dbl) function visc_rr_fn(this, ir)
+      class(T_physicalObject), intent(in) :: this
+      integer,                 intent(in) :: ir
+    end function visc_rr_fn
+    
+    module pure real(kind=dbl) function alpha_rr_fn(this, ir)
+      class(T_physicalObject), intent(in) :: this
+      integer,                 intent(in) :: ir
+    end function alpha_rr_fn
+    
     !Interfaces :: to be continued
     module subroutine vypis_sub(this, filenum, path, quantity)
       class(T_physicalObject), intent(in) :: this
       integer,                 intent(in) :: filenum
       character(len=*),        intent(in) :: path, quantity
     end subroutine vypis_sub
-    
-    module pure real(kind=dbl) function lambda_fn(this, i)
-      class(T_physicalObject), intent(in) :: this
-      integer,                 intent(in) :: i
-    end function lambda_fn
-    
-    module pure real(kind=dbl) function cp_fn(this, i)
-      class(T_physicalObject), intent(in) :: this
-      integer,                 intent(in) :: i
-    end function cp_fn
-    
-    module pure real(kind=dbl) function visc_fn(this, i)
-      class(T_physicalObject), intent(in) :: this
-      integer,                 intent(in) :: i
-    end function visc_fn
-    
-    module pure real(kind=dbl) function alpha_fn(this, i)
-      class(T_physicalObject), intent(in) :: this
-      integer,                 intent(in) :: i
-    end function alpha_fn
     
     module pure complex(kind=dbl) function htide_fn(this, ir, ijm)
       class(T_physicalObject), intent(in) :: this
@@ -505,7 +539,7 @@ module PhysicalObject
       class(T_physicalObject), intent(in) :: this
     end function nuss_fn
     
-    module pure real(kind=dbl) function reynolds_fn(this, choice)
+    module real(kind=dbl) function reynolds_fn(this, choice)
       class(T_physicalObject), intent(in)           :: this
       character(len=*),        intent(in), optional :: choice
     end function reynolds_fn

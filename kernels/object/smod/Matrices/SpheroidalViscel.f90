@@ -60,17 +60,17 @@ submodule (PhysicalObject) SpheroidalViscel
         matica(13,is+2) = -sqrt((j+1)/(2*j+1))*(grid%hd(ir,+1) + grid%c(ir,+1)*(j+2)/grid%r(ir))
         
         matica( 5,is+3) = -2*sqrt((j-1)/(2*j-1))*(grid%hd(ir,-1) + grid%c(ir,-1)*j/grid%r(ir))
-        matica( 7,is+3) = 1 / this%visc_fn(ir) + this%Ramu / this%dt
+        matica( 7,is+3) = 1 / this%visc_r_fn(ir) + this%Ramu / this%dt
         matica(11,is+3) = -2*sqrt((j-1)/(2*j-1))*(grid%hd(ir,+1) + grid%c(ir,+1)*j/grid%r(ir))
         
         matica( 4,is+4) = +2*sqrt((j+1)*(2*j+3)/(6*(2*j-1)*(2*j+1)))*(grid%hd(ir,-1) - grid%c(ir,-1)*(j-1)/grid%r(ir))
         matica( 5,is+4) = -2*sqrt((j  )*(2*j-1)/(6*(2*j+1)*(2*j+3)))*(grid%hd(ir,-1) + grid%c(ir,-1)*(j+2)/grid%r(ir))
-        matica( 8,is+4) = 1 / this%visc_fn(ir) + this%Ramu / this%dt 
+        matica( 8,is+4) = 1 / this%visc_r_fn(ir) + this%Ramu / this%dt 
         matica(10,is+4) = +2*sqrt((j+1)*(2*j+3)/(6*(2*j-1)*(2*j+1)))*(grid%hd(ir,+1) - grid%c(ir,-1)*(j-1)/grid%r(ir))
         matica(11,is+4) = -2*sqrt((j  )*(2*j-1)/(6*(2*j+1)*(2*j+3)))*(grid%hd(ir,+1) + grid%c(ir,-1)*(j+2)/grid%r(ir))
         
         matica( 4,is+5) = +2*sqrt((j+2)/(2*j+3))*(grid%hd(ir,-1) - grid%c(ir,-1)*(j+1)/grid%r(ir))
-        matica( 8,is+5) = one / this%visc_fn(ir) + this%Ramu / this%dt
+        matica( 8,is+5) = one / this%visc_r_fn(ir) + this%Ramu / this%dt
         matica(10,is+5) = +2*sqrt((j+2)/(2*j+3))*(grid%hd(ir,+1) - grid%c(ir,+1)*(j+1)/grid%r(ir))
     end do
     
@@ -138,7 +138,7 @@ submodule (PhysicalObject) SpheroidalViscel
           matica( 8,is) = +sqrt((j-1)        /   (2*j-1)         )*(grid%dd(ir,-1) - grid%cc(ir,-1)*(j-2)/grid%rr(ir))
           matica( 9,is) = -sqrt((j  )        /(3*(2*j+1)        ))*(grid%dd(ir,-1) + grid%cc(ir,-1)*(j+1)/grid%rr(ir))
           matica(10,is) = -sqrt((j+1)*(2*j+3)/(6*(2*j-1)*(2*j+1)))*(grid%dd(ir,-1) + grid%cc(ir,-1)*(j+1)/grid%rr(ir))
-          matica(12,is) = -1/(this%Pr * this%dt)
+          matica(12,is) = -1/ ( this%Pr * this%dt )
           matica(14,is) = +sqrt((j-1)        /   (2*j-1)         )*(grid%dd(ir,+1) - grid%cc(ir,+1)*(j-2)/grid%rr(ir))
           matica(15,is) = -sqrt((j  )        /(3*(2*j+1)        ))*(grid%dd(ir,+1) + grid%cc(ir,+1)*(j+1)/grid%rr(ir))
           matica(16,is) = -sqrt((j+1)*(2*j+3)/(6*(2*j-1)*(2*j+1)))*(grid%dd(ir,+1) + grid%cc(ir,+1)*(j+1)/grid%rr(ir))
@@ -172,7 +172,7 @@ submodule (PhysicalObject) SpheroidalViscel
         
         matica( 3,is+3) = -2*sqrt((j-1)/(2*j-1))*(grid%d(ir,-2)                             )
         matica( 9,is+3) = -2*sqrt((j-1)/(2*j-1))*(grid%d(ir,-1) + grid%c(ir,-1)*j/grid%r(ir))
-        matica(11,is+3) = 1 / this%visc_fn(ir) + this%Ramu / this%dt
+        matica(11,is+3) = 1 / this%visc_r_fn(ir) + this%Ramu / this%dt
         matica(15,is+3) = -2*sqrt((j-1)/(2*j-1))*(grid%d(ir,+1) + grid%c(ir,+1)*j/grid%r(ir))
         matica(21,is+3) = -2*sqrt((j-1)/(2*j-1))*(grid%d(ir,+2)                             )
         
@@ -180,7 +180,7 @@ submodule (PhysicalObject) SpheroidalViscel
         matica( 3,is+4) = -2*sqrt((j  )*(2*j-1)/(6*(2*j+1)*(2*j+3)))*(grid%d(ir,-2)                                 )
         matica( 8,is+4) = +2*sqrt((j+1)*(2*j+3)/(6*(2*j-1)*(2*j+1)))*(grid%d(ir,-1) - grid%c(ir,-1)*(j-1)/grid%r(ir))
         matica( 9,is+4) = -2*sqrt((j  )*(2*j-1)/(6*(2*j+1)*(2*j+3)))*(grid%d(ir,-1) + grid%c(ir,-1)*(j+2)/grid%r(ir))
-        matica(12,is+4) = 1 / this%visc_fn(ir) + this%Ramu / this%dt
+        matica(12,is+4) = 1 / this%visc_r_fn(ir) + this%Ramu / this%dt
         matica(14,is+4) = +2*sqrt((j+1)*(2*j+3)/(6*(2*j-1)*(2*j+1)))*(grid%d(ir,+1) - grid%c(ir,+1)*(j-1)/grid%r(ir))
         matica(15,is+4) = -2*sqrt((j  )*(2*j-1)/(6*(2*j+1)*(2*j+3)))*(grid%d(ir,+1) + grid%c(ir,+1)*(j+2)/grid%r(ir))
         matica(20,is+4) = +2*sqrt((j+1)*(2*j+3)/(6*(2*j-1)*(2*j+1)))*(grid%d(ir,+2)                                 )
@@ -188,7 +188,7 @@ submodule (PhysicalObject) SpheroidalViscel
         
         matica( 2,is+5) = +2*sqrt((j+2)/(2*j+3))*(grid%d(ir,-2)                                 )
         matica( 8,is+5) = +2*sqrt((j+2)/(2*j+3))*(grid%d(ir,-1) - grid%c(ir,-1)*(j+1)/grid%r(ir))
-        matica(12,is+5) = 1 / this%visc_fn(ir) + this%Ramu / this%dt
+        matica(12,is+5) = 1 / this%visc_r_fn(ir) + this%Ramu / this%dt
         matica(14,is+5) = +2*sqrt((j+2)/(2*j+3))*(grid%d(ir,+1) - grid%c(ir,+1)*(j+1)/grid%r(ir))
         matica(20,is+5) = +2*sqrt((j+2)/(2*j+3))*(grid%d(ir,+2)                                 )
     end do

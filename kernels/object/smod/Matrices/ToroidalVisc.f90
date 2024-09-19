@@ -44,13 +44,13 @@ submodule (PhysicalObject) ToroidalVisc
         
         matica( 2,is+1) = -2*sqrt((j-1)/(2*(2*j+1)))*(grid%d(ir,-2)                                 )
         matica( 5,is+1) = -2*sqrt((j-1)/(2*(2*j+1)))*(grid%d(ir,-1) + grid%c(ir,-1)*(j+1)/grid%r(ir))
-        matica( 6,is+1) = 1 / this%visc_fn(ir)
+        matica( 6,is+1) = 1 / this%visc_r_fn(ir)
         matica( 8,is+1) = -2*sqrt((j-1)/(2*(2*j+1)))*(grid%d(ir,+1) + grid%c(ir,+1)*(j+1)/grid%r(ir))
         matica(11,is+1) = -2*sqrt((j-1)/(2*(2*j+1)))*(grid%d(ir,+2)                                 )
         
         matica( 1,is+2) = +2*sqrt((j+2)/(2*(2*j+1)))*(grid%d(ir,-2)                                 )
         matica( 4,is+2) = +2*sqrt((j+2)/(2*(2*j+1)))*(grid%d(ir,-1) - grid%c(ir,-1)*(j  )/grid%r(ir))
-        matica( 6,is+2) = 1 / this%visc_fn(ir)
+        matica( 6,is+2) = 1 / this%visc_r_fn(ir)
         matica( 7,is+2) = +2*sqrt((j+2)/(2*(2*j+1)))*(grid%d(ir,+1) - grid%c(ir,+1)*(j  )/grid%r(ir))
         matica(10,is+2) = +2*sqrt((j+2)/(2*(2*j+1)))*(grid%d(ir,+2)                                 )
     end do
@@ -115,13 +115,13 @@ submodule (PhysicalObject) ToroidalVisc
         
         matica( 2,is+1) = -2*sqrt((j-1)/(2*(2*j+1)))*(grid%d(ir,-2)                                 )
         matica( 5,is+1) = -2*sqrt((j-1)/(2*(2*j+1)))*(grid%d(ir,-1) + grid%c(ir,-1)*(j+1)/grid%r(ir))
-        matica( 6,is+1) = 1 / this%visc_fn(ir)
+        matica( 6,is+1) = 1 / this%visc_r_fn(ir)
         matica( 8,is+1) = -2*sqrt((j-1)/(2*(2*j+1)))*(grid%d(ir,+1) + grid%c(ir,+1)*(j+1)/grid%r(ir))
         matica(11,is+1) = -2*sqrt((j-1)/(2*(2*j+1)))*(grid%d(ir,+2)                                 )
         
         matica( 1,is+2) = +2*sqrt((j+2)/(2*(2*j+1)))*(grid%d(ir,-2)                                 )
         matica( 4,is+2) = +2*sqrt((j+2)/(2*(2*j+1)))*(grid%d(ir,-1) - grid%c(ir,-1)*(j  )/grid%r(ir))
-        matica( 6,is+2) = 1 / this%visc_fn(ir)
+        matica( 6,is+2) = 1 / this%visc_r_fn(ir)
         matica( 7,is+2) = +2*sqrt((j+2)/(2*(2*j+1)))*(grid%d(ir,+1) - grid%c(ir,+1)*(j  )/grid%r(ir))
         matica(10,is+2) = +2*sqrt((j+2)/(2*(2*j+1)))*(grid%d(ir,+2)                                 )
     end do

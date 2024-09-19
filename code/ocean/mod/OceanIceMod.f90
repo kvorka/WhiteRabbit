@@ -64,7 +64,7 @@ module OceanIceMod
     !$omp end do
     !$omp end parallel
     
-    q = c2r_fn( -this%sol%flux_fn(this%nd,1,1) ) / sqrt(4*pi)
+    q = c2r_fn( -this%q_r_fn(this%nd,1,1) ) / sqrt(4*pi)
     
     do concurrent ( ijm = 2:this%jms )
       this%rtemp(this%nd+1,ijm) = q * ( this%sol%u_up(ijm) + this%Cl * this%sol%t_up(ijm) )

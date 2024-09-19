@@ -13,16 +13,18 @@ submodule (PhysicalObject) Output
         open(unit=filenum, file=path//'/Temp-'//trim(adjustl(int2str_fn(this%poc)))//'.dat', status='new', action='write')
           allocate( field(this%jms) )
             do ir = 1, this%nd+1
-              call this%temp_rr_ijm_sub(ir, field) ; write(filenum,*) this%rad_grid%rr(ir), field
+              call this%temp_rr_ijm_sub(ir, field); write(filenum,*) this%rad_grid%rr(ir), field
             end do
           deallocate( field )
         close(filenum)
       
       case ('velocity')
         open(unit=filenum, file=path//'/Velc-'//trim(adjustl(int2str_fn(this%poc)))//'.dat', status='new', action='write')
-          do ir = 1, this%nd+1
-            write(filenum,*) this%rad_grid%rr(ir), this%sol%velocity_jml_fn(ir)
-          end do
+          allocate( field(this%jmv) )
+            do ir = 1, this%nd+1
+              call this%v_rr_ijml_sub(ir, field); write(filenum,*) this%rad_grid%rr(ir), field
+            end do
+          deallocate( field )
         close(filenum)
       
       case ('flux')

@@ -9,7 +9,7 @@ module IceTidesMod
     
     procedure :: init_sub       => init_iceTides_sub
     procedure :: compute_sub    => compute_iceTides_sub
-    procedure :: visc_fn        => visc_iceTides_fn
+    procedure :: visc_r_fn      => visc_iceTides_fn
     procedure :: Vdelta_fn      => Vdelta_iceTides_fn
     procedure :: set_layers_sub => set_layers_iceTides_sub
     
@@ -142,12 +142,12 @@ module IceTidesMod
         
     end subroutine set_layers_iceTides_sub
   
-    pure real(kind=dbl) function visc_iceTides_fn(this, i)
+    pure real(kind=dbl) function visc_iceTides_fn(this, ir)
       class(T_iceTides), intent(in) :: this
-      integer,           intent(in) :: i
+      integer,           intent(in) :: ir
       real(kind=dbl)                :: visc, temp
       
-      visc = min( goldsby_visc_fn(this%diam, this%temp_prof(i), this%stress_prof(i)), this%cutoff )
+      visc = min( goldsby_visc_fn(this%diam, this%temp_prof(ir), this%stress_prof(ir)), this%cutoff )
       
       if ( .not. this%andrade ) then
         visc_iceTides_fn = visc

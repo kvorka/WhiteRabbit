@@ -19,32 +19,6 @@ submodule (Solution) Solution_heatflux
     
   end function flux_fn
   
-  module pure subroutine flux_r_il_many1_sub(this, il, ijm, flux1)
-    class(T_solution), intent(in)  :: this
-    integer,           intent(in)  :: il, ijm
-    complex(kind=dbl), intent(out) :: flux1(:)
-    integer                        :: ir
-    
-    select case (il)
-      case (-1)
-        do concurrent ( ir = 1:this%nd )
-          flux1(ir) = this%temp(3*(ir-1)+2,ijm)
-        end do
-        
-      case ( 0)
-        do concurrent ( ir = 1:this%nd )
-          flux1(ir) = czero
-        end do
-      
-      case (+1)
-        do concurrent ( ir = 1:this%nd )
-          flux1(ir) = this%temp(3*(ir-1)+3,ijm)
-        end do
-    
-    end select
-    
-  end subroutine flux_r_il_many1_sub
-  
   module pure subroutine flux_r_many1_sub(this, ijm, flux1)
     class(T_solution), intent(in)  :: this
     integer,           intent(in)  :: ijm

@@ -23,7 +23,7 @@ submodule(PhysicalObject) Forces
     integer                              :: ijm
     real(kind=dbl)                       :: fac
       
-    fac = this%Ra * this%alpha_fn(ir) * this%gravity%g_fn( this%rad_grid%rr(ir) )
+    fac = this%Ra * this%alpha_rr_fn(ir) * this%gravity%g_fn( this%rad_grid%rr(ir) )
     
     do concurrent ( ijm = 1:this%jms )
       force(ijm) = fac * this%temp_rr_fn(ir,ijm)
@@ -39,7 +39,7 @@ submodule(PhysicalObject) Forces
     integer                                :: ijm, ij
     real(kind=dbl)                         :: fac, fac1, fac2
       
-    fac = this%Ra * this%alpha_fn(ir) * this%gravity%g_fn( this%rad_grid%rr(ir) )
+    fac = this%Ra * this%alpha_rr_fn(ir) * this%gravity%g_fn( this%rad_grid%rr(ir) )
     
     do ij = 1, this%jmax
       fac1 = -sqrt( (ij  ) / (2*ij+one) ) * fac
@@ -58,16 +58,26 @@ submodule(PhysicalObject) Forces
     integer                                :: ir, is, ijm
     real(kind=dbl)                         :: coeff
     complex(kind=dbl)                      :: angularMomentum
+    complex(kind=dbl),       allocatable   :: angularMomentum_rr(:)
     
     coeff = 5 * ((1/this%r_ud-1)**5) / (1/this%r_ud**5-1)
     
-    do ijm = 2, 3
-      angularMomentum = coeff * this%rad_grid%intV_fn(this%rad_grid%rr * this%sol%velocity_i_fn(0,ijm))
+    allocate( angularMomentum_rr(this%nd+1) )
+    
+      do ijm = 2, 3
+        do concurrent ( ir = 1:this%nd+1 )
+          angularMomentum_rr(ir) = this%rad_grid%rr(ir) * this%v_rr_fn(ir,0,ijm)
+        end do
         
-      do concurrent ( ir = 1:this%nd+1 )
-        is = 3*(ir-1)+1 ; this%sol%torr(is,ijm) = this%sol%torr(is,ijm) - angularMomentum * this%rad_grid%rr(ir)
+        angularMomentum = coeff * this%rad_grid%intV_fn(angularMomentum_rr)
+        
+        do concurrent ( ir = 1:this%nd+1 )
+          is = 3*(ir-1)+1
+          this%sol%torr(is,ijm) = this%sol%torr(is,ijm) - angularMomentum * this%rad_grid%rr(ir)
+        end do
       end do
-    end do
+      
+    deallocate( angularMomentum_rr )
     
   end subroutine global_rotation_sub
   

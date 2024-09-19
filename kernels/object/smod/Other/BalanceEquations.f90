@@ -13,7 +13,7 @@ submodule (PhysicalObject) BalanceEquations
     
       do ir = 1, this%nd
         devstress_jm = this%sol%deviatoric_stress_jml2_fn(ir)
-        power_i(ir)  = tensproduct_fn( this%jmax, devstress_jm, devstress_jm ) / this%visc_fn(ir) / 2
+        power_i(ir)  = tensproduct_fn( this%jmax, devstress_jm, devstress_jm ) / this%visc_r_fn(ir) / 2
       end do
       
       heatpow = this%rad_grid%intV_fn( power_i )
@@ -65,41 +65,37 @@ submodule (PhysicalObject) BalanceEquations
   module real(kind=dbl) function laws_temp_fn(this)
     class(T_physicalObject), intent(in) :: this
     integer                             :: ir
-    real(kind=dbl)                      :: fac1, fac2, fac3, flux_dn, flux_up, totheat, totheattide
+    real(kind=dbl)                      :: flow_dn, flow_up, cp, totheat, totheattide
     real(kind=dbl),         allocatable :: heat(:), heattide(:)
-    complex(kind=dbl),      allocatable :: cpv(:), gradT(:)
+    complex(kind=dbl),      allocatable :: velocity(:), gradT(:)
     
-    flux_dn = c2r_fn( +this%sol%flux_fn(1,1,1)       * this%rd**2 )
-    flux_up = c2r_fn( -this%sol%flux_fn(this%nd,1,1) * this%ru**2 )
+    flow_dn = c2r_fn( +this%q_r_fn(      1,1,1) ) * this%rd**2
+    flow_up = c2r_fn( -this%q_r_fn(this%nd,1,1) ) * this%ru**2
     
     select case( this%thermal_bnd )
       case( 'phase' )
-        allocate( heat(this%nd), heattide(this%nd), cpv(this%jmv), gradT(this%jmv) )
+        allocate( heat(this%nd), heattide(this%nd), velocity(this%jmv), gradT(this%jmv) )
           
           do ir = 1, this%nd
-            fac1 = this%rad_grid%c(ir,-1) * this%cp_fn(ir  )
-            fac2 = this%rad_grid%c(ir,+1) * this%cp_fn(ir+1)
+            cp = this%cp_r_fn(ir)
             
-            cpv = this%rad_grid%c(ir,-1) * this%cp_fn(ir  ) * this%sol%velocity_jml_fn(ir  ) + &
-                & this%rad_grid%c(ir,+1) * this%cp_fn(ir+1) * this%sol%velocity_jml_fn(ir+1)
-            
+            call this%v_r_ijml_sub( ir, velocity )
             call this%gradT_r_ijml_sub( ir, gradT, -1 )
             
-            heat(ir) = dotproduct_fn( this%jmax , cpv , gradT )
-            
-            heattide(ir) = this%htide_fn(ir,1)
+            heat(ir) = dotproduct_fn( this%jmax , cp * velocity , gradT )
+            heattide(ir) = this%Ds/this%Ra * c2r_fn( this%htide(ir,1) ) / cp
           end do
           
           totheat     = this%rad_grid%intV_fn( heat )
           totheattide = this%rad_grid%intV_fn( heattide )
           
-        deallocate( heat, heattide )
+        deallocate( heat, heattide, velocity, gradT )
         
-        laws_temp_fn = totheat / ( flux_dn + flux_up + totheattide )
+        laws_temp_fn = totheat / ( flow_dn + flow_up + totheattide )
         
       case default
         
-        laws_temp_fn = -flux_up / flux_dn
+        laws_temp_fn = -flow_up / flow_dn
         
     end select
     
@@ -118,7 +114,7 @@ submodule (PhysicalObject) BalanceEquations
     allocate( dbuoy(this%nd+1) )
     
       do ir = 1, this%nd+1
-        dbuoy(ir) = this%Ra * this%alpha_fn(ir) * this%gravity%g_fn(this%rad_grid%rr(ir)) * this%sol%temp_fn(ir,ijm)
+        dbuoy(ir) = this%Ra * this%alpha_rr_fn(ir) * this%gravity%g_fn(this%rad_grid%rr(ir)) * this%temp_rr_fn(ir,ijm)
       end do
       
       press_buoy = this%rad_grid%intV_fn( dbuoy )

@@ -1,5 +1,5 @@
-submodule(Solution) Solution_singles
-  implicit none ; contains
+submodule (Solution) Solution_stress
+  implicit none; contains
   
   module pure complex(kind=dbl) function deviatoric_stress_fn(this, ir, il, ijm)
     class(T_solution), intent(in) :: this
@@ -28,4 +28,24 @@ submodule(Solution) Solution_singles
     
   end function deviatoric_stress_fn
   
-end submodule Solution_singles
+  module pure function deviatoric_stress_jml2_fn(this, ir) result(dstress)
+    class(T_solution), intent(in)  :: this
+    integer,           intent(in)  :: ir
+    complex(kind=dbl), allocatable :: dstress(:)
+    integer                        :: ij, im, il, ijm
+    
+    allocate( dstress(this%jmt) ) ; dstress = czero
+    
+    do ij = 0, this%jmax
+      do im = 0, ij
+        ijm = ij*(ij+1)/2+im+1
+        
+        do il = abs(ij-2)-ij, +2
+          dstress(5*(ijm-1)+il-1) = this%deviatoric_stress_fn(ir, il, ijm)
+        end do
+      end do
+    end do
+    
+  end function deviatoric_stress_jml2_fn
+  
+end submodule Solution_stress

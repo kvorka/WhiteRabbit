@@ -32,7 +32,7 @@ submodule (PhysicalObject) Powers
     allocate( power_ir(this%nd) )
     
       do ir = 1, this%nd
-        power_ir(ir)  = tensnorm2_fn( this%jmax, this%sol%deviatoric_stress_jml2_fn(ir) ) / this%visc_fn(ir) / 2
+        power_ir(ir)  = tensnorm2_fn( this%jmax, this%sol%deviatoric_stress_jml2_fn(ir) ) / this%visc_r_fn(ir) / 2
       end do
       
       power = this%rad_grid%intV_fn( power_ir )

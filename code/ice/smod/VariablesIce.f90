@@ -9,18 +9,6 @@ submodule(IceMod) VariablesIce
     
   end function temperature_ice_r_fn
   
-  module pure subroutine temp_ice_r_jm_sub(this, i, temp)
-    class(T_ice),      intent(in)  :: this
-    integer,           intent(in)  :: i
-    complex(kind=dbl), intent(out) :: temp(:)
-    integer                        :: ijm
-    
-    do concurrent ( ijm = 1:this%jms )
-      temp(ijm) = this%temp_r_fn(i,ijm)
-    end do
-    
-  end subroutine temp_ice_r_jm_sub
-  
   module pure real(kind=dbl) function temperature_ice_rr_fn(this, i)
     class(T_ice),  intent(in) :: this
     integer,       intent(in) :: i
@@ -37,5 +25,13 @@ submodule(IceMod) VariablesIce
                        & sqrt( tensnorm2_fn(this%jmax, this%sol%deviatoric_stress_jml2_fn(i)) ) / s4pi
     
   end function devstress_ice_r_fn
+  
+  module pure real(kind=dbl) function devstress_ice_rr_fn(this, i)
+    class(T_ice),  intent(in) :: this
+    integer,       intent(in) :: i
+    
+    devstress_ice_rr_fn = zero
+    
+  end function devstress_ice_rr_fn
   
 end submodule VariablesIce

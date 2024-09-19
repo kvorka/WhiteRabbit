@@ -35,8 +35,8 @@ module IceCrustMod
     call this%init_eq_temp_sub( rhs=.true. , nl=.true.  )
     call this%init_eq_mech_sub( rhs=.true. , nl=.false. )
     
-    call this%mparams%init_visc_sub()
-    call this%mparams%init_conductivity_sub()
+    !call this%mparams%init_visc_sub()
+    !call this%mparams%init_conductivity_sub()
     
     call this%tides%init_sub()
     
@@ -251,7 +251,7 @@ module IceCrustMod
       call this%solve_temp_sub( ijmstart=ijm, ijmend=ijm, ijmstep=1, rematrix=.true., matxsol=.true. )
     
     !! Update the heat flux
-    flux = flux * c2r_fn( -this%sol%flux_fn(1,1,1) / s4pi )
+    flux = flux * c2r_fn( -this%q_r_fn(1,1,1) / s4pi )
     
     !! Solve for other degrees
     !$omp parallel do private (ir)
@@ -271,8 +271,8 @@ module IceCrustMod
     
     call this%solve_temp_sub( ijmstart=2, ijmend=this%jms, ijmstep=1, rematrix=.true., matxsol=.true. )
     
-    if ( this%mparams%initvisc   ) call this%visc_ice_jm_sub()
-    if ( this%mparams%initlambda ) call this%lambda_ice_jm_sub()
+    call this%visc_ice_jm_sub()
+    call this%lambda_ice_jm_sub()
     
   end subroutine EE_temp_iceCrust_sub
   
@@ -292,7 +292,7 @@ module IceCrustMod
         this%rsph2(ir,ijm) = czero
       
       do ir = 2, this%nd
-        buoy = this%Ra * this%alpha_fn(ir) * this%gravity%g_fn( this%rad_grid%rr(ir) ) * this%sol%temp_fn(ir,ijm)
+        buoy = this%Ra * this%alpha_rr_fn(ir) * this%gravity%g_fn( this%rad_grid%rr(ir) ) * this%temp_rr_fn(ir,ijm)
         
         this%rsph1(ir,ijm) = -sqrt((ij  )/(2*ij+one)) * buoy
         this%rsph2(ir,ijm) = +sqrt((ij+1)/(2*ij+one)) * buoy

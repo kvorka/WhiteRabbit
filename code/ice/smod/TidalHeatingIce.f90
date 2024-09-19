@@ -12,7 +12,7 @@ submodule(IceMod) TidalHeatingIce
       HI = czero
     end if
     
-    htide_ice_4_fn = this%Ds/this%Ra * HI / this%cp_fn(ir)
+    htide_ice_4_fn = this%Ds/this%Ra * HI / this%cp_rr_fn(ir)
     
   end function htide_ice_4_fn
   
@@ -75,7 +75,7 @@ submodule(IceMod) TidalHeatingIce
             & 50 / sqrt(14*pi)    / 21 * Dstrss(jml2(2,2, 0)) * Dstrss(jml2(2,2,+2)) + &
             &  3 * sqrt( 5/pi/14) / 14 * Dstrss(jml2(2,2,+2)) * Dstrss(jml2(2,2,+2))
       
-      this%htide(ir,:) = this%htide(ir,:) + H(:) / this%visc_fn(ir) / 2 / this%n_iter
+      this%htide(ir,:) = this%htide(ir,:) + H(:) / this%visc_r_fn(ir) / 2 / this%n_iter
     end do
         
     deallocate( Dstrss, H )

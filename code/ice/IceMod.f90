@@ -21,13 +21,18 @@ module iceMod
     procedure :: htide_fn          => htide_ice_4_fn
     procedure :: set_layers_sub    => set_layers_ice_sub
     procedure :: tidal_heating_sub => tidal_heating_ice_4_sub
-    procedure :: lambda_fn         => lambda_ice_fn
-    procedure :: cp_fn             => cp_ice_fn
-    procedure :: alpha_fn          => alpha_ice_fn
-    procedure :: visc_fn           => visc_ice_fn
     
-    procedure :: temperature_ice_r_fn, temperature_ice_rr_fn, temp_ice_r_jm_sub
-    procedure :: devstress_ice_r_fn
+    procedure :: lambda_r_fn  => lambda_r_ice_fn
+    procedure :: lambda_rr_fn => lambda_rr_ice_fn
+    procedure :: cp_r_fn      => cp_r_ice_fn
+    procedure :: cp_rr_fn     => cp_rr_ice_fn
+    procedure :: alpha_r_fn   => alpha_r_ice_fn
+    procedure :: alpha_rr_fn  => alpha_rr_ice_fn
+    procedure :: visc_r_fn    => visc_r_ice_fn
+    procedure :: visc_rr_fn   => visc_rr_ice_fn
+    
+    procedure :: temperature_ice_r_fn, temperature_ice_rr_fn
+    procedure :: devstress_ice_r_fn, devstress_ice_rr_fn
     procedure :: visc_ice_jm_sub, lambda_ice_jm_sub
     
   end type T_ice
@@ -44,25 +49,45 @@ module iceMod
       class(T_ice), intent(inout) :: this
     end subroutine deallocate_ice_sub
 
-    module pure real(kind=dbl) function lambda_ice_fn(this, i)
-      class(T_ice),  intent(in) :: this
-      integer,       intent(in) :: i
-    end function lambda_ice_fn
+    module pure real(kind=dbl) function lambda_r_ice_fn(this, ir)
+      class(T_ice), intent(in) :: this
+      integer,      intent(in) :: ir
+    end function lambda_r_ice_fn
     
-    module pure real(kind=dbl) function cp_ice_fn(this, i)
-      class(T_ice),  intent(in) :: this
-      integer,       intent(in) :: i
-    end function cp_ice_fn
+    module pure real(kind=dbl) function lambda_rr_ice_fn(this, ir)
+      class(T_ice), intent(in) :: this
+      integer,      intent(in) :: ir
+    end function lambda_rr_ice_fn
     
-    module pure real(kind=dbl) function alpha_ice_fn(this, i)
-      class(T_ice),  intent(in) :: this
-      integer,       intent(in) :: i
-    end function alpha_ice_fn
+    module pure real(kind=dbl) function cp_r_ice_fn(this, ir)
+      class(T_ice), intent(in) :: this
+      integer,      intent(in) :: ir
+    end function cp_r_ice_fn
     
-    module pure real(kind=dbl) function visc_ice_fn(this, i)
-      class(T_ice),      intent(in) :: this
-      integer,           intent(in) :: i
-    end function visc_ice_fn
+    module pure real(kind=dbl) function cp_rr_ice_fn(this, ir)
+      class(T_ice), intent(in) :: this
+      integer,      intent(in) :: ir
+    end function cp_rr_ice_fn
+    
+    module pure real(kind=dbl) function alpha_r_ice_fn(this, ir)
+      class(T_ice), intent(in) :: this
+      integer,      intent(in) :: ir
+    end function alpha_r_ice_fn
+    
+    module pure real(kind=dbl) function alpha_rr_ice_fn(this, ir)
+      class(T_ice), intent(in) :: this
+      integer,      intent(in) :: ir
+    end function alpha_rr_ice_fn
+    
+    module pure real(kind=dbl) function visc_r_ice_fn(this, ir)
+      class(T_ice), intent(in) :: this
+      integer,      intent(in) :: ir
+    end function visc_r_ice_fn
+    
+    module pure real(kind=dbl) function visc_rr_ice_fn(this, ir)
+      class(T_ice), intent(in) :: this
+      integer,      intent(in) :: ir
+    end function visc_rr_ice_fn
     
     module subroutine visc_ice_jm_sub(this)
       class(T_ice), intent(inout) :: this
@@ -95,12 +120,6 @@ module iceMod
       integer,       intent(in) :: i
     end function temperature_ice_r_fn
     
-    module pure subroutine temp_ice_r_jm_sub(this, i, temp)
-      class(T_ice),      intent(in)  :: this
-      integer,           intent(in)  :: i
-      complex(kind=dbl), intent(out) :: temp(:)
-    end subroutine temp_ice_r_jm_sub
-    
     module pure real(kind=dbl) function temperature_ice_rr_fn(this, i)
       class(T_ice),  intent(in) :: this
       integer,       intent(in) :: i
@@ -110,6 +129,11 @@ module iceMod
       class(T_ice),  intent(in) :: this
       integer,       intent(in) :: i
     end function devstress_ice_r_fn
+    
+    module pure real(kind=dbl) function devstress_ice_rr_fn(this, i)
+      class(T_ice),  intent(in) :: this
+      integer,       intent(in) :: i
+    end function devstress_ice_rr_fn
   end interface
   
 end module iceMod
