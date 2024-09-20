@@ -18,12 +18,11 @@ submodule(IceMod) Init_ice
     this%n_iter = n_iter
     
     this%rheology     = rheol_in
-    this%andrade      = .false.
     this%mechanic_bnd = mechanic_bnd_ice
     this%thermal_bnd  = thermal_bnd_ice
 
-    this%Pr = huge(0._dbl)
-    this%Ek = huge(0._dbl)
+    this%Pr = huge(zero)
+    this%Ek = huge(zero)
 
     this%g    = g_ice
     this%Td   = Td_ice
@@ -64,8 +63,6 @@ submodule(IceMod) Init_ice
     call this%gravity%set_sub( Dcrust = this%D_ud, omega = omega, exc = exc )
     call this%sol%init_layers_sub()
     
-    allocate( this%htide(this%nd,jms4) ); this%htide = czero
-
   end subroutine init_ice_sub
   
   module subroutine deallocate_ice_sub(this)

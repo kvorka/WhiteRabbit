@@ -1,23 +1,8 @@
-submodule(IceMod) TidalHeatingIce
-  implicit none ; contains
+submodule (IceTidesMod) TidalHeating_iceTides
+  implicit none; contains
   
-  module pure complex(kind=dbl) function htide_ice_4_fn(this, ir, ijm)
-    class(T_ice),      intent(in) :: this
-    integer,           intent(in) :: ir, ijm
-    complex(kind=dbl)             :: HI
-    
-    if ( ijm <= jms4 ) then
-      HI = this%rad_grid%cc(ir,-1) * this%htide(ir-1,ijm) + this%rad_grid%cc(ir,+1) * this%htide(ir,ijm)
-    else
-      HI = czero
-    end if
-    
-    htide_ice_4_fn = this%Ds/this%Ra * HI / this%cp_rr_fn(ir)
-    
-  end function htide_ice_4_fn
-  
-  module subroutine tidal_heating_ice_4_sub(this)
-    class(T_ice),      intent(inout) :: this
+  module subroutine tidal_heating_iceTides_4_sub(this)
+    class(T_iceTides), intent(inout) :: this
     integer                          :: ir
     complex(kind=dbl), allocatable   :: Dstrss(:), H(:)
     
@@ -80,6 +65,6 @@ submodule(IceMod) TidalHeatingIce
         
     deallocate( Dstrss, H )
     
-  end subroutine tidal_heating_ice_4_sub
+  end subroutine tidal_heating_iceTides_4_sub
   
-end submodule TidalHeatingIce
+end submodule TidalHeating_iceTides

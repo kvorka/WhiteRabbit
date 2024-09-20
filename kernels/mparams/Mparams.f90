@@ -40,13 +40,13 @@ module Mparams
       class(T_Mparams), intent(inout) :: this
     end subroutine init_visc_sub
     
-    module subroutine init_cond_sub(this)
+    module subroutine init_lambda_sub(this)
       class(T_Mparams), intent(inout) :: this
-    end subroutine init_cond_sub
+    end subroutine init_lambda_sub
     
-    module subroutine init_cap_sub(this)
+    module subroutine init_cp_sub(this)
       class(T_Mparams), intent(inout) :: this
-    end subroutine init_cap_sub
+    end subroutine init_cp_sub
     
     module subroutine init_alpha_sub(this)
       class(T_Mparams), intent(inout) :: this

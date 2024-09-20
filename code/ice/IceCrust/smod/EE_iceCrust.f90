@@ -22,8 +22,13 @@ submodule (IceCrustMod) EE_iceCrust
         flux = czero
       end if
       
-    call EE_temp_sub(this, flux)
-    call EE_mech_sub(this, flux)
+    call this%EE_temp_sub(flux)
+      call this%set_visc_sub()
+      call this%set_lambda_sub()
+      call this%set_cp_sub()
+      call this%set_alpha_sub()
+    
+    call this%EE_mech_sub(flux)
     
     this%sol%v_dn(1) = czero
     this%sol%v_up(1) = czero
@@ -58,7 +63,7 @@ submodule (IceCrustMod) EE_iceCrust
         this%rtemp(ir,ijm) = cs4pi
       
       do concurrent ( ir = 2:this%nd )
-        this%rtemp(ir,ijm) = this%htide_fn(ir,ijm) + this%ntemp(ijm,ir)
+        this%rtemp(ir,ijm) = this%htide_rr_fn(ir,ijm) + this%ntemp(ijm,ir)
       end do
       
       ir = this%nd+1
@@ -77,7 +82,7 @@ submodule (IceCrustMod) EE_iceCrust
                              & this%Cl / ( c2r_fn( this%dT_dr_r_fn(ir,1) ) / s4pi - this%Cl ) * this%Vdelta_fn(1,ijm) )
       
       do concurrent ( ir = 2:this%nd )
-        this%rtemp(ir,ijm) = this%htide_fn(ir,ijm) + this%ntemp(ijm,ir)
+        this%rtemp(ir,ijm) = this%htide_rr_fn(ir,ijm) + this%ntemp(ijm,ir)
       end do
       
       ir = this%nd+1
@@ -86,9 +91,6 @@ submodule (IceCrustMod) EE_iceCrust
     !$omp end parallel do
     
     call this%solve_temp_sub( ijmstart=2, ijmend=this%jms, ijmstep=1, rematrix=.true., matxsol=.true. )
-    
-    call this%set_visc_sub()
-    call this%set_lambda_sub()
     
   end subroutine EE_temp_iceCrust_sub
   

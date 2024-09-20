@@ -19,7 +19,7 @@ module PhysicalObject
     real(kind=dbl)                 :: t, dt, cf, ab, rd, ru, r_ud, D_ud, gd, gu, Pr, Ra, Ek, St, Cl, Ds, Raf, Ramu, Rad, Rau
     integer,           allocatable :: j_indx(:)
     complex(kind=dbl), allocatable :: flux_up(:), htide(:,:), rsph1(:,:), rsph2(:,:), rtorr(:,:), rtemp(:,:), &
-                                    &                         nsph1(:,:), nsph2(:,:), ntorr(:,:), ntemp(:,:)
+                                    & nsph1(:,:), nsph2(:,:), ntorr(:,:), ntemp(:,:)
     
     type(T_radialGrid)  :: rad_grid
     type(T_lateralGrid) :: lat_grid
@@ -41,7 +41,8 @@ module PhysicalObject
     procedure, pass :: lambda_rr_fn, cp_rr_fn, visc_rr_fn, alpha_rr_fn
     
     !Variables :: Thermal solution
-    procedure, pass :: htide_fn
+    procedure, pass :: htide_r_fn, htide_ir_ijm_sub
+    procedure, pass :: htide_rr_fn
     procedure, pass :: temp_r_fn, temp_r_ijm_sub, temp_ir_jm_sub, dT_dr_r_fn, dT_dr_r_ijm_sub, gradT_r_ijml_sub
     procedure, pass :: temp_rr_fn, temp_rr_ijm_sub, temp_irr_jm_sub, dT_dr_rr_fn, dT_dr_rr_ijm_sub, gradT_rr_ijml_sub
     procedure, pass :: q_r_fn, q_r_ijml_sub
@@ -327,18 +328,30 @@ module PhysicalObject
       integer,                 intent(in) :: ir
     end function alpha_rr_fn
     
-    !Interfaces :: to be continued
+    !Interfaces :: tidal heating
+    module pure complex(kind=dbl) function htide_r_fn(this, ir, ijm)
+      class(T_physicalObject), intent(in) :: this
+      integer,                 intent(in) :: ir, ijm
+    end function htide_r_fn
+    
+    module pure subroutine htide_ir_ijm_sub(this, htide)
+      class(T_physicalObject), intent(in)    :: this
+      complex(kind=dbl),       intent(inout) :: htide(:,:)
+    end subroutine htide_ir_ijm_sub
+    
+    module pure complex(kind=dbl) function htide_rr_fn(this, ir, ijm)
+      class(T_physicalObject), intent(in) :: this
+      integer,                 intent(in) :: ir, ijm
+    end function htide_rr_fn
+    
+    !Interfaces :: output
     module subroutine vypis_sub(this, filenum, path, quantity)
       class(T_physicalObject), intent(in) :: this
       integer,                 intent(in) :: filenum
       character(len=*),        intent(in) :: path, quantity
     end subroutine vypis_sub
     
-    module pure complex(kind=dbl) function htide_fn(this, ir, ijm)
-      class(T_physicalObject), intent(in) :: this
-      integer,                 intent(in) :: ir, ijm
-    end function htide_fn
-    
+    !Interfaces :: to be continued
     module pure subroutine coriolis_rr_jml_sub(this, v, coriolis)
       class(T_physicalObject), intent(in)    :: this
       complex(kind=dbl),       intent(in)    :: v(:)

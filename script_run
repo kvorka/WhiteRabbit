@@ -57,7 +57,7 @@ $compile -c code/ocean/OceanConstants.f90
 $compile -c code/ocean/OceanMod.f90
 $compile -c code/ocean/mod/*.f90
 
-$compile -c code/ice/modparams/*.f90
+$compile -c code/ice/Ice_parameters/*.f90
 $compile -c code/ice/IceConstants.f90
 
 $compile -c code/ice/IceMod/IceMod.f90

@@ -8,7 +8,6 @@ module iceMod
   implicit none
   
   type, extends(T_physicalObject), abstract, public :: T_ice
-    logical        :: andrade
     real(kind=dbl) :: diam, lambdaC, hC, lambdaU, viscU, cutoff, alphaU, cU, kappaU, Td, Tu, period, omega, g, mu
     real(kind=dbl) :: rC, rI2, rhoC, rhoI2, rhoW, rhoI
     
@@ -17,11 +16,8 @@ module iceMod
     procedure :: init_ice_sub      => init_ice_sub
     procedure :: deallocate_sub    => deallocate_ice_sub
     
-    procedure :: htide_fn          => htide_ice_4_fn
-    procedure :: tidal_heating_sub => tidal_heating_ice_4_sub
-    
-    procedure :: average_temperature_ice_ir_fn, average_temperature_ice_irr_fn
-    procedure :: average_stress_ice_ir_fn, average_stress_ice_irr_fn
+    procedure :: avrg_temperature_ice_ir_fn, avrg_temperature_ice_irr_fn
+    procedure :: avrg_stress_ice_ir_fn, avrg_stress_ice_irr_fn
     
   end type T_ice
 
@@ -37,34 +33,25 @@ module iceMod
       class(T_ice), intent(inout) :: this
     end subroutine deallocate_ice_sub
     
-    module pure complex(kind=dbl) function htide_ice_4_fn(this, ir, ijm)
-      class(T_ice), intent(in) :: this
-      integer,      intent(in) :: ir, ijm
-    end function htide_ice_4_fn
-
-    module subroutine tidal_heating_ice_4_sub(this)
-      class(T_ice), intent(inout) :: this
-    end subroutine tidal_heating_ice_4_sub
-    
-    module pure real(kind=dbl) function average_temperature_ice_ir_fn(this, ir)
+    module pure real(kind=dbl) function avrg_temperature_ice_ir_fn(this, ir)
       class(T_ice),  intent(in) :: this
       integer,       intent(in) :: ir
-    end function average_temperature_ice_ir_fn
+    end function avrg_temperature_ice_ir_fn
     
-    module pure real(kind=dbl) function average_temperature_ice_irr_fn(this, ir)
+    module pure real(kind=dbl) function avrg_temperature_ice_irr_fn(this, ir)
       class(T_ice),  intent(in) :: this
       integer,       intent(in) :: ir
-    end function average_temperature_ice_irr_fn
+    end function avrg_temperature_ice_irr_fn
     
-    module pure real(kind=dbl) function average_stress_ice_ir_fn(this, ir)
+    module pure real(kind=dbl) function avrg_stress_ice_ir_fn(this, ir)
       class(T_ice),  intent(in) :: this
       integer,       intent(in) :: ir
-    end function average_stress_ice_ir_fn
+    end function avrg_stress_ice_ir_fn
     
-    module pure real(kind=dbl) function average_stress_ice_irr_fn(this, ir)
+    module pure real(kind=dbl) function avrg_stress_ice_irr_fn(this, ir)
       class(T_ice),  intent(in) :: this
       integer,       intent(in) :: ir
-    end function average_stress_ice_irr_fn
+    end function avrg_stress_ice_irr_fn
   end interface
   
 end module iceMod

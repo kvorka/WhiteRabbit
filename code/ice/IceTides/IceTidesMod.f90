@@ -6,24 +6,27 @@ module IceTidesMod
     
     contains
     
-    procedure :: init_sub       => init_iceTides_sub
-    procedure :: compute_sub    => compute_iceTides_sub
-    procedure :: Vdelta_fn      => Vdelta_iceTides_fn
-    procedure :: set_layers_sub => set_layers_iceTides_sub
+    procedure :: init_sub          => init_iceTides_sub
+
+    procedure :: compute_sub       => compute_iceTides_sub
+    procedure :: Vdelta_fn         => Vdelta_iceTides_fn
+    procedure :: set_layers_sub    => set_layers_iceTides_sub
+    procedure :: tidal_heating_sub => tidal_heating_iceTides_4_sub
+    
+    procedure :: set_visc_sub => visc_iceTides_jm_sub
     
     procedure, private :: EE_mech_sub => EE_mech_iceTides_sub
     
   end type T_iceTides
   
   interface
-    module subroutine init_iceTides_sub(this, latvisc)
+    module subroutine init_iceTides_sub(this)
       class(T_iceTides), intent(inout) :: this
-      logical,           intent(in)    :: latvisc
     end subroutine init_iceTides_sub
     
     module subroutine compute_iceTides_sub(this, visc_prof)
       class(T_iceTides), intent(inout) :: this
-      complex(kind=dbl), intent(in)    :: visc_prof(this%nd,*)
+      complex(kind=dbl), intent(in)    :: visc_prof(:,:)
     end subroutine compute_iceTides_sub
     
     module pure complex(kind=dbl) function Vdelta_iceTides_fn(this, ir, ijm)
@@ -34,6 +37,14 @@ module IceTidesMod
     module subroutine set_layers_iceTides_sub(this)
       class(T_iceTides), intent(inout) :: this
     end subroutine set_layers_iceTides_sub
+    
+    module subroutine visc_iceTides_jm_sub(this)
+      class(T_iceTides), intent(inout) :: this
+    end subroutine visc_iceTides_jm_sub
+    
+    module subroutine tidal_heating_iceTides_4_sub(this)
+      class(T_iceTides), intent(inout) :: this
+    end subroutine tidal_heating_iceTides_4_sub
     
     module subroutine EE_mech_iceTides_sub(this)
       class(T_iceTides), intent(inout) :: this

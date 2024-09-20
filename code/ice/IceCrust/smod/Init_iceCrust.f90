@@ -7,7 +7,10 @@ submodule (IceCrustMod) Init_iceCrust
     call this%init_ice_sub(jmax_in = jmax_ice, rheol_in = 'viscel', n_iter = n_iter_ice)
     
     this%cf = one
-
+    
+    allocate( this%htide(this%nd,this%jms) )
+      this%htide = czero
+    
     call this%init_eq_temp_sub( rhs=.true. , nl=.true.  )
     call this%init_eq_mech_sub( rhs=.true. , nl=.false. )
     
@@ -16,7 +19,7 @@ submodule (IceCrustMod) Init_iceCrust
     call this%mparams%init_lambda_radial_sub()
     call this%mparams%init_alpha_radial_sub()
     
-    call this%tides%init_sub( latvisc=this%mparams%initvisc )
+    call this%tides%init_sub()
     
   end subroutine init_iceCrust_sub
   
