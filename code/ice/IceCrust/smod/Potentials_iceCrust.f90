@@ -25,10 +25,10 @@ submodule (IceCrustMod) Potentials_iceCrust
       end do
     end if
     
-    Vdelta_iceCrust_fn = ( this%gravity%V_bnd_fn( j, m, ri, this%ru , this%rhoI           , this%sol%u_up(ijm) ) + &
-                         & this%gravity%V_bnd_fn( j, m, ri, this%rd , this%rhoW-this%rhoI , this%sol%u_dn(ijm) ) + &
-                         & this%gravity%V_bnd_fn( j, m, ri, this%rI2, this%rhoI2-this%rhoW, this%sol%u_I2(ijm) ) + &
-                         & this%gravity%V_bnd_fn( j, m, ri, this%rC , this%rhoC-this%rhoI2, this%sol%u_C(ijm)  ) + &
+    Vdelta_iceCrust_fn = ( this%gravity%V_bnd_fn( j, m, ri, this%ru , this%rhoI           , this%bnd%u_up(ijm) ) + &
+                         & this%gravity%V_bnd_fn( j, m, ri, this%rd , this%rhoW-this%rhoI , this%bnd%u_dn(ijm) ) + &
+                         & this%gravity%V_bnd_fn( j, m, ri, this%rI2, this%rhoI2-this%rhoW, this%bnd%u_I2(ijm) ) + &
+                         & this%gravity%V_bnd_fn( j, m, ri, this%rC , this%rhoC-this%rhoI2, this%bnd%u_C(ijm)  ) + &
                          & this%gravity%V_rho_fn( j, m, ri, field, this%rad_grid)                                + &
                          & this%gravity%V_rt_fn(  j, m, ri ) ) / this%gravity%g_fn( ri )
     
@@ -66,8 +66,8 @@ submodule (IceCrustMod) Potentials_iceCrust
           field(ir) = fac * this%alpha_rr_fn(ir) * this%temp_rr_fn(ir,ijm) * (this%rI2/this%rad_grid%rr(ir))**(j-1)
         end do
         
-        rhs1 = -( this%gravity%V_bnd_fn(j,m,this%rI2,this%ru,this%rhoI          ,this%sol%u_up(ijm)+this%sol%v_up(ijm)*this%dt ) + &
-                & this%gravity%V_bnd_fn(j,m,this%rI2,this%rd,this%rhoW-this%rhoI,this%sol%u_dn(ijm)+this%sol%v_dn(ijm)*this%dt ) + &
+        rhs1 = -( this%gravity%V_bnd_fn(j,m,this%rI2,this%ru,this%rhoI          ,this%bnd%u_up(ijm)+this%bnd%v_up(ijm)*this%dt ) + &
+                & this%gravity%V_bnd_fn(j,m,this%rI2,this%rd,this%rhoW-this%rhoI,this%bnd%u_dn(ijm)+this%bnd%v_dn(ijm)*this%dt ) + &
                 & this%gravity%V_rho_fn(j,m,this%rI2, field, this%rad_grid) + &
                 & this%gravity%V_rt_fn( j,m,this%rI2) )
         
@@ -75,13 +75,13 @@ submodule (IceCrustMod) Potentials_iceCrust
           field(ir) = fac * this%alpha_rr_fn(ir) * this%temp_rr_fn(ir,ijm) * (this%rC/this%rad_grid%rr(ir))**(j-1)
         end do
         
-        rhs2 = -( this%gravity%V_bnd_fn(j,m,this%rC,this%ru,this%rhoI          ,this%sol%u_up(ijm)+this%sol%v_up(ijm)*this%dt ) + &
-                & this%gravity%V_bnd_fn(j,m,this%rC,this%rd,this%rhoW-this%rhoI,this%sol%u_dn(ijm)+this%sol%v_dn(ijm)*this%dt ) + &
+        rhs2 = -( this%gravity%V_bnd_fn(j,m,this%rC,this%ru,this%rhoI          ,this%bnd%u_up(ijm)+this%bnd%v_up(ijm)*this%dt ) + &
+                & this%gravity%V_bnd_fn(j,m,this%rC,this%rd,this%rhoW-this%rhoI,this%bnd%u_dn(ijm)+this%bnd%v_dn(ijm)*this%dt ) + &
                 & this%gravity%V_rho_fn(j,m,this%rC,field,this%rad_grid) + &
                 & this%gravity%V_rt_fn( j,m,this%rC) )
         
-        this%sol%u_I2(ijm) = a22 * rhs1 - a12 * rhs2
-        this%sol%u_C(ijm)  = a11 * rhs2 - a21 * rhs1  
+        this%bnd%u_I2(ijm) = a22 * rhs1 - a12 * rhs2
+        this%bnd%u_C(ijm)  = a11 * rhs2 - a21 * rhs1  
       end do
     end do
     

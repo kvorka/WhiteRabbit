@@ -30,22 +30,22 @@ submodule (IceCrustMod) EE_iceCrust
     
     call this%EE_mech_sub(flux)
     
-    this%sol%v_dn(1) = czero
-    this%sol%v_up(1) = czero
+    this%bnd%v_dn(1) = czero
+    this%bnd%v_up(1) = czero
     
     do concurrent ( ijm = 2:this%jms )
-      this%sol%v_dn(ijm) = this%vr_r_fn(1,ijm) - this%Raf * ( this%qr_r_fn(1,ijm) - flux(ijm) )
-      this%sol%v_up(ijm) = this%vr_r_fn(this%nd,ijm)
+      this%bnd%v_dn(ijm) = this%vr_r_fn(1,ijm) - this%Raf * ( this%qr_r_fn(1,ijm) - flux(ijm) )
+      this%bnd%v_up(ijm) = this%vr_r_fn(this%nd,ijm)
     end do
     
     do concurrent ( ijm = 1:this%jms )
-      this%sol%u_dn(ijm) = this%sol%u_dn(ijm) + this%sol%v_dn(ijm) * this%dt
-      this%sol%u_up(ijm) = this%sol%u_up(ijm) + this%sol%v_up(ijm) * this%dt
+      this%bnd%u_dn(ijm) = this%bnd%u_dn(ijm) + this%bnd%v_dn(ijm) * this%dt
+      this%bnd%u_up(ijm) = this%bnd%u_up(ijm) + this%bnd%v_up(ijm) * this%dt
     end do
     
     do concurrent ( ijm = 2:this%jms )
-      this%sol%t_dn(ijm) = this%sol%u_dn(ijm) - this%Vdelta_fn(1      ,ijm)
-      this%sol%t_up(ijm) = this%sol%u_up(ijm) - this%Vdelta_fn(this%nd,ijm)
+      this%bnd%t_dn(ijm) = this%bnd%u_dn(ijm) - this%Vdelta_fn(1      ,ijm)
+      this%bnd%t_up(ijm) = this%bnd%u_up(ijm) - this%Vdelta_fn(this%nd,ijm)
     end do
     
     deallocate( flux )
@@ -78,7 +78,7 @@ submodule (IceCrustMod) EE_iceCrust
     !$omp parallel do private (ir)
     do ijm = 2, this%jms
       ir = 1
-        this%rtemp(1,ijm) = -( this%sol%u_dn(ijm) + ( this%vr_r_fn(1,ijm) + this%Raf * flux(ijm) ) * this%dt +        &
+        this%rtemp(1,ijm) = -( this%bnd%u_dn(ijm) + ( this%vr_r_fn(1,ijm) + this%Raf * flux(ijm) ) * this%dt +        &
                              & this%Cl / ( c2r_fn( this%dT_dr_r_fn(ir,1) ) / s4pi - this%Cl ) * this%Vdelta_fn(1,ijm) )
       
       do concurrent ( ir = 2:this%nd )
@@ -86,7 +86,7 @@ submodule (IceCrustMod) EE_iceCrust
       end do
       
       ir = this%nd+1
-        this%rtemp(this%nd+1,ijm) = -( this%sol%u_up(ijm) + this%vr_r_fn(this%nd,ijm) * this%dt )
+        this%rtemp(this%nd+1,ijm) = -( this%bnd%u_up(ijm) + this%vr_r_fn(this%nd,ijm) * this%dt )
     end do
     !$omp end parallel do
     
@@ -98,27 +98,24 @@ submodule (IceCrustMod) EE_iceCrust
     class(T_iceCrust), intent(inout) :: this
     complex(kind=dbl), intent(in)    :: flux(:)
     integer                          :: ir, ij, ijm
-    complex(kind=dbl)                :: buoy
     
-    !$omp parallel do private (ir,ij,buoy)
+    !$omp parallel do private (ir,ij)
     do ijm = 2, this%jms
       ij = this%j_indx(ijm)
 
       ir = 1
-        this%rsph1(ir,ijm) = -( this%sol%u_dn(ijm) - this%Vdelta_fn(1,ijm) -            &
+        this%rsph1(ir,ijm) = -( this%bnd%u_dn(ijm) - this%Vdelta_fn(1,ijm) -            &
                               & this%Raf * (this%qr_r_fn(ir,ijm) - flux(ijm)) * this%dt )
         this%rsph2(ir,ijm) = czero
       
       do ir = 2, this%nd
-        buoy = this%Ra * this%alpha_rr_fn(ir) * this%gravity%g_fn( this%rad_grid%rr(ir) ) * this%temp_rr_fn(ir,ijm)
-        
-        this%rsph1(ir,ijm) = -sqrt((ij  )/(2*ij+one)) * buoy
-        this%rsph2(ir,ijm) = +sqrt((ij+1)/(2*ij+one)) * buoy
+        this%rsph1(ir,ijm) = this%buoy_rr_fn(ir,-1,ijm,-1)
+        this%rsph2(ir,ijm) = this%buoy_rr_fn(ir,+1,ijm,-1)
       end do
       
       ir = this%nd+1
         this%rsph1(ir,ijm) = czero
-        this%rsph2(ir,ijm) = -( this%sol%u_up(ijm) - this%Vdelta_fn(this%nd,ijm) )
+        this%rsph2(ir,ijm) = -( this%bnd%u_up(ijm) - this%Vdelta_fn(this%nd,ijm) )
     end do
     !$omp end parallel do
 

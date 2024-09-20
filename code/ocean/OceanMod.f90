@@ -191,8 +191,8 @@ module OceanMod
 
     jmsmax = min(size(t_up),this%jms)
 
-    this%sol%t_up(1:jmsmax) = t_up(1:jmsmax) / this%D_ud
-    this%sol%u_up(1:jmsmax) = u_up(1:jmsmax) / this%D_ud
+    this%bnd%t_up(1:jmsmax) = t_up(1:jmsmax) / this%D_ud
+    this%bnd%u_up(1:jmsmax) = u_up(1:jmsmax) / this%D_ud
 
   end subroutine set_boundary_deformation_sub
   

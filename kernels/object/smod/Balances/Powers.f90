@@ -49,7 +49,7 @@ submodule (PhysicalObject) Powers
     allocate( rvelc_jm(this%jms) )
     
     call this%vr_r_jm_sub( 1, rvelc_jm )
-    power = this%Rad * this%gd * this%rd**2 * scalproduct_fn(this%jmax, this%sol%t_dn, rvelc_jm)
+    power = this%Rad * this%gd * this%rd**2 * scalproduct_fn(this%jmax, this%bnd%t_dn, rvelc_jm)
     
     deallocate( rvelc_jm )
     
@@ -63,7 +63,7 @@ submodule (PhysicalObject) Powers
     allocate( rvelc_jm(this%jms) )
     
     call this%vr_r_jm_sub( this%nd, rvelc_jm )
-    power = -this%Rau * this%gu * this%ru**2 * scalproduct_fn(this%jmax, this%sol%t_up, rvelc_jm)
+    power = -this%Rau * this%gu * this%ru**2 * scalproduct_fn(this%jmax, this%bnd%t_up, rvelc_jm)
     
     deallocate( rvelc_jm )
     

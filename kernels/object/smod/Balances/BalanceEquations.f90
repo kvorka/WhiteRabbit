@@ -41,14 +41,14 @@ submodule (PhysicalObject) BalanceEquations
           rvelc_jm(ijm) = this%vr_r_fn(1,ijm)
         end do
         
-        bndpow = this%Rad * this%gd * this%rd**2 * scalproduct_fn(this%jmax, this%sol%t_dn, rvelc_jm)
+        bndpow = this%Rad * this%gd * this%rd**2 * scalproduct_fn(this%jmax, this%bnd%t_dn, rvelc_jm)
         
         !Power of the upper boundary
         do concurrent ( ijm = 1:this%jms )
           rvelc_jm(ijm) = this%vr_r_fn(this%nd,ijm)
         end do
         
-        bndpow = bndpow - this%Rau * this%gu * this%ru**2 * scalproduct_fn(this%jmax, this%sol%t_up, rvelc_jm)
+        bndpow = bndpow - this%Rau * this%gu * this%ru**2 * scalproduct_fn(this%jmax, this%bnd%t_up, rvelc_jm)
         
         !Resulting law
         laws_mech_fn = bndpow / ( heatpow - buoypow )
@@ -108,8 +108,8 @@ submodule (PhysicalObject) BalanceEquations
     complex(kind=dbl)                   :: press_topo_d, press_topo_u, press_buoy
     complex(kind=dbl),      allocatable :: dbuoy(:)
     
-    press_topo_d = this%Rad * this%rd**2 * this%gd * this%sol%t_dn(ijm)
-    press_topo_u = this%Rau * this%ru**2 * this%gu * this%sol%t_up(ijm)
+    press_topo_d = this%Rad * this%rd**2 * this%gd * this%bnd%t_dn(ijm)
+    press_topo_u = this%Rau * this%ru**2 * this%gu * this%bnd%t_up(ijm)
     
     allocate( dbuoy(this%nd+1) )
     

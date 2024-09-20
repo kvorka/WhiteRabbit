@@ -16,7 +16,7 @@ module OceanIceMod
     
     call this%init_ocean_sub()
     
-    call this%sol%init_layer_u_sub()
+    call this%bnd%init_layer_up_sub()
     
     call this%init_eq_temp_sub( rhs=.true. , nl=.true. ) ; call this%prepare_mat_temp_sub( ijstart=0 , ijend=this%jmax )
     call this%init_eq_torr_sub( rhs=.true. , nl=.true. ) ; call this%prepare_mat_torr_sub( ijstart=1 , ijend=this%jmax )
@@ -67,7 +67,7 @@ module OceanIceMod
     q = c2r_fn( -this%q_r_fn(this%nd,1,1) ) / sqrt(4*pi)
     
     do concurrent ( ijm = 2:this%jms )
-      this%rtemp(this%nd+1,ijm) = q * ( this%sol%u_up(ijm) + this%Cl * this%sol%t_up(ijm) )
+      this%rtemp(this%nd+1,ijm) = q * ( this%bnd%u_up(ijm) + this%Cl * this%bnd%t_up(ijm) )
     end do
     
     call this%solve_temp_sub( ijmstart=1 , ijmend=this%jms , ijmstep=1 ,  rematrix=.false. , matxsol=.true. )

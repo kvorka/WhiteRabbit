@@ -61,7 +61,7 @@ submodule(IceMod) Init_ice
     
     
     call this%gravity%set_sub( Dcrust = this%D_ud, omega = omega, exc = exc )
-    call this%sol%init_layers_sub()
+    call this%bnd%init_layers_sub()
     
   end subroutine init_ice_sub
   

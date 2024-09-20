@@ -12,10 +12,10 @@ submodule (IceTidesMod) Potentials_iceTides
     ri = this%rad_grid%r(ir)
     
     Vdelta_iceTides_fn = this%gravity%V_tide_fn(j, m, ri, 2*pi*this%t/this%period)                             + &
-                       & this%gravity%V_bnd_fn( j, m, ri, this%rd , this%rhoW -this%rhoI , this%sol%u_dn(ijm)) + &
-                       & this%gravity%V_bnd_fn( j, m, ri, this%ru , this%rhoI            , this%sol%u_up(ijm)) + &
-                       & this%gravity%V_bnd_fn( j, m, ri, this%rI2, this%rhoI2-this%rhoW , this%sol%u_I2(ijm)) + &
-                       & this%gravity%V_bnd_fn( j, m, ri, this%rC , this%rhoC -this%rhoI2, this%sol%u_C(ijm) )
+                       & this%gravity%V_bnd_fn( j, m, ri, this%rd , this%rhoW -this%rhoI , this%bnd%u_dn(ijm)) + &
+                       & this%gravity%V_bnd_fn( j, m, ri, this%ru , this%rhoI            , this%bnd%u_up(ijm)) + &
+                       & this%gravity%V_bnd_fn( j, m, ri, this%rI2, this%rhoI2-this%rhoW , this%bnd%u_I2(ijm)) + &
+                       & this%gravity%V_bnd_fn( j, m, ri, this%rC , this%rhoC -this%rhoI2, this%bnd%u_C(ijm) )
     
     Vdelta_iceTides_fn = Vdelta_iceTides_fn / this%gravity%g_fn( ri )
     
@@ -39,16 +39,16 @@ submodule (IceTidesMod) Potentials_iceTides
       a21 = a21 / det; a22 = a22 / det
       
     do m = 0, j, 2
-      rhs1 = -( this%gravity%V_bnd_fn( j, m, this%rI2, this%rd, this%rhoW-this%rhoI, this%sol%u_dn(jm(j,m))) + &
-              & this%gravity%V_bnd_fn( j, m, this%rI2, this%ru, this%rhoI          , this%sol%u_up(jm(j,m))) + &
+      rhs1 = -( this%gravity%V_bnd_fn( j, m, this%rI2, this%rd, this%rhoW-this%rhoI, this%bnd%u_dn(jm(j,m))) + &
+              & this%gravity%V_bnd_fn( j, m, this%rI2, this%ru, this%rhoI          , this%bnd%u_up(jm(j,m))) + &
               & this%gravity%V_tide_fn(j, m, this%rI2, 2*pi*this%t/this%period) ) 
               
-      rhs2 = -( this%gravity%V_bnd_fn( j, m, this%rC, this%rd, this%rhoW-this%rhoI, this%sol%u_dn(jm(j,m))) + &
-              & this%gravity%V_bnd_fn( j, m, this%rC, this%ru, this%rhoI          , this%sol%u_up(jm(j,m))) + &
+      rhs2 = -( this%gravity%V_bnd_fn( j, m, this%rC, this%rd, this%rhoW-this%rhoI, this%bnd%u_dn(jm(j,m))) + &
+              & this%gravity%V_bnd_fn( j, m, this%rC, this%ru, this%rhoI          , this%bnd%u_up(jm(j,m))) + &
               & this%gravity%V_tide_fn(j, m, this%rC, 2*pi*this%t/this%period) )
     
-      this%sol%u_I2(jm(j,m)) = a22 * rhs1 - a12 * rhs2
-      this%sol%u_C(jm(j,m))  = a11 * rhs2 - a21 * rhs1
+      this%bnd%u_I2(jm(j,m)) = a22 * rhs1 - a12 * rhs2
+      this%bnd%u_C(jm(j,m))  = a11 * rhs2 - a21 * rhs1
     end do
       
   end subroutine set_layers_iceTides_sub

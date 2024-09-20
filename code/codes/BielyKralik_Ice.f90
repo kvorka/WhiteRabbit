@@ -16,7 +16,7 @@ program BielyKralik_ice
   !!Vypocet
   do
     call icecr%solve_sub(flux_up)
-    write(*,*) icecr%sol%u_up(4) * icecr%D_ud
+    write(*,*) icecr%bnd%u_up(4) * icecr%D_ud
   end do
   
   !! Nedokonale cistenie po vypocte

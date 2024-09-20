@@ -37,26 +37,26 @@ submodule (PhysicalObject) Output
       case ('topo')
         open(unit=filenum, file=path//'/Topo_dn-'//trim(adjustl(int2str_fn(this%poc)))//'.dat', status='new', action='write')
           do ijm = 1, this%jms
-            write(filenum,*) ijm, this%sol%t_dn(ijm) * this%D_ud
+            write(filenum,*) ijm, this%bnd%t_dn(ijm) * this%D_ud
           end do
         close(filenum)
         
         open(unit=filenum, file=path//'/Topo_up-'//trim(adjustl(int2str_fn(this%poc)))//'.dat', status='new', action='write')
           do ijm = 1, this%jms
-            write(filenum,*) ijm, this%sol%t_up(ijm) * this%D_ud
+            write(filenum,*) ijm, this%bnd%t_up(ijm) * this%D_ud
           end do
         close(filenum)
       
       case('shape')
         open(unit=filenum, file=path//'/Shape_dn-'//trim(adjustl(int2str_fn(this%poc)))//'.dat', status='new', action='write')
           do ijm = 1, this%jms
-            write(filenum,*) ijm, this%sol%u_dn(ijm) * this%D_ud
+            write(filenum,*) ijm, this%bnd%u_dn(ijm) * this%D_ud
           end do
         close(filenum)
 
         open(unit=filenum, file=path//'/Shape_up-'//trim(adjustl(int2str_fn(this%poc)))//'.dat', status='new', action='write')
           do ijm = 1, this%jms
-            write(filenum,*) ijm, this%sol%u_up(ijm) * this%D_ud
+            write(filenum,*) ijm, this%bnd%u_up(ijm) * this%D_ud
           end do
         close(filenum)
     end select

@@ -44,6 +44,9 @@ $compile -c kernels/gmodel/smod/*.f90
 $compile -c kernels/mparams/Mparams.f90
 $compile -c kernels/mparams/smod/*.f90
 
+$compile -c kernels/boundaries/Boundaries.f90
+$compile -c kernels/boundaries/smod/*.f90
+
 $compile -c kernels/object/PhysicalObject.f90
 $compile -c kernels/object/smod/*.f90
 $compile -c kernels/object/smod/Matrices/*.f90
@@ -51,7 +54,9 @@ $compile -c kernels/object/smod/NonLinearTerms/*.f90
 $compile -c kernels/object/smod/Solvers/*.f90
 $compile -c kernels/object/smod/Variables/*.f90
 $compile -c kernels/object/smod/Material_parameters/*.f90
-$compile -c kernels/object/smod/Other/*.f90
+$compile -c kernels/object/smod/Forces/*.f90
+$compile -c kernels/object/smod/Output/*.f90
+$compile -c kernels/object/smod/Balances/*.f90
 
 $compile -c code/ocean/OceanConstants.f90
 $compile -c code/ocean/OceanMod.f90

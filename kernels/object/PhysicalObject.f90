@@ -8,6 +8,7 @@ module PhysicalObject
   use Gravity
   use Mparams
   use Solution
+  use Boundaries
   use Matrices
   implicit none
   
@@ -27,6 +28,7 @@ module PhysicalObject
     type(T_Mparams)     :: mparams
     type(T_matrices)    :: mat
     type(T_solution)    :: sol
+    type(T_boundaries)  :: bnd
     
     contains
     
@@ -65,7 +67,7 @@ module PhysicalObject
     procedure, pass :: volume_heating_fn
     procedure, pass :: global_rotation_sub
     procedure, pass :: coriolis_sub, coriolis_rr_jml_sub
-    procedure, pass :: buoy_rr_jml_sub, er_buoy_rr_jm_sub
+    procedure, pass :: buoy_rr_fn, buoy_rr_jml_sub, er_buoy_rr_jm_sub
     procedure, pass :: viscdissip_power_fn, buoyancy_power_fn, bottombnd_power_fn, upperbnd_power_fn
     procedure, pass :: coriolis_vgradv_sub, mvgradT_sub, fullnl_sub
     
@@ -357,6 +359,11 @@ module PhysicalObject
       complex(kind=dbl),       intent(in)    :: v(:)
       complex(kind=dbl),       intent(inout) :: coriolis(:,:)
     end subroutine coriolis_rr_jml_sub
+    
+    module pure complex(kind=dbl) function buoy_rr_fn(this, ir, il, ijm, sgn)
+      class(T_physicalObject), intent(in) :: this
+      integer,                 intent(in) :: ir, il, ijm, sgn
+    end function buoy_rr_fn
     
     module pure subroutine er_buoy_rr_jm_sub(this, ir, force)
       class(T_physicalObject), intent(in)  :: this

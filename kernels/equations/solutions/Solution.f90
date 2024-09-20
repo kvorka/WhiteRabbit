@@ -6,8 +6,7 @@ module Solution
   type, public :: T_solution
     logical                        :: inittemp, initsfer, inittorr
     integer                        :: nd, jmax, jms, jmv, jmt
-    complex(kind=dbl), allocatable :: u_dn(:), u_up(:), u_I2(:), u_C(:), v_dn(:), v_up(:), t_dn(:), t_up(:), &
-                                    & mech(:,:), temp(:,:), torr(:,:)
+    complex(kind=dbl), allocatable :: mech(:,:), temp(:,:), torr(:,:)
     
     contains
     
@@ -25,8 +24,6 @@ module Solution
     procedure :: velocity_rr_many1_sub
     procedure :: conv_velocity_jml_sub, velocity_jml_many1_sub, velocity_jml_many2_sub, velocity_jml_many3_sub
     procedure :: deviatoric_stress_jml2_fn
-    
-    procedure :: init_layers_sub, init_layer_u_sub
     
   end type T_solution
   
@@ -126,14 +123,6 @@ module Solution
     module pure subroutine init_smech_sub(this)
       class(T_solution), intent(inout) :: this
     end subroutine init_smech_sub
-    
-    module pure subroutine init_layers_sub(this)
-      class(T_solution), intent(inout) :: this
-    end subroutine init_layers_sub
-    
-    module pure subroutine init_layer_u_sub(this)
-      class(T_solution), intent(inout) :: this
-    end subroutine init_layer_u_sub
     
     module pure complex(kind=dbl) function velocity_fn(this, ir, il, ijm)
       class(T_solution), intent(in) :: this
