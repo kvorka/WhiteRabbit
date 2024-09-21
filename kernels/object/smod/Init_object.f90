@@ -80,7 +80,6 @@ submodule (PhysicalObject) Init_object
     
     if ( allocated(this%j_indx)  ) deallocate( this%j_indx  )
     if ( allocated(this%flux_up) ) deallocate( this%flux_up )
-    if ( allocated(this%htide)   ) deallocate( this%htide   )
     
     if ( allocated(this%rsph1) ) deallocate( this%rsph1 )
     if ( allocated(this%rsph2) ) deallocate( this%rsph2 )
@@ -98,6 +97,7 @@ submodule (PhysicalObject) Init_object
       call this%rad_grid%deallocate_sub()
       call this%mparams%deallocate_sub()
       call this%bnd%deallocate_sub()
+      call this%tdheat%deallocate_sub()
       
       if (.not. this%noharm) call this%lat_grid%deallocate_sub()
     end if

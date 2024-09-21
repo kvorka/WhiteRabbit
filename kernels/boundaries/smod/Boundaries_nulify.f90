@@ -4,6 +4,8 @@ submodule (Boundaries) Boundaries_nulify
   module pure subroutine nulify_boundaries_sub(this)
     class(T_boundaries), intent(inout) :: this
     
+    if ( allocated(this%temp_up) ) this%temp_up = czero
+    
     if ( allocated(this%u_dn) ) this%u_dn = czero
     if ( allocated(this%u_up) ) this%u_up = czero
     if ( allocated(this%u_I2) ) this%u_I2 = czero

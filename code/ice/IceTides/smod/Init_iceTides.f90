@@ -8,11 +8,9 @@ submodule (IceTidesMod) Init_iceTides
     
     this%cf = one
     
-    allocate( this%htide(this%nd,jms4) )
-      this%htide = czero
-    
     call this%init_eq_mech_sub( rhs=.true. , nl=.false. )
     
+    call this%tdheat%init_sub(this%nd, jms4)
     call this%mparams%init_visc_radial_sub()
     
   end subroutine init_iceTides_sub

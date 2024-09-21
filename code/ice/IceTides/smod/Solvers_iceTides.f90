@@ -24,22 +24,22 @@ submodule (IceTidesMod) Solvers_iceTides
     call this%set_visc_sub()
     
     this%t = zero
-    this%dt = this%period / this%n_iter ; this%htide = czero
+    this%dt = this%period / this%n_iter ; this%tdheat%htide = czero
     
     do
       do n = 1, this%n_iter
         this%t = this%t + this%dt
         
         call this%EE_mech_sub()
-        call this%tidal_heating_sub()
+        call this%tidal_heating_4_sub()
       end do
           
-      P = this%rad_grid%intV_fn( c2r_fn( this%htide(:,1) ) )
+      P = this%rad_grid%intV_fn( c2r_fn( this%tdheat%htide(:,1) ) )
         if ( abs(P-Pglobal) / P < 1.0d-3 ) then
           exit
         else
           Pglobal    = P
-          this%htide = czero
+          this%tdheat%htide = czero
         end if
     end do
     

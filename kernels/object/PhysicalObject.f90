@@ -10,6 +10,7 @@ module PhysicalObject
   use Solution
   use Boundaries
   use Matrices
+  use Tidal_heating
   implicit none
   
   type, abstract, public :: T_physicalObject
@@ -19,16 +20,17 @@ module PhysicalObject
     integer                        :: nd, jmax, jms, jms2, jmv, jmt, n_iter, poc
     real(kind=dbl)                 :: t, dt, cf, ab, rd, ru, r_ud, D_ud, gd, gu, Pr, Ra, Ek, St, Cl, Ds, Raf, Ramu, Rad, Rau
     integer,           allocatable :: j_indx(:)
-    complex(kind=dbl), allocatable :: flux_up(:), htide(:,:), rsph1(:,:), rsph2(:,:), rtorr(:,:), rtemp(:,:), &
+    complex(kind=dbl), allocatable :: flux_up(:), rsph1(:,:), rsph2(:,:), rtorr(:,:), rtemp(:,:), &
                                     & nsph1(:,:), nsph2(:,:), ntorr(:,:), ntemp(:,:)
     
-    type(T_radialGrid)  :: rad_grid
-    type(T_lateralGrid) :: lat_grid
-    type(T_gravity)     :: gravity
-    type(T_Mparams)     :: mparams
-    type(T_matrices)    :: mat
-    type(T_solution)    :: sol
-    type(T_boundaries)  :: bnd
+    type(T_radialGrid)   :: rad_grid
+    type(T_lateralGrid)  :: lat_grid
+    type(T_gravity)      :: gravity
+    type(T_Mparams)      :: mparams
+    type(T_matrices)     :: mat
+    type(T_solution)     :: sol
+    type(T_boundaries)   :: bnd
+    type(T_tidalHeating) :: tdheat
     
     contains
     
@@ -64,7 +66,7 @@ module PhysicalObject
     procedure, pass :: solve_temp_sub, solve_torr_sub, solve_mech_sub
     
     !Forces and non-linear terms
-    procedure, pass :: volume_heating_fn
+    procedure, pass :: volume_heating_fn, tidal_heating_4_sub
     procedure, pass :: global_rotation_sub
     procedure, pass :: coriolis_sub, coriolis_rr_jml_sub
     procedure, pass :: buoy_rr_fn, buoy_rr_jml_sub, er_buoy_rr_jm_sub
@@ -392,7 +394,11 @@ module PhysicalObject
       class(T_physicalObject), intent(inout) :: this
       integer,                 intent(in)    :: i
     end subroutine fullnl_sub
-
+    
+    module subroutine tidal_heating_4_sub(this)
+      class(T_physicalObject), intent(inout) :: this
+    end subroutine tidal_heating_4_sub
+    
     module subroutine coriolis_vgradv_sub(this, i)
       class(T_physicalObject), intent(inout) :: this
       integer,                 intent(in)    :: i

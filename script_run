@@ -2,7 +2,7 @@
 ###########################################################################################
 ####                              COMPILER SET UP                                      ####
 ###########################################################################################
-compile="gfortran-12 -Ofast -march=native -flto=auto -fwhole-program -fopenmp"
+compile="gfortran-13 -Ofast -march=native -flto=auto -fwhole-program -fopenmp"
 
 ###########################################################################################
 ####                              POSSIBLE CODE SETTINGS                               ####
@@ -46,6 +46,9 @@ $compile -c kernels/mparams/smod/*.f90
 
 $compile -c kernels/boundaries/Boundaries.f90
 $compile -c kernels/boundaries/smod/*.f90
+
+$compile -c kernels/tidal_heating/Tidal_heating.f90
+$compile -c kernels/tidal_heating/smod/*.f90
 
 $compile -c kernels/object/PhysicalObject.f90
 $compile -c kernels/object/smod/*.f90

@@ -8,11 +8,11 @@ submodule (IceCrustMod) Init_iceCrust
     
     this%cf = one
     
-    allocate( this%htide(this%nd,this%jms) )
-      this%htide = czero
-    
     call this%init_eq_temp_sub( rhs=.true. , nl=.true.  )
     call this%init_eq_mech_sub( rhs=.true. , nl=.false. )
+    
+    call this%tdheat%init_sub(this%nd, this%jms)
+    call this%bnd%init_temp_up_sub()
     
     call this%mparams%init_visc_radial_sub()
     call this%mparams%init_cp_radial_sub()

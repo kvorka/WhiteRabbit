@@ -12,6 +12,8 @@ submodule (Boundaries) Boundaries_init
   module pure subroutine deallocate_boundaries_sub(this)
     class(T_boundaries), intent(inout) :: this
     
+    if ( allocated(this%temp_up) ) deallocate( this%temp_up )
+    
     if ( allocated(this%u_dn) ) deallocate( this%u_dn )
     if ( allocated(this%u_up) ) deallocate( this%u_up )
     if ( allocated(this%u_I2) ) deallocate( this%u_I2 )

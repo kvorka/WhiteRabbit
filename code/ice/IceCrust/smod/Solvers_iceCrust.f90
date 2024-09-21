@@ -31,7 +31,7 @@ submodule (IceCrustMod) Solvers_iceCrust
       
       !! Find tidal heating for given viscosity field
       call this%tides%compute_sub( this%mparams%visc )
-      call this%tides%htide_ir_ijm_sub( this%htide )
+      call this%tides%htide_ir_ijm_sub( this%tdheat%htide )
       
       !! Solve for given tidal heating
       call this%sol%nulify_sub()
@@ -43,10 +43,10 @@ submodule (IceCrustMod) Solvers_iceCrust
           call this%EE_sub()
         end if
         
-        if ( abs( this%bnd%v_up(4) * this%dt / this%bnd%u_up(4) ) < 1e-5 ) then 
+        if ( abs( this%bnd%v_up(4) * this%dt / this%bnd%u_up(4) ) < 1e-4 ) then 
           exit
         else if ( this%dt < 0.2_dbl ) then
-            if ( abs( this%bnd%v_up(4) * this%dt / this%bnd%u_up(4) ) < 1e-4 ) this%dt = 2 * this%dt
+            if ( abs( this%bnd%v_up(4) * this%dt / this%bnd%u_up(4) ) < 1e-3 ) this%dt = 2 * this%dt
         else
           this%dt = 0.48_dbl
         end if
@@ -54,7 +54,7 @@ submodule (IceCrustMod) Solvers_iceCrust
       
       !! Stopping criterion
       write(*,*) abs( (u_up1(4)-this%bnd%u_up(4))/this%bnd%u_up(4) )
-      if ( abs( (u_up1(4)-this%bnd%u_up(4))/this%bnd%u_up(4) ) < 1e-5 ) exit
+      if ( abs( (u_up1(4)-this%bnd%u_up(4))/this%bnd%u_up(4) ) < 1e-4 ) exit
     end do
     
     deallocate( u_up1 )

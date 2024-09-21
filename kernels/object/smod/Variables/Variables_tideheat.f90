@@ -5,7 +5,7 @@ submodule(PhysicalObject) Variables_tideheat
     class(T_physicalObject), intent(in) :: this
     integer,                 intent(in) :: ir, ijm
     
-    htide_r_fn = this%Ds/this%Ra * this%htide(ir,ijm) / this%cp_r_fn(ir)
+    htide_r_fn = this%Ds/this%Ra * this%tdheat%htide(ir,ijm) / this%cp_r_fn(ir)
     
   end function htide_r_fn
   
@@ -14,8 +14,8 @@ submodule(PhysicalObject) Variables_tideheat
     complex(kind=dbl),       intent(inout) :: htide(:,:)
     integer                                :: ijm, ir
     
-    do concurrent ( ijm = 1:size(this%htide, dim=2), ir = 1:this%nd )
-      htide(ir,ijm) = this%htide(ir,ijm)
+    do concurrent ( ijm = 1:this%tdheat%jms, ir = 1:this%nd )
+      htide(ir,ijm) = this%tdheat%htide(ir,ijm)
     end do
     
   end subroutine htide_ir_ijm_sub
@@ -24,8 +24,8 @@ submodule(PhysicalObject) Variables_tideheat
     class(T_physicalObject), intent(in) :: this
     integer,                 intent(in) :: ir, ijm
     
-    htide_rr_fn = this%Ds/this%Ra * ( this%rad_grid%cc(ir,-1) * this%htide(ir-1,ijm) + &
-                                    & this%rad_grid%cc(ir,+1) * this%htide(ir  ,ijm)   ) / this%cp_rr_fn(ir)
+    htide_rr_fn = this%Ds/this%Ra * ( this%rad_grid%cc(ir,-1) * this%tdheat%htide(ir-1,ijm) + &
+                                    & this%rad_grid%cc(ir,+1) * this%tdheat%htide(ir  ,ijm)   ) / this%cp_rr_fn(ir)
     
   end function htide_rr_fn
   

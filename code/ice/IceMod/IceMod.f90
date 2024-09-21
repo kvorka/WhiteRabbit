@@ -5,6 +5,7 @@ module iceMod
   use IceConductivity
   use IceCapacity
   use IceExpansivity
+  use IceSurfaceTemp
   implicit none
   
   type, extends(T_physicalObject), abstract, public :: T_ice

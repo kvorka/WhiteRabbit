@@ -65,7 +65,7 @@ submodule (PhysicalObject) BalanceEquations
   module real(kind=dbl) function laws_temp_fn(this)
     class(T_physicalObject), intent(in) :: this
     integer                             :: ir
-    real(kind=dbl)                      :: flow_dn, flow_up, cp, totheat, totheattide
+    real(kind=dbl)                      :: flow_dn, flow_up, totheat, totheattide
     real(kind=dbl),         allocatable :: heat(:), heattide(:)
     complex(kind=dbl),      allocatable :: velocity(:), gradT(:)
     
@@ -77,13 +77,11 @@ submodule (PhysicalObject) BalanceEquations
         allocate( heat(this%nd), heattide(this%nd), velocity(this%jmv), gradT(this%jmv) )
           
           do ir = 1, this%nd
-            cp = this%cp_r_fn(ir)
-            
             call this%v_r_ijml_sub( ir, velocity )
             call this%gradT_r_ijml_sub( ir, gradT, -1 )
             
-            heat(ir) = dotproduct_fn( this%jmax , cp * velocity , gradT )
-            heattide(ir) = this%Ds/this%Ra * c2r_fn( this%htide(ir,1) ) / cp
+            heat(ir)     = dotproduct_fn( this%jmax , this%cp_r_fn(ir) * velocity , gradT )
+            heattide(ir) = c2r_fn( this%htide_r_fn(ir,1) )
           end do
           
           totheat     = this%rad_grid%intV_fn( heat )
