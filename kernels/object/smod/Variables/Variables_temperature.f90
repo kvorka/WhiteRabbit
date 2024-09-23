@@ -284,15 +284,17 @@ submodule(PhysicalObject) Variables_temperature
     class(T_physicalObject), intent(in)  :: this
     integer,                 intent(in)  :: ir, sgn
     complex(kind=dbl),       intent(out) :: T(:), gradT(:)
-    integer                              :: ij, im, ijm
+    integer                              :: ij, im, ijm, ijml
     real(kind=dbl)                       :: cj1, cj2, cjr1, cjr2
     complex(kind=dbl),       allocatable :: dT_dr(:)
     
-    allocate( dT_dr(this%jms) ) ; call this%dT_dr_rr_ijm_sub( ir, T, dT_dr )
+    allocate( dT_dr(this%jms) )
+      
+      call this%dT_dr_rr_ijm_sub( ir, T, dT_dr )
       
       ij = 0
         im = 0
-          gradT(1) = -dT_dr(1)
+          gradT(1) = -sgn * dT_dr(1)
       
       do ij = 1, this%jmax
         cj1 = +sqrt( (ij  ) / (2*ij+one) ) * sgn
@@ -302,11 +304,12 @@ submodule(PhysicalObject) Variables_temperature
         cjr2 = -(ij  ) / this%rad_grid%rr(ir)
         
         do im = 0, ij
-          ijm = ij*(ij+1)/2+im+1
+          ijm  = ij*(ij+1)/2+im+1
+          ijml = 3*(ijm-1)+1
           
-          gradT(3*(ijm-1)-1) = cj1 * ( dT_dr(ijm) + cjr1 * T(ijm) )
-          gradT(3*(ijm-1)  ) = czero
-          gradT(3*(ijm-1)+1) = cj2 * ( dT_dr(ijm) + cjr2 * T(ijm) )
+          gradT(ijml  ) = cj1 * ( dT_dr(ijm) + cjr1 * T(ijm) )
+          gradT(ijml+1) = czero
+          gradT(ijml+2) = cj2 * ( dT_dr(ijm) + cjr2 * T(ijm) )
         end do
       end do
       
