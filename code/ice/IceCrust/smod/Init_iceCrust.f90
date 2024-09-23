@@ -13,10 +13,11 @@ submodule (IceCrustMod) Init_iceCrust
     
     call this%tdheat%init_sub(this%nd, this%jms)
     call this%bnd%init_temp_up_sub()
+      call this%set_surfTemp_sub()
     
     call this%mparams%init_visc_radial_sub()
-    call this%mparams%init_cp_sub()
-    call this%mparams%init_lambda_sub()
+    call this%mparams%init_cp_radial_sub()
+    call this%mparams%init_lambda_radial_sub()
     call this%mparams%init_alpha_radial_sub()
     
     call this%tides%init_sub()

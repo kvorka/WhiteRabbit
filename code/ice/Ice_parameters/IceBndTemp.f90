@@ -1,13 +1,11 @@
 module IceBndTemp
   use Math
-  implicit none; public
-  
-  contains
+  implicit none; public; contains
   
   pure real(kind=dbl) function name_surfaceTemp_fn(theta)
     real(kind=dbl), intent(in) :: theta
     
-    name_surfaceTemp_fn = 90._dbl
+    name_surfaceTemp_fn = 90._dbl * ( sin(theta) )**(0.25_dbl) + 30._dbl
     
   end function name_surfaceTemp_fn
   

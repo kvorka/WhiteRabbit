@@ -40,8 +40,8 @@ module IceCrustMod
     end subroutine iter_iceCrust_sub
     
     module subroutine solve_iceCrust_sub(this, flux)
-      class(T_iceCrust),           intent(inout) :: this
-      complex(kind=dbl), optional, intent(in)    :: flux(:)
+      class(T_iceCrust), intent(inout) :: this
+      complex(kind=dbl), intent(in)    :: flux(:)
     end subroutine solve_iceCrust_sub
     
     module subroutine solve_conduction_iceCrust_sub(this)

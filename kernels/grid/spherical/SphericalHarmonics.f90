@@ -13,8 +13,8 @@ module SphericalHarmonics
   type, public :: T_lateralGrid
     integer,                     private :: jmax
     integer,                     public  :: nLegendre, nFourier
-    real(kind=dbl), allocatable, private :: cosx(:), weight(:), amj(:), bmj(:), cmm(:)
-    type(T_fft),                 private :: fourtrans
+    real(kind=dbl), allocatable, public  :: cosx(:), weight(:), amj(:), bmj(:), cmm(:)
+    type(T_fft),                 public  :: fourtrans
     type(T_sphsvt),              public  :: reindexing
     
     contains

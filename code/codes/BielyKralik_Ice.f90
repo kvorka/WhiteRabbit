@@ -14,10 +14,8 @@ program BielyKralik_ice
     flux_up(4) = czero
   
   !!Vypocet
-  do
-    call icecr%solve_sub(flux_up)
-    write(*,*) icecr%bnd%u_up(4) * icecr%D_ud
-  end do
+  call icecr%solve_sub(flux_up)
+  write(*,*) icecr%bnd%u_up(4) * icecr%D_ud
   
   !! Nedokonale cistenie po vypocte
   call icecr%deallocate_sub()

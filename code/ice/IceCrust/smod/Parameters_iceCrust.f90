@@ -197,11 +197,9 @@ submodule (IceCrustMod) Parameters_iceCrust
             !Space to grid :: temperature
             call this%lat_grid%space_to_grid_sub( cc_mj(1), grid )
             
-            !Temperature to dimensional units
-            grid = (this%Td - this%Tu) * grid + this%Tu
-            
             !Compute 1/viscosity on the grid
             do concurrent ( i3 = 1:2, i2 = 1:this%lat_grid%nFourier, i1 = 1:this%lat_grid%nLegendre )
+              grid(i1,i2,i3) = ( this%Td - this%Tu ) * grid(i1,i2,i3) + this%Tu
               grid(i1,i2,i3) = this%viscU / min( goldsby_visc_fn( this%diam, grid(i1,i2,i3), avrgstress ), this%cutoff )
             end do
             
@@ -223,9 +221,28 @@ submodule (IceCrustMod) Parameters_iceCrust
   
   module subroutine surfTemp_iceCrust_jm_sub(this)
     class(T_iceCrust), intent(inout) :: this
+    integer                          :: i1, i2
+    real(kind=dbl)                   :: theta
+    real(kind=dbl),    allocatable   :: grid(:,:,:)
+    complex(kind=dbl), allocatable   :: cc_mj(:)
     
-    !! TO DO !!
-    
+    allocate( cc_mj(this%jms2), grid(this%lat_grid%nLegendre,this%lat_grid%nFourier,2) )
+      
+      !to grid :: non-dimensional surface temperature
+      do concurrent ( i2 = 1:this%lat_grid%nFourier, i1 = 1:this%lat_grid%nLegendre )
+        grid(i1,i2,1) = ( name_surfaceTemp_fn(   acos(this%lat_grid%cosx(i1))) - this%Tu ) / ( this%Td - this%Tu )
+        grid(i1,i2,2) = ( name_surfaceTemp_fn(pi-acos(this%lat_grid%cosx(i1))) - this%Tu ) / ( this%Td - this%Tu )
+      end do
+      
+      !Grid to space :: non-dim surface temperature
+      call zero_carray_sub(this%jms2, cc_mj)
+      call this%lat_grid%grid_to_space_sub( grid, cc_mj(1) )
+        
+      !Get the surface temperature field in jm indexing
+      call this%lat_grid%reindexing%scal2scal_mj_to_jm_sub( cc_mj(1), 1, 1, this%bnd%temp_up(1), 1, 1)
+      
+    deallocate( cc_mj, grid )
+        
   end subroutine surfTemp_iceCrust_jm_sub
   
 end submodule Parameters_iceCrust

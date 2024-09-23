@@ -56,6 +56,7 @@ submodule (IceCrustMod) EE_iceCrust
     class(T_iceCrust), intent(inout) :: this
     complex(kind=dbl), intent(inout) :: flux(:)
     integer                          :: ir, ijm
+    real(kind=dbl)                   :: gradTCoeff
     
     !! At first, solve for degree zero in order to find the new heat flux
     ijm = 1
@@ -67,26 +68,29 @@ submodule (IceCrustMod) EE_iceCrust
       end do
       
       ir = this%nd+1
-        this%rtemp(ir,ijm) = czero
+        this%rtemp(ir,ijm) = this%bnd%temp_up(1)
       
       call this%solve_temp_sub( ijmstart=ijm, ijmend=ijm, ijmstep=1, rematrix=.true., matxsol=.true. )
     
     !! Update the heat flux
-    flux = flux * c2r_fn( -this%q_r_fn(1,1,1) / s4pi )
+    flux = flux * c2r_fn( this%qr_r_fn(1,1) / s4pi )
     
     !! Solve for other degrees
-    !$omp parallel do private (ir)
+    !$omp parallel do private (ir, gradTCoeff)
     do ijm = 2, this%jms
       ir = 1
-        this%rtemp(1,ijm) = -( this%bnd%u_dn(ijm) + ( this%vr_r_fn(1,ijm) + this%Raf * flux(ijm) ) * this%dt +        &
-                             & this%Cl / ( c2r_fn( this%dT_dr_r_fn(ir,1) ) / s4pi - this%Cl ) * this%Vdelta_fn(1,ijm) )
+        gradTCoeff = c2r_fn( this%dT_dr_r_fn(1,1) ) / s4pi - this%Cl
+        this%rtemp(1,ijm) = -( this%bnd%u_dn(ijm) + ( this%vr_r_fn(1,ijm) + this%Raf * flux(ijm) ) * this%dt + &
+                             & this%Cl / gradTCoeff * this%Vdelta_fn(1,ijm) )
       
       do concurrent ( ir = 2:this%nd )
         this%rtemp(ir,ijm) = this%htide_rr_fn(ir,ijm) + this%ntemp(ijm,ir)
       end do
       
       ir = this%nd+1
-        this%rtemp(this%nd+1,ijm) = -( this%bnd%u_up(ijm) + this%vr_r_fn(this%nd,ijm) * this%dt )
+        gradTCoeff = c2r_fn( this%dT_dr_r_fn(this%nd,1) ) / s4pi
+        this%rtemp(this%nd+1,ijm) = this%bnd%temp_up(ijm) / gradTCoeff - &
+                                  & ( this%bnd%u_up(ijm) + this%vr_r_fn(this%nd,ijm) * this%dt )
     end do
     !$omp end parallel do
     

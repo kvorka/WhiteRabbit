@@ -2,7 +2,7 @@ module Lateral_integral
   use Math
   implicit none; public
   
-  integer,        parameter, private :: nt = 100
+  integer,        parameter, private :: nt = 100000
   real(kind=dbl), parameter, private :: dtheta = pi / nt
   
   contains

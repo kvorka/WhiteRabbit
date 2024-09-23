@@ -23,8 +23,9 @@ submodule (IceTidesMod) Solvers_iceTides
     
     call this%set_visc_sub()
     
-    this%t = zero
-    this%dt = this%period / this%n_iter ; this%tdheat%htide = czero
+    this%t            = zero
+    this%dt           = this%period / this%n_iter
+    this%tdheat%htide = czero
     
     do
       do n = 1, this%n_iter
@@ -35,10 +36,10 @@ submodule (IceTidesMod) Solvers_iceTides
       end do
           
       P = this%rad_grid%intV_fn( c2r_fn( this%tdheat%htide(:,1) ) )
-        if ( abs(P-Pglobal) / P < 1.0d-3 ) then
+        if ( abs(P-Pglobal) / P < 1.0d-4 ) then
           exit
         else
-          Pglobal    = P
+          Pglobal = P
           this%tdheat%htide = czero
         end if
     end do
