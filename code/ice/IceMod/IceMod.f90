@@ -1,11 +1,12 @@
 module iceMod
+  use Lateral_integral
   use PhysicalObject
   use IceConstants
   use IceViscosity
   use IceConductivity
   use IceCapacity
   use IceExpansivity
-  use IceSurfaceTemp
+  use IceBndTemp
   implicit none
   
   type, extends(T_physicalObject), abstract, public :: T_ice

@@ -13,11 +13,12 @@ module IceCrustMod
 
     procedure :: solve_sub            => solve_iceCrust_sub
     procedure :: solve_conduction_sub => solve_conduction_iceCrust_sub
-
-    procedure :: set_visc_sub    => visc_iceCrust_jm_sub
-    procedure :: set_lambda_sub  => lambda_iceCrust_jm_sub
-    procedure :: set_cp_sub      => cp_iceCrust_jm_sub
-    procedure :: set_alpha_sub   => alpha_iceCrust_jm_sub
+    
+    procedure :: set_surfTemp_sub => surfTemp_iceCrust_jm_sub
+    procedure :: set_lambda_sub   => lambda_iceCrust_jm_sub
+    procedure :: set_cp_sub       => cp_iceCrust_jm_sub
+    procedure :: set_alpha_sub    => alpha_iceCrust_jm_sub
+    procedure :: set_visc_sub     => visc_iceCrust_jm_sub
     
     procedure :: Vdelta_fn       => Vdelta_iceCrust_fn
     procedure :: set_layers_sub  => set_layers_iceCrust_sub
@@ -70,6 +71,10 @@ module IceCrustMod
     module subroutine set_layers_iceCrust_sub(this)
       class(T_iceCrust), intent(inout) :: this
     end subroutine set_layers_iceCrust_sub
+    
+    module subroutine surfTemp_iceCrust_jm_sub(this)
+      class(T_iceCrust), intent(inout) :: this
+    end subroutine surfTemp_iceCrust_jm_sub
     
     module subroutine visc_iceCrust_jm_sub(this)
       class(T_iceCrust), intent(inout) :: this

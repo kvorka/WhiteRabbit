@@ -147,7 +147,7 @@ submodule (PhysicalObject) Variables_heatflux
         
     end select
     
-    if ( (ir > 3) .and. (ir < this%nd) ) then
+    if ( (ir > 2) .and. (ir < this%nd) ) then
       dq_dr_rr_fn = fac1 * this%sol%flux_fn(ir-2,il,ijm) + &
                   & fac2 * this%sol%flux_fn(ir-1,il,ijm) + &
                   & fac3 * this%sol%flux_fn(ir  ,il,ijm) + &
@@ -190,17 +190,17 @@ submodule (PhysicalObject) Variables_heatflux
         
     end select
     
-    if ( (ir > 3) .and. (ir < this%nd) ) then
+    if ( (ir > 2) .and. (ir < this%nd) ) then
       
       allocate( flux1(this%jmv), flux2(this%jmv), flux3(this%jmv), flux4(this%jmv) )
         
         call this%sol%flux_jml_many4_sub( ir-2, flux1, flux2, flux3, flux4 )
         
         do concurrent ( ijml = 1:this%jmv )
-          dq_dr_rr_ijml = fac1 * flux1(ijml) + &
-                        & fac2 * flux2(ijml) + &
-                        & fac3 * flux3(ijml) + &
-                        & fac4 * flux4(ijml)
+          dq_dr_rr_ijml(ijml) = fac1 * flux1(ijml) + &
+                              & fac2 * flux2(ijml) + &
+                              & fac3 * flux3(ijml) + &
+                              & fac4 * flux4(ijml)
         end do
         
       deallocate( flux1, flux2, flux3, flux4 )
@@ -212,9 +212,9 @@ submodule (PhysicalObject) Variables_heatflux
         call this%sol%flux_jml_many3_sub( ir-1, flux2, flux3, flux4 )
         
         do concurrent ( ijml = 1:this%jmv )
-          dq_dr_rr_ijml = fac2 * flux2(ijml) + &
-                        & fac3 * flux3(ijml) + &
-                        & fac4 * flux4(ijml)
+          dq_dr_rr_ijml(ijml) = fac2 * flux2(ijml) + &
+                              & fac3 * flux3(ijml) + &
+                              & fac4 * flux4(ijml)
         end do
         
       deallocate( flux2, flux3, flux4 )
@@ -226,9 +226,9 @@ submodule (PhysicalObject) Variables_heatflux
         call this%sol%flux_jml_many3_sub( ir-2, flux1, flux2, flux3 )
         
         do concurrent ( ijml = 1:this%jmv )
-          dq_dr_rr_ijml = fac1 * flux1(ijml) + &
-                        & fac2 * flux2(ijml) + &
-                        & fac3 * flux3(ijml)
+          dq_dr_rr_ijml(ijml) = fac1 * flux1(ijml) + &
+                              & fac2 * flux2(ijml) + &
+                              & fac3 * flux3(ijml)
         end do
         
       deallocate( flux1, flux2, flux3 )

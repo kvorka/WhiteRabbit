@@ -68,7 +68,7 @@ submodule (IceCrustMod) Parameters_iceCrust
       if ( this%mparams%cp_radial) then
         !$omp parallel do
         do ir = 1, this%nd+1
-          this%mparams%cp(1,ir) = r2c_fn( s4pi * this%cU / name_capacity_fn( this%avrg_temperature_ice_irr_fn(ir) ) )
+          this%mparams%cp(1,ir) = r2c_fn( s4pi * this%cU / name_cp_fn( this%avrg_temperature_ice_irr_fn(ir) ) )
         end do
         !$omp end parallel do
         
@@ -90,14 +90,14 @@ submodule (IceCrustMod) Parameters_iceCrust
             !Compute non-dimensional 1/capacity on the grid
             do concurrent ( i3 = 1:2, i2 = 1:this%lat_grid%nFourier, i1 = 1:this%lat_grid%nLegendre )
               grid(i1,i2,i3) = ( this%Td - this%Tu ) * grid(i1,i2,i3) + this%Tu
-              grid(i1,i2,i3) = this%cU / name_capacity_fn( grid(i1,i2,i3) )
+              grid(i1,i2,i3) = this%cU / name_cp_fn( grid(i1,i2,i3) )
             end do
             
-            !Grid to space :: non-dimensional conductivity
+            !Grid to space :: non-dimensional 1/capacity
             call zero_carray_sub(this%jms2, cc_mj)
             call this%lat_grid%grid_to_space_sub( grid, cc_mj(1) )
             
-            !Get the non-dimensional conductivity field in jm indexing
+            !Get the non-dimensional 1/capacity field in jm indexing
             call this%lat_grid%reindexing%scal2scal_mj_to_jm_sub( cc_mj(1), 1, 1, this%mparams%cp(1,ir), 1, 1)
           end do
           !$omp end parallel do
@@ -220,5 +220,12 @@ submodule (IceCrustMod) Parameters_iceCrust
     end if
     
   end subroutine visc_iceCrust_jm_sub
+  
+  module subroutine surfTemp_iceCrust_jm_sub(this)
+    class(T_iceCrust), intent(inout) :: this
+    
+    !! TO DO !!
+    
+  end subroutine surfTemp_iceCrust_jm_sub
   
 end submodule Parameters_iceCrust

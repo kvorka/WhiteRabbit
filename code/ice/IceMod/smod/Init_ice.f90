@@ -25,9 +25,9 @@ submodule(IceMod) Init_ice
     this%Ek = huge(zero)
 
     this%g    = g_ice
-    this%Td   = Td_ice
-    this%Tu   = Tu_ice
-    this%D_ud = rup_ice - rdown_ice
+    this%D_ud = D_ice
+    this%Td   = name_meltingTemp_fn( D_ice )
+    this%Tu   = theta_average_fn( name_surfaceTemp_fn )
     
     this%rhoI  = rho_ice
     this%rhoW  = rho_water
@@ -45,7 +45,7 @@ submodule(IceMod) Init_ice
     
     this%alphaU  = name_expansivity_fn( this%Tu )
     this%lambdaU = name_conductivity_fn( this%Tu )
-    this%cU      = name_capacity_fn( this%Tu )
+    this%cU      = name_cp_fn( this%Tu )
     this%viscU   = goldsby_visc_fn( this%diam, (this%Tu+this%Td)/2, zero )
     this%kappaU  = this%lambdaU / ( this%cU * this%rhoI )
     

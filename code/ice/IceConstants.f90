@@ -8,7 +8,7 @@ module IceConstants
   character(len=3), parameter :: gravity_ice      = 'hom'
   
   integer, parameter :: nd_ice = 81
-  integer, parameter :: jmax_ice = 21
+  integer, parameter :: jmax_ice = 13
   integer, parameter :: n_iter_ice = 10000
   integer, parameter :: n_iter_tides = 1000
   
@@ -26,9 +26,6 @@ module IceConstants
   real(kind=dbl), parameter :: rho_water = 1200._dbl
   real(kind=dbl), parameter :: rho_iceII = 1371._dbl  
   real(kind=dbl), parameter :: rho_core  = 2532._dbl
-  
-  real(kind=dbl), parameter :: Td_ice = 557.2_dbl - 273 * exp( (300 + 1.242 * (rup_ice-rdown_ice)/1e3 )**2 / 2270000 )
-  real(kind=dbl), parameter :: Tu_ice = 90._dbl
   
   real(kind=dbl), parameter :: g_ice      = 1.35_dbl
   real(kind=dbl), parameter :: diam_ice   = 1.0d-2

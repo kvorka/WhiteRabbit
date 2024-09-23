@@ -79,6 +79,7 @@ submodule(PhysicalObject) Variables_temperature
                  & fac2 * this%sol%temp_fn(ir  ,ijm) + &
                  & fac3 * this%sol%temp_fn(ir+1,ijm) + &
                  & fac4 * this%sol%temp_fn(ir+2,ijm)
+    
     else if ( ir == 1) then
       dT_dr_r_fn = fac2 * this%sol%temp_fn(ir  ,ijm) + &
                  & fac3 * this%sol%temp_fn(ir+1,ijm) + &

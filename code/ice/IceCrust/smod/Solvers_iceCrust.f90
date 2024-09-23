@@ -64,11 +64,14 @@ submodule (IceCrustMod) Solvers_iceCrust
   module subroutine solve_conduction_iceCrust_sub(this)
     class(T_iceCrust), intent(inout) :: this
     integer                          :: ir, ijm
-    complex(kind=dbl), allocatable   :: Temp1(:), Temp2(:)
+    complex(kind=dbl), allocatable   :: Temp1(:), Temp2(:), divq(:)
     
     !!Seeking for conduction solution with zero rhs 
     !!does not require time stepping
     this%dt = huge(zero)
+    !! It is required to compute only with basics, because
+    !! shape is evolving boundary.
+    this%thermal_bnd = 'basic'
     
     !!Control array for mean temperature
     allocate( Temp1(this%nd+1), Temp2(this%nd+1) )
@@ -87,24 +90,36 @@ submodule (IceCrustMod) Solvers_iceCrust
               this%rtemp(1,ijm) = cs4pi
             end if
             
-          do concurrent ( ir = 2:this%nd+1 )
+          do concurrent ( ir = 2:this%nd )
             this%rtemp(ir,ijm) = czero
           end do
+          
+          ir = this%nd+1
+            this%rtemp(ir,ijm) = czero
         end do
         !$omp end parallel do
         
         !! Solve the conduction problem
         call this%solve_temp_sub( ijmstart=1, ijmend=this%jms, ijmstep=1, rematrix=.true., matxsol=.true. )
-        
+
         !! Check the difference in mean temperature before and after the iteration
-        call this%temp_irr_jm_sub(1, Temp2); if ( maxval(abs(Temp2-Temp1)/abs(Temp1)) < 1e-8 ) exit
+        call this%temp_irr_jm_sub(1, Temp2)
+        
+        write(*,*) maxval(abs(Temp2-Temp1)/abs(Temp1))
+        if ( maxval(abs(Temp2-Temp1)/abs(Temp1)) < 1e-4 ) exit
         
         !! Update the parameters for the next iteration
         call this%set_lambda_sub()
         call this%set_cp_sub()
       end do
-      
+    
     deallocate( Temp1, Temp2 )
+    
+    allocate( divq(this%jms) )
+    ir  = 3
+    ijm = 4
+      call this%divq_rr_ijm_sub(ir, divq)
+      write(*,*) divq(ijm) / this%cp_rr_fn(ir)
     
     !! Set back the time step
     call this%set_dt_sub()
