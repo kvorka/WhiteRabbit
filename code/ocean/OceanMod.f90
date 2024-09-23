@@ -34,6 +34,8 @@ module OceanMod
     call this%init_objects_sub( nd = nd_ocean, jmax = jmax_ocean, r_ud = r_ud_ocean, rgrid = grid_type_ocean, &
                               & gmod = gravity_ocean , g = (1-r_ud_ocean)**2 , noharm = noharm_ocean          )
     
+    call this%bnd%init_flux_up_sub()
+    
     this%n_iter = n_iter_ocean
     this%cf     = 0.6_dbl
     this%ab     = 1.5_dbl
@@ -58,8 +60,9 @@ module OceanMod
   subroutine iter_ocean_sub(this)
     class(T_ocean), intent(inout) :: this
     integer                       :: k, ijm
+    real(kind=dbl)                :: avrg_flux
     
-    this%flux_up = czero
+    call zero_carray_sub( this%jms, this%bnd%flux_up )
     
     do k = 1, this%n_iter
       this%t = this%t + this%dt
@@ -71,11 +74,14 @@ module OceanMod
         call this%time_scheme_sub()
         
         do concurrent ( ijm = 1:this%jms )
-          this%flux_up(ijm) = this%flux_up(ijm) + this%qr_r_fn(this%nd,ijm)
+          this%bnd%flux_up(ijm) = this%bnd%flux_up(ijm) + this%qr_r_fn(this%nd,ijm)
         end do
     end do
     
-    this%flux_up = this%flux_up / ( this%flux_up(1)%re / s4pi )
+    avrg_flux = this%bnd%flux_up(1)%re / s4pi
+      do concurrent ( ijm = 1:this%jms )
+        this%bnd%flux_up(ijm) = this%bnd%flux_up(ijm) / avrg_flux
+      end do
     
     call this%vypis_ocean_sub()
     
@@ -108,7 +114,7 @@ module OceanMod
   
   subroutine init_state_ocean_sub(this)
     class(T_ocean), intent(inout) :: this
-    integer                           :: i, j, m, jm_int, ndI1, jmsI, jmvI
+    integer                           :: i, j, m, ijm, ndI1, jmsI, jmvI
     real(kind=dbl)                    :: ab_help, re, im
     real(kind=dbl),    allocatable    :: r(:)
     complex(kind=dbl), allocatable    :: velc(:), temp(:,:), spher1(:,:), torr(:,:), spher2(:,:)
@@ -117,16 +123,16 @@ module OceanMod
       do i = 1, this%nd+1
         do j = 0, this%jmax
           do m = 0, j
-            jm_int = jm(j,m)
+            ijm = jm(j,m)
 
             if ((j == 0) .and. (m == 0)) then
-              this%sol%temp(3*(i-1)+1,jm_int)%re = (this%rad_grid%r(this%nd)/this%rad_grid%rr(i)-1)*this%rad_grid%r(1)*sqrt(4*pi)
+              this%sol%temp(3*(i-1)+1,ijm)%re = (this%rad_grid%r(this%nd)/this%rad_grid%rr(i)-1)*this%rad_grid%r(1)*s4pi
             else if (m == 0) then
               call random_number( re )
-              this%sol%temp(3*(i-1)+1, jm_int)%re = re / 1e3
+              this%sol%temp(3*(i-1)+1, ijm)%re = re / 1e3
             else
               call random_number( re ); call random_number( im )
-              this%sol%temp(3*(i-1)+1, jm_int) = cmplx(re, im, kind=dbl) / 1e3
+              this%sol%temp(3*(i-1)+1, ijm) = cmplx(re, im, kind=dbl) / 1e3
             end if
 
           end do
@@ -149,10 +155,10 @@ module OceanMod
           do i = 1, ndI1
             read(8,*) r(i), velc
 
-            do jm_int = 2, jmsI
-              spher1(i,jm_int) = velc(3*(jm_int-1)-1)
-              torr(  i,jm_int) = velc(3*(jm_int-1)  )
-              spher2(i,jm_int) = velc(3*(jm_int-1)+1)
+            do ijm = 2, jmsI
+              spher1(i,ijm) = velc(3*(ijm-1)-1)
+              torr(  i,ijm) = velc(3*(ijm-1)  )
+              spher2(i,ijm) = velc(3*(ijm-1)+1)
             end do
           end do
         close(8)
@@ -169,10 +175,9 @@ module OceanMod
       deallocate(r, spher1, spher2, torr, temp)
     end if
     
-    !this%dt = min(this%dt, this%velc_crit_fn())
-      call this%prepare_mat_temp_sub( ijstart=0 , ijend=this%jmax )
-      call this%prepare_mat_torr_sub( ijstart=1 , ijend=this%jmax )
-      call this%prepare_mat_mech_sub( ijstart=1 , ijend=this%jmax )
+    call this%prepare_mat_temp_sub( ijstart=0 , ijend=this%jmax )
+    call this%prepare_mat_torr_sub( ijstart=1 , ijend=this%jmax )
+    call this%prepare_mat_mech_sub( ijstart=1 , ijend=this%jmax )
     
     ab_help = this%ab
     this%ab = one

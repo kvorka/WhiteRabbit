@@ -29,9 +29,13 @@ submodule (PhysicalObject) Output
       
       case ('flux')
         open(unit=filenum, file=path//'/Flux-'//trim(adjustl(int2str_fn(this%poc)))//'.dat', status='new', action='write')
-          do ijm = 1, this%jms
-            write(filenum,*) ijm, this%flux_up(ijm)
-          end do
+          allocate( field(this%jms) )
+            call this%q_r_ijml_sub(this%nd, field)
+            
+            do ijm = 1, this%jms
+              write(filenum,*) ijm, field(ijm)
+            end do
+          deallocate( field )
         close(filenum)
       
       case ('topo')

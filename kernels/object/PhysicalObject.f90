@@ -20,7 +20,7 @@ module PhysicalObject
     integer                        :: nd, jmax, jms, jms2, jmv, jmt, n_iter, poc
     real(kind=dbl)                 :: t, dt, cf, ab, rd, ru, r_ud, D_ud, gd, gu, Pr, Ra, Ek, St, Cl, Ds, Raf, Ramu, Rad, Rau
     integer,           allocatable :: j_indx(:)
-    complex(kind=dbl), allocatable :: flux_up(:), rsph1(:,:), rsph2(:,:), rtorr(:,:), rtemp(:,:), &
+    complex(kind=dbl), allocatable :: rsph1(:,:), rsph2(:,:), rtorr(:,:), rtemp(:,:), &
                                     & nsph1(:,:), nsph2(:,:), ntorr(:,:), ntemp(:,:)
     
     type(T_radialGrid)   :: rad_grid

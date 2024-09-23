@@ -78,8 +78,7 @@ submodule (PhysicalObject) Init_object
   module subroutine deallocate_objects_sub(this)
     class(T_physicalObject), intent(inout) :: this
     
-    if ( allocated(this%j_indx)  ) deallocate( this%j_indx  )
-    if ( allocated(this%flux_up) ) deallocate( this%flux_up )
+    if ( allocated(this%j_indx)  ) deallocate( this%j_indx )
     
     if ( allocated(this%rsph1) ) deallocate( this%rsph1 )
     if ( allocated(this%rsph2) ) deallocate( this%rsph2 )

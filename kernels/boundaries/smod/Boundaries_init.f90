@@ -13,6 +13,7 @@ submodule (Boundaries) Boundaries_init
     class(T_boundaries), intent(inout) :: this
     
     if ( allocated(this%temp_up) ) deallocate( this%temp_up )
+    if ( allocated(this%flux_up) ) deallocate( this%flux_up )
     
     if ( allocated(this%u_dn) ) deallocate( this%u_dn )
     if ( allocated(this%u_up) ) deallocate( this%u_up )

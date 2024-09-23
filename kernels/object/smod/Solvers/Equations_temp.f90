@@ -7,9 +7,7 @@ submodule (PhysicalObject) Equations_temp
     
     call this%sol%init_stemp_sub()
     call this%mat%init_mtemp_sub()
-
-    allocate( this%flux_up(this%jms) ) ; this%flux_up = czero
-
+    
     if (rhs) then
       allocate( this%rtemp(this%nd+1,this%jms) ) ; this%rtemp = czero
     end if
