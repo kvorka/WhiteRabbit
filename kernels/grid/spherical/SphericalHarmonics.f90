@@ -11,8 +11,7 @@ module SphericalHarmonics
                                                & 247, 253, 267, 285, 297, 317, 321, 357, 381, 397, 429, 447, 477, 483, 497, 997  ]
   
   type, public :: T_lateralGrid
-    integer,                     private :: jmax
-    integer,                     public  :: nLegendre, nFourier
+    integer,                     public  :: jmax, nLegendre, nFourier
     real(kind=dbl), allocatable, public  :: cosx(:), weight(:), amj(:), bmj(:), cmm(:)
     type(T_fft),                 public  :: fourtrans
     type(T_sphsvt),              public  :: reindexing
@@ -20,10 +19,11 @@ module SphericalHarmonics
     contains
     
     procedure :: init_sub       => init_harmonics_sub
+    procedure :: deallocate_sub => deallocate_harmonics_sub
+    
     procedure :: transform_sub
     procedure :: vcss_sub, vcst_sub, vcvv_sub, vcvgv_sub, vcvv_vcvgv_sub
     procedure :: grid_to_space_sub, space_to_grid_sub
-    procedure :: deallocate_sub => deallocate_harmonics_sub
     
   end type T_lateralGrid
   
