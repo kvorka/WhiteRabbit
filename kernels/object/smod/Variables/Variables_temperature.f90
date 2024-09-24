@@ -305,7 +305,7 @@ submodule(PhysicalObject) Variables_temperature
         
         do im = 0, ij
           ijm  = ij*(ij+1)/2+im+1
-          ijml = 3*(ijm-1)+1
+          ijml = 3*(ijm-1)-1
           
           gradT(ijml  ) = cj1 * ( dT_dr(ijm) + cjr1 * T(ijm) )
           gradT(ijml+1) = czero

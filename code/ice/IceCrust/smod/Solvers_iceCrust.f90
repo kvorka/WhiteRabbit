@@ -100,6 +100,7 @@ submodule (IceCrustMod) Solvers_iceCrust
         
         du_u = sqrt( scalnorm2_fn(this%jmax, this%bnd%v_up(1)) / &
                      scalnorm2_fn(this%jmax, this%bnd%u_up(1))   ) * this%dt
+        write(*,*) du_u
         
         if ( du_u < 1e-8 ) then
           exit
