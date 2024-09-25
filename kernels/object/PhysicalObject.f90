@@ -43,6 +43,7 @@ module PhysicalObject
     !Material parameters
     procedure, pass :: lambda_r_fn, cp_r_fn, visc_r_fn, alpha_r_fn
     procedure, pass :: lambda_rr_fn, cp_rr_fn, visc_rr_fn, alpha_rr_fn
+    procedure, pass :: varcp_rr_ijm_sub
     
     !Variables :: Thermal solution
     procedure, pass :: htide_r_fn, htide_ir_ijm_sub
@@ -71,7 +72,7 @@ module PhysicalObject
     procedure, pass :: coriolis_sub, coriolis_rr_jml_sub
     procedure, pass :: buoy_rr_fn, buoy_rr_jml_sub, er_buoy_rr_jm_sub
     procedure, pass :: viscdissip_power_fn, buoyancy_power_fn, bottombnd_power_fn, upperbnd_power_fn
-    procedure, pass :: coriolis_vgradv_sub, mvgradT_sub, fullnl_sub
+    procedure, pass :: coriolis_vgradv_sub, fullnl_sub
     
     !Output, control measures
     procedure, pass :: vypis_sub
@@ -217,9 +218,9 @@ module PhysicalObject
       complex(kind=dbl),       intent(out) :: dq_dr_rr_ijml(:)
     end subroutine dq_dr_rr_ijml_sub
     
-    module pure subroutine divq_rr_ijm_sub(this, ir, divq_rr_ijm)
+    module pure subroutine divq_rr_ijm_sub(this, ir, divq_rr_ijm, sgn)
       class(T_physicalObject), intent(in)  :: this
-      integer,                 intent(in)  :: ir
+      integer,                 intent(in)  :: ir, sgn
       complex(kind=dbl),       intent(out) :: divq_rr_ijm(:)
     end subroutine divq_rr_ijm_sub
     
@@ -332,6 +333,12 @@ module PhysicalObject
       integer,                 intent(in) :: ir
     end function alpha_rr_fn
     
+    pure module subroutine varcp_rr_ijm_sub(this, ir, varcp)
+      class(T_physicalObject), intent(in)  :: this
+      integer,                 intent(in)  :: ir
+      complex(kind=dbl),       intent(out) :: varcp(:)
+    end subroutine varcp_rr_ijm_sub
+    
     !Interfaces :: tidal heating
     module pure complex(kind=dbl) function htide_r_fn(this, ir, ijm)
       class(T_physicalObject), intent(in) :: this
@@ -383,12 +390,6 @@ module PhysicalObject
     module pure subroutine global_rotation_sub(this)
       class(T_physicalObject), intent(inout) :: this
     end subroutine global_rotation_sub
-    
-    module subroutine mvgradT_sub(this, i, mvgradT)
-      class(T_physicalObject), intent(in)  :: this
-      integer,                 intent(in)  :: i
-      complex(kind=dbl),       intent(out) :: mvgradT(:)
-    end subroutine mvgradT_sub
     
     module subroutine fullnl_sub(this, i)
       class(T_physicalObject), intent(inout) :: this

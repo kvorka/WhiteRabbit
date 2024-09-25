@@ -11,7 +11,7 @@ submodule (IceCrustMod) EE_iceCrust
     
     !$omp parallel do
     do ir = 2, this%nd
-      call this%mvgradT_sub(ir, this%ntemp(:,ir))
+      call this%mvgradT_cpdivq_sub(ir, this%ntemp(:,ir))
     end do
     !$omp end parallel do
     

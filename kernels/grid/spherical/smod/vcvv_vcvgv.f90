@@ -44,7 +44,7 @@ submodule (SphericalHarmonics) vcvv_vcvgv
     call this%reindexing%vec2vec_jml_to_jml_sub( q(1), ca(1), 5, 2 )
     call this%reindexing%gradvec2vec_jmlk_to_jml_sub( ri, v(1), dv_r(1), ca(1), 5, 3 )
     
-    call this%reindexing%vec2scal_jml_to_mj_sub( ca(1), 5, cc(1) )
+    call this%reindexing%vec2scal_jml_to_mj_sub( ca(1), 5, cc(1), 15, 1 )
     
     deallocate(ca)
     

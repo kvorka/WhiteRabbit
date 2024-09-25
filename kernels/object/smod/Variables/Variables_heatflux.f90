@@ -237,9 +237,9 @@ submodule (PhysicalObject) Variables_heatflux
     
   end subroutine dq_dr_rr_ijml_sub
   
-  module pure subroutine divq_rr_ijm_sub(this, ir, divq_rr_ijm)
+  module pure subroutine divq_rr_ijm_sub(this, ir, divq_rr_ijm, sgn)
     class(T_physicalObject), intent(in)  :: this
-    integer,                 intent(in)  :: ir
+    integer,                 intent(in)  :: ir, sgn
     complex(kind=dbl),       intent(out) :: divq_rr_ijm(:)
     integer                              :: ij, im, ijm, ijml
     real(kind=dbl)                       :: cj1, cj2, cjr1, cjr2
@@ -253,11 +253,11 @@ submodule (PhysicalObject) Variables_heatflux
       ij = 0
         ijm  = 1
         ijml = 1
-          divq_rr_ijm(1) = -( dq_dr(1) + 2 * q(1) / this%rad_grid%rr(ir) )
+          divq_rr_ijm(1) = -sgn * ( dq_dr(1) + 2 * q(1) / this%rad_grid%rr(ir) )
       
       do ij = 1, this%jmax
-        cj1 = +sqrt( (ij  ) / (2*ij+one) )
-        cj2 = -sqrt( (ij+1) / (2*ij+one) )
+        cj1 = +sgn * sqrt( (ij  ) / (2*ij+one) )
+        cj2 = -sgn * sqrt( (ij+1) / (2*ij+one) )
         
         cjr1 = -(ij-1) / this%rad_grid%rr(ir)
         cjr2 = +(ij+2) / this%rad_grid%rr(ir)

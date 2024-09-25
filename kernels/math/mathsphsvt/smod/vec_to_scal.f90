@@ -1,14 +1,14 @@
 submodule (Sphsvt) vec_to_scal
   implicit none; contains
   
-  module pure subroutine vec2scal_jml_to_mj_sub(this, cab, ncab, cc)
-    class(T_sphsvt),   intent(in)  :: this
-    integer,           intent(in)  :: ncab
-    complex(kind=dbl), intent(in)  :: cab(ncab,*)
-    complex(kind=dbl), intent(out) :: cc(3,ncab,*)
-    integer                        :: j, m, l, mj, lmj, i1
-    real(kind=dbl)                 :: cleb
-    complex(kind=dbl), allocatable :: sum1(:), sum2(:), sum3(:)
+  module pure subroutine vec2scal_jml_to_mj_sub(this, cab, ncab, cc, ncc, ccpadding)
+    class(T_sphsvt),   intent(in)    :: this
+    integer,           intent(in)    :: ncab, ncc, ccpadding
+    complex(kind=dbl), intent(in)    :: cab(ncab,*)
+    complex(kind=dbl), intent(inout) :: cc(ncc,*)
+    integer                          :: j, m, l, mj, lmj, i1, indx
+    real(kind=dbl)                   :: cleb
+    complex(kind=dbl), allocatable   :: sum1(:), sum2(:), sum3(:)
     
     allocate( sum1(ncab), sum2(ncab), sum3(ncab) )
     
@@ -41,9 +41,10 @@ submodule (Sphsvt) vec_to_scal
         
         mj = m*this%jmax3-m*(m+1)/2+j+1
           do concurrent ( i1 = 1:ncab )
-            cc(1,i1,mj) =         ( +sum1(i1) - sum2(i1) ) * sq2_1
-            cc(2,i1,mj) = cunit * ( -sum1(i1) - sum2(i1) ) * sq2_1
-            cc(3,i1,mj) =           +sum3(i1)
+            indx = 3*(i1-1)+ccpadding
+              cc(indx  ,mj) =         ( +sum1(i1) - sum2(i1) ) * sq2_1
+              cc(indx+1,mj) = cunit * ( -sum1(i1) - sum2(i1) ) * sq2_1
+              cc(indx+2,mj) =           +sum3(i1)
           end do
       end do
     
@@ -81,9 +82,10 @@ submodule (Sphsvt) vec_to_scal
         
         mj = m*this%jmax3-m*(m+1)/2+j+1
           do concurrent ( i1 = 1:ncab )
-            cc(1,i1,mj) =         ( +sum1(i1) - sum2(i1) ) * sq2_1
-            cc(2,i1,mj) = cunit * ( -sum1(i1) - sum2(i1) ) * sq2_1
-            cc(3,i1,mj) =           +sum3(i1)
+            indx = 3*(i1-1)+ccpadding
+              cc(indx  ,mj) =         ( +sum1(i1) - sum2(i1) ) * sq2_1
+              cc(indx+1,mj) = cunit * ( -sum1(i1) - sum2(i1) ) * sq2_1
+              cc(indx+2,mj) =           +sum3(i1)
           end do
       end do
     end do

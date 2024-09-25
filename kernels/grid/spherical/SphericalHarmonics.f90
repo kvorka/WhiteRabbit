@@ -22,7 +22,7 @@ module SphericalHarmonics
     procedure :: deallocate_sub => deallocate_harmonics_sub
     
     procedure :: transform_sub
-    procedure :: vcss_sub, vcst_sub, vcvv_sub, vcvgv_sub, vcvv_vcvgv_sub
+    procedure :: vcss_sub, vcst_sub, vcvv_sub, vcvgv_sub, vcvv_vcvgv_sub, vcss_add_vcvv_sub
     procedure :: grid_to_space_sub, space_to_grid_sub
     
   end type T_lateralGrid
@@ -94,6 +94,12 @@ module SphericalHarmonics
       complex(kind=dbl),    intent(in)  :: dv_r(*), q(*), v(*)
       complex(kind=dbl),    intent(out) :: cjm(*)
     end subroutine vcvv_vcvgv_sub
+    
+    module pure subroutine vcss_add_vcvv_sub(this, cajm, cbjm, cajml, cbjml, cjm)
+      class(T_lateralGrid), intent(in)  :: this
+      complex(kind=dbl),    intent(in)  :: cajm(*), cbjm(*), cajml(*), cbjml(*)
+      complex(kind=dbl),    intent(out) :: cjm(*)
+    end subroutine vcss_add_vcvv_sub
   end interface
   
 end module SphericalHarmonics

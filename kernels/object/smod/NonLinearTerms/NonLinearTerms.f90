@@ -1,21 +1,6 @@
 submodule (PhysicalObject) NonLinearTerms
   implicit none ; contains
   
-  module subroutine mvgradT_sub(this, i, mvgradT)
-    class(T_physicalObject), intent(in)  :: this
-    integer,                 intent(in)  :: i
-    complex(kind=dbl),       intent(out) :: mvgradT(:)
-    complex(kind=dbl),       allocatable :: v(:), T(:), gradT(:)
-    
-    allocate( v(this%jmv) ); call this%v_rr_ijml_sub(i, v)
-    allocate( T(this%jms), gradT(this%jmv) ); call this%gradT_rr_ijml_sub(i, T, gradT, -1)
-    
-    call this%lat_grid%vcvv_sub( v, gradT, mvgradT )
-    
-    deallocate( v, T, gradT )
-    
-  end subroutine mvgradT_sub
-  
   module pure subroutine coriolis_sub(this, i)
     class(T_physicalObject), intent(inout) :: this
     integer,                 intent(in)    :: i

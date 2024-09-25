@@ -4,6 +4,7 @@ submodule (IceCrustMod) Solvers_iceCrust
   module subroutine solve_conduction_iceCrust_sub(this)
     class(T_iceCrust), intent(inout) :: this
     integer                          :: ir, ijm
+    real(kind=dbl)                   :: dT_T
     complex(kind=dbl), allocatable   :: Temp1(:), Temp2(:)
     character(len=5)                 :: thermal_bnd
     
@@ -23,6 +24,13 @@ submodule (IceCrustMod) Solvers_iceCrust
         !! Save the mean temperature before the iteration
         call this%temp_irr_jm_sub(1, Temp1)
         
+        !! Compute the non-linear term div(q)/cp
+        !$omp parallel do
+        do ir = 2, this%nd
+          call this%cpdivq_sub(ir, this%ntemp(:,ir))
+        end do
+        !$omp end parallel do
+        
         !! Prepare the zero RHS equations
         !$omp parallel do private (ir)
         do ijm = 1, this%jms
@@ -34,7 +42,7 @@ submodule (IceCrustMod) Solvers_iceCrust
             end if
             
           do concurrent ( ir = 2:this%nd )
-            this%rtemp(ir,ijm) = czero
+            this%rtemp(ir,ijm) = this%ntemp(ijm,ir)
           end do
           
           ir = this%nd+1
@@ -48,7 +56,8 @@ submodule (IceCrustMod) Solvers_iceCrust
         !! Check the difference in mean temperature before and after the iteration
         call this%temp_irr_jm_sub(1, Temp2)
         
-        if ( maxval(abs(Temp2-Temp1)/abs(Temp1)) < 1e-4 ) exit
+        dT_T = maxval(abs(Temp2-Temp1)/abs(Temp1))
+        if ( dT_T < 1e-4 ) exit
         
         !! Update the parameters for the next iteration
         call this%set_lambda_sub()
@@ -102,16 +111,15 @@ submodule (IceCrustMod) Solvers_iceCrust
                      scalnorm2_fn(this%jmax, this%bnd%u_up(1))   ) * this%dt
         write(*,*) du_u
         
-        if ( du_u < 1e-8 ) then
-          exit
-        else if ( ( du_u < 1e-5 ) .and. ( this%dt < 0.2_dbl ) ) then
-          this%dt = 1.2 * this%dt
-        end if
+        if ( du_u < 1e-3 / this%nd**2 ) exit
       end do
       
       !! Stopping criterion
       du_u = sqrt( scalnorm2_fn(this%jmax, this%bnd%u_up-u_up1) / &
-                 & scalnorm2_fn(this%jmax, this%bnd%u_up)         ) ; if ( du_u < 1e-5 ) exit
+                 & scalnorm2_fn(this%jmax, this%bnd%u_up)         )
+      write(*,*) 'du_u: ', du_u
+      
+      if ( du_u < 1e-3 ) exit
     end do
     
     deallocate( u_up1 )

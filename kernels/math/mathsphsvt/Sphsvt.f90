@@ -33,11 +33,11 @@ module Sphsvt
       complex(kind=dbl), intent(inout) :: cab(ncab,*)
     end subroutine scal2scal_jm_to_mj_sub
     
-    module pure subroutine vec2scal_jml_to_mj_sub(this, cab, ncab, cc)
-      class(T_sphsvt),   intent(in)  :: this
-      integer,           intent(in)  :: ncab
-      complex(kind=dbl), intent(in)  :: cab(ncab,*)
-      complex(kind=dbl), intent(out) :: cc(3,ncab,*)
+    module pure subroutine vec2scal_jml_to_mj_sub(this, cab, ncab, cc, ncc, ccpadding)
+      class(T_sphsvt),   intent(in)    :: this
+      integer,           intent(in)    :: ncab, ncc, ccpadding
+      complex(kind=dbl), intent(in)    :: cab(ncab,*)
+      complex(kind=dbl), intent(inout) :: cc(ncc,*)
     end subroutine vec2scal_jml_to_mj_sub
     
     module pure subroutine gradvec2vec_jmlk_to_jml_sub(this, ri, v, dv_r, cab, ncab, cabpadding)

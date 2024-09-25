@@ -23,6 +23,10 @@ module IceCrustMod
     procedure :: Vdelta_fn       => Vdelta_iceCrust_fn
     procedure :: set_layers_sub  => set_layers_iceCrust_sub
     
+    procedure :: cpdivq_sub
+    procedure :: mvgradT_sub
+    procedure :: mvgradT_cpdivq_sub
+    
     procedure :: EE_sub      => EE_iceCrust_sub
     procedure :: EE_temp_sub => EE_temp_iceCrust_sub
     procedure :: EE_mech_sub => EE_mech_iceCrust_sub
@@ -71,6 +75,24 @@ module IceCrustMod
     module subroutine set_layers_iceCrust_sub(this)
       class(T_iceCrust), intent(inout) :: this
     end subroutine set_layers_iceCrust_sub
+    
+    module subroutine mvgradT_sub(this, ir, mvgradT)
+      class(T_iceCrust), intent(in)  :: this
+      integer,           intent(in)  :: ir
+      complex(kind=dbl), intent(out) :: mvgradT(:)
+    end subroutine mvgradT_sub
+    
+    module subroutine mvgradT_cpdivq_sub(this, ir, mvgradT)
+      class(T_iceCrust), intent(in)  :: this
+      integer,           intent(in)  :: ir
+      complex(kind=dbl), intent(out) :: mvgradT(:)
+    end subroutine mvgradT_cpdivq_sub
+    
+    module subroutine cpdivq_sub(this, ir, cpdivq)
+      class(T_iceCrust), intent(in)  :: this
+      integer,           intent(in)  :: ir
+      complex(kind=dbl), intent(out) :: cpdivq(:)
+    end subroutine cpdivq_sub
     
     module subroutine surfTemp_iceCrust_jm_sub(this)
       class(T_iceCrust), intent(inout) :: this
