@@ -1,20 +1,14 @@
 submodule (PhysicalObject) Equations_torr
   implicit none ; contains
   
-  module subroutine init_eq_torr_sub(this, rhs, nl)
+  module subroutine init_eq_torr_sub(this)
     class(T_physicalObject), intent(inout) :: this
-    logical,                 intent(in)    :: rhs, nl
     
     call this%sol%init_storr_sub()
     call this%mat%init_mtorr_sub()
-
-    if (rhs) then
-      allocate( this%rtorr(this%nd+1,this%jms) ) ; this%rtorr = czero
-    end if
-
-    if (nl) then
-      allocate( this%ntorr(this%jms,2:this%nd) ) ; this%ntorr = czero
-    end if
+    
+    allocate( this%rtorr(this%nd+1,this%jms) )
+      this%rtorr = czero
     
   end subroutine init_eq_torr_sub
   

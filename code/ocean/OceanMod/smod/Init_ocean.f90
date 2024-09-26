@@ -1,34 +1,7 @@
-module OceanMod
-  use PhysicalObject
-  use OceanConstants
-  implicit none
-
-  type, extends(T_physicalObject), abstract, public :: T_ocean
-    contains
-    
-    procedure :: init_ocean_sub
-    procedure :: speed_sub
-    procedure :: set_boundary_deformation_sub
-    
-    procedure :: vypis_ocean_sub => vypis_ocean_sub
-    procedure :: iter_sub        => iter_ocean_sub
-    procedure :: init_state_sub  => init_state_ocean_sub
-    procedure :: deallocate_sub  => deallocate_ocean_sub
-
-    procedure(time_scheme_abstract), deferred, pass :: time_scheme_sub
-
-  end type T_ocean
-
-  abstract interface
-    subroutine time_scheme_abstract(this)
-       import :: T_ocean, dbl
-       class(T_ocean), intent(inout) :: this
-    end subroutine time_scheme_abstract
-  end interface
+submodule (OceanMod) Init_ocean
+  implicit none; contains
   
-  contains
-
-  subroutine init_ocean_sub(this)
+  module subroutine init_ocean_sub(this)
     class(T_ocean), intent(inout) :: this
     
     call this%init_objects_sub( nd = nd_ocean, jmax = jmax_ocean, r_ud = r_ud_ocean, rgrid = grid_type_ocean, &
@@ -57,62 +30,20 @@ module OceanMod
     
   end subroutine init_ocean_sub
   
-  subroutine iter_ocean_sub(this)
+  module subroutine deallocate_ocean_sub(this)
     class(T_ocean), intent(inout) :: this
-    integer                       :: k, ijm
-    real(kind=dbl)                :: avrg_flux
     
-    call zero_carray_sub( this%jms, this%bnd%flux_up )
+    if ( allocated(this%nsph1) ) deallocate( this%nsph1 )
+    if ( allocated(this%nsph2) ) deallocate( this%nsph2 )
+    if ( allocated(this%ntorr) ) deallocate( this%ntorr )
+    if ( allocated(this%ntemp) ) deallocate( this%ntemp )
     
-    do k = 1, this%n_iter
-      this%t = this%t + this%dt
-        call this%time_scheme_sub()
-    end do
-    
-    do k = 1, this%n_iter
-      this%t = this%t + this%dt
-        call this%time_scheme_sub()
-        
-        do concurrent ( ijm = 1:this%jms )
-          this%bnd%flux_up(ijm) = this%bnd%flux_up(ijm) + this%qr_r_fn(this%nd,ijm)
-        end do
-    end do
-    
-    avrg_flux = this%bnd%flux_up(1)%re / s4pi
-      do concurrent ( ijm = 1:this%jms )
-        this%bnd%flux_up(ijm) = this%bnd%flux_up(ijm) / avrg_flux
-      end do
-    
-    call this%vypis_ocean_sub()
-    
-  end subroutine iter_ocean_sub
+    close(11); close(12)
+    call this%deallocate_objects_sub()
+
+  end subroutine deallocate_ocean_sub
   
-  subroutine speed_sub(this)
-    class(T_ocean), intent(inout) :: this
-    integer                       :: k
-    
-    do k = 1, this%n_iter
-      this%t = this%t + this%dt
-        call this%time_scheme_sub()
-    end do
-    
-  end subroutine speed_sub
-  
-  subroutine vypis_ocean_sub(this)
-    class(T_ocean), intent(inout) :: this
-
-    write(11,*) this%t, this%dt, this%nuss_fn(), this%reynolds_fn(), this%reynolds_fn(choice='convective')
-    write(12,*) this%t, this%dt, this%laws_temp_fn(), this%laws_mech_fn()
-
-    call this%vypis_sub(8, 'data/data_ocean_temp' , 'temperature')
-    call this%vypis_sub(8, 'data/data_ocean_veloc', 'velocity'   )
-    call this%vypis_sub(8, 'data/data_ocean_flux' , 'flux'       )
-
-    this%poc = this%poc + 1
-
-  end subroutine vypis_ocean_sub
-  
-  subroutine init_state_ocean_sub(this)
+  module subroutine init_state_ocean_sub(this)
     class(T_ocean), intent(inout) :: this
     integer                           :: i, j, m, ijm, ndI1, jmsI, jmvI
     real(kind=dbl)                    :: ab_help, re, im
@@ -189,24 +120,4 @@ module OceanMod
     
   end subroutine init_state_ocean_sub
   
-  subroutine set_boundary_deformation_sub(this, u_up, t_up)
-    class(T_ocean),    intent(inout) :: this
-    complex(kind=dbl), intent(in)    :: u_up(:), t_up(:)
-    integer                          :: jmsmax
-
-    jmsmax = min(size(t_up),this%jms)
-
-    this%bnd%t_up(1:jmsmax) = t_up(1:jmsmax) / this%D_ud
-    this%bnd%u_up(1:jmsmax) = u_up(1:jmsmax) / this%D_ud
-
-  end subroutine set_boundary_deformation_sub
-  
-  subroutine deallocate_ocean_sub(this)
-    class(T_ocean), intent(inout) :: this
-
-    close(11); close(12)
-    call this%deallocate_objects_sub()
-
-  end subroutine deallocate_ocean_sub
-  
-end module OceanMod
+end submodule Init_ocean

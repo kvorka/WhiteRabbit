@@ -27,8 +27,18 @@ module OceanTidesMod
     
     this%dt = 2 * pi / this%n_iter ; this%number_of_periods = 0
     
-    call this%init_eq_torr_sub( rhs=.true. , nl=.true. ) ; call this%prepare_mat_torr_sub( ijstart=1 , ijend=this%jmax )
-    call this%init_eq_mech_sub( rhs=.true. , nl=.true. ) ; call this%prepare_mat_mech_sub( ijstart=1 , ijend=this%jmax )
+    call this%init_eq_torr_sub()
+      allocate( this%ntorr(this%jms,2:this%nd) )
+      this%ntorr = czero
+      
+      call this%prepare_mat_torr_sub( ijstart=1 , ijend=this%jmax )
+    
+    call this%init_eq_mech_sub()
+      allocate( this%nsph1(this%jms,2:this%nd), this%nsph2(this%jms,2:this%nd) )
+      this%nsph1 = czero
+      this%nsph2 = czero
+      
+      call this%prepare_mat_mech_sub( ijstart=1 , ijend=this%jmax )
     
     allocate( this%v201(this%n_iter), this%v203(this%n_iter), this%v221(this%n_iter), this%v223(this%n_iter) )
       allocate( u201(this%n_iter), u203(this%n_iter), u221(this%n_iter), u223(this%n_iter) )
@@ -62,7 +72,7 @@ module OceanTidesMod
 
     do k = 1, this%n_iter
       this%k_of_period = k ; call this%time_scheme_sub()
-      this%heating = this%heating + volume_heating_fn(this)
+      this%heating = this%heating + this%viscdissip_power_fn()
     end do
 
     this%heating = this%heating / this%n_iter

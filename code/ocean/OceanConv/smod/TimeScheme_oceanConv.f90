@@ -1,30 +1,7 @@
-module OceanConvMod
-  use OceanMod
-  implicit none
+submodule (OceanConvMod) TimeScheme_oceanConv
+  implicit none; contains
   
-  type, extends(T_ocean), public :: T_oceanConv
-    contains
-    
-    procedure, public, pass :: init_sub        => init_oceanConv_sub
-    procedure, public, pass :: time_scheme_sub => time_scheme_oceanConv_sub
-  end type T_oceanConv
-  
-  contains
-  
-  subroutine init_oceanConv_sub(this)
-    class(T_oceanConv), intent(inout) :: this
-    
-    call this%init_ocean_sub()
-    
-    call this%init_eq_temp_sub( rhs=.true. , nl=.true. )
-    call this%init_eq_torr_sub( rhs=.true. , nl=.true. )
-    call this%init_eq_mech_sub( rhs=.true. , nl=.true. )
-    
-    call this%init_state_sub()
-    
-  end subroutine init_oceanConv_sub
-  
-  subroutine time_scheme_oceanConv_sub(this)
+  module subroutine time_scheme_oceanConv_sub(this)
     class(T_oceanConv), intent(inout) :: this
     integer                           :: ir, ijm
     real(kind=dbl)                    :: dt
@@ -75,4 +52,4 @@ module OceanConvMod
     
   end subroutine time_scheme_oceanConv_sub
   
-end module OceanConvMod
+end submodule TimeScheme_oceanConv

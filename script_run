@@ -53,7 +53,7 @@ $compile -c kernels/tidal_heating/smod/*.f90
 $compile -c kernels/object/PhysicalObject.f90
 $compile -c kernels/object/smod/*.f90
 $compile -c kernels/object/smod/Matrices/*.f90
-$compile -c kernels/object/smod/NonLinearTerms/*.f90
+$compile -c kernels/object/smod/Heating/*.f90
 $compile -c kernels/object/smod/Solvers/*.f90
 $compile -c kernels/object/smod/Variables/*.f90
 $compile -c kernels/object/smod/Material_parameters/*.f90
@@ -62,12 +62,20 @@ $compile -c kernels/object/smod/Output/*.f90
 $compile -c kernels/object/smod/Balances/*.f90
 
 $compile -c code/ocean/OceanConstants.f90
-$compile -c code/ocean/OceanMod.f90
-$compile -c code/ocean/mod/*.f90
+$compile -c code/ocean/OceanMod/OceanMod.f90
+$compile -c code/ocean/OceanMod/smod/*.f90
+
+$compile -c code/ocean/OceanConv/OceanConvMod.f90
+$compile -c code/ocean/OceanConv/smod/*.f90
+
+$compile -c code/ocean/OceanIceMod/OceanIceMod.f90
+$compile -c code/ocean/OceanIceMod/smod/*.f90
+
+$compile -c code/ocean/OceanTidesMod/OceanTidesMod.f90
+#$compile -c code/ocean/OceanTidesMod/smod/*.f90
 
 $compile -c code/ice/Ice_parameters/*.f90
 $compile -c code/ice/IceConstants.f90
-
 $compile -c code/ice/IceMod/IceMod.f90
 $compile -c code/ice/IceMod/smod/*.f90
 

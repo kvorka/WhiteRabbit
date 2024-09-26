@@ -85,11 +85,6 @@ submodule (PhysicalObject) Init_object
     if ( allocated(this%rtorr) ) deallocate( this%rtorr )
     if ( allocated(this%rtemp) ) deallocate( this%rtemp )
     
-    if ( allocated(this%nsph1) ) deallocate( this%nsph1 )
-    if ( allocated(this%nsph2) ) deallocate( this%nsph2 )
-    if ( allocated(this%ntorr) ) deallocate( this%ntorr )
-    if ( allocated(this%ntemp) ) deallocate( this%ntemp )
-
     if (.not. this%noobj) then
       call this%sol%deallocate_sub()
       call this%mat%deallocate_sub()

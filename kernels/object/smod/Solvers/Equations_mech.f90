@@ -1,22 +1,14 @@
 submodule (PhysicalObject) Equations_mech
   implicit none ; contains
   
-  module subroutine init_eq_mech_sub(this, rhs, nl)
+  module subroutine init_eq_mech_sub(this)
     class(T_physicalObject), intent(inout) :: this
-    logical,                 intent(in)    :: rhs, nl
     
     call this%sol%init_smech_sub()
     call this%mat%init_mmech_sub()
 
-    if (rhs) then
-      allocate( this%rsph1(this%nd+1,this%jms) ) ; this%rsph1 = czero
-      allocate( this%rsph2(this%nd+1,this%jms) ) ; this%rsph2 = czero
-    end if
-
-    if (nl) then
-      allocate( this%nsph1(this%jms,2:this%nd) ) ; this%nsph1 = czero
-      allocate( this%nsph2(this%jms,2:this%nd) ) ; this%nsph2 = czero
-    end if
+    allocate( this%rsph1(this%nd+1,this%jms) ) ; this%rsph1 = czero
+    allocate( this%rsph2(this%nd+1,this%jms) ) ; this%rsph2 = czero
     
   end subroutine init_eq_mech_sub
   

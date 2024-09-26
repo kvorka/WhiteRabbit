@@ -1,4 +1,4 @@
-submodule (PhysicalObject) VolumeMeassures
+submodule (PhysicalObject) Meassures
   implicit none ; contains
   
   module pure real(kind=dbl) function nuss_fn(this)
@@ -42,22 +42,5 @@ submodule (PhysicalObject) VolumeMeassures
     deallocate( field_vals, velocity )
     
   end function reynolds_fn
-  
-  module pure real(kind=dbl) function volume_heating_fn(this)
-    class(T_physicalObject), intent(in)  :: this
-    integer                              :: ir
-    real(kind=dbl),          allocatable :: field_vals(:)
-    
-    allocate( field_vals(this%nd) )
-    
-    do ir = 1, this%nd
-      field_vals(ir) = tensnorm2_fn( this%jmax, this%sol%deviatoric_stress_jml2_fn(ir) )
-    end do
-    
-    volume_heating_fn = this%rad_grid%intV_fn( field_vals ) / 2
-    
-    deallocate( field_vals )
-    
-  end function volume_heating_fn
 
-end submodule VolumeMeassures
+end submodule Meassures

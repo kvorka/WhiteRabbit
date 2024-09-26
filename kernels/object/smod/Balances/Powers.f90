@@ -23,24 +23,6 @@ submodule (PhysicalObject) Powers
     
   end function buoyancy_power_fn
   
-  module pure function viscdissip_power_fn(this) result(power)
-    class(T_physicalObject), intent(in)  :: this
-    integer                              :: ir
-    real(kind=dbl)                       :: power
-    real(kind=dbl),          allocatable :: power_ir(:)
-    
-    allocate( power_ir(this%nd) )
-    
-      do ir = 1, this%nd
-        power_ir(ir)  = tensnorm2_fn( this%jmax, this%sol%deviatoric_stress_jml2_fn(ir) ) / this%visc_r_fn(ir) / 2
-      end do
-      
-      power = this%rad_grid%intV_fn( power_ir )
-    
-    deallocate( power_ir )
-    
-  end function viscdissip_power_fn
-  
   module pure function bottombnd_power_fn(this) result(power)
     class(T_physicalObject), intent(in) :: this
     real(kind=dbl)                      :: power

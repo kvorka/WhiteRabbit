@@ -68,6 +68,11 @@ submodule(IceMod) Init_ice
   module subroutine deallocate_ice_sub(this)
     class(T_ice), intent(inout) :: this
     
+    if ( allocated(this%nsph1) ) deallocate( this%nsph1 )
+    if ( allocated(this%nsph2) ) deallocate( this%nsph2 )
+    if ( allocated(this%ntorr) ) deallocate( this%ntorr )
+    if ( allocated(this%ntemp) ) deallocate( this%ntemp )
+    
     call this%gravity%deallocate_sub()
     call this%deallocate_objects_sub()
     

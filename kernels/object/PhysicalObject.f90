@@ -20,8 +20,7 @@ module PhysicalObject
     integer                        :: nd, jmax, jms, jms2, jmv, jmt, n_iter, poc
     real(kind=dbl)                 :: t, dt, cf, ab, rd, ru, r_ud, D_ud, gd, gu, Pr, Ra, Ek, St, Cl, Ds, Raf, Ramu, Rad, Rau
     integer,           allocatable :: j_indx(:)
-    complex(kind=dbl), allocatable :: rsph1(:,:), rsph2(:,:), rtorr(:,:), rtemp(:,:), &
-                                    & nsph1(:,:), nsph2(:,:), ntorr(:,:), ntemp(:,:)
+    complex(kind=dbl), allocatable :: rsph1(:,:), rsph2(:,:), rtorr(:,:), rtemp(:,:)
     
     type(T_radialGrid)   :: rad_grid
     type(T_lateralGrid)  :: lat_grid
@@ -41,9 +40,10 @@ module PhysicalObject
     procedure, pass :: set_dt_sub
     
     !Material parameters
-    procedure, pass :: lambda_r_fn, cp_r_fn, visc_r_fn, alpha_r_fn
-    procedure, pass :: lambda_rr_fn, cp_rr_fn, visc_rr_fn, alpha_rr_fn
-    procedure, pass :: varcp_rr_ijm_sub
+    procedure, pass :: lambda_r_fn, lambda_rr_fn, varlambda_r_ijm_sub
+    procedure, pass :: cp_r_fn, cp_rr_fn, varcp_rr_ijm_sub
+    procedure, pass :: alpha_r_fn, alpha_rr_fn
+    procedure, pass :: visc_r_fn, visc_rr_fn
     
     !Variables :: Thermal solution
     procedure, pass :: htide_r_fn, htide_ir_ijm_sub
@@ -66,13 +66,15 @@ module PhysicalObject
     procedure, pass :: prepare_mat_mech_sub, prepare_mat_temp_sub, prepare_mat_torr_sub
     procedure, pass :: solve_temp_sub, solve_torr_sub, solve_mech_sub
     
-    !Forces and non-linear terms
-    procedure, pass :: volume_heating_fn, tidal_heating_4_sub
+    !Friction meassures
+    procedure, pass :: viscdissip_power_fn
+    procedure, pass :: tidal_heating_4_sub
+    
+    !Forces
     procedure, pass :: global_rotation_sub
-    procedure, pass :: coriolis_sub, coriolis_rr_jml_sub
+    procedure, pass :: coriolis_rr_jml_sub
     procedure, pass :: buoy_rr_fn, buoy_rr_jml_sub, er_buoy_rr_jm_sub
-    procedure, pass :: viscdissip_power_fn, buoyancy_power_fn, bottombnd_power_fn, upperbnd_power_fn
-    procedure, pass :: coriolis_vgradv_sub, fullnl_sub
+    procedure, pass :: buoyancy_power_fn, bottombnd_power_fn, upperbnd_power_fn
     
     !Output, control measures
     procedure, pass :: vypis_sub
@@ -339,6 +341,12 @@ module PhysicalObject
       complex(kind=dbl),       intent(out) :: varcp(:)
     end subroutine varcp_rr_ijm_sub
     
+    pure module subroutine varlambda_r_ijm_sub(this, ir, varlambda)
+      class(T_physicalObject), intent(in)  :: this
+      integer,                 intent(in)  :: ir
+      complex(kind=dbl),       intent(out) :: varlambda(:)
+    end subroutine varlambda_r_ijm_sub
+    
     !Interfaces :: tidal heating
     module pure complex(kind=dbl) function htide_r_fn(this, ir, ijm)
       class(T_physicalObject), intent(in) :: this
@@ -391,24 +399,9 @@ module PhysicalObject
       class(T_physicalObject), intent(inout) :: this
     end subroutine global_rotation_sub
     
-    module subroutine fullnl_sub(this, i)
-      class(T_physicalObject), intent(inout) :: this
-      integer,                 intent(in)    :: i
-    end subroutine fullnl_sub
-    
     module subroutine tidal_heating_4_sub(this)
       class(T_physicalObject), intent(inout) :: this
     end subroutine tidal_heating_4_sub
-    
-    module subroutine coriolis_vgradv_sub(this, i)
-      class(T_physicalObject), intent(inout) :: this
-      integer,                 intent(in)    :: i
-    end subroutine coriolis_vgradv_sub
-
-    module pure subroutine coriolis_sub(this, i)
-      class(T_physicalObject), intent(inout) :: this
-      integer,                 intent(in)    :: i
-    end subroutine coriolis_sub
     
     module pure function viscdissip_power_fn(this) result(power)
       class(T_physicalObject), intent(in)  :: this
@@ -514,19 +507,16 @@ module PhysicalObject
       real(kind=dbl),         allocatable :: matica(:,:)
     end function matica_torr_chb_christ_viscos_fn
     
-    module subroutine init_eq_temp_sub(this,rhs,nl)
+    module subroutine init_eq_temp_sub(this)
       class(T_physicalObject), intent(inout) :: this
-      logical,                 intent(in)    :: rhs, nl
     end subroutine init_eq_temp_sub
     
-    module subroutine init_eq_torr_sub(this,rhs,nl)
+    module subroutine init_eq_torr_sub(this)
       class(T_physicalObject), intent(inout) :: this
-      logical,                 intent(in)    :: rhs, nl
     end subroutine init_eq_torr_sub
     
-    module subroutine init_eq_mech_sub(this,rhs,nl)
+    module subroutine init_eq_mech_sub(this)
       class(T_physicalObject), intent(inout) :: this
-      logical,                 intent(in)    :: rhs, nl
     end subroutine init_eq_mech_sub
     
     module subroutine prepare_mat_temp_sub(this, ijstart, ijend)
@@ -570,10 +560,6 @@ module PhysicalObject
       class(T_physicalObject), intent(in)           :: this
       character(len=*),        intent(in), optional :: choice
     end function reynolds_fn
-    
-    module pure real(kind=dbl) function volume_heating_fn(this)
-      class(T_physicalObject), intent(in) :: this
-    end function volume_heating_fn
     
     module real(kind=dbl) function laws_mech_fn(this)
       class(T_physicalObject), intent(in) :: this
