@@ -1,5 +1,5 @@
 module sph_indexing
-  use Math
+  use math
   implicit none; public; contains
   
   pure integer function jm(ij, im)

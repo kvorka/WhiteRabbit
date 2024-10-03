@@ -1,5 +1,5 @@
 module Tidal_heating
-  use Math
+  use math
   implicit none
   
   type, public :: T_tidalHeating

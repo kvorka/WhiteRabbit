@@ -1,5 +1,5 @@
 module Gravity
-  use Conversions
+  use conversions
   use RadialGrid
   implicit none
   

@@ -1,5 +1,5 @@
 module sph_unitvec_op
-  use Math
+  use math
   implicit none; public; contains
   
   pure subroutine ervs_sub(np, cajml, cjm)

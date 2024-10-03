@@ -1,6 +1,6 @@
 module OutputMod
   use Paths
-  use Conversions
+  use conversions
   implicit none; public; contains
   
   subroutine out_spectra_2d_sub(opt, spectra_in)

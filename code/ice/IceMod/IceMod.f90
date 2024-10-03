@@ -1,5 +1,5 @@
 module iceMod
-  use Lateral_integral
+  use lateral_integral
   use PhysicalObject
   use IceConstants
   use IceViscosity

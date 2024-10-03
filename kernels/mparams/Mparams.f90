@@ -1,5 +1,5 @@
 module Mparams
-  use Math
+  use math
   
   type, public :: T_Mparams
     logical                        :: initvisc, visc_radial

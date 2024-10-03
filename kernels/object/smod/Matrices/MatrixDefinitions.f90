@@ -1,4 +1,4 @@
-submodule (PhysicalObject) MatrixDefinitions
+submodule (PhysicalObject) matrixDefinitions
   implicit none ; contains
   
   module pure function mat_temp_fn(this, j_in, a_in) result(matica)
@@ -67,4 +67,4 @@ submodule (PhysicalObject) MatrixDefinitions
     
   end function mat_mech_fn
   
-end submodule MatrixDefinitions
+end submodule matrixDefinitions

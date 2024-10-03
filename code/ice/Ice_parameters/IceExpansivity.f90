@@ -1,5 +1,5 @@
 module IceExpansivity
-  use Math
+  use math
   implicit none
   
   real(kind=dbl), parameter, private :: A0 = 128.2147d0

@@ -1,5 +1,5 @@
 module IceConstants
-  use Math
+  use math
   implicit none
   
   character(len=5), parameter :: grid_type_ice    = 'homog'

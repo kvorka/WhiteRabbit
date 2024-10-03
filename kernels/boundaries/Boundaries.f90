@@ -1,5 +1,5 @@
 module Boundaries
-  use Math
+  use math
   implicit none
   
   type, public :: T_boundaries

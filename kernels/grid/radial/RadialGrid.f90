@@ -1,5 +1,5 @@
 module RadialGrid
-  use Math
+  use math
   implicit none
   
   type, public :: T_radialGrid

@@ -13,17 +13,20 @@ code_type="ice_deformation"
 ###########################################################################################
 ####                    COMPILATION OF THE BASELINE, DIRS SET UP                       ####
 ###########################################################################################
-$compile -c kernels/math/Math.f90
-$compile -c kernels/math/math1/*.f90
+$compile -c kernels/math/math.f90
+$compile -c kernels/math/math_subs/*.f90
+
+$compile -c kernels/math/cg/*.f90
+$compile -c kernels/math/legendre/*.f90
 $compile -c kernels/math/sph/*.f90
 
-$compile -c kernels/math/mathsphsvt/Sphsvt.f90
-$compile -c kernels/math/mathsphsvt/smod/*.f90
-
-$compile -c kernels/math/fft/Fourier_transform.f90
+$compile -c kernels/math/fft/fourier_transform.f90
 $compile -c kernels/math/fft/smod/*.f90
 
-$compile -c kernels/math/lu_matrix/Matrix.f90
+$compile -c kernels/math/sphsvt/sphsvt.f90
+$compile -c kernels/math/sphsvt/smod/*.f90
+
+$compile -c kernels/math/lu_matrix/matrix.f90
 $compile -c kernels/math/lu_matrix/smod/*.f90
 
 $compile -c kernels/grid/radial/RadialGrid.f90

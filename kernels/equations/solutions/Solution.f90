@@ -1,6 +1,6 @@
 module Solution
-  use Math
-  use Nulify
+  use math
+  use nulify
   implicit none
   
   type, public :: T_solution

@@ -1,5 +1,5 @@
 module IceViscosity
-  use Math
+  use math
   implicit none
   
   real(kind=dbl), parameter :: rgas  = 8.31_dbl

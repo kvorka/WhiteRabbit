@@ -1,5 +1,5 @@
 module Matrices
-  use Matrix
+  use matrix
   implicit none
   
   type, public :: T_matrices

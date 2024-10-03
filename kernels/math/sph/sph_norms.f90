@@ -1,5 +1,5 @@
 module sph_norms
-  use Conversions
+  use conversions
   implicit none; public; contains
   
   pure function scalproduct_fn(np, cajm, cbjm) result(sp)

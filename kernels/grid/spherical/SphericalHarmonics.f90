@@ -1,9 +1,9 @@
 module SphericalHarmonics
-  use Nulify
-  use Legendre_function
-  use Legendre_polynom
-  use Fourier_transform
-  use Sphsvt
+  use nulify
+  use legendre_function
+  use legendre_polynom
+  use fourier_transform
+  use sphsvt
   implicit none
   
   integer, parameter :: addmissible_jmax(48) = [   5,   7,   9,  13,  15,  21,  27,  29,  33,  37,  45, 47,  51,  57,  61,  69,  &

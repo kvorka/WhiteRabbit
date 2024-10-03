@@ -1,5 +1,5 @@
 module Paths
-  use Math
+  use math
   implicit none
   
   real(kind=dbl), parameter :: tNuss      = 0.01_dbl

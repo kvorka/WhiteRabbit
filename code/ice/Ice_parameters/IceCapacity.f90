@@ -1,5 +1,5 @@
 module IceCapacity
-  use Math
+  use math
   implicit none; public
   
   real(kind=dbl), parameter, private :: c1 = 185._dbl

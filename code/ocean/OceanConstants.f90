@@ -1,5 +1,5 @@
 module OceanConstants
-  use Math
+  use math
   implicit none
   
   !Vseobecne nastavenie konstant

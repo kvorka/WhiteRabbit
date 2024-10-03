@@ -13,8 +13,8 @@ code_type="ocean_convection"
 ###########################################################################################
 ####                             COMPILATION OF THE BASELINE                           ####
 ###########################################################################################
-$compile -c kernels/math/Math.f90
-$compile -c kernels/math/math1/Conversions.f90
+$compile -c kernels/math/math.f90
+$compile -c kernels/math/math1/conversions.f90
 $compile -c kernels/math/sph/sph_norms.f90
 $compile -c output/mod/Paths.f90
 $compile -c output/mod/OutputMod.f90

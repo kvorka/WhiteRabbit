@@ -1,5 +1,5 @@
 module IceConductivity
-  use Math
+  use math
   implicit none; public
   
   real(kind=dbl), parameter, private :: c1 = 0.4685_dbl

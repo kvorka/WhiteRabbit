@@ -1,5 +1,5 @@
 module PhysicalObject
-  use Math
+  use math
   use sph_indexing
   use sph_unitvec_op
   use sph_norms

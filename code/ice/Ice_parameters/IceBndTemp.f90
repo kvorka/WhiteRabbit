@@ -1,5 +1,5 @@
 module IceBndTemp
-  use Math
+  use math
   implicit none; public; contains
   
   pure real(kind=dbl) function name_surfaceTemp_fn(theta)
