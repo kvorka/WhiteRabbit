@@ -27,35 +27,35 @@ rm -f curveShape_dn.dat curveShape_up.dat curveTopo_dn.dat curveTopo_up.dat || t
 case $code_type in
     
     ocean_convection)
-        $compile -c code/ocean/OceanConstants.f90
+        $compile -c code/ocean/ocean_constants.f90
         $compile output/OutputOcean.f90 *.o -o code_out
         ./code_out
     ;;
     
     ocean_tides)
-        $compile -c code/ocean/OceanConstants.f90
+        $compile -c code/ocean/ocean_constants.f90
         $compile output/OutputOcean.f90 *.o -o code_out
         ./code_out
     ;;
     
     ice_ocean)
-        $compile -c code/ocean/OceanConstants.f90
+        $compile -c code/ocean/ocean_constants.f90
         $compile output/OutputOcean.f90 *.o -o code_out
         ./code_out
         
-        $compile -c code/ice/IceConstants.f90
+        $compile -c code/ice/ice_constants.f90
         $compile output/OutputIce.f90 *.o -o code_out
         ./code_out
     ;;
     
     ice_deformation)
-        $compile -c code/ice/IceConstants.f90
+        $compile -c code/ice/ice_constants.f90
         $compile output/OutputIce.f90 *.o -o code_out
         ./code_out
     ;;
     
     ice_convergence)
-        $compile -c code/ice/IceConstants.f90
+        $compile -c code/ice/ice_constants.f90
         $compile output/ConvergenceIce.f90 *.o -o code_out
         ./code_out
     ;;

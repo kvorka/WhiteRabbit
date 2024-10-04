@@ -1,5 +1,5 @@
 program BielyKralik_ice
-  use IceCrustMod
+  use icecrust
   implicit none
 
   type(T_iceCrust)               :: icecr

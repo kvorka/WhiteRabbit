@@ -1,5 +1,5 @@
 program OutputIce
-  use IceConstants
+  use ice_constants
   use OutputMod
   implicit none
   

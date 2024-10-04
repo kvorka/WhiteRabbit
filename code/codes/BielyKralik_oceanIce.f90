@@ -1,6 +1,6 @@
 program BielyKralik_oceanIce
-    use OceanIceMod
-    use IceCrustMod
+    use oceanice
+    use icecrust
     implicit none
   
     type(T_iceCrust) :: icecr

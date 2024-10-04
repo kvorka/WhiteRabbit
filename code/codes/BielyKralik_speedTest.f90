@@ -1,6 +1,6 @@
 program BielyKralik_speedTest
   use omp_lib
-  use OceanConvMod
+  use oceanconv
   implicit none
 
   type(T_oceanConv) :: ocean

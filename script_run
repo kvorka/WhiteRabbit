@@ -153,29 +153,60 @@ $compile -c kernels/object/physicalobject.f90
   $compile -c kernels/object/smod/balances/physicalobject@powers.f90 &
 wait
 
-$compile -c code/ocean/OceanConstants.f90
-$compile -c code/ocean/OceanMod/OceanMod.f90
-$compile -c code/ocean/OceanMod/smod/*.f90
+$compile -c code/ocean/ocean_constants.f90
 
-$compile -c code/ocean/OceanConv/OceanConvMod.f90
-$compile -c code/ocean/OceanConv/smod/*.f90
+$compile -c code/ocean/ocean/ocean.f90
+  $compile -c code/ocean/ocean/smod/ocean@init.f90 &
+  $compile -c code/ocean/ocean/smod/ocean@iter.f90 &
+  $compile -c code/ocean/ocean/smod/ocean@nonlin.f90 &
+  $compile -c code/ocean/ocean/smod/ocean@output.f90 &
+  $compile -c code/ocean/ocean/smod/ocean@set_bnd.f90 &
+wait
 
-$compile -c code/ocean/OceanIceMod/OceanIceMod.f90
-$compile -c code/ocean/OceanIceMod/smod/*.f90
+$compile -c code/ocean/ocean_conv/oceanconv.f90
+  $compile -c code/ocean/ocean_conv/smod/oceanconv@init.f90 &
+  $compile -c code/ocean/ocean_conv/smod/oceanconv@timescheme.f90 &
+wait
 
-$compile -c code/ocean/OceanTidesMod/OceanTidesMod.f90
-#$compile -c code/ocean/OceanTidesMod/smod/*.f90
+$compile -c code/ocean/ocean_ice/oceanice.f90
+  $compile -c code/ocean/ocean_ice/smod/oceanice@init.f90 &
+  $compile -c code/ocean/ocean_ice/smod/oceanice@timescheme.f90 &
+wait
 
-$compile -c code/ice/Ice_parameters/*.f90
-$compile -c code/ice/IceConstants.f90
-$compile -c code/ice/IceMod/IceMod.f90
-$compile -c code/ice/IceMod/smod/*.f90
+$compile -c code/ocean/ocean_tides/oceantides.f90
+  #$compile -c code/ocean/ocean_tides/smod/*.f90
 
-$compile -c code/ice/IceTides/IceTidesMod.f90
-$compile -c code/ice/IceTides/smod/*.f90
+$compile -c code/ice/ice_constants.f90
 
-$compile -c code/ice/IceCrust/IceCrustMod.f90
-$compile -c code/ice/IceCrust/smod/*.f90
+  $compile -c code/ice/ice_parameters/ice_bndtemp.f90 &
+  $compile -c code/ice/ice_parameters/ice_cp.f90 &
+  $compile -c code/ice/ice_parameters/ice_cond.f90 &
+  $compile -c code/ice/ice_parameters/ice_alpha.f90 &
+  $compile -c code/ice/ice_parameters/ice_visc.f90 &
+wait
+
+$compile -c code/ice/ice/ice.f90
+  $compile -c code/ice/ice/smod/ice@init.f90 &
+  $compile -c code/ice/ice/smod/ice@variables.f90 &
+wait
+
+$compile -c code/ice/ice_tides/icetides.f90
+  $compile -c code/ice/ice_tides/smod/icetides@init.f90 &
+  $compile -c code/ice/ice_tides/smod/icetides@ee.f90 &
+  $compile -c code/ice/ice_tides/smod/icetides@params.f90 &
+  $compile -c code/ice/ice_tides/smod/icetides@potentials.f90 &
+  $compile -c code/ice/ice_tides/smod/icetides@solvers.f90 &
+wait
+
+$compile -c code/ice/ice_crust/icecrust.f90
+  $compile -c code/ice/ice_crust/smod/icecrust@init.f90 &
+  $compile -c code/ice/ice_crust/smod/icecrust@ee.f90 &
+  $compile -c code/ice/ice_crust/smod/icecrust@params.f90 &
+  $compile -c code/ice/ice_crust/smod/icecrust@potentials.f90 &
+  $compile -c code/ice/ice_crust/smod/icecrust@nonlin.f90 &
+  $compile -c code/ice/ice_crust/smod/icecrust@output.f90 &
+  $compile -c code/ice/ice_crust/smod/icecrust@solvers.f90 &
+wait
 
 rm -r -f data || true
 

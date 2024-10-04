@@ -1,5 +1,5 @@
 program BielyKralik_oceanConv
-    use OceanConvMod
+    use oceanconv
     implicit none
   
     type(T_oceanConv) :: ocean

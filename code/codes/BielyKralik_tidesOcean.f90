@@ -1,5 +1,5 @@
 program BielyKralik_tidesOcean
-  use OceanTidesMod
+  use oceantides
   implicit none
 
   type(T_oceanTides) :: ocean

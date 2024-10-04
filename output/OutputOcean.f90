@@ -1,5 +1,5 @@
 program OutputOcean
-  use OceanConstants
+  use ocean_constants
   use OutputMod
   implicit none
   
