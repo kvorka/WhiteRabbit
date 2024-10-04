@@ -1,4 +1,4 @@
-submodule(IceMod) VariablesIce
+submodule (IceMod) VariablesIce
   implicit none; contains
   
   module pure real(kind=dbl) function avrg_temperature_ice_ir_fn(this, ir)

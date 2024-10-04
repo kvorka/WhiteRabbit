@@ -1,5 +1,5 @@
 module OceanMod
-  use PhysicalObject
+  use physicalobject
   use OceanConstants
   implicit none
 

@@ -1,4 +1,4 @@
-submodule(IceMod) Init_ice
+submodule (IceMod) Init_ice
   implicit none ; contains
   
   module subroutine init_ice_sub(this, jmax_in, rheol_in, n_iter, noharm)

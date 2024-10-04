@@ -1,6 +1,6 @@
 program BielyKralik_legeTest
   use omp_lib
-  use SphericalHarmonics
+  use lateral_grid
   implicit none
 
   type(T_lateralGrid)            :: sph

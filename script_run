@@ -13,12 +13,13 @@ code_type="ice_deformation"
 ###########################################################################################
 ####                    COMPILATION OF THE BASELINE, DIRS SET UP                       ####
 ###########################################################################################
-$compile -c kernels/math/math.f90
-$compile -c kernels/math/math_subs/*.f90
+$compile -c kernels/math/math/math.f90
+$compile -c kernels/math/math/smod/*.f90
 
 $compile -c kernels/math/cg/*.f90
 $compile -c kernels/math/legendre/*.f90
 $compile -c kernels/math/sph/*.f90
+$compile -c kernels/math/subs/*.f90
 
 $compile -c kernels/math/fft/fourier_transform.f90
 $compile -c kernels/math/fft/smod/*.f90
@@ -29,40 +30,40 @@ $compile -c kernels/math/sphsvt/smod/*.f90
 $compile -c kernels/math/lu_matrix/matrix.f90
 $compile -c kernels/math/lu_matrix/smod/*.f90
 
-$compile -c kernels/grid/radial/RadialGrid.f90
+$compile -c kernels/grid/radial/radial_grid.f90
 $compile -c kernels/grid/radial/smod/*.f90
 
-$compile -c kernels/grid/spherical/SphericalHarmonics.f90
-$compile -c kernels/grid/spherical/smod/*.f90
+$compile -c kernels/grid/lateral/lateral_grid.f90
+$compile -c kernels/grid/lateral/smod/*.f90
 
-$compile -c kernels/equations/solutions/Solution.f90
-$compile -c kernels/equations/solutions/smod/*.f90
+$compile -c kernels/equations/solution/solution.f90
+$compile -c kernels/equations/solution/smod/*.f90
 
-$compile -c kernels/equations/matrices/Matrices.f90
+$compile -c kernels/equations/matrices/matrices.f90
 $compile -c kernels/equations/matrices/smod/*.f90
 
-$compile -c kernels/gmodel/Gravity.f90
-$compile -c kernels/gmodel/smod/*.f90
+$compile -c kernels/gravity/gravity.f90
+$compile -c kernels/gravity/smod/*.f90
 
-$compile -c kernels/mparams/Mparams.f90
+$compile -c kernels/mparams/mparams.f90
 $compile -c kernels/mparams/smod/*.f90
 
-$compile -c kernels/boundaries/Boundaries.f90
+$compile -c kernels/boundaries/boundaries.f90
 $compile -c kernels/boundaries/smod/*.f90
 
-$compile -c kernels/tidal_heating/Tidal_heating.f90
+$compile -c kernels/tidal_heating/tidalheating.f90
 $compile -c kernels/tidal_heating/smod/*.f90
 
-$compile -c kernels/object/PhysicalObject.f90
+$compile -c kernels/object/physicalobject.f90
 $compile -c kernels/object/smod/*.f90
-$compile -c kernels/object/smod/Matrices/*.f90
-$compile -c kernels/object/smod/Heating/*.f90
-$compile -c kernels/object/smod/Solvers/*.f90
-$compile -c kernels/object/smod/Variables/*.f90
-$compile -c kernels/object/smod/Material_parameters/*.f90
-$compile -c kernels/object/smod/Forces/*.f90
-$compile -c kernels/object/smod/Output/*.f90
-$compile -c kernels/object/smod/Balances/*.f90
+$compile -c kernels/object/smod/matrices/*.f90
+$compile -c kernels/object/smod/heating/*.f90
+$compile -c kernels/object/smod/solvers/*.f90
+$compile -c kernels/object/smod/variables/*.f90
+$compile -c kernels/object/smod/material_parameters/*.f90
+$compile -c kernels/object/smod/forces/*.f90
+$compile -c kernels/object/smod/output/*.f90
+$compile -c kernels/object/smod/balances/*.f90
 
 $compile -c code/ocean/OceanConstants.f90
 $compile -c code/ocean/OceanMod/OceanMod.f90

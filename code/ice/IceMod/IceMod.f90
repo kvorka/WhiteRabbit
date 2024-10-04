@@ -1,6 +1,6 @@
 module iceMod
   use lateral_integral
-  use PhysicalObject
+  use physicalobject
   use IceConstants
   use IceViscosity
   use IceConductivity
