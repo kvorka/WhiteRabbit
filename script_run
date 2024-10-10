@@ -8,7 +8,7 @@ compile="gfortran-12 -Ofast -march=native -flto=auto -fwhole-program -fopenmp"
 ####                              POSSIBLE CODE SETTINGS                               ####
 ####       test_speed, ocean_convection, ice_ocean, ocean_tides, ice_deformation       ####
 ###########################################################################################
-code_type="ice_deformation"
+code_type="test_legendre"
 
 ###########################################################################################
 ####                    COMPILATION OF THE BASELINE, DIRS SET UP                       ####
@@ -71,6 +71,7 @@ $compile -c kernels/grid/lateral/lateral_grid.f90
   $compile -c kernels/grid/lateral/smod/lateral_grid@vcsv.f90 &
   $compile -c kernels/grid/lateral/smod/lateral_grid@vcst.f90 &
   $compile -c kernels/grid/lateral/smod/lateral_grid@vcvv.f90 &
+  $compile -c kernels/grid/lateral/smod/lateral_grid@vcvxv.f90 &
   $compile -c kernels/grid/lateral/smod/lateral_grid@vcvgv.f90 &
   $compile -c kernels/grid/lateral/smod/lateral_grid@vcvv_vcvgv.f90 &
   $compile -c kernels/grid/lateral/smod/lateral_grid@vcss_add_vcvv.f90 &

@@ -9,7 +9,8 @@ module sphsvt
     
     procedure :: init_sub => init_sphsvt_sub
     procedure :: scal2scal_jm_to_mj_sub, scal2scal_mj_to_jm_sub, vec2vec_jml_to_jml_sub, vec2scal_jml_to_mj_sub, &
-               & scal2vecscal_mj_to_jm_sub, gradvec2vec_jmlk_to_jml_sub, devtens2scal_jml2_to_mj_sub, scal2devtens_mj_to_jml2_sub
+               & scal2vecscal_mj_to_jm_sub, gradvec2vec_jmlk_to_jml_sub, devtens2scal_jml2_to_mj_sub, &
+               & scal2devtens_mj_to_jml2_sub, scal2vec_mj_to_jml_sub
     
   end type T_sphsvt
   
@@ -68,6 +69,13 @@ module sphsvt
       complex(kind=dbl), intent(inout) :: cr(ncr,*)
       complex(kind=dbl), intent(inout) :: cjm(ncjm,*)
     end subroutine scal2vecscal_mj_to_jm_sub
+    
+    module pure subroutine scal2vec_mj_to_jml_sub(this, cr, ncr, crpadding, cjml, ncjml, cjmlpadding)
+      class(T_sphsvt),   intent(in)    :: this
+      integer,           intent(in)    :: ncr, crpadding, ncjml, cjmlpadding
+      complex(kind=dbl), intent(inout) :: cr(ncr,*)
+      complex(kind=dbl), intent(inout) :: cjml(ncjml,*)
+    end subroutine scal2vec_mj_to_jml_sub
     
     module pure subroutine scal2devtens_mj_to_jml2_sub(this, cr, ncr, crpadding, ctjml2)
       class(T_sphsvt),   intent(in) :: this

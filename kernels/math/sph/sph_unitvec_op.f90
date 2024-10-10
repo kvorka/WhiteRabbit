@@ -2,27 +2,6 @@ module sph_unitvec_op
   use math
   implicit none; public; contains
   
-  pure subroutine ervs_sub(np, cajml, cjm)
-    integer,           intent(in)  :: np
-    complex(kind=dbl), intent(in)  :: cajml(*)
-    complex(kind=dbl), intent(out) :: cjm(*)
-    integer                        :: ij, ijm
-    real(kind=dbl)                 :: fac1, fac2
-    
-    ij = 0
-      cjm(1) = -cajml(1)
-    
-    do ij = 1, np
-      fac1 = +sqrt((ij  )/(2*ij+one))
-      fac2 = -sqrt((ij+1)/(2*ij+one))
-      
-      do concurrent ( ijm = ij*(ij+1)/2+1 : ij*(ij+1)/2+ij+1 )
-        cjm(ijm) = fac1 * cajml(3*ijm-4) + fac2 * cajml(3*ijm-2)
-      end do
-    end do
-    
-  end subroutine ervs_sub
-  
   pure subroutine ezvv_sub(np, fac, cajml, cjml)
     integer,           intent(in)    :: np
     real(kind=dbl),    intent(in)    :: fac
