@@ -217,6 +217,12 @@ rm -r -f data || true
 case $code_type in
     
     test_legendre)
+        mkdir data
+
+        mkdir data/data_ocean_temp
+        mkdir data/data_ocean_veloc
+        mkdir data/data_ocean_flux
+
         $compile code/codes/BielyKralik_legeTest.f90 *.o -o Test_lege
     ;;
 

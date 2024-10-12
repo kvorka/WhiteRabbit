@@ -14,7 +14,8 @@ submodule (oceanconv) timescheme
     do ijm = 2, this%jms
       this%rsph2(this%nd+1,ijm) = -this%St * this%qr_r_fn(this%nd,ijm)
     end do
-    
+    !$omp end do
+
     !$omp do collapse (2)
     do ijm = 1, this%jms
       do ir = 2, this%nd
@@ -25,14 +26,11 @@ submodule (oceanconv) timescheme
       end do
     end do
     !$omp end do
+    !$omp end parallel
     
-    !$omp do
-    do ir = 2, this%nd
-      call this%fullnl_sub(ir)
-    end do
-    !$omp end do
+    call this%fullnl_sub()
     
-    !$omp do collapse (2)
+    !$omp parallel do collapse (2)
     do ijm = 1, this%jms
       do ir = 2, this%nd
         this%rtemp(ir,ijm) = this%rtemp(ir,ijm) + this%ab * this%ntemp(ijm,ir)
@@ -41,8 +39,7 @@ submodule (oceanconv) timescheme
         this%rsph2(ir,ijm) = this%rsph2(ir,ijm) + this%ab * this%nsph2(ijm,ir)
       end do
     end do
-    !$omp end do
-    !$omp end parallel
+    !$omp end parallel do
     
     call this%solve_temp_sub( ijmstart=1 , ijmend=this%jms, ijmstep=1, rematrix=.false., matxsol=.true. )
     call this%solve_torr_sub( ijmstart=2 , ijmend=this%jms, ijmstep=1, rematrix=.false., matxsol=.true. )

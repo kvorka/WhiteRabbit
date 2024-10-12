@@ -11,6 +11,7 @@ module ocean
     procedure :: init_ocean_sub
     procedure :: speed_sub
     procedure :: set_boundary_deformation_sub
+    procedure :: fullnl2_ocean_sub
     
     procedure :: vypis_ocean_sub => vypis_ocean_sub
     procedure :: iter_sub        => iter_ocean_sub
@@ -34,6 +35,10 @@ module ocean
   end interface
   
   interface
+    module subroutine fullnl2_ocean_sub(this)
+      class(T_ocean),    intent(inout) :: this
+    end subroutine fullnl2_ocean_sub
+
     module subroutine init_ocean_sub(this)
       class(T_ocean), intent(inout) :: this
     end subroutine init_ocean_sub
@@ -73,9 +78,8 @@ module ocean
       integer,           intent(in)    :: i
     end subroutine coriolis_vgradv_ocean_sub
     
-    module subroutine fullnl_ocean_sub(this, i)
+    module subroutine fullnl_ocean_sub(this)
       class(T_ocean), intent(inout) :: this
-      integer,        intent(in)    :: i
     end subroutine fullnl_ocean_sub
   end interface
   

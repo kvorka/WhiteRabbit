@@ -58,7 +58,7 @@ module physicalobject
     !Variables mechanical part of solution
     procedure, pass :: v_r_fn, v_r_ijml_sub
     procedure, pass :: v_rr_fn, v_rr_ijml_sub
-    procedure, pass :: vr_r_fn, vr_rr_fn, vr_r_jm_sub, vr_rr_jm_sub, dv_dr_rr_jml_sub
+    procedure, pass :: vr_r_fn, vr_rr_fn, vr_r_jm_sub, vr_rr_jm_sub, dv_dr_rr_jml_sub, curlv_rr_jml_sub
     
     !Matrices, equations, solvers
     procedure, pass :: init_eq_mech_sub, init_eq_torr_sub, init_eq_temp_sub
@@ -293,6 +293,12 @@ module physicalobject
       integer,                 intent(in)  :: ir
       complex(kind=dbl),       intent(out) :: dv(:), v(:)
     end subroutine dv_dr_rr_jml_sub
+    
+    module pure subroutine curlv_rr_jml_sub(this, ir, v, curlv)
+      class(T_physicalObject), intent(in)  :: this
+      integer,                 intent(in)  :: ir
+      complex(kind=dbl),       intent(out) :: v(:), curlv(:)
+    end subroutine curlv_rr_jml_sub
     
     !Interfaces :: material parameters
     module pure real(kind=dbl) function lambda_r_fn(this, ir)
