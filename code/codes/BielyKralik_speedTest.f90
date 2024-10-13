@@ -3,20 +3,20 @@ program BielyKralik_speedTest
   use oceanconv
   implicit none
 
-  type(T_oceanConv) :: ocean
+  type(T_oceanConv) :: oceanmodel
   real(kind=dbl)    :: start, end
   
   !Inicializuj vypocet
-  call ocean%init_sub()
+  call oceanmodel%init_sub()
   
   !Casova slucka
   start = omp_get_wtime()
-    call ocean%speed_sub()
+    call oceanmodel%speed_sub()
   end = omp_get_wtime()
 
-  write(*,*) (end-start) / ocean%n_iter
+  write(*,*) (end-start) / oceanmodel%n_iter
   
   !Cistenie
-  call ocean%deallocate_sub()
+  call oceanmodel%deallocate_sub()
 
 end program BielyKralik_speedTest

@@ -1,8 +1,8 @@
 module lateral_grid
   use math
   use legendre_function
-  use legendre_polynom
   use fourier_transform
+  use lege_poly
   use sphsvt
   implicit none
   
@@ -11,8 +11,9 @@ module lateral_grid
                                                & 247, 253, 267, 285, 297, 317, 321, 357, 381, 397, 429, 447, 477, 483, 497, 997  ]
   
   type, public :: T_lateralGrid
-    integer,                     public  :: jmax, nLegendre, nFourier
-    real(kind=dbl), allocatable, public  :: cosx(:), weight(:), amj(:), bmj(:), cmm(:)
+    integer,                     public  :: nLegendre, nFourier
+    real(kind=dbl), allocatable, public  :: cosx(:), weight(:)
+    type(T_legep),               public  :: lgp
     type(T_fft),                 public  :: fourtrans
     type(T_sphsvt),              public  :: reindexing
     

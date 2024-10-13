@@ -10,18 +10,15 @@ submodule (lateral_grid) init
       stop
     end if
     
-    this%jmax = jmax+2
-    
-    this%nFourier  = 3 * ( this%jmax+1 )
-    this%nLegendre = (3*(this%jmax+1)/2+1)/2+5-mod((3*(this%jmax+1)/2+1)/2+1,4)
+    this%nFourier  = 3 * ( jmax+3 )
+    this%nLegendre = (3*(jmax+3)/2+1)/2+5-mod((3*(jmax+3)/2+1)/2+1,4)
     
     call legef_roots_sub( this%nLegendre, this%cosx )
     call legef_weights_sub( this%nLegendre, this%cosx, this%weight )
     
-    call legep_factors_sub( this%jmax, this%amj, this%bmj, this%cmm )
-    
-    call this%reindexing%init_sub( this%jmax-2 )
+    call this%reindexing%init_sub( jmax )
     call this%fourtrans%init_sub( this%nFourier )
+    call this%lgp%init_sub( jmax+2 )
     
   end subroutine init_harmonics_sub
   
@@ -29,12 +26,10 @@ submodule (lateral_grid) init
     class(T_lateralGrid), intent(inout) :: this
     
     call this%fourtrans%deallocate_sub()
+    call this%lgp%deallocate_sub()
     
     if ( allocated(this%cosx)   ) deallocate( this%cosx   )
     if ( allocated(this%weight) ) deallocate( this%weight )
-    if ( allocated(this%amj)    ) deallocate( this%amj   )
-    if ( allocated(this%bmj)    ) deallocate( this%bmj   )
-    if ( allocated(this%cmm)    ) deallocate( this%cmm     )
     
   end subroutine deallocate_harmonics_sub
   
