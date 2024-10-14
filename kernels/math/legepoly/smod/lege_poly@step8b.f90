@@ -26,10 +26,9 @@ submodule (lege_poly) step8b
     
   end subroutine backward_rcb_8_sub
   
-  module pure subroutine backward_legesum_8_sub(this, nb, roots, cc, sumN, sumS)
+  module pure subroutine backward_legesum_8_sub(this, it, nb, cc, sumN, sumS)
     class(T_legep),    intent(in)  :: this
-    integer,           intent(in)  :: nb
-    real(kind=dbl),    intent(in)  :: roots(8)
+    integer,           intent(in)  :: it, nb
     complex(kind=dbl), intent(in)  :: cc(nb,*)
     complex(kind=dbl), intent(out) :: sumN(*), sumS(*)
     integer                        :: m, j, mj, i2
@@ -38,9 +37,9 @@ submodule (lege_poly) step8b
     
     allocate( pmj2(8), pmj1(8), pmj0(8), pmm(8), csx(8), snx(8), ssm(8*nb), asm(8*nb) )
     
-    do concurrent ( i2 = 1:8 )
-      csx(i2) = roots(i2)
-      snx(i2) = sqrt(1-csx(i2)**2)
+    do concurrent ( i2 = 0:7 )
+      csx(i2+1) = this%roots(it+i2)
+      snx(i2+1) = sqrt(1-this%roots(it+i2)**2)
     end do
     
     call zero_carray_sub( 8*nb*(this%jmax+1), sumN(1) )

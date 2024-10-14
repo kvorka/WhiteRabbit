@@ -60,7 +60,7 @@ submodule (icecrust) potentials
         a21 = a21 / det; a22 = a22 / det
       
       do m = 0, j
-        ijm = jm(j,m)
+        ijm = j*(j+1)/2+m+1
         
         do concurrent ( ir = 1:this%nd+1 )
           field(ir) = fac * this%alpha_rr_fn(ir) * this%temp_rr_fn(ir,ijm) * (this%rI2/this%rad_grid%rr(ir))**(j-1)

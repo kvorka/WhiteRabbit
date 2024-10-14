@@ -33,25 +33,25 @@ submodule (lege_poly) step4f
     
   end subroutine forward_rcb_4_sub
   
-  module pure subroutine forward_legesum_4_sub(this, nf, roots, weights, sumN, sumS, cr)
+  module pure subroutine forward_legesum_4_sub(this, it, nf, sumN, sumS, cr)
     class(T_legep),    intent(in)    :: this
-    integer,           intent(in)    :: nf
-    real(kind=dbl),    intent(in)    :: roots(4), weights(4)
+    integer,           intent(in)    :: it, nf
     complex(kind=dbl), intent(in)    :: sumN(*), sumS(*)
     complex(kind=dbl), intent(inout) :: cr(nf,*)
     integer                          :: j, m, mj, i2
-    real(kind=dbl),    allocatable   :: pmj2(:), pmj1(:), pmj0(:), pmm(:), csx(:), snx(:)
+    real(kind=dbl),    allocatable   :: pmj2(:), pmj1(:), pmj0(:), pmm(:), csx(:), snx(:), wghts(:)
     complex(kind=dbl), allocatable   :: ssm(:), asm(:)
     
-    allocate( pmj2(4), pmj1(4), pmj0(4), pmm(4), csx(4), snx(4), ssm(4*nf), asm(4*nf) )
+    allocate( pmj2(4), pmj1(4), pmj0(4), pmm(4), csx(4), snx(4), wghts(4), ssm(4*nf), asm(4*nf) )
     
-    do concurrent ( i2 = 1:4 )
-      csx(i2) = roots(i2)
-      snx(i2) = sqrt(1-csx(i2)**2)
+    do concurrent ( i2 = 0:3 )
+      csx(i2+1)   = this%roots(it+i2)
+      snx(i2+1)   = sqrt(1-this%roots(it+i2)**2)
+      wghts(i2+1) = this%weights(it+i2)
     end do
     
     do m = 0, this%jmax
-      call this%forward_rcb_4_sub( nf, weights(1), sumN(4*nf*m+1), sumS(4*nf*m+1), ssm(1), asm(1) )
+      call this%forward_rcb_4_sub( nf, wghts(1), sumN(4*nf*m+1), sumS(4*nf*m+1), ssm(1), asm(1) )
       
       !j = m
         mj = m*(this%jmax+1)-(m-2)*(m+1)/2
@@ -75,7 +75,7 @@ submodule (lege_poly) step4f
       end if
     end do
     
-    deallocate( pmj2, pmj1, pmj0, csx, snx, asm, ssm )
+    deallocate( pmj2, pmj1, pmj0, csx, snx, wghts, asm, ssm )
     
   end subroutine forward_legesum_4_sub
   

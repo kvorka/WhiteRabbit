@@ -26,10 +26,9 @@ submodule (lege_poly) step16
     
   end subroutine backward_rcb_16_sub
   
-  module pure subroutine backward_legesum_16_sub(this, nb, roots, cc, sumN, sumS)
+  module pure subroutine backward_legesum_16_sub(this, it, nb, cc, sumN, sumS)
     class(T_legep),    intent(in)  :: this
-    integer,           intent(in)  :: nb
-    real(kind=dbl),    intent(in)  :: roots(16)
+    integer,           intent(in)  :: it, nb
     complex(kind=dbl), intent(in)  :: cc(nb,*)
     complex(kind=dbl), intent(out) :: sumN(*), sumS(*)
     integer                        :: m, j, mj, i2
@@ -38,9 +37,9 @@ submodule (lege_poly) step16
     
     allocate( pmj2(16), pmj1(16), pmj0(16), pmm(16), csx(16), snx(16), ssm(16*nb), asm(16*nb) )
     
-    do concurrent ( i2 = 1:16 )
-      csx(i2) = roots(i2)
-      snx(i2) = sqrt(1-csx(i2)**2)
+    do concurrent ( i2 = 0:15 )
+      csx(i2+1) = this%roots(it+i2)
+      snx(i2+1) = sqrt(1-this%roots(it+i2)**2)
     end do
     
     call zero_carray_sub( 16*nb*(this%jmax+1), sumN(1) )

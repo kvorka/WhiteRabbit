@@ -1,21 +1,20 @@
 module lateral_grid
   use math
-  use legendre_function
   use fourier_transform
   use lege_poly
   use sphsvt
   implicit none
   
-  integer, parameter :: addmissible_jmax(48) = [   5,   7,   9,  13,  15,  21,  27,  29,  33,  37,  45, 47,  51,  57,  61,  69,  &
-                                               &  77,  87,  93,  97, 105, 117, 125, 141, 147, 157, 159, 177, 189, 197, 213, 237, &
-                                               & 247, 253, 267, 285, 297, 317, 321, 357, 381, 397, 429, 447, 477, 483, 497, 997  ]
+  integer, parameter :: addmissible_jmax(46) = [   5,   7,   9,  13,  15,  21,  27,  29,  33,  37,  45,  47, &
+                                               &  51,  57,  61,  69,  77,  87,  93,  97, 105, 117, 125, 141, &
+                                               & 147, 157, 159, 177, 189, 197, 213, 237, 247, 253, 267, 285, &
+                                               & 297, 317, 321, 357, 381, 397, 429, 447, 477, 483 ]
   
   type, public :: T_lateralGrid
-    integer,                     public  :: nLegendre, nFourier
-    real(kind=dbl), allocatable, public  :: cosx(:), weight(:)
-    type(T_legep),               public  :: lgp
-    type(T_fft),                 public  :: fourtrans
-    type(T_sphsvt),              public  :: reindexing
+    integer,        public :: nFourier, nLegendre
+    type(T_legep),  public :: lgp
+    type(T_fft),    public :: fourtrans
+    type(T_sphsvt), public :: reindexing
     
     contains
     

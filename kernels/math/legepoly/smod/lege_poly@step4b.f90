@@ -26,10 +26,9 @@ submodule (lege_poly) step4b
     
   end subroutine backward_rcb_4_sub
   
-  module pure subroutine backward_legesum_4_sub(this, nb, roots, cc, sumN, sumS)
+  module pure subroutine backward_legesum_4_sub(this, it, nb, cc, sumN, sumS)
     class(T_legep),    intent(in)  :: this
-    integer,           intent(in)  :: nb
-    real(kind=dbl),    intent(in)  :: roots(4)
+    integer,           intent(in)  :: it, nb
     complex(kind=dbl), intent(in)  :: cc(nb,*)
     complex(kind=dbl), intent(out) :: sumN(*), sumS(*)
     integer                        :: m, j, mj, i2
@@ -38,9 +37,9 @@ submodule (lege_poly) step4b
     
     allocate( pmj2(4), pmj1(4), pmj0(4), pmm(4), csx(4), snx(4), ssm(4*nb), asm(4*nb) )
     
-    do concurrent ( i2 = 1:4 )
-      csx(i2) = roots(i2)
-      snx(i2) = sqrt(1-csx(i2)**2)
+    do concurrent ( i2 = 0:3 )
+      csx(i2+1) = this%roots(it+i2)
+      snx(i2+1) = sqrt(1-this%roots(it+i2)**2)
     end do
     
     call zero_carray_sub( 4*nb*(this%jmax+1), sumN(1) )

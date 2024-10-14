@@ -1,11 +1,6 @@
 module lateral_integral
   use math
-  implicit none; public
-  
-  integer,        parameter, private :: nt = 100000
-  real(kind=dbl), parameter, private :: dtheta = pi / nt
-  
-  contains
+  implicit none; public; contains
   
   pure real(kind=dbl) function theta_average_fn( func )
     interface
@@ -15,6 +10,8 @@ module lateral_integral
       end function func
     end interface
     
+    integer,        parameter :: nt = 1e6
+    real(kind=dbl), parameter :: dtheta = pi / nt
     integer        :: it
     real(kind=dbl) :: tsum, tangle
     

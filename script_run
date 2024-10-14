@@ -8,7 +8,7 @@ compile="gfortran-12 -Ofast -march=native -flto=auto -fwhole-program -fopenmp"
 ####                              POSSIBLE CODE SETTINGS                               ####
 ####       test_speed, ocean_convection, ice_ocean, ocean_tides, ice_deformation       ####
 ###########################################################################################
-code_type="test_speed"
+code_type="test_legendre"
 
 ###########################################################################################
 ####                    COMPILATION OF THE BASELINE, DIRS SET UP                       ####
@@ -18,12 +18,10 @@ $compile -c kernels/math/math/math.f90
   $compile -c kernels/math/math/smod/nulify.f90 &
 wait
 
-  $compile -c kernels/math/cg/clebsch_gordan.f90 &
   $compile -c kernels/math/sph/sph_indexing.f90 &
   $compile -c kernels/math/sph/sph_norms.f90 &
   $compile -c kernels/math/sph/sph_unitvec_op.f90 &
-  $compile -c kernels/math/subs/legendre_function.f90 &
-  $compile -c kernels/math/subs/lateral_integral.f90 &
+  $compile -c kernels/math/sph/lateral_integral.f90 &
 wait
 
 $compile -c kernels/math/fft/fourier_transform.f90
@@ -49,6 +47,7 @@ $compile -c kernels/math/legepoly/lege_poly.f90
   $compile -c kernels/math/legepoly/smod/lege_poly@step16b.f90 &
   $compile -c kernels/math/legepoly/smod/lege_poly@step16f.f90 &
 
+$compile -c kernels/math/sphsvt/clebsch_gordan.f90
 $compile -c kernels/math/sphsvt/sphsvt.f90
   $compile -c kernels/math/sphsvt/smod/sphsvt@init.f90 &
   $compile -c kernels/math/sphsvt/smod/sphsvt@devtens_to_scal.f90 &

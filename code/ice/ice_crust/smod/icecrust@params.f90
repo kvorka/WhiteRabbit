@@ -230,8 +230,8 @@ submodule (icecrust) params
       
       !to grid :: non-dimensional surface temperature
       do concurrent ( i2 = 1:this%lat_grid%nFourier, i1 = 1:this%lat_grid%nLegendre )
-        grid(i1,i2,1) = ( name_surfaceTemp_fn(   acos(this%lat_grid%cosx(i1))) - this%Tu ) / ( this%Td - this%Tu )
-        grid(i1,i2,2) = ( name_surfaceTemp_fn(pi-acos(this%lat_grid%cosx(i1))) - this%Tu ) / ( this%Td - this%Tu )
+        grid(i1,i2,1) = ( name_surfaceTemp_fn(   acos(this%lat_grid%lgp%roots(i1))) - this%Tu ) / ( this%Td - this%Tu )
+        grid(i1,i2,2) = ( name_surfaceTemp_fn(pi-acos(this%lat_grid%lgp%roots(i1))) - this%Tu ) / ( this%Td - this%Tu )
       end do
       
       !Grid to space :: non-dim surface temperature

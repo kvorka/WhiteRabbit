@@ -23,7 +23,7 @@ submodule (icetides) potentials
   
   module subroutine set_layers_iceTides_sub(this)
     class(T_iceTides), intent(inout) :: this
-    integer                          :: i, j, m
+    integer                          :: i, j, m, ijm
     real(kind=dbl)                   :: a11, a12, a21, a22, det
     complex(kind=dbl)                :: rhs1, rhs2
     
@@ -39,16 +39,18 @@ submodule (icetides) potentials
       a21 = a21 / det; a22 = a22 / det
       
     do m = 0, j, 2
-      rhs1 = -( this%gravity%V_bnd_fn( j, m, this%rI2, this%rd, this%rhoW-this%rhoI, this%bnd%u_dn(jm(j,m))) + &
-              & this%gravity%V_bnd_fn( j, m, this%rI2, this%ru, this%rhoI          , this%bnd%u_up(jm(j,m))) + &
+      ijm = j*(j+1)/2+m+1
+      
+      rhs1 = -( this%gravity%V_bnd_fn( j, m, this%rI2, this%rd, this%rhoW-this%rhoI, this%bnd%u_dn(ijm)) + &
+              & this%gravity%V_bnd_fn( j, m, this%rI2, this%ru, this%rhoI          , this%bnd%u_up(ijm)) + &
               & this%gravity%V_tide_fn(j, m, this%rI2, 2*pi*this%t/this%period) ) 
               
-      rhs2 = -( this%gravity%V_bnd_fn( j, m, this%rC, this%rd, this%rhoW-this%rhoI, this%bnd%u_dn(jm(j,m))) + &
-              & this%gravity%V_bnd_fn( j, m, this%rC, this%ru, this%rhoI          , this%bnd%u_up(jm(j,m))) + &
+      rhs2 = -( this%gravity%V_bnd_fn( j, m, this%rC, this%rd, this%rhoW-this%rhoI, this%bnd%u_dn(ijm)) + &
+              & this%gravity%V_bnd_fn( j, m, this%rC, this%ru, this%rhoI          , this%bnd%u_up(ijm)) + &
               & this%gravity%V_tide_fn(j, m, this%rC, 2*pi*this%t/this%period) )
     
-      this%bnd%u_I2(jm(j,m)) = a22 * rhs1 - a12 * rhs2
-      this%bnd%u_C(jm(j,m))  = a11 * rhs2 - a21 * rhs1
+      this%bnd%u_I2(ijm) = a22 * rhs1 - a12 * rhs2
+      this%bnd%u_C(ijm)  = a11 * rhs2 - a21 * rhs1
     end do
       
   end subroutine set_layers_iceTides_sub

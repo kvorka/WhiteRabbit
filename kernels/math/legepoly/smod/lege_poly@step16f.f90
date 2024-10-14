@@ -33,25 +33,25 @@ submodule (lege_poly) step16f
     
   end subroutine forward_rcb_16_sub
   
-  module pure subroutine forward_legesum_16_sub(this, nf, roots, weights, sumN, sumS, cr)
+  module pure subroutine forward_legesum_16_sub(this, it, nf, sumN, sumS, cr)
     class(T_legep),    intent(in)    :: this
-    integer,           intent(in)    :: nf
-    real(kind=dbl),    intent(in)    :: roots(16), weights(16)
+    integer,           intent(in)    :: it, nf
     complex(kind=dbl), intent(in)    :: sumN(*), sumS(*)
     complex(kind=dbl), intent(inout) :: cr(nf,*)
     integer                          :: j, m, mj, i2
-    real(kind=dbl),    allocatable   :: pmj2(:), pmj1(:), pmj0(:), pmm(:), csx(:), snx(:)
+    real(kind=dbl),    allocatable   :: pmj2(:), pmj1(:), pmj0(:), pmm(:), csx(:), snx(:), wghts(:)
     complex(kind=dbl), allocatable   :: ssm(:), asm(:)
     
-    allocate( pmj2(16), pmj1(16), pmj0(16), pmm(16), csx(16), snx(16), ssm(16*nf), asm(16*nf) )
+    allocate( pmj2(16), pmj1(16), pmj0(16), pmm(16), csx(16), snx(16), wghts(16), ssm(16*nf), asm(16*nf) )
     
-    do concurrent ( i2 = 1:16 )
-      csx(i2) = roots(i2)
-      snx(i2) = sqrt(1-csx(i2)**2)
+    do concurrent ( i2 = 0:15 )
+      csx(i2+1)   = this%roots(it+i2)
+      snx(i2+1)   = sqrt(1-this%roots(it+i2)**2)
+      wghts(i2+1) = this%weights(it+i2)
     end do
     
     do m = 0, this%jmax
-      call this%forward_rcb_16_sub( nf, weights(1), sumN(16*nf*m+1), sumS(16*nf*m+1), ssm(1), asm(1) )
+      call this%forward_rcb_16_sub( nf, wghts(1), sumN(16*nf*m+1), sumS(16*nf*m+1), ssm(1), asm(1) )
       
       !j = m
         mj = m*(this%jmax+1)-(m-2)*(m+1)/2
@@ -75,7 +75,7 @@ submodule (lege_poly) step16f
       end if
     end do
     
-    deallocate( pmj2, pmj1, pmj0, csx, snx, asm, ssm )
+    deallocate( pmj2, pmj1, pmj0, csx, snx, wghts, asm, ssm )
     
   end subroutine forward_legesum_16_sub
   

@@ -10,15 +10,12 @@ submodule (lateral_grid) init
       stop
     end if
     
-    this%nFourier  = 3 * ( jmax+3 )
+    this%nFourier  = 3*(jmax+3)
     this%nLegendre = (3*(jmax+3)/2+1)/2+5-mod((3*(jmax+3)/2+1)/2+1,4)
-    
-    call legef_roots_sub( this%nLegendre, this%cosx )
-    call legef_weights_sub( this%nLegendre, this%cosx, this%weight )
     
     call this%reindexing%init_sub( jmax )
     call this%fourtrans%init_sub( this%nFourier )
-    call this%lgp%init_sub( jmax+2 )
+    call this%lgp%init_sub( jmax+2, this%nLegendre )
     
   end subroutine init_harmonics_sub
   
@@ -27,9 +24,6 @@ submodule (lateral_grid) init
     
     call this%fourtrans%deallocate_sub()
     call this%lgp%deallocate_sub()
-    
-    if ( allocated(this%cosx)   ) deallocate( this%cosx   )
-    if ( allocated(this%weight) ) deallocate( this%weight )
     
   end subroutine deallocate_harmonics_sub
   
