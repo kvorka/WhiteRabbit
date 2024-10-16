@@ -14,8 +14,8 @@ code_type="test_legendre"
 ####                    COMPILATION OF THE BASELINE, DIRS SET UP                       ####
 ###########################################################################################
 $compile -c kernels/math/math/math.f90
-  $compile -c kernels/math/math/smod/conversions.f90 &
-  $compile -c kernels/math/math/smod/nulify.f90 &
+  $compile -c kernels/math/math/smod/math@conversions.f90 &
+  $compile -c kernels/math/math/smod/math@nulify.f90 &
 wait
 
   $compile -c kernels/math/sph/sph_indexing.f90 &
