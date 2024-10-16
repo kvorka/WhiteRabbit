@@ -10,12 +10,9 @@ submodule (lateral_grid) init
       stop
     end if
     
-    this%nFourier  = 3*(jmax+3)
-    this%nLegendre = (3*(jmax+3)/2+1)/2+5-mod((3*(jmax+3)/2+1)/2+1,4)
-    
     call this%reindexing%init_sub( jmax )
-    call this%fourtrans%init_sub( this%nFourier )
-    call this%lgp%init_sub( jmax+2, this%nLegendre )
+    call this%fourtrans%init_sub( 3*(jmax+3) )
+    call this%lgp%init_sub( jmax+2, (3*(jmax+3)/2+1)/2+5-mod((3*(jmax+3)/2+1)/2+1,4) )
     
   end subroutine init_harmonics_sub
   

@@ -11,7 +11,6 @@ module lateral_grid
                                                & 297, 317, 321, 357, 381, 397, 429, 447, 477, 483 ]
   
   type, public :: T_lateralGrid
-    integer,        public :: nFourier, nLegendre
     type(T_legep),  public :: lgp
     type(T_fft),    public :: fourtrans
     type(T_sphsvt), public :: reindexing
@@ -23,7 +22,7 @@ module lateral_grid
     
     procedure :: transform_sub
     procedure :: vcss_sub, vcsv_sub, vcst_sub, vcvv_sub, vcvxv_sub, vcvgv_sub, vcvv_vcvgv_sub, vcss_add_vcvv_sub
-    procedure :: grid_to_space_sub, space_to_grid_sub
+    procedure :: allocate_grid_sub, grid_to_space_sub, space_to_grid_sub
     
   end type T_lateralGrid
   
@@ -50,6 +49,11 @@ module lateral_grid
         end subroutine grid_sub
       end interface
     end subroutine transform_sub
+    
+    module pure subroutine allocate_grid_sub(this, grid)
+      class(T_lateralGrid),        intent(in)  :: this
+      real(kind=dbl), allocatable, intent(out) :: grid(:,:,:)
+    end subroutine allocate_grid_sub
     
     module pure subroutine space_to_grid_sub(this, cc, grid)
       class(T_lateralGrid), intent(in)  :: this

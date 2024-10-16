@@ -63,14 +63,12 @@ module ocean
       complex(kind=dbl), intent(in)    :: u_up(:), t_up(:)
     end subroutine set_boundary_deformation_sub
     
-    module pure subroutine coriolis_ocean_sub(this, i)
+    module subroutine coriolis_ocean_sub(this)
       class(T_ocean), intent(inout) :: this
-      integer,        intent(in)    :: i
     end subroutine coriolis_ocean_sub
     
-    module subroutine coriolis_vgradv_ocean_sub(this, i)
-      class(T_ocean),    intent(inout) :: this
-      integer,           intent(in)    :: i
+    module subroutine coriolis_vgradv_ocean_sub(this)
+      class(T_ocean), intent(inout) :: this
     end subroutine coriolis_vgradv_ocean_sub
     
     module subroutine fullnl_ocean_sub(this)

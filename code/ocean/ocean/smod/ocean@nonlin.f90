@@ -1,66 +1,74 @@
 submodule (ocean) nonlin
   implicit none; contains
   
-  module pure subroutine coriolis_ocean_sub(this, i)
+  module subroutine coriolis_ocean_sub(this)
     class(T_ocean),    intent(inout) :: this
-    integer,           intent(in)    :: i
-    integer                          :: ijm
+    integer                          :: ir, ijm
     complex(kind=dbl), allocatable   :: v(:), nlm(:,:)
     
-    allocate( v(this%jmv) ) ; call this%v_rr_ijml_sub(i, v)
+    allocate( v(this%jmv), nlm(3,this%jms) )
     
-    allocate( nlm(3,this%jms) ) ; nlm = czero
-    
-    call this%coriolis_rr_jml_sub(v, nlm)
-    
-    deallocate( v )
-    
-    do concurrent ( ijm = 1:this%jms )
-      this%nsph1(ijm,i) = nlm(1,ijm)
-      this%ntorr(ijm,i) = nlm(2,ijm)
-      this%nsph2(ijm,i) = nlm(3,ijm)
+    !$omp parallel do private (v, nlm, ijm)
+    do ir = 2, this%nd
+      call this%v_rr_ijml_sub(ir, v)
+      
+      call zero_carray_sub( 3*this%jms, nlm(1,1) )
+      call this%coriolis_rr_jml_sub(v, nlm)
+      
+      do concurrent ( ijm = 1:this%jms )
+        this%nsph1(ijm,ir) = nlm(1,ijm)
+        this%ntorr(ijm,ir) = nlm(2,ijm)
+        this%nsph2(ijm,ir) = nlm(3,ijm)
+      end do
     end do
+    !$omp end parallel do
     
-    deallocate( nlm )
+    deallocate( v, nlm )
     
   end subroutine coriolis_ocean_sub
   
-  module subroutine coriolis_vgradv_ocean_sub(this, i)
+  module subroutine coriolis_vgradv_ocean_sub(this)
     class(T_ocean),    intent(inout) :: this
-    integer,           intent(in)    :: i
-    integer                          :: ijm, i1
+    integer                          :: ir, ijm
+    real(kind=dbl)                   :: fac
     complex(kind=dbl), allocatable   :: v(:), dv(:), nlm(:,:)
     
-    allocate( v(this%jmv) , dv(this%jmv) ) ; call this%dv_dr_rr_jml_sub(i, v, dv)
+    allocate( v(this%jmv) , dv(this%jmv), nlm(3,this%jms) )
     
-    allocate( nlm(3,this%jms) ) ; call this%lat_grid%vcvgv_sub(this%rad_grid%rr(i), dv, v, nlm)
-    
-    deallocate( dv )
-    
-    select case (this%scaling)
-      case ('basics')
-        do concurrent ( ijm = 1:this%jms, i1 = 2:4 )
-          nlm(i1,ijm) = nlm(i1,ijm) / this%Pr
-        end do
-    end select
-    
-    call this%coriolis_rr_jml_sub(v, nlm)
-    
-    deallocate( v )
-    
-    do concurrent ( ijm = 1:this%jms )
-      this%nsph1(ijm,i) = nlm(1,ijm)
-      this%ntorr(ijm,i) = nlm(2,ijm)
-      this%nsph2(ijm,i) = nlm(3,ijm)
+    !$omp parallel do private (v, dv, ijm, fac, nlm)
+    do ir = 2, this%nd
+      call this%dv_dr_rr_jml_sub(ir, v, dv)
+      
+      call this%lat_grid%vcvgv_sub(this%rad_grid%rr(ir), dv, v, nlm)
+      
+      select case (this%scaling)
+        case ('basics')
+          fac = 1 / this%Pr
+          
+          do concurrent ( ijm = 1:this%jms )
+            nlm(2,ijm) = nlm(2,ijm) * fac
+            nlm(3,ijm) = nlm(3,ijm) * fac
+            nlm(4,ijm) = nlm(4,ijm) * fac
+          end do
+      end select
+      
+      call this%coriolis_rr_jml_sub(v, nlm)
+      
+      do concurrent ( ijm = 1:this%jms )
+        this%nsph1(ijm,ir) = nlm(1,ijm)
+        this%ntorr(ijm,ir) = nlm(2,ijm)
+        this%nsph2(ijm,ir) = nlm(3,ijm)
+      end do
     end do
+    !$omp end parallel do
     
-    deallocate( nlm )
+    deallocate( v , dv, nlm )
     
   end subroutine coriolis_vgradv_ocean_sub
   
   module subroutine fullnl_ocean_sub(this)
     class(T_ocean),    intent(inout) :: this
-    integer                          :: ir, ijm, i1
+    integer                          :: ir, ijm
     real(kind=dbl)                   :: fac
     complex(kind=dbl), allocatable   :: v(:), dv(:), T(:), gradT(:), nlm(:,:)
     
@@ -68,7 +76,7 @@ submodule (ocean) nonlin
             & T(this%jms) , gradT(this%jmv), &
             & nlm(4,this%jms) )
     
-    !$omp parallel do private (v, dv, T, gradT, ijm, i1, fac, nlm)
+    !$omp parallel do private (v, dv, T, gradT, ijm, fac, nlm)
     do ir = 2, this%nd
       call this%dv_dr_rr_jml_sub(ir, v, dv)
       call this%gradT_rr_ijml_sub(ir, T, gradT, -1)
@@ -79,8 +87,10 @@ submodule (ocean) nonlin
         case ('basics')
           fac = 1 / this%Pr
           
-          do concurrent ( ijm = 1:this%jms, i1 = 2:4 )
-            nlm(i1,ijm) = nlm(i1,ijm) * fac
+          do concurrent ( ijm = 1:this%jms )
+            nlm(2,ijm) = nlm(2,ijm) * fac
+            nlm(3,ijm) = nlm(3,ijm) * fac
+            nlm(4,ijm) = nlm(4,ijm) * fac
           end do
       end select
       

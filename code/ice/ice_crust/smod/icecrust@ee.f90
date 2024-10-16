@@ -4,22 +4,22 @@ submodule (icecrust) ee
   module subroutine EE_iceCrust_sub(this, flux_bnd)
     class(T_iceCrust),           intent(inout) :: this
     complex(kind=dbl), optional, intent(in)    :: flux_bnd(:)
-    integer                                    :: ir, ijm
+    integer                                    :: ijm
     complex(kind=dbl), allocatable             :: flux(:)
     
     this%t = this%t + this%dt
     
-    !$omp parallel do
-    do ir = 2, this%nd
-      call this%mvgradT_cpdivq_sub(ir, this%ntemp(:,ir))
-    end do
-    !$omp end parallel do
+    call this%mvgradT_cpdivq_sub()
     
     allocate( flux(this%jms) )
       if ( present(flux_bnd) ) then
-        flux = flux_bnd(1:this%jms)
+        do concurrent ( ijm = 1:this%jms )
+          flux(ijm) = flux_bnd(ijm)
+        end do
       else
-        flux = czero
+        do concurrent ( ijm = 1:this%jms )
+          flux(ijm) = czero
+        end do
       end if
       
     call this%EE_temp_sub(flux)
@@ -33,20 +33,24 @@ submodule (icecrust) ee
     this%bnd%v_dn(1) = czero
     this%bnd%v_up(1) = czero
     
-    do concurrent ( ijm = 2:this%jms )
+    !$omp parallel do
+    do ijm = 2, this%jms
+      !Bottom bnd
       this%bnd%v_dn(ijm) = this%vr_r_fn(1,ijm) - this%Raf * ( this%qr_r_fn(1,ijm) - flux(ijm) )
-      this%bnd%v_up(ijm) = this%vr_r_fn(this%nd,ijm)
-    end do
-    
-    do concurrent ( ijm = 1:this%jms )
       this%bnd%u_dn(ijm) = this%bnd%u_dn(ijm) + this%bnd%v_dn(ijm) * this%dt
+      
+      !Upper bnd
+      this%bnd%v_up(ijm) = this%vr_r_fn(this%nd,ijm)
       this%bnd%u_up(ijm) = this%bnd%u_up(ijm) + this%bnd%v_up(ijm) * this%dt
     end do
+    !$omp end parallel do
     
-    do concurrent ( ijm = 2:this%jms )
+    !$omp parallel do
+    do ijm = 2, this%jms
       this%bnd%t_dn(ijm) = this%bnd%u_dn(ijm) - this%Vdelta_fn(1      ,ijm)
       this%bnd%t_up(ijm) = this%bnd%u_up(ijm) - this%Vdelta_fn(this%nd,ijm)
     end do
+    !$omp end parallel do
     
     deallocate( flux )
     

@@ -82,10 +82,8 @@ module icecrust
       complex(kind=dbl), intent(out) :: mvgradT(:)
     end subroutine mvgradT_sub
     
-    module subroutine mvgradT_cpdivq_sub(this, ir, mvgradT)
-      class(T_iceCrust), intent(in)  :: this
-      integer,           intent(in)  :: ir
-      complex(kind=dbl), intent(out) :: mvgradT(:)
+    module subroutine mvgradT_cpdivq_sub(this)
+      class(T_iceCrust), intent(inout)  :: this
     end subroutine mvgradT_cpdivq_sub
     
     module subroutine cpdivq_sub(this, ir, cpdivq)

@@ -36,9 +36,9 @@ submodule (lateral_grid) vcvv_vcvgv
     complex(kind=dbl),    allocatable :: ca(:), cc(:), cr(:)
     
     !Array preparation
-    allocate( ca( 5*this%reindexing%jmv1) ); call zero_carray_sub(  5*this%reindexing%jmv1, ca(1) ) 
-    allocate( cc(15*this%reindexing%jms2) ); call zero_carray_sub( 15*this%reindexing%jms2, cc(1) ) 
-    allocate( cr( 4*this%reindexing%jms2) ); call zero_carray_sub(  4*this%reindexing%jms2, cr(1) )
+    call this%reindexing%allocate_vectors_sub(  5, ca )
+    call this%reindexing%allocate_scalars_sub( 15, cc )
+    call this%reindexing%allocate_scalars_sub(  4, cr )
     
     call this%reindexing%vec2vec_jml_to_jml_sub( v(1), ca(1), 5, 1 )
     call this%reindexing%vec2vec_jml_to_jml_sub( q(1), ca(1), 5, 2 )

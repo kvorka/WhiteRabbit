@@ -8,6 +8,7 @@ module sphsvt
     contains
     
     procedure :: init_sub => init_sphsvt_sub
+    procedure :: allocate_scalars_sub, allocate_vectors_sub
     procedure :: scal2scal_jm_to_mj_sub, scal2scal_mj_to_jm_sub, vec2vec_jml_to_jml_sub, vec2scal_jml_to_mj_sub, &
                & scal2vecscal_mj_to_jm_sub, gradvec2vec_jmlk_to_jml_sub, devtens2scal_jml2_to_mj_sub, &
                & scal2devtens_mj_to_jml2_sub, scal2vec_mj_to_jml_sub
@@ -19,6 +20,18 @@ module sphsvt
       class(T_sphsvt), intent(inout) :: this
       integer,         intent(in)    :: jmax
     end subroutine init_sphsvt_sub
+    
+    module pure subroutine allocate_scalars_sub(this, ns, cscal)
+      class(T_sphsvt),                intent(in)  :: this
+      integer,                        intent(in)  :: ns
+      complex(kind=dbl), allocatable, intent(out) :: cscal(:)
+    end subroutine allocate_scalars_sub
+    
+    module pure subroutine allocate_vectors_sub(this, nv, cvec)
+      class(T_sphsvt),                intent(in)  :: this
+      integer,                        intent(in)  :: nv
+      complex(kind=dbl), allocatable, intent(out) :: cvec(:)
+    end subroutine allocate_vectors_sub
     
     module pure subroutine vec2vec_jml_to_jml_sub(this, cjml, cab, ncab, cabpadding)
       class(T_sphsvt),   intent(in)    :: this

@@ -2,7 +2,7 @@ program BielyKralik_legeTest
   use lateral_grid
   implicit none
   
-  integer, parameter :: jcut = 97, jms = jcut*(jcut+1)/2+jcut+1
+  integer, parameter :: jcut = 483, jms = jcut*(jcut+1)/2+jcut+1
   
   integer                        :: ij, im, ijm
   complex(kind=dbl), allocatable :: cin1(:), cin2(:), cout(:)

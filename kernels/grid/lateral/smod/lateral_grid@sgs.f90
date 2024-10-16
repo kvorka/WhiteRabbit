@@ -1,6 +1,17 @@
 submodule (lateral_grid) sgs
   implicit none; contains
   
+  module pure subroutine allocate_grid_sub(this, grid)
+    class(T_lateralGrid),        intent(in)  :: this
+    real(kind=dbl), allocatable, intent(out) :: grid(:,:,:)
+    
+    if ( allocated(grid) ) deallocate( grid )
+    
+    allocate( grid(this%lgp%nLege,this%fourtrans%n,2) )
+      call zero_rarray_sub( 2 * this%lgp%nLege * this%fourtrans%n, grid )
+    
+  end subroutine allocate_grid_sub
+  
   module pure subroutine space_to_grid_sub(this, cc, grid)
     class(T_lateralGrid), intent(in)  :: this
     complex(kind=dbl),    intent(in)  :: cc(*)

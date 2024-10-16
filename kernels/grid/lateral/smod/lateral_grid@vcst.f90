@@ -32,8 +32,8 @@ submodule (lateral_grid) vcst
     complex(kind=dbl),    allocatable :: cc(:), cr(:)
     
     !Array preparation
-    allocate( cc(6*this%reindexing%jms2) ); call zero_carray_sub( 6*this%reindexing%jms2, cc(1) )
-    allocate( cr(5*this%reindexing%jms2) ); call zero_carray_sub( 5*this%reindexing%jms2, cr(1) )
+    call this%reindexing%allocate_scalars_sub( 6, cc )
+    call this%reindexing%allocate_scalars_sub( 5, cr )
     
     call this%reindexing%scal2scal_jm_to_mj_sub( cajm(1), cc(1), 6, 1 )
     call this%reindexing%devtens2scal_jml2_to_mj_sub( cbjml2(1), cc(1), 6, 2 )

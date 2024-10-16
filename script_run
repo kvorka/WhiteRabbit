@@ -50,6 +50,7 @@ $compile -c kernels/math/legepoly/lege_poly.f90
 $compile -c kernels/math/sphsvt/clebsch_gordan.f90
 $compile -c kernels/math/sphsvt/sphsvt.f90
   $compile -c kernels/math/sphsvt/smod/sphsvt@init.f90 &
+  $compile -c kernels/math/sphsvt/smod/sphsvt@allocators.f90 &
   $compile -c kernels/math/sphsvt/smod/sphsvt@devtens_to_scal.f90 &
   $compile -c kernels/math/sphsvt/smod/sphsvt@scal_to_devtens.f90 &
   $compile -c kernels/math/sphsvt/smod/sphsvt@gradvec_to_vec.f90 &
@@ -185,10 +186,13 @@ $compile -c code/ocean/ocean_ice/oceanice.f90
 wait
 
 $compile -c code/ocean/ocean_tides/oceantides.f90
-  #$compile -c code/ocean/ocean_tides/smod/*.f90
+  $compile -c code/ocean/ocean_tides/smod/oceantides@init.f90 &
+  $compile -c code/ocean/ocean_tides/smod/oceantides@timescheme.f90 &
+  $compile -c code/ocean/ocean_tides/smod/oceantides@iter.f90 &
+  $compile -c code/ocean/ocean_tides/smod/oceantides@output.f90 &
+wait
 
 $compile -c code/ice/ice_constants.f90
-
   $compile -c code/ice/ice_parameters/ice_bndtemp.f90 &
   $compile -c code/ice/ice_parameters/ice_cp.f90 &
   $compile -c code/ice/ice_parameters/ice_cond.f90 &
