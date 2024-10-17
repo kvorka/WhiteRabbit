@@ -46,7 +46,7 @@ submodule (lege_poly) step8f
     
     do concurrent ( i2 = 0:7 )
       csx(i2+1)   = this%roots(it+i2)
-      snx(i2+1)   = sqrt(1-csx(i2)**2)
+      snx(i2+1)   = sqrt(1-this%roots(it+i2)**2)
       wghts(i2+1) = this%weights(it+i2)
     end do
     

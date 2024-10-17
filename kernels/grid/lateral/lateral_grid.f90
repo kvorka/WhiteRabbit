@@ -8,7 +8,7 @@ module lateral_grid
   integer, parameter :: addmissible_jmax(46) = [   5,   7,   9,  13,  15,  21,  27,  29,  33,  37,  45,  47, &
                                                &  51,  57,  61,  69,  77,  87,  93,  97, 105, 117, 125, 141, &
                                                & 147, 157, 159, 177, 189, 197, 213, 237, 247, 253, 267, 285, &
-                                               & 297, 317, 321, 357, 381, 397, 429, 447, 477, 483 ]
+                                               & 297, 317, 321, 357, 381, 397, 429, 447, 477, 1021 ]
   
   type, public :: T_lateralGrid
     type(T_legep),  public :: lgp
@@ -43,7 +43,7 @@ module lateral_grid
       complex(kind=dbl),    intent(inout) :: cr(nf,*)
       
       interface
-        module pure subroutine grid_sub(step, nfour, gxyz)
+        pure subroutine grid_sub(step, nfour, gxyz); import :: dbl
           integer,                intent(in)    :: nfour, step
           real(kind=dbl), target, intent(inout) :: gxyz(*)
         end subroutine grid_sub

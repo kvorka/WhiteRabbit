@@ -2,9 +2,10 @@ program BielyKralik_legeTest
   use lateral_grid
   implicit none
   
-  integer, parameter :: jcut = 483, jms = jcut*(jcut+1)/2+jcut+1
+  integer, parameter :: jcut = 1021, jms = jcut*(jcut+1)/2+jcut+1
   
   integer                        :: ij, im, ijm
+  real(kind=dbl)                 :: rval
   complex(kind=dbl), allocatable :: cin1(:), cin2(:), cout(:)
   type(T_lateralGrid)            :: sph
   
@@ -14,10 +15,10 @@ program BielyKralik_legeTest
         ijm = ij*(ij+1)/2+im+1
         
         if ( im /= 0 ) then
-          call random_number( cin1(ijm)%re )
-          call random_number( cin1(ijm)%im )
+          call random_number( rval ); cin1(ijm)%re = rval
+          call random_number( rval ); cin1(ijm)%im = rval
         else
-          call random_number( cin1(ijm)%re )
+          call random_number( rval ); cin1(ijm)%re = rval
         end if
       end do
     end do
@@ -30,7 +31,7 @@ program BielyKralik_legeTest
   allocate( cout(jms) ); cout = czero
     call sph%vcss_sub( cin1, cin2, cout )
   
-  write(*,*) maxval( abs( cin1 - cout ) / abs( cin1 ) )
+  write(*,*) maxval( abs( cin1 - cout ) )
   
   call sph%deallocate_sub()
   

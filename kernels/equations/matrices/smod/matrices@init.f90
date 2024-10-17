@@ -12,7 +12,7 @@ submodule (matrices) init
     
   end subroutine init_matrices_sub
   
-  module pure subroutine deallocate_matrices_sub(this)
+  module subroutine deallocate_matrices_sub(this)
     class(T_matrices), intent(inout) :: this
     integer                          :: j
     

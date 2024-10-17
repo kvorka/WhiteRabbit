@@ -11,7 +11,7 @@ submodule (lateral_grid) transform
     complex(kind=dbl),    allocatable   :: sumN(:), sumS(:)
     
     interface
-      module pure subroutine grid_sub(step, nfour, gxyz)
+      pure subroutine grid_sub(step, nfour, gxyz); import :: dbl
         integer,                intent(in)    :: step, nfour
         real(kind=dbl), target, intent(inout) :: gxyz(*)
       end subroutine grid_sub

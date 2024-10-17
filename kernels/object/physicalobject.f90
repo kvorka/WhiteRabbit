@@ -409,9 +409,8 @@ module physicalobject
       class(T_physicalObject), intent(inout) :: this
     end subroutine tidal_heating_4_sub
     
-    module pure function viscdissip_power_fn(this) result(power)
-      class(T_physicalObject), intent(in)  :: this
-      real(kind=dbl)                       :: power
+    module pure real(kind=dbl) function viscdissip_power_fn(this)
+      class(T_physicalObject), intent(in) :: this
     end function viscdissip_power_fn
     
     module pure function buoyancy_power_fn(this) result(power)
