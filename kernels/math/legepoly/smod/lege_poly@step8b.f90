@@ -30,7 +30,7 @@ submodule (lege_poly) step8b
     class(T_legep),    intent(in)  :: this
     integer,           intent(in)  :: it, nb
     complex(kind=dbl), intent(in)  :: cc(nb,*)
-    complex(kind=dbl), intent(out) :: sumN(*), sumS(*)
+    complex(kind=dbl), intent(out) :: sumN(nb,8,0:this%jmax), sumS(nb,8,0:this%jmax)
     integer                        :: m, j, mj, i2
     real(kind=dbl),    allocatable :: pmj2(:), pmj1(:), pmj0(:), pmm(:), csx(:), snx(:)
     complex(kind=dbl), allocatable :: ssm(:), asm(:)
@@ -42,8 +42,8 @@ submodule (lege_poly) step8b
       snx(i2+1) = sqrt(1-this%roots(it+i2)**2)
     end do
     
-    call zero_carray_sub( 8*nb*(this%jmax+1), sumN(1) )
-    call zero_carray_sub( 8*nb*(this%jmax+1), sumS(1) )
+    call zero_carray_sub( 8*nb*(this%jmax+1), sumN(1,1,0) )
+    call zero_carray_sub( 8*nb*(this%jmax+1), sumS(1,1,0) )
     
     do m = 0, this%jmax
       call zero_carray_sub( 8*nb, ssm(1) )
@@ -70,7 +70,7 @@ submodule (lege_poly) step8b
         call this%backward_sum_8_sub( nb, pmj0(1), cc(1,mj+1), asm(1) )
       end if
       
-      call this%backward_rcb_8_sub( nb, ssm(1), asm(1), sumN(8*nb*m+1), sumS(8*nb*m+1) )
+      call this%backward_rcb_8_sub( nb, ssm(1), asm(1), sumN(1,1,m), sumS(1,1,m) )
     end do
     
     deallocate( pmj2, pmj1, pmj0, pmm, csx, snx, asm, ssm )

@@ -88,13 +88,13 @@ module lege_poly
       class(T_legep),    intent(in)  :: this
       integer,           intent(in)  :: it, nb
       complex(kind=dbl), intent(in)  :: cc(nb,*)
-      complex(kind=dbl), intent(out) :: sumN(*), sumS(*)
+      complex(kind=dbl), intent(out) :: sumN(nb,4,0:this%jmax), sumS(nb,4,0:this%jmax)
     end subroutine backward_legesum_4_sub
     
     module pure subroutine forward_legesum_4_sub(this, it, nf, sumN, sumS, cr)
       class(T_legep),    intent(in)    :: this
       integer,           intent(in)    :: it, nf
-      complex(kind=dbl), intent(in)    :: sumN(*), sumS(*)
+      complex(kind=dbl), intent(in)    :: sumN(nf,4,0:this%jmax), sumS(nf,4,0:this%jmax)
       complex(kind=dbl), intent(inout) :: cr(nf,*)
     end subroutine forward_legesum_4_sub
     
@@ -148,13 +148,13 @@ module lege_poly
       class(T_legep),    intent(in)  :: this
       integer,           intent(in)  :: it, nb
       complex(kind=dbl), intent(in)  :: cc(nb,*)
-      complex(kind=dbl), intent(out) :: sumN(*), sumS(*)
+      complex(kind=dbl), intent(out) :: sumN(nb,8,0:this%jmax), sumS(nb,8,0:this%jmax)
     end subroutine backward_legesum_8_sub
     
     module pure subroutine forward_legesum_8_sub(this, it, nf, sumN, sumS, cr)
       class(T_legep),    intent(in)    :: this
       integer,           intent(in)    :: it, nf
-      complex(kind=dbl), intent(in)    :: sumN(*), sumS(*)
+      complex(kind=dbl), intent(in)    :: sumN(nf,8,0:this%jmax), sumS(nf,8,0:this%jmax)
       complex(kind=dbl), intent(inout) :: cr(nf,*)
     end subroutine forward_legesum_8_sub
     
@@ -208,13 +208,13 @@ module lege_poly
       class(T_legep),    intent(in)  :: this
       integer,           intent(in)  :: it, nb
       complex(kind=dbl), intent(in)  :: cc(nb,*)
-      complex(kind=dbl), intent(out) :: sumN(*), sumS(*)
+      complex(kind=dbl), intent(out) :: sumN(nb,16,0:this%jmax), sumS(nb,16,0:this%jmax)
     end subroutine backward_legesum_16_sub
     
     module pure subroutine forward_legesum_16_sub(this, it, nf, sumN, sumS, cr)
       class(T_legep),    intent(in)    :: this
       integer,           intent(in)    :: it, nf
-      complex(kind=dbl), intent(in)    :: sumN(*), sumS(*)
+      complex(kind=dbl), intent(in)    :: sumN(nf,16,0:this%jmax), sumS(nf,16,0:this%jmax)
       complex(kind=dbl), intent(inout) :: cr(nf,*)
     end subroutine forward_legesum_16_sub
   end interface

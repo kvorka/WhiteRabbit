@@ -2,7 +2,12 @@
 ###########################################################################################
 ####                              COMPILER SET UP                                      ####
 ###########################################################################################
-compile="gfortran-12 -Ofast -march=native -flto=auto -fwhole-program -fopenmp"
+compile="gfortran-12 -Ofast \
+                     -march=native \
+                     -fno-bounds-check \
+                     -flto=auto \
+                     -fwhole-program \
+                     -fopenmp"
 
 ###########################################################################################
 ####                              POSSIBLE CODE SETTINGS                               ####
