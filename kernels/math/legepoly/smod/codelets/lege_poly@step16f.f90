@@ -19,12 +19,14 @@ submodule (lege_poly) step16f
     class(T_legep),    intent(in)  :: this
     integer,           intent(in)  :: nf
     real(kind=dbl),    intent(in)  :: w(16)
-    complex(kind=dbl), intent(in)  :: sumN(nf,16), sumS(nf,16)
+    real(kind=dbl),    intent(in)  :: sumN(nf,16,2), sumS(nf,16,2)
     complex(kind=dbl), intent(out) :: sumsym(16,nf), sumasym(16,nf)
     integer                        :: i1, i2
     
-    sumsym  = transpose( sumN + sumS )
-    sumasym = transpose( sumN - sumS )
+    do concurrent ( i1 = 1:nf, i2 = 1:16 )
+      sumsym(i2,i1)  = cmplx( sumN(i1,i2,1) + sumS(i1,i2,1), sumN(i1,i2,2) + sumS(i1,i2,2), kind=dbl )
+      sumasym(i2,i1) = cmplx( sumN(i1,i2,1) - sumS(i1,i2,1), sumN(i1,i2,2) - sumS(i1,i2,2), kind=dbl )
+    end do
     
     do concurrent ( i1 = 1:nf, i2 = 1:16 )
       sumsym(i2,i1)  = w(i2) * sumsym(i2,i1)
@@ -36,7 +38,7 @@ submodule (lege_poly) step16f
   module pure subroutine forward_legesum_16_sub(this, it, nf, sumN, sumS, cr)
     class(T_legep),    intent(in)    :: this
     integer,           intent(in)    :: it, nf
-    complex(kind=dbl), intent(in)    :: sumN(nf,16,0:this%jmax), sumS(nf,16,0:this%jmax)
+    real(kind=dbl),    intent(in)    :: sumN(nf,16,2,0:this%jmax), sumS(nf,16,2,0:this%jmax)
     complex(kind=dbl), intent(inout) :: cr(nf,*)
     integer                          :: j, m, mj, i2
     real(kind=dbl),    allocatable   :: pmj2(:), pmj1(:), pmj0(:), pmm(:), csx(:), snx(:), wgx(:)
@@ -45,13 +47,13 @@ submodule (lege_poly) step16f
     allocate( pmj2(16), pmj1(16), pmj0(16), pmm(16), csx(16), snx(16), wgx(16), ssm(16*nf), asm(16*nf) )
     
     do concurrent ( i2 = 0:15 )
-      csx(i2+1) = this%roots(it+i2)
-      snx(i2+1) = sqrt(1-this%roots(it+i2)**2)
-      wgx(i2+1) = this%weights(it+i2)
+      csx(i2+1) = this%rootsweights(1,it+i2)
+      snx(i2+1) = this%rootsweights(2,it+i2)
+      wgx(i2+1) = this%rootsweights(3,it+i2)
     end do
     
     do m = 0, this%jmax
-      call this%forward_rcb_16_sub( nf, wgx(1), sumN(1,1,m), sumS(1,1,m), ssm(1), asm(1) )
+      call this%forward_rcb_16_sub( nf, wgx(1), sumN(1,1,1,m), sumS(1,1,1,m), ssm(1), asm(1) )
       
       !j = m
         mj = m*(this%jmax+1)-(m-2)*(m+1)/2

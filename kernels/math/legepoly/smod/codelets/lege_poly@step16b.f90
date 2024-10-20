@@ -16,13 +16,18 @@ submodule (lege_poly) step16
   end subroutine backward_sum_16_sub
   
   module pure subroutine backward_rcb_16_sub(this, nb, sumsym, sumasym, sumN, sumS)
-    class(T_legep),    intent(in)    :: this
-    integer,           intent(in)    :: nb
-    complex(kind=dbl), intent(in)    :: sumsym(16,nb), sumasym(16,nb)
-    complex(kind=dbl), intent(inout) :: sumN(nb,16), sumS(nb,16)
+    class(T_legep),    intent(in)  :: this
+    integer,           intent(in)  :: nb
+    complex(kind=dbl), intent(in)  :: sumsym(16,nb), sumasym(16,nb)
+    real(kind=dbl),    intent(out) :: sumN(nb,16,2), sumS(nb,16,2)
+    integer                        :: i1, i2
     
-    sumN = transpose( sumsym + sumasym )
-    sumS = transpose( sumsym - sumasym )
+    do concurrent ( i2 = 1:16, i1 = 1:nb )
+      sumN(i1,i2,1) = sumsym(i2,i1)%re + sumasym(i2,i1)%re
+      sumN(i1,i2,2) = sumsym(i2,i1)%im + sumasym(i2,i1)%im
+      sumS(i1,i2,1) = sumsym(i2,i1)%re - sumasym(i2,i1)%re
+      sumS(i1,i2,2) = sumsym(i2,i1)%im - sumasym(i2,i1)%im
+    end do
     
   end subroutine backward_rcb_16_sub
   
@@ -30,7 +35,7 @@ submodule (lege_poly) step16
     class(T_legep),    intent(in)  :: this
     integer,           intent(in)  :: it, nb
     complex(kind=dbl), intent(in)  :: cc(nb,*)
-    complex(kind=dbl), intent(out) :: sumN(nb,16,0:this%jmax), sumS(nb,16,0:this%jmax)
+    real(kind=dbl),    intent(out) :: sumN(nb,16,2,0:this%jmax), sumS(nb,16,2,0:this%jmax)
     integer                        :: m, j, mj, i2
     real(kind=dbl),    allocatable :: pmj2(:), pmj1(:), pmj0(:), pmm(:), csx(:), snx(:)
     complex(kind=dbl), allocatable :: ssm(:), asm(:)
@@ -38,12 +43,9 @@ submodule (lege_poly) step16
     allocate( pmj2(16), pmj1(16), pmj0(16), pmm(16), csx(16), snx(16), ssm(16*nb), asm(16*nb) )
     
     do concurrent ( i2 = 0:15 )
-      csx(i2+1) = this%roots(it+i2)
-      snx(i2+1) = sqrt(1-this%roots(it+i2)**2)
+      csx(i2+1) = this%rootsweights(1,it+i2)
+      snx(i2+1) = this%rootsweights(2,it+i2)
     end do
-    
-    call zero_carray_sub( 16*nb*(this%jmax+1), sumN(1,1,0) )
-    call zero_carray_sub( 16*nb*(this%jmax+1), sumS(1,1,0) )
     
     do m = 0, this%jmax
       call zero_carray_sub( 16*nb, ssm(1) )
@@ -70,7 +72,7 @@ submodule (lege_poly) step16
         call this%backward_sum_16_sub( nb, pmj0(1), cc(1,mj+1), asm(1) )
       end if
       
-      call this%backward_rcb_16_sub( nb, ssm(1), asm(1), sumN(1,1,m), sumS(1,1,m) )
+      call this%backward_rcb_16_sub( nb, ssm(1), asm(1), sumN(1,1,1,m), sumS(1,1,1,m) )
     end do
     
     deallocate( pmj2, pmj1, pmj0, pmm, csx, snx, asm, ssm )

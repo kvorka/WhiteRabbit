@@ -16,13 +16,18 @@ submodule (lege_poly) step8b
   end subroutine backward_sum_8_sub
   
   module pure subroutine backward_rcb_8_sub(this, nb, sumsym, sumasym, sumN, sumS)
-    class(T_legep),    intent(in)    :: this
-    integer,           intent(in)    :: nb
-    complex(kind=dbl), intent(in)    :: sumsym(8,nb), sumasym(8,nb)
-    complex(kind=dbl), intent(inout) :: sumN(nb,8), sumS(nb,8)
+    class(T_legep),    intent(in)  :: this
+    integer,           intent(in)  :: nb
+    complex(kind=dbl), intent(in)  :: sumsym(8,nb), sumasym(8,nb)
+    real(kind=dbl),    intent(out) :: sumN(nb,8,2), sumS(nb,8,2)
+    integer                        :: i2, i1
     
-    sumN = transpose( sumsym + sumasym )
-    sumS = transpose( sumsym - sumasym )
+    do concurrent ( i2 = 1:8, i1 = 1:nb )
+      sumN(i1,i2,1) = sumsym(i2,i1)%re + sumasym(i2,i1)%re
+      sumN(i1,i2,2) = sumsym(i2,i1)%im + sumasym(i2,i1)%im
+      sumS(i1,i2,1) = sumsym(i2,i1)%re - sumasym(i2,i1)%re
+      sumS(i1,i2,2) = sumsym(i2,i1)%im - sumasym(i2,i1)%im
+    end do
     
   end subroutine backward_rcb_8_sub
   
@@ -30,7 +35,7 @@ submodule (lege_poly) step8b
     class(T_legep),    intent(in)  :: this
     integer,           intent(in)  :: it, nb
     complex(kind=dbl), intent(in)  :: cc(nb,*)
-    complex(kind=dbl), intent(out) :: sumN(nb,8,0:this%jmax), sumS(nb,8,0:this%jmax)
+    real(kind=dbl),    intent(out) :: sumN(nb,8,2,0:this%jmax), sumS(nb,8,2,0:this%jmax)
     integer                        :: m, j, mj, i2
     real(kind=dbl),    allocatable :: pmj2(:), pmj1(:), pmj0(:), pmm(:), csx(:), snx(:)
     complex(kind=dbl), allocatable :: ssm(:), asm(:)
@@ -38,12 +43,9 @@ submodule (lege_poly) step8b
     allocate( pmj2(8), pmj1(8), pmj0(8), pmm(8), csx(8), snx(8), ssm(8*nb), asm(8*nb) )
     
     do concurrent ( i2 = 0:7 )
-      csx(i2+1) = this%roots(it+i2)
-      snx(i2+1) = sqrt(1-this%roots(it+i2)**2)
+      csx(i2+1) = this%rootsweights(1,it+i2)
+      snx(i2+1) = this%rootsweights(2,it+i2)
     end do
-    
-    call zero_carray_sub( 8*nb*(this%jmax+1), sumN(1,1,0) )
-    call zero_carray_sub( 8*nb*(this%jmax+1), sumS(1,1,0) )
     
     do m = 0, this%jmax
       call zero_carray_sub( 8*nb, ssm(1) )
@@ -70,7 +72,7 @@ submodule (lege_poly) step8b
         call this%backward_sum_8_sub( nb, pmj0(1), cc(1,mj+1), asm(1) )
       end if
       
-      call this%backward_rcb_8_sub( nb, ssm(1), asm(1), sumN(1,1,m), sumS(1,1,m) )
+      call this%backward_rcb_8_sub( nb, ssm(1), asm(1), sumN(1,1,1,m), sumS(1,1,1,m) )
     end do
     
     deallocate( pmj2, pmj1, pmj0, pmm, csx, snx, asm, ssm )
