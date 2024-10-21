@@ -1,13 +1,19 @@
 module math
-  use iso_fortran_env, only: real64
+  use iso_fortran_env, only: real64, real128
   implicit none; public
   
   integer,           parameter :: dbl   = real64
+  integer,           parameter :: qbl   = real128
+  real(kind=dbl),    parameter :: deps  = 1.0d-15
+  real(kind=qbl),    parameter :: qeps  = 1.0d-28
   real(kind=dbl),    parameter :: zero  = 0._dbl
+  real(kind=qbl),    parameter :: qzero = 0._qbl
   real(kind=dbl),    parameter :: half  = 0.5_dbl
   real(kind=dbl),    parameter :: one   = 1._dbl
+  real(kind=qbl),    parameter :: qone  = 1._qbl
   real(kind=dbl),    parameter :: sq2_1 = 1 / sqrt(2._dbl)
   real(kind=dbl),    parameter :: pi    = acos(-one)
+  real(kind=qbl),    parameter :: qpi   = acos(-qone)
   real(kind=dbl),    parameter :: s4pi  = sqrt(4*pi)
   complex(kind=dbl), parameter :: cone  = cmplx(one,  zero, kind=dbl)
   complex(kind=dbl), parameter :: cunit = cmplx(zero, one , kind=dbl)
