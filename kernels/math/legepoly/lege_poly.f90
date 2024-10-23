@@ -75,7 +75,7 @@ module lege_poly
       class(T_legep),    intent(in)  :: this
       integer,           intent(in)  :: nb
       complex(kind=dbl), intent(in)  :: sumsym(4,nb), sumasym(4,nb)
-      real(kind=dbl),    intent(out) :: sumN(nb,4,2), sumS(nb,4,2)
+      real(kind=dbl),    intent(out) :: sumN(4,nb,2), sumS(4,nb,2)
     end subroutine backward_rcb_4_sub
     
     module pure subroutine forward_sum_4_sub(this, nf, legep, legesum, cr)
@@ -90,7 +90,7 @@ module lege_poly
       class(T_legep),    intent(in)  :: this
       integer,           intent(in)  :: nf
       real(kind=dbl),    intent(in)  :: w(4)
-      real(kind=dbl),    intent(in)  :: sumN(nf,4,2), sumS(nf,4,2)
+      real(kind=dbl),    intent(in)  :: sumN(4,nf,2), sumS(4,nf,2)
       complex(kind=dbl), intent(out) :: sumsym(4,nf), sumasym(4,nf)
     end subroutine forward_rcb_4_sub
     
@@ -98,13 +98,13 @@ module lege_poly
       class(T_legep),    intent(in)  :: this
       integer,           intent(in)  :: it, nb
       complex(kind=dbl), intent(in)  :: cc(nb,*)
-      real(kind=dbl),    intent(out) :: sumN(nb,4,2,0:this%jmax), sumS(nb,4,2,0:this%jmax)
+      real(kind=dbl),    intent(out) :: sumN(4,nb,2,0:this%jmax), sumS(4,nb,2,0:this%jmax)
     end subroutine backward_legesum_4_sub
     
     module pure subroutine forward_legesum_4_sub(this, it, nf, sumN, sumS, cr)
       class(T_legep),    intent(in)    :: this
       integer,           intent(in)    :: it, nf
-      real(kind=dbl),    intent(in)    :: sumN(nf,4,2,0:this%jmax), sumS(nf,4,2,0:this%jmax)
+      real(kind=dbl),    intent(in)    :: sumN(4,nf,2,0:this%jmax), sumS(4,nf,2,0:this%jmax)
       complex(kind=dbl), intent(inout) :: cr(nf,*)
     end subroutine forward_legesum_4_sub
     
@@ -135,7 +135,7 @@ module lege_poly
       class(T_legep),    intent(in)  :: this
       integer,           intent(in)  :: nb
       complex(kind=dbl), intent(in)  :: sumsym(8,nb), sumasym(8,nb)
-      real(kind=dbl),    intent(out) :: sumN(nb,8,2), sumS(nb,8,2)
+      real(kind=dbl),    intent(out) :: sumN(8,nb,2), sumS(8,nb,2)
     end subroutine backward_rcb_8_sub
     
     module pure subroutine forward_sum_8_sub(this, nf, legep, legesum, cr)
@@ -150,7 +150,7 @@ module lege_poly
       class(T_legep),    intent(in)  :: this
       integer,           intent(in)  :: nf
       real(kind=dbl),    intent(in)  :: w(8)
-      real(kind=dbl),    intent(in)  :: sumN(nf,8,2), sumS(nf,8,2)
+      real(kind=dbl),    intent(in)  :: sumN(8,nf,2), sumS(8,nf,2)
       complex(kind=dbl), intent(out) :: sumsym(8,nf), sumasym(8,nf)
     end subroutine forward_rcb_8_sub
     
@@ -158,13 +158,13 @@ module lege_poly
       class(T_legep),    intent(in)  :: this
       integer,           intent(in)  :: it, nb
       complex(kind=dbl), intent(in)  :: cc(nb,*)
-      real(kind=dbl),    intent(out) :: sumN(nb,8,2,0:this%jmax), sumS(nb,8,2,0:this%jmax)
+      real(kind=dbl),    intent(out) :: sumN(8,nb,2,0:this%jmax), sumS(8,nb,2,0:this%jmax)
     end subroutine backward_legesum_8_sub
     
     module pure subroutine forward_legesum_8_sub(this, it, nf, sumN, sumS, cr)
       class(T_legep),    intent(in)    :: this
       integer,           intent(in)    :: it, nf
-      real(kind=dbl),    intent(in)    :: sumN(nf,8,2,0:this%jmax), sumS(nf,8,2,0:this%jmax)
+      real(kind=dbl),    intent(in)    :: sumN(8,nf,2,0:this%jmax), sumS(8,nf,2,0:this%jmax)
       complex(kind=dbl), intent(inout) :: cr(nf,*)
     end subroutine forward_legesum_8_sub
     
@@ -195,7 +195,7 @@ module lege_poly
       class(T_legep),    intent(in)  :: this
       integer,           intent(in)  :: nb
       complex(kind=dbl), intent(in)  :: sumsym(16,nb), sumasym(16,nb)
-      real(kind=dbl),    intent(out) :: sumN(nb,16,2), sumS(nb,16,2)
+      real(kind=dbl),    intent(out) :: sumN(16,nb,2), sumS(16,nb,2)
     end subroutine backward_rcb_16_sub
     
     module pure subroutine forward_sum_16_sub(this, nf, legep, legesum, cr)
@@ -210,7 +210,7 @@ module lege_poly
       class(T_legep),    intent(in)  :: this
       integer,           intent(in)  :: nf
       real(kind=dbl),    intent(in)  :: w(16)
-      real(kind=dbl),    intent(in)  :: sumN(nf,16,2), sumS(nf,16,2)
+      real(kind=dbl),    intent(in)  :: sumN(16,nf,2), sumS(16,nf,2)
       complex(kind=dbl), intent(out) :: sumsym(16,nf), sumasym(16,nf)
     end subroutine forward_rcb_16_sub
     
@@ -218,13 +218,13 @@ module lege_poly
       class(T_legep),    intent(in)  :: this
       integer,           intent(in)  :: it, nb
       complex(kind=dbl), intent(in)  :: cc(nb,*)
-      real(kind=dbl),    intent(out) :: sumN(nb,16,2,0:this%jmax), sumS(nb,16,2,0:this%jmax)
+      real(kind=dbl),    intent(out) :: sumN(16,nb,2,0:this%jmax), sumS(16,nb,2,0:this%jmax)
     end subroutine backward_legesum_16_sub
     
     module pure subroutine forward_legesum_16_sub(this, it, nf, sumN, sumS, cr)
       class(T_legep),    intent(in)    :: this
       integer,           intent(in)    :: it, nf
-      real(kind=dbl),    intent(in)    :: sumN(nf,16,2,0:this%jmax), sumS(nf,16,2,0:this%jmax)
+      real(kind=dbl),    intent(in)    :: sumN(16,nf,2,0:this%jmax), sumS(16,nf,2,0:this%jmax)
       complex(kind=dbl), intent(inout) :: cr(nf,*)
     end subroutine forward_legesum_16_sub
   end interface

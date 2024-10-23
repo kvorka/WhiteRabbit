@@ -19,14 +19,14 @@ submodule (lege_poly) step4b
     class(T_legep),    intent(in)  :: this
     integer,           intent(in)  :: nb
     complex(kind=dbl), intent(in)  :: sumsym(4,nb), sumasym(4,nb)
-    real(kind=dbl),    intent(out) :: sumN(nb,4,2), sumS(nb,4,2)
+    real(kind=dbl),    intent(out) :: sumN(4,nb,2), sumS(4,nb,2)
     integer                        :: i2, i1
     
-    do concurrent ( i2 = 1:4, i1 = 1:nb )
-      sumN(i1,i2,1) = sumsym(i2,i1)%re + sumasym(i2,i1)%re
-      sumN(i1,i2,2) = sumsym(i2,i1)%im + sumasym(i2,i1)%im
-      sumS(i1,i2,1) = sumsym(i2,i1)%re - sumasym(i2,i1)%re
-      sumS(i1,i2,2) = sumsym(i2,i1)%im - sumasym(i2,i1)%im
+    do concurrent ( i2 = 1:nb, i1 = 1:4 )
+      sumN(i1,i2,1) = sumsym(i1,i2)%re + sumasym(i1,i2)%re
+      sumN(i1,i2,2) = sumsym(i1,i2)%im + sumasym(i1,i2)%im
+      sumS(i1,i2,1) = sumsym(i1,i2)%re - sumasym(i1,i2)%re
+      sumS(i1,i2,2) = sumsym(i1,i2)%im - sumasym(i1,i2)%im
     end do
     
   end subroutine backward_rcb_4_sub
@@ -35,7 +35,7 @@ submodule (lege_poly) step4b
     class(T_legep),    intent(in)  :: this
     integer,           intent(in)  :: it, nb
     complex(kind=dbl), intent(in)  :: cc(nb,*)
-    real(kind=dbl),    intent(out) :: sumN(nb,4,2,0:this%jmax), sumS(nb,4,2,0:this%jmax)
+    real(kind=dbl),    intent(out) :: sumN(4,nb,2,0:this%jmax), sumS(4,nb,2,0:this%jmax)
     integer                        :: m, j, mj, i2
     real(kind=dbl),    allocatable :: pmj2(:), pmj1(:), pmj0(:), pmm(:), csx(:), snx(:)
     complex(kind=dbl), allocatable :: ssm(:), asm(:)

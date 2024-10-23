@@ -13,7 +13,7 @@ program BielyKralik_legeTest
   
   call sph%init_sub( jcut )
   
-  call sph%reindexing%allocate_scalars_sub(1, cin1)
+  allocate( cin1(jms) )
     do ij = 0, jcut
       do im = 0, ij
         ijm = ij*(ij+1)/2+im+1
@@ -27,11 +27,11 @@ program BielyKralik_legeTest
       end do
     end do
   
-  call sph%reindexing%allocate_scalars_sub(1, cout)
-  call sph%allocate_grid_sub( grid )
-    
-    call sph%space_to_grid_sub( cin1, grid )
-    call sph%grid_to_space_sub( grid, cout )
+  allocate( cin2(jms) ); cin2 = czero
+    cin2(1) = cs4pi
+  
+  allocate( cout(jms) )
+    call sph%vcss_sub( cin1, cin2, cout )
   
   write(*,*) maxval( abs( cin1 - cout ) )
   

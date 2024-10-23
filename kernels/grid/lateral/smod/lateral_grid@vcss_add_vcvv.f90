@@ -7,14 +7,42 @@ submodule (lateral_grid) vcss_add_vcvv
     integer                               :: i1, i2
     real(kind=dbl), pointer               :: gout(:,:), gin(:,:,:)
     
-    gin(1:8,1:step,1:nfour) => grid(1:8*step*nfour)
+    gin(1:step,1:8,1:nfour) => grid(1:8*step*nfour)
     gout(1:step,1:nfour)    => grid(1:  step*nfour)
     
+    allocate( tmp(step), tmp1(step) )
+    
     do i1 = 1, nfour
-      do i2 = 1, step
-        gout(i2,i1) = sum( gin(1:3,i2,i1) * gin(4:6,i2,i1) ) + ( gin(7,i2,i1) * gin(8,i2,i1) )
+      tmp  = gin(1:step,1,i1)
+      tmp1 = gin(1:step,4,i1)
+      
+      do concurrent ( i2 = 1:step )
+        gout(i2,i1) = tmp(i2) * tmp1(i2)
+      end do
+      
+      tmp  = gin(1:step,2,i1)
+      tmp1 = gin(1:step,5,i1)
+      
+      do concurrent ( i2 = 1:step )
+        gout(i2,i1) = gout(i2,i1) + tmp(i2) * tmp1(i2)
+      end do
+      
+      tmp  = gin(1:step,3,i1)
+      tmp1 = gin(1:step,6,i1)
+      
+      do concurrent ( i2 = 1:step )
+        gout(i2,i1) = gout(i2,i1) + tmp(i2) * tmp1(i2)
+      end do
+      
+      tmp  = gin(1:step,7,i1)
+      tmp1 = gin(1:step,8,i1)
+      
+      do concurrent ( i2 = 1:step )
+        gout(i2,i1) = gout(i2,i1) + tmp(i2) * tmp1(i2)
       end do
     end do
+    
+    deallocate( tmp, tmp1 )
     
   end subroutine grid_op_vcss_add_vcvv_sub
   
