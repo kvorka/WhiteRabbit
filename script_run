@@ -82,6 +82,11 @@ $compile -c kernels/grid/radial/radial_grid.f90
   $compile -c kernels/grid/radial/smod/radial_grid@interpolation.f90 &
 wait
 
+$compile -c kernels/grid/lateral/mod/grid_ops.f90
+  $compile -c kernels/grid/lateral/mod/smod/grid_ops@vcvxv.f90 &
+  $compile -c kernels/grid/lateral/mod/smod/grid_ops@vcvv.f90 &
+wait
+
 $compile -c kernels/grid/lateral/lateral_grid.f90
   $compile -c kernels/grid/lateral/smod/lateral_grid@init.f90 &
   $compile -c kernels/grid/lateral/smod/lateral_grid@sgs.f90 &

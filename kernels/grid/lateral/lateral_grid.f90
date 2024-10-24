@@ -3,6 +3,7 @@ module lateral_grid
   use fourier_transform
   use lege_poly
   use sphsvt
+  use grid_ops
   implicit none
   
   integer, parameter :: addmissible_jmax(46) = [   5,   7,   9,  13,  15,  21,  27,  29,  33,  37,  45,  47, &
