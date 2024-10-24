@@ -85,6 +85,12 @@ wait
 $compile -c kernels/grid/lateral/mod/grid_ops.f90
   $compile -c kernels/grid/lateral/mod/smod/grid_ops@vcvxv.f90 &
   $compile -c kernels/grid/lateral/mod/smod/grid_ops@vcvv.f90 &
+  $compile -c kernels/grid/lateral/mod/smod/grid_ops@vcvv_vcvgv.f90 &
+  $compile -c kernels/grid/lateral/mod/smod/grid_ops@vcvgv.f90 &
+  $compile -c kernels/grid/lateral/mod/smod/grid_ops@vcsv.f90 &
+  $compile -c kernels/grid/lateral/mod/smod/grid_ops@vcst.f90 &
+  $compile -c kernels/grid/lateral/mod/smod/grid_ops@vcss.f90 &
+  $compile -c kernels/grid/lateral/mod/smod/grid_ops@vcss_add_vcvv.f90 &
 wait
 
 $compile -c kernels/grid/lateral/lateral_grid.f90
