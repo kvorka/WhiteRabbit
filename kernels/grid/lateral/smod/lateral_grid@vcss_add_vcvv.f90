@@ -5,6 +5,7 @@ submodule (lateral_grid) vcss_add_vcvv
     integer,                intent(in)    :: nfour, step
     real(kind=dbl), target, intent(inout) :: grid(*)
     integer                               :: i1, i2
+    real(kind=dbl), allocatable           :: tmp(:), tmp1(:)
     real(kind=dbl), pointer               :: gout(:,:), gin(:,:,:)
     
     gin(1:step,1:8,1:nfour) => grid(1:8*step*nfour)
