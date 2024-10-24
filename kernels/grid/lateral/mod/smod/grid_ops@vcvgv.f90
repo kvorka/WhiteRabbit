@@ -3,13 +3,13 @@ submodule (grid_ops) vcvgv
   
   module pure subroutine grid_op_vcvgv_sub(step, nfour, grid)
     integer,                intent(in)    :: nfour, step
-    real(kind=dbl), target, intent(inout) :: grid(*)
+    real(kind=dbl), target, intent(inout) :: grid(step,*)
     integer                               :: i1, i2, i3
     real(kind=dbl), pointer               :: gout(:,:,:), gin(:,:,:,:)
     real(kind=dbl), allocatable           :: tmp11(:), tmp12(:), tmp13(:), tmp(:)
     
-    gin(1:step,1:3,1:4,1:nfour) => grid(1:12*step*nfour)
-    gout(1:step,1:3,1:nfour)    => grid(1: 3*step*nfour)
+    gin(1:step,1:3,1:4,1:nfour) => grid(:,1:12*nfour)
+    gout(1:step,1:3,1:nfour)    => grid(:,1: 3*nfour)
     
     allocate( tmp11(step), tmp12(step), tmp13(step), tmp(step) )
     

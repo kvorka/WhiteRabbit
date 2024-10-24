@@ -3,13 +3,13 @@ submodule (grid_ops) vcss_add_vcvv
   
   module pure subroutine grid_op_vcss_add_vcvv_sub(step, nfour, grid)
     integer,                intent(in)    :: nfour, step
-    real(kind=dbl), target, intent(inout) :: grid(*)
+    real(kind=dbl), target, intent(inout) :: grid(step,*)
     integer                               :: i1, i2
     real(kind=dbl), allocatable           :: tmp(:), tmp1(:)
     real(kind=dbl), pointer               :: gout(:,:), gin(:,:,:)
     
-    gin(1:step,1:8,1:nfour) => grid(1:8*step*nfour)
-    gout(1:step,1:nfour)    => grid(1:  step*nfour)
+    gin(1:step,1:8,1:nfour) => grid(:,1:8*nfour)
+    gout(1:step,1:nfour)    => grid(:,1:  nfour)
     
     allocate( tmp(step), tmp1(step) )
     

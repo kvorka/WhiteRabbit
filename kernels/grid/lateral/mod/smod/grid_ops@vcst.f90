@@ -3,13 +3,13 @@ submodule (grid_ops) vcst
   
   module pure subroutine grid_op_vcst_sub(step, nfour, grid)
     integer,                intent(in)    :: nfour, step
-    real(kind=dbl), target, intent(inout) :: grid(*)
+    real(kind=dbl), target, intent(inout) :: grid(step,*)
     integer                               :: i1, i2, i3
     real(kind=dbl), pointer               :: gin(:,:,:), gout(:,:,:)
     real(kind=dbl), allocatable           :: tmp(:), tmp1(:)
     
-    gin(1:step,1:6,1:nfour)  => grid(1:6*step*nfour)
-    gout(1:step,1:5,1:nfour) => grid(1:5*step*nfour)
+    gin(1:step,1:6,1:nfour)  => grid(:,1:6*nfour)
+    gout(1:step,1:5,1:nfour) => grid(:,1:5*nfour)
     
     allocate( tmp(step), tmp1(step) )
     
