@@ -3,7 +3,7 @@ program BielyKralik_legeTest
   use omp_lib
   implicit none
   
-  integer, parameter :: jcut = 497, jms = jcut*(jcut+1)/2+jcut+1, nr = 1
+  integer, parameter :: jcut = 213, jms = jcut*(jcut+1)/2+jcut+1, nr = 1
   
   integer                        :: ij, im, ijm, ir
   real(kind=dbl)                 :: rval, start, end

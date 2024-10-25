@@ -36,7 +36,7 @@ $compile -c kernels/math/fft/fourier_transform.f90
   $compile -c kernels/math/fft/smod/codelets/fourier_transform@fx3.f90 &
   $compile -c kernels/math/fft/smod/codelets/fourier_transform@fx4.f90 &
   $compile -c kernels/math/fft/smod/codelets/fourier_transform@fx5.f90 &
-  $compile -c kernels/math/fft/smod/codelets/fourier_transform@fxtal.f90 &
+  $compile -c kernels/math/fft/smod/transforms/fourier_transform@fxtal.f90 &
   $compile -c kernels/math/fft/smod/transforms/fourier_transform@r2c.f90 &
   $compile -c kernels/math/fft/smod/transforms/fourier_transform@c2r.f90 &
 wait

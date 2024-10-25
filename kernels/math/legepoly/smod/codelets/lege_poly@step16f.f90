@@ -77,7 +77,7 @@ submodule (lege_poly) step16f
       end if
     end do
     
-    deallocate( pmj2, pmj1, pmj0, csx, snx, wgx, asm, ssm )
+    deallocate( pmj2, pmj1, pmj0, pmm, csx, snx, wgx, asm, ssm )
     
   end subroutine forward_legesum_16_sub
   

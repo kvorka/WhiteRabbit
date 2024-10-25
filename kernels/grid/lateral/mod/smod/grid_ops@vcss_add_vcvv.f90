@@ -45,6 +45,9 @@ submodule (grid_ops) vcss_add_vcvv
     
     deallocate( tmp, tmp1 )
     
+    gin  => null()
+    gout => null()
+    
   end subroutine grid_op_vcss_add_vcvv_sub
   
 end submodule vcss_add_vcvv

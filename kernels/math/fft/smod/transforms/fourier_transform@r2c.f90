@@ -9,18 +9,7 @@ submodule (fourier_transform) r2c
     real(kind=dbl)                :: scal, addre, addim, subim, subre, tempre, tempim, t1, t2
     real(kind=dbl), allocatable   :: y(:,:)
     
-    select case ( mod(this%it(this%n/2-1),4)+2 )
-      case (4)
-        call fxzm4b(m, this%n/2, x)
-      case (2)
-        call fxzm2b(m, this%n/2, x)
-      case (3)
-        call fxzm3b(m, this%n/2, x)
-      case (5)
-        call fxzm5b(m, this%n/2, x)
-    end select
-    
-    call fxztal(m, 1, this%n/2, x, this%t, 1, this%it(this%n/2), 0, 0, this%it(this%n/2-1))
+    call this%fxztal(m, x)
     
     allocate( y(m,2) ) ; j = 1
       

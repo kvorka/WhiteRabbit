@@ -7,7 +7,6 @@ submodule (fourier_transform) init
     integer                     :: i
     
     this%n  = n
-    this%np = n/3
       allocate( this%it(n/2)  ) ; this%it = 0
       allocate( this%t(3*n/2) ) ; this%t = zero
     

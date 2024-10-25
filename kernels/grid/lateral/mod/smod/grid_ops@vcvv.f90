@@ -38,6 +38,9 @@ submodule (grid_ops) vcvv
     
     deallocate( tmp1, tmp2 )
     
+    gin  => null()
+    gout => null()
+    
   end subroutine grid_op_vcvv_sub
   
 end submodule vcvv

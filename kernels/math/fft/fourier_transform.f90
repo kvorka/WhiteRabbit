@@ -5,15 +5,17 @@ module fourier_transform
   implicit none
   
   type, public :: T_fft
-    integer                     :: n, np
+    integer                     :: n
     integer,        allocatable :: it(:)
     real(kind=dbl), allocatable :: t(:)
     
     contains
     
-    procedure, public, pass :: init_sub       => fft_init_sub
-    procedure, public, pass :: fft_r2c_sub, fft_c2r_sub
-    procedure, public, pass :: deallocate_sub => fft_deallocate_sub
+    procedure, public,  pass :: init_sub       => fft_init_sub
+    procedure, public,  pass :: deallocate_sub => fft_deallocate_sub
+    
+    procedure, private, pass :: fxztal
+    procedure, public,  pass :: fft_r2c_sub, fft_c2r_sub
     
   end type T_fft
   
@@ -40,6 +42,12 @@ module fourier_transform
       integer,        intent(in)    :: m
       real(kind=dbl), intent(inout) :: x(m,2,0:this%n/2-1)
     end subroutine fft_c2r_sub
+    
+    module pure subroutine fxztal(this, m, x)
+      class(T_fft),   intent(in)    :: this
+      integer,        intent(in)    :: m
+      real(kind=dbl), intent(inout) :: x(*)
+    end subroutine fxztal
   end interface
   
   interface
@@ -48,12 +56,6 @@ module fourier_transform
       integer,        intent(out) :: it(n)
       real(kind=dbl), intent(out) :: t(2,0:n-1)
     end subroutine fxzini
-    
-    module pure recursive subroutine fxztal(m, k, l, x, t, ic, itsum, is, j1, it1)
-      integer,        intent(in)    :: m, k, l, ic, itsum, is, j1, it1
-      real(kind=dbl), intent(in)    :: t(2,0:*)
-      real(kind=dbl), intent(inout) :: x(m,2,0:*)
-    end subroutine fxztal
     
     module pure subroutine fxzm2a(m, k, l, x, t)
       integer,        intent(in)    :: m, k, l

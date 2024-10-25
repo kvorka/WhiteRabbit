@@ -27,6 +27,9 @@ submodule (grid_ops) vcst
     
     deallocate( tmp, tmp1 )
     
+    gin  => null()
+    gout => null()
+    
   end subroutine grid_op_vcst_sub
   
 end submodule vcst

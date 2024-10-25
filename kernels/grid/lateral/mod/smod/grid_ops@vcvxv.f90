@@ -45,6 +45,9 @@ submodule (grid_ops) vcvxv
     
     deallocate( tmp11, tmp12, tmp21, tmp22 )
     
+    gin  => null()
+    gout => null()
+    
   end subroutine grid_op_vcvxv_sub
   
 end submodule vcvxv

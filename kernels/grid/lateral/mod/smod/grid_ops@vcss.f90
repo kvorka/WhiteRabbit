@@ -24,6 +24,9 @@ submodule (grid_ops) vcss
     
     deallocate( tmp1, tmp2 )
     
+    gin  => null()
+    gout => null()
+    
   end subroutine grid_op_vcss_sub
   
 end submodule vcss
