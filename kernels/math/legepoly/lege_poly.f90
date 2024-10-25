@@ -31,9 +31,10 @@ module lege_poly
   end type T_legep
   
   interface
-    module subroutine init_lege_sub(this, jmax, nLege)
+    module subroutine init_lege_sub(this, jmax, nLege, wfac)
       class(T_legep), intent(inout) :: this
       integer,        intent(in)    :: jmax, nLege
+      real(kind=dbl), intent(in)    :: wfac
     end subroutine init_lege_sub
     
     module pure subroutine deallocate_lege_sub(this)

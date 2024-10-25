@@ -4,7 +4,7 @@ submodule (fourier_transform) fxtal
   module pure subroutine fxztal(this, m, x)
     class(T_fft),   intent(in)    :: this
     integer,        intent(in)    :: m
-    real(kind=dbl), intent(inout) :: x(*)
+    real(kind=dbl), intent(inout) :: x(m,2,0:this%n/2-1)
     integer                       :: itsum, it1, l, ip, isd, ld, k1, icdd, it1d
     
     l     = this%n/2

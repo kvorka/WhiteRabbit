@@ -14,7 +14,7 @@ module fourier_transform
     procedure, public,  pass :: init_sub       => fft_init_sub
     procedure, public,  pass :: deallocate_sub => fft_deallocate_sub
     
-    procedure, private, pass :: fxztal
+    procedure, private, pass :: fxztal, fxzrsc, fxzshf
     procedure, public,  pass :: fft_r2c_sub, fft_c2r_sub
     
   end type T_fft
@@ -34,20 +34,33 @@ module fourier_transform
     pure module subroutine fft_r2c_sub(this, m, x)
       class(T_fft),      intent(in)    :: this
       integer,           intent(in)    :: m
-      real(kind=dbl),    intent(inout) :: x(m,2,0:this%n/2-1)
+      real(kind=dbl),    intent(inout) :: x(*)
     end subroutine fft_r2c_sub
     
     module pure subroutine fft_c2r_sub(this, m, x)
       class(T_fft),   intent(in)    :: this
       integer,        intent(in)    :: m
-      real(kind=dbl), intent(inout) :: x(m,2,0:this%n/2-1)
+      real(kind=dbl), intent(inout) :: x(*)
     end subroutine fft_c2r_sub
     
     module pure subroutine fxztal(this, m, x)
       class(T_fft),   intent(in)    :: this
       integer,        intent(in)    :: m
-      real(kind=dbl), intent(inout) :: x(*)
+      real(kind=dbl), intent(inout) :: x(m,2,0:this%n/2-1)
     end subroutine fxztal
+    
+    module pure subroutine fxzshf(this, m, x)
+      class(T_fft),   intent(in)    :: this
+      integer,        intent(in)    :: m
+      real(kind=dbl), intent(inout) :: x(m,2,0:this%n/2-1)
+    end subroutine fxzshf
+    
+    module pure subroutine fxzrsc(this, m, x, sgn, fac)
+      class(T_fft),   intent(in)    :: this
+      integer,        intent(in)    :: m, sgn
+      real(kind=dbl), intent(in)    :: fac
+      real(kind=dbl), intent(inout) :: x(m,2,0:this%n/2-1)
+    end subroutine fxzrsc
   end interface
   
   interface
