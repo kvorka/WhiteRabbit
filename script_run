@@ -79,9 +79,14 @@ wait
 
 $compile -c kernels/grid/radial/radial_grid.f90
   $compile -c kernels/grid/radial/smod/radial_grid@init.f90 &
-  $compile -c kernels/grid/radial/smod/radial_grid@differences.f90 &
-  $compile -c kernels/grid/radial/smod/radial_grid@integration.f90 &
-  $compile -c kernels/grid/radial/smod/radial_grid@interpolation.f90 &
+  $compile -c kernels/grid/radial/smod/differences/radial_grid@homogd.f90 &
+  $compile -c kernels/grid/radial/smod/differences/radial_grid@chebyschd.f90 &
+  $compile -c kernels/grid/radial/smod/differences/radial_grid@interpd.f90 &
+  $compile -c kernels/grid/radial/smod/integration/radial_grid@cvolint.f90 &
+  $compile -c kernels/grid/radial/smod/integration/radial_grid@rvolint.f90 &
+  $compile -c kernels/grid/radial/smod/integration/radial_grid@cradint.f90 &
+  $compile -c kernels/grid/radial/smod/integration/radial_grid@rradint.f90 &
+  $compile -c kernels/grid/radial/smod/interpolation/radial_grid@interpolation.f90 &
 wait
 
 $compile -c kernels/grid/lateral/mod/grid_ops.f90

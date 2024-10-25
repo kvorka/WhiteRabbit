@@ -1,19 +1,5 @@
-submodule (radial_grid) differences
-  implicit none ; contains
-  
-  module pure real(kind=dbl) function hd(this, i, p)
-    class(T_radialGrid), intent(in) :: this
-    integer,             intent(in) :: i, p
-    
-    select case (p)
-      case (-1)
-        hd = -1 / ( this%rr(i+1) - this%rr(i) )
-        
-      case (+1)
-        hd = +1 / ( this%rr(i+1) - this%rr(i) )
-    end select
-    
-  end function hd
+submodule (radial_grid) chebyschd
+  implicit none; contains
   
   module pure real(kind=dbl) function d(this, i, p)
     class(T_radialGrid), intent(in) :: this
@@ -98,35 +84,6 @@ submodule (radial_grid) differences
 
   end function d
   
-  module pure real(kind=dbl) function c(this, i, p)
-    class(T_radialGrid), intent(in) :: this
-    integer,             intent(in) :: i, p
-    
-    select case (p)
-      case (-1)
-        c = ( this%r(i) - this%rr(i+1) ) / ( this%rr(i) - this%rr(i+1) )
-      
-      case (+1)
-        c = ( this%r(i) - this%rr(i) ) / ( this%rr(i+1) - this%rr(i) )
-      
-    end select
-    
-  end function c
-  
-  module pure real(kind=dbl) function hdd(this, i, p)
-    class(T_radialGrid), intent(in) :: this
-    integer,             intent(in) :: i, p
-    
-    select case (p)
-      case (-1)
-        hdd = -1 / ( this%r(i) - this%r(i-1) )
-        
-      case (+1)
-        hdd = +1 / ( this%r(i) - this%r(i-1) )
-    end select
-    
-  end function hdd
-  
   module pure real(kind=dbl) function dd(this, i, p)
     class(T_radialGrid), intent(in) :: this
     integer,             intent(in) :: i, p
@@ -210,39 +167,6 @@ submodule (radial_grid) differences
 
   end function dd
   
-  module pure real(kind=dbl) function cc(this, i, p)
-    class(T_radialGrid), intent(in) :: this
-    integer,             intent(in) :: i, p
-    
-    select case (p)
-      case (-1)
-        cc = ( this%rr(i) - this%r(i) ) / ( this%r(i-1) - this%r(i) )
-      
-      case (+1)
-        cc = ( this%rr(i) - this%r(i-1) ) / ( this%r(i) - this%r(i-1) )
-      
-    end select
-    
-  end function cc
-  
-  module pure real(kind=dbl) function hdrr(this, i, p)
-    class(T_radialGrid), intent(in) :: this
-    integer,             intent(in) :: i, p
-    
-    select case (p)
-      case (-1)
-        hdrr = -1 / ( this%rr(i+1) - this%rr(i-1) )
-      
-      case (0)
-        hdrr = zero
-      
-      case (+1)
-        hdrr = +1 / ( this%rr(i+1) - this%rr(i-1) )
-        
-    end select
-    
-  end function hdrr
-  
   module pure real(kind=dbl) function drr(this, i, p)
     class(T_radialGrid), intent(in) :: this
     integer,             intent(in) :: i, p
@@ -262,4 +186,4 @@ submodule (radial_grid) differences
     
   end function drr
   
-end submodule differences
+end submodule chebyschd
