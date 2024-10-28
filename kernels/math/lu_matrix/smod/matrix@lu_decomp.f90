@@ -3,7 +3,7 @@ submodule (matrix) lu_decomp
   
   module pure subroutine lu_decomposition_sub(this, matrixU, matrixM)
     class(T_matrix), intent(inout) :: this
-    real(kind=dbl),  intent(in)    :: matrixU(:,:), matrixM(:,:)
+    real(kind=dbl),  intent(in)    :: matrixU(this%ldu,this%n), matrixM(this%ldu,this%n)
     integer                        :: i, j, k, l
     real(kind=dbl)                 :: pom
     

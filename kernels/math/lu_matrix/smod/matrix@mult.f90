@@ -4,7 +4,7 @@ submodule (matrix) mult
   module pure complex(kind=dbl) function matrix_multiple_fn(this, i, vector)
     class(T_matrix),   intent(in) :: this
     integer,           intent(in) :: i
-    complex(kind=dbl), intent(in) :: vector(:)
+    complex(kind=dbl), intent(in) :: vector(this%n)
     integer                       :: k, indstart, indend
     
     k        = i-this%ld-1

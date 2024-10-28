@@ -46,7 +46,7 @@ module fourier_transform
     module pure subroutine fxztal(this, m, x)
       class(T_fft),   intent(in)    :: this
       integer,        intent(in)    :: m
-      real(kind=dbl), intent(inout) :: x(m,2,0:this%n/2-1)
+      real(kind=dbl), intent(inout) :: x(*)
     end subroutine fxztal
     
     module pure subroutine fxzshf(this, m, x)
