@@ -1,9 +1,7 @@
 submodule (tidalheating) init
   implicit none; contains
   
-  module pure subroutine init_tidalHeating_sub(this, nd, jms)
-    class(T_tidalHeating), intent(inout) :: this
-    integer,               intent(in)    :: nd, jms
+  module procedure init_tidalHeating_sub
     
     this%nd = nd
     this%jms = jms
@@ -11,13 +9,12 @@ submodule (tidalheating) init
     allocate( this%htide(this%nd,this%jms) )
       this%htide = czero
     
-  end subroutine init_tidalHeating_sub
+  end procedure init_tidalHeating_sub
   
-  module pure subroutine deallocate_tidalHeating_sub(this)
-    class(T_tidalHeating), intent(inout) :: this
+  module procedure deallocate_tidalHeating_sub
     
     if ( allocated(this%htide) ) deallocate( this%htide )
     
-  end subroutine deallocate_tidalHeating_sub
+  end procedure deallocate_tidalHeating_sub
   
 end submodule init

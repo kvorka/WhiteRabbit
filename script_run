@@ -188,7 +188,6 @@ $compile -c kernels/object/physicalobject.f90
   $compile -c kernels/object/smod/output/physicalobject@output.f90 &
   
   $compile -c kernels/object/smod/balances/physicalobject@balance_eqs.f90 &
-  $compile -c kernels/object/smod/balances/physicalobject@powers.f90 &
 wait
 
 $compile -c code/ocean/ocean_constants.f90

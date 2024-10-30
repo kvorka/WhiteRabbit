@@ -1,16 +1,13 @@
 submodule (boundaries) init
   implicit none; contains
   
-  module pure subroutine init_boundaries_sub(this, jms)
-    class(T_boundaries), intent(inout) :: this
-    integer,             intent(in)    :: jms
+  module procedure init_boundaries_sub
     
     this%jms = jms
     
-  end subroutine init_boundaries_sub
+  end procedure init_boundaries_sub
   
-  module pure subroutine deallocate_boundaries_sub(this)
-    class(T_boundaries), intent(inout) :: this
+  module procedure deallocate_boundaries_sub
     
     if ( allocated(this%temp_up) ) deallocate( this%temp_up )
     if ( allocated(this%flux_up) ) deallocate( this%flux_up )
@@ -26,6 +23,6 @@ submodule (boundaries) init
     if ( allocated(this%v_up) ) deallocate( this%v_up )
     if ( allocated(this%v_dn) ) deallocate( this%v_dn )
     
-  end subroutine deallocate_boundaries_sub
+  end procedure deallocate_boundaries_sub
   
 end submodule init

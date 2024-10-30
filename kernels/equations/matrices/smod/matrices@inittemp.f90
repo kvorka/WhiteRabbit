@@ -1,9 +1,8 @@
 submodule (matrices) inittemp
   implicit none; contains
   
-  module pure subroutine init_mtemp_sub(this)
-    class(T_matrices), intent(inout) :: this
-    integer                          :: j
+  module procedure init_mtemp_sub
+    integer :: j
     
     allocate( this%temp(0:this%jmax) )
     
@@ -19,6 +18,6 @@ submodule (matrices) inittemp
         end do
     end select
     
-  end subroutine init_mtemp_sub
+  end procedure init_mtemp_sub
   
 end submodule inittemp

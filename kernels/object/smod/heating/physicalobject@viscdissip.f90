@@ -1,27 +1,27 @@
 submodule (physicalobject) viscdissip
   implicit none ; contains
   
-  module pure real(kind=dbl) function viscdissip_power_fn(this)
-    class(T_physicalObject), intent(in)  :: this
-    integer                              :: ir
-    real(kind=dbl),          allocatable :: power_ir(:)
+  module procedure viscdissip_power_fn
+    integer                     :: ir
+    real(kind=dbl), allocatable :: power_ir(:)
     
     allocate( power_ir(this%nd) )
     
+      !$omp parallel do
       do ir = 1, this%nd
         power_ir(ir)  = tensnorm2_fn( this%jmax, this%sol%deviatoric_stress_jml2_fn(ir) ) / this%visc_r_fn(ir) / 2
       end do
+      !$omp end parallel do
       
       viscdissip_power_fn = this%rad_grid%intV_fn( power_ir )
     
     deallocate( power_ir )
     
-  end function viscdissip_power_fn
+  end procedure viscdissip_power_fn
   
-  module subroutine tidal_heating_4_sub(this)
-    class(T_physicalObject), intent(inout) :: this
-    integer                                :: ir
-    complex(kind=dbl),       allocatable   :: Dstrss(:), H(:)
+  module procedure tidal_heating_4_sub
+    integer                        :: ir
+    complex(kind=dbl), allocatable :: Dstrss(:), H(:)
     
     allocate( Dstrss(jml2(this%jmax,this%jmax,this%jmax+2)), H(this%tdheat%jms) )
     
@@ -84,6 +84,6 @@ submodule (physicalobject) viscdissip
     
     deallocate( Dstrss, H )
     
-  end subroutine tidal_heating_4_sub
+  end procedure tidal_heating_4_sub
   
 end submodule viscdissip

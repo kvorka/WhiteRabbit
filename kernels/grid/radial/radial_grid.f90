@@ -79,7 +79,7 @@ module radial_grid
       real(kind=dbl),      intent(in) :: field(:)
     end function radial_integral_real_fn
     
-    module pure real(kind=dbl) function volumetric_integral_real_fn(this, field)
+    module real(kind=dbl) function volumetric_integral_real_fn(this, field)
       class(T_radialGrid), intent(in) :: this
       real(kind=dbl),      intent(in) :: field(:)
     end function volumetric_integral_real_fn
@@ -89,7 +89,7 @@ module radial_grid
       complex(kind=dbl),   intent(in) :: field(:)
     end function radial_integral_cmplx_fn
     
-    module pure complex(kind=dbl) function volumetric_integral_cmplx_fn(this, field)
+    module complex(kind=dbl) function volumetric_integral_cmplx_fn(this, field)
       class(T_radialGrid), intent(in) :: this
       complex(kind=dbl),   intent(in) :: field(:)
     end function volumetric_integral_cmplx_fn

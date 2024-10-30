@@ -1,8 +1,7 @@
 submodule (mparams) visc
   implicit none; contains
   
-  module subroutine init_visc_sub(this)
-    class(T_Mparams), intent(inout) :: this
+  module procedure init_visc_sub
     
     this%initvisc = .true.
     this%visc_radial = .false.
@@ -10,10 +9,9 @@ submodule (mparams) visc
     allocate( this%visc(this%jms,this%nd) )
       this%visc = cone
     
-  end subroutine init_visc_sub
+  end procedure init_visc_sub
   
-  module subroutine init_visc_radial_sub(this)
-    class(T_Mparams), intent(inout) :: this
+  module procedure init_visc_radial_sub
     
     this%initvisc = .true.
     this%visc_radial = .true.
@@ -21,6 +19,6 @@ submodule (mparams) visc
     allocate( this%visc(1,this%nd) )
       this%visc = cone
     
-  end subroutine init_visc_radial_sub
-
+  end procedure init_visc_radial_sub
+  
 end submodule visc

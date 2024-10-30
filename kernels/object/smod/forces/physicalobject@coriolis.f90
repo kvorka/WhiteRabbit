@@ -1,10 +1,7 @@
 submodule (physicalobject) coriolis
   implicit none; contains
   
-  module pure subroutine coriolis_rr_jml_sub(this, v, coriolis)
-    class(T_physicalObject), intent(in)    :: this
-    complex(kind=dbl),       intent(in)    :: v(:)
-    complex(kind=dbl),       intent(inout) :: coriolis(:,:)
+  module procedure coriolis_rr_jml_sub
     
     select case (this%scaling)
       case ('christ')
@@ -14,6 +11,6 @@ submodule (physicalobject) coriolis
         call ezvv_sub(this%jmax, 2/this%Ek, v, coriolis)
     end select
     
-  end subroutine coriolis_rr_jml_sub
+  end procedure coriolis_rr_jml_sub
   
 end submodule coriolis

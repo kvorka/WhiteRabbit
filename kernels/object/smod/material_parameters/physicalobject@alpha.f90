@@ -1,9 +1,7 @@
 submodule (physicalobject) alpha
   implicit none; contains
   
-  module pure real(kind=dbl) function alpha_r_fn(this, ir)
-    class(T_physicalObject), intent(in) :: this
-    integer,                 intent(in) :: ir
+  module procedure alpha_r_fn
     
     if ( this%mparams%initalpha ) then
       alpha_r_fn = ( this%rad_grid%c(ir,-1) * c2r_fn( this%mparams%alpha(1,ir  ) ) + &
@@ -12,11 +10,9 @@ submodule (physicalobject) alpha
       alpha_r_fn = one
     end if
     
-  end function alpha_r_fn
+  end procedure alpha_r_fn
   
-  module pure real(kind=dbl) function alpha_rr_fn(this, ir)
-    class(T_physicalObject), intent(in) :: this
-    integer,                 intent(in) :: ir
+  module procedure alpha_rr_fn
     
     if ( this%mparams%initalpha ) then
       alpha_rr_fn = c2r_fn( this%mparams%alpha(1,ir) ) / s4pi
@@ -24,6 +20,6 @@ submodule (physicalobject) alpha
       alpha_rr_fn = one
     end if
     
-  end function alpha_rr_fn
+  end procedure alpha_rr_fn
   
 end submodule alpha

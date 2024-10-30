@@ -1,9 +1,8 @@
 submodule (matrices) inittorr
   implicit none; contains
   
-  module pure subroutine init_mtorr_sub(this)
-    class(T_matrices), intent(inout) :: this
-    integer                          :: j
+  module procedure init_mtorr_sub
+    integer :: j
     
     allocate( this%torr(1:this%jmax) )
     
@@ -19,6 +18,6 @@ submodule (matrices) inittorr
         end do
     end select
     
-  end subroutine init_mtorr_sub
+  end procedure init_mtorr_sub
   
 end submodule inittorr

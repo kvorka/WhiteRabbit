@@ -1,8 +1,7 @@
 submodule (boundaries) initlayers
   implicit none; contains
   
-  module pure subroutine init_layers_sub(this)
-    class(T_boundaries), intent(inout) :: this
+  module procedure init_layers_sub
     
     allocate( this%u_up(this%jms) ); this%u_up = czero
     allocate( this%u_dn(this%jms) ); this%u_dn = czero
@@ -15,14 +14,13 @@ submodule (boundaries) initlayers
     allocate( this%v_up(this%jms) ); this%v_up = czero
     allocate( this%v_dn(this%jms) ); this%v_dn = czero
     
-  end subroutine init_layers_sub
+  end procedure init_layers_sub
   
-  module pure subroutine init_layer_up_sub(this)
-    class(T_boundaries), intent(inout) :: this
+  module procedure init_layer_up_sub
     
     allocate( this%t_up(this%jms) ); this%t_up = czero
     allocate( this%u_up(this%jms) ); this%u_up = czero
     
-  end subroutine init_layer_up_sub
+  end procedure init_layer_up_sub
   
 end submodule initlayers

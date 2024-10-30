@@ -1,8 +1,7 @@
 submodule (boundaries) nulify
   implicit none; contains
   
-  module pure subroutine nulify_boundaries_sub(this)
-    class(T_boundaries), intent(inout) :: this
+  module procedure nulify_boundaries_sub
     
     if ( allocated(this%temp_up) ) call zero_carray_sub( this%jms, this%temp_up)
     if ( allocated(this%flux_up) ) call zero_carray_sub( this%jms, this%flux_up)
@@ -18,6 +17,6 @@ submodule (boundaries) nulify
     if ( allocated(this%v_up) ) call zero_carray_sub( this%jms, this%v_up )
     if ( allocated(this%v_dn) ) call zero_carray_sub( this%jms, this%v_dn )
     
-  end subroutine nulify_boundaries_sub
+  end procedure nulify_boundaries_sub
   
 end submodule nulify

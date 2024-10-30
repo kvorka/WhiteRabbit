@@ -74,7 +74,6 @@ module physicalobject
     procedure, pass :: global_rotation_sub
     procedure, pass :: coriolis_rr_jml_sub
     procedure, pass :: buoy_rr_fn, buoy_rr_jml_sub, er_buoy_rr_jm_sub
-    procedure, pass :: buoyancy_power_fn, bottombnd_power_fn, upperbnd_power_fn
     
     !Output, control measures
     procedure, pass :: vypis_sub
@@ -401,7 +400,7 @@ module physicalobject
       complex(kind=dbl),       intent(inout) :: force(:,:)
     end subroutine buoy_rr_jml_sub
     
-    module pure subroutine global_rotation_sub(this)
+    module subroutine global_rotation_sub(this)
       class(T_physicalObject), intent(inout) :: this
     end subroutine global_rotation_sub
     
@@ -409,24 +408,9 @@ module physicalobject
       class(T_physicalObject), intent(inout) :: this
     end subroutine tidal_heating_4_sub
     
-    module pure real(kind=dbl) function viscdissip_power_fn(this)
+    module real(kind=dbl) function viscdissip_power_fn(this)
       class(T_physicalObject), intent(in) :: this
     end function viscdissip_power_fn
-    
-    module pure function buoyancy_power_fn(this) result(power)
-      class(T_physicalObject), intent(in)  :: this
-      real(kind=dbl)                       :: power
-    end function buoyancy_power_fn
-    
-    module pure function bottombnd_power_fn(this) result(power)
-      class(T_physicalObject), intent(in) :: this
-      real(kind=dbl)                      :: power
-    end function bottombnd_power_fn
-    
-    module pure function upperbnd_power_fn(this) result(power)
-      class(T_physicalObject), intent(in) :: this
-      real(kind=dbl)                      :: power
-    end function upperbnd_power_fn
     
     module pure function mat_temp_fn(this, j_in, a_in) result(matica)
       class(T_physicalObject), intent(in) :: this

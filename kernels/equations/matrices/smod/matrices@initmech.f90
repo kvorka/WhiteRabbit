@@ -1,9 +1,8 @@
 submodule (Matrices) initmech
   implicit none; contains
   
-  module pure subroutine init_mmech_sub(this)
-    class(T_matrices), intent(inout) :: this
-    integer                          :: j
+  module procedure init_mmech_sub
+    integer :: j
     
     allocate( this%mech(1:this%jmax) )
     
@@ -19,6 +18,6 @@ submodule (Matrices) initmech
         end do
     end select
       
-  end subroutine init_mmech_sub
+  end procedure init_mmech_sub
   
 end submodule initmech

@@ -1,10 +1,8 @@
 submodule (solution) velocity
   implicit none; contains
   
-  module pure complex(kind=dbl) function velocity_fn(this, ir, il, ijm)
-    class(T_solution), intent(in) :: this
-    integer,           intent(in) :: ir, ijm, il
-    integer                       :: isp, ist
+  module procedure velocity_fn
+    integer :: isp, ist
     
     velocity_fn = czero
     
@@ -22,13 +20,10 @@ submodule (solution) velocity
       end select
     end if
     
-  end function velocity_fn
+  end procedure velocity_fn
   
-  module pure subroutine velocity_rr_many1_sub(this, ijm, velocity1)
-    class(T_solution), intent(in)  :: this
-    integer,           intent(in)  :: ijm
-    complex(kind=dbl), intent(out) :: velocity1(:,:)
-    integer                        :: ir, isp, ist
+  module procedure velocity_rr_many1_sub
+    integer :: ir, isp, ist
     
     if ( (this%initsfer) .and. (this%inittorr) ) then
       do concurrent ( ir = 1:this%nd+1 )
@@ -60,13 +55,10 @@ submodule (solution) velocity
     
     end if
     
-  end subroutine velocity_rr_many1_sub
+  end procedure velocity_rr_many1_sub
   
-  module pure subroutine conv_velocity_jml_sub(this, ir, velocity)
-    class(T_solution), intent(in)  :: this
-    integer,           intent(in)  :: ir
-    complex(kind=dbl), intent(out) :: velocity(:)
-    integer                        :: ij, im, il, ijm
+  module procedure conv_velocity_jml_sub
+    integer :: ij, im, il, ijm
       
     call zero_carray_sub( this%jmv, velocity )
     
@@ -80,13 +72,10 @@ submodule (solution) velocity
       end do
     end do
     
-  end subroutine conv_velocity_jml_sub
+  end procedure conv_velocity_jml_sub
   
-  module pure subroutine velocity_jml_many1_sub(this, ir, velocity1)
-    class(T_solution), intent(in)  :: this
-    integer,           intent(in)  :: ir
-    complex(kind=dbl), intent(out) :: velocity1(:)
-    integer                        :: ijm, ijml, isp, ist
+  module procedure velocity_jml_many1_sub
+    integer :: ijm, ijml, isp, ist
     
     call zero_carray_sub( this%jmv, velocity1 )
     
@@ -125,13 +114,10 @@ submodule (solution) velocity
       end do
     end if
     
-  end subroutine velocity_jml_many1_sub
+  end procedure velocity_jml_many1_sub
   
-  module pure subroutine velocity_jml_many2_sub(this, ir, velocity1, velocity2)
-    class(T_solution), intent(in)  :: this
-    integer,           intent(in)  :: ir
-    complex(kind=dbl), intent(out) :: velocity1(:), velocity2(:)
-    integer                        :: ijm, ijml, isp, ist
+  module procedure velocity_jml_many2_sub
+    integer :: ijm, ijml, isp, ist
     
     call zero_carray_sub( this%jmv, velocity1 )
     call zero_carray_sub( this%jmv, velocity2 )
@@ -177,13 +163,10 @@ submodule (solution) velocity
       end do
     end if
     
-  end subroutine velocity_jml_many2_sub
+  end procedure velocity_jml_many2_sub
   
-  module pure subroutine velocity_jml_many3_sub(this, ir, velocity1, velocity2, velocity3)
-    class(T_solution), intent(in)  :: this
-    integer,           intent(in)  :: ir
-    complex(kind=dbl), intent(out) :: velocity1(:), velocity2(:), velocity3(:)
-    integer                        :: ijm, ijml, isp, ist
+  module procedure velocity_jml_many3_sub
+    integer :: ijm, ijml, isp, ist
     
     call zero_carray_sub( this%jmv, velocity1 )
     call zero_carray_sub( this%jmv, velocity2 )
@@ -239,6 +222,6 @@ submodule (solution) velocity
       end do
     end if
     
-  end subroutine velocity_jml_many3_sub
+  end procedure velocity_jml_many3_sub
   
 end submodule velocity

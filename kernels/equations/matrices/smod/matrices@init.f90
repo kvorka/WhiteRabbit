@@ -1,20 +1,16 @@
 submodule (matrices) init
   implicit none; contains
   
-  module pure subroutine init_matrices_sub(this, nd, jmax, grid_type)
-    class(T_matrices), intent(inout) :: this
-    integer,           intent(in)    :: nd, jmax
-    character(len=*),  intent(in)    :: grid_type
+  module procedure init_matrices_sub
     
     this%nd        = nd
     this%jmax      = jmax
     this%grid_type = grid_type
     
-  end subroutine init_matrices_sub
+  end procedure init_matrices_sub
   
-  module subroutine deallocate_matrices_sub(this)
-    class(T_matrices), intent(inout) :: this
-    integer                          :: j
+  module procedure deallocate_matrices_sub
+    integer :: j
     
     if ( allocated(this%temp) ) then
       do j = 0, this%jmax
@@ -40,6 +36,6 @@ submodule (matrices) init
       deallocate( this%mech )
     end if
     
-  end subroutine deallocate_matrices_sub
+  end procedure deallocate_matrices_sub
   
 end submodule init

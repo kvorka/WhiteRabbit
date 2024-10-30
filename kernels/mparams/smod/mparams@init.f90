@@ -1,9 +1,7 @@
 submodule (mparams) init
   implicit none; contains
   
-  module subroutine init_mparams_sub(this, nd, jmax)
-    class(T_Mparams), intent(inout) :: this
-    integer,          intent(in)    :: nd, jmax
+  module procedure init_mparams_sub
     
     this%nd   = nd
     this%jmax = jmax
@@ -14,16 +12,15 @@ submodule (mparams) init
     this%initcp     = .false.
     this%initalpha  = .false.
     
-  end subroutine init_mparams_sub
+  end procedure init_mparams_sub
   
-  module subroutine deallocate_mparams_sub(this)
-    class(T_Mparams), intent(inout) :: this
+  module procedure deallocate_mparams_sub
     
     if ( allocated(this%visc)   ) deallocate( this%visc   )
     if ( allocated(this%lambda) ) deallocate( this%lambda )
     if ( allocated(this%cp)     ) deallocate( this%cp     )
     if ( allocated(this%alpha)  ) deallocate( this%alpha  )
     
-  end subroutine deallocate_mparams_sub
+  end procedure deallocate_mparams_sub
 
 end submodule init
