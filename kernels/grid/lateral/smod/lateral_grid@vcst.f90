@@ -1,11 +1,8 @@
 submodule (lateral_grid) vcst
   implicit none ; contains
   
-  module pure subroutine vcst_sub(this, cajm, cbjml2, cjml2)
-    class(T_lateralGrid), intent(in)  :: this
-    complex(kind=dbl),    intent(in)  :: cajm(*), cbjml2(*)
-    complex(kind=dbl),    intent(out) :: cjml2(*)
-    complex(kind=dbl),    allocatable :: cc(:), cr(:)
+  module procedure vcst_sub
+    complex(kind=dbl), allocatable :: cc(:), cr(:)
     
     !Array preparation
     call this%reindexing%allocate_scalars_sub( 6, cc )
@@ -23,6 +20,6 @@ submodule (lateral_grid) vcst
     !Cleaning
     deallocate( cc, cr )
     
-  end subroutine vcst_sub
+  end procedure vcst_sub
   
 end submodule vcst

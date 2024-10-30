@@ -2,12 +2,10 @@ submodule (grid_ops) vcvxv
   use math
   implicit none; contains
   
-  module pure subroutine grid_op_vcvxv_sub(step, nfour, grid)
-    integer,                intent(in)    :: nfour, step
-    real(kind=dbl), target, intent(inout) :: grid(step,*)
-    integer                               :: i1, i2
-    real(kind=dbl), pointer               :: gout(:,:,:), gin(:,:,:,:)
-    real(kind=dbl), allocatable           :: tmp11(:), tmp12(:), tmp21(:), tmp22(:)
+  module procedure grid_op_vcvxv_sub
+    integer                     :: i1, i2
+    real(kind=dbl), pointer     :: gout(:,:,:), gin(:,:,:,:)
+    real(kind=dbl), allocatable :: tmp11(:), tmp12(:), tmp21(:), tmp22(:)
     
     gin(1:step,1:3,1:2,1:nfour) => grid(:,1:6*nfour)
     gout(1:step,1:3,1:nfour)    => grid(:,1:3*nfour)
@@ -48,6 +46,6 @@ submodule (grid_ops) vcvxv
     gin  => null()
     gout => null()
     
-  end subroutine grid_op_vcvxv_sub
+  end procedure grid_op_vcvxv_sub
   
 end submodule vcvxv

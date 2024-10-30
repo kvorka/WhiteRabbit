@@ -1,12 +1,10 @@
 submodule (grid_ops) vcss_add_vcvv
   implicit none; contains
   
-  module pure subroutine grid_op_vcss_add_vcvv_sub(step, nfour, grid)
-    integer,                intent(in)    :: nfour, step
-    real(kind=dbl), target, intent(inout) :: grid(step,*)
-    integer                               :: i1, i2
-    real(kind=dbl), allocatable           :: tmp(:), tmp1(:)
-    real(kind=dbl), pointer               :: gout(:,:), gin(:,:,:)
+  module procedure grid_op_vcss_add_vcvv_sub
+    integer                     :: i1, i2
+    real(kind=dbl), allocatable :: tmp(:), tmp1(:)
+    real(kind=dbl), pointer     :: gout(:,:), gin(:,:,:)
     
     gin(1:step,1:8,1:nfour) => grid(:,1:8*nfour)
     gout(1:step,1:nfour)    => grid(:,1:  nfour)
@@ -48,6 +46,6 @@ submodule (grid_ops) vcss_add_vcvv
     gin  => null()
     gout => null()
     
-  end subroutine grid_op_vcss_add_vcvv_sub
+  end procedure grid_op_vcss_add_vcvv_sub
   
 end submodule vcss_add_vcvv

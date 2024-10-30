@@ -1,12 +1,8 @@
 submodule (lateral_grid) vcvv_vcvgv
   implicit none; contains
   
-  module pure subroutine vcvv_vcvgv_sub(this, ri, q, dv_r, v, cjm)
-    class(T_lateralGrid), intent(in)  :: this
-    real(kind=dbl),       intent(in)  :: ri
-    complex(kind=dbl),    intent(in)  :: dv_r(*), q(*), v(*)
-    complex(kind=dbl),    intent(out) :: cjm(*)
-    complex(kind=dbl),    allocatable :: ca(:), cc(:), cr(:)
+  module procedure vcvv_vcvgv_sub
+    complex(kind=dbl), allocatable :: ca(:), cc(:), cr(:)
     
     !Array preparation
     call this%reindexing%allocate_vectors_sub(  5, ca )
@@ -31,6 +27,6 @@ submodule (lateral_grid) vcvv_vcvgv
     !Cleaning
     deallocate( cc, cr )
     
-  end subroutine vcvv_vcvgv_sub
+  end procedure vcvv_vcvgv_sub
   
 end submodule vcvv_vcvgv

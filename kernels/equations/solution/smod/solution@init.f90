@@ -1,9 +1,7 @@
 submodule (solution) init
   implicit none; contains
   
-  module pure subroutine init_solution_sub(this, nd, jmax)
-    class(T_solution), intent(inout) :: this
-    integer,           intent(in)    :: nd, jmax
+  module procedure init_solution_sub
     
     this%nd   = nd
     this%jmax = jmax
@@ -15,45 +13,41 @@ submodule (solution) init
     this%initsfer = .false.
     this%inittorr = .false.
     
-  end subroutine init_solution_sub
+  end procedure init_solution_sub
   
-  module pure subroutine deallocate_solution_sub(this)
-    class(T_solution), intent(inout) :: this
+  module procedure deallocate_solution_sub
     
     if ( allocated(this%temp) ) deallocate( this%temp )
     if ( allocated(this%torr) ) deallocate( this%torr )
     if ( allocated(this%mech) ) deallocate( this%mech )
     
-  end subroutine deallocate_solution_sub
+  end procedure deallocate_solution_sub
   
-  module pure subroutine init_stemp_sub(this)
-    class(T_solution), intent(inout) :: this
+  module procedure init_stemp_sub
     
     allocate( this%temp(3*this%nd+1, this%jms) )
     
     this%inittemp = .true.
     this%temp     = czero
     
-  end subroutine init_stemp_sub
+  end procedure init_stemp_sub
   
-  module pure subroutine init_storr_sub(this)
-    class(T_solution), intent(inout) :: this
+  module procedure init_storr_sub
       
     allocate( this%torr(3*this%nd+1, this%jms) )
     
     this%inittorr = .true.
     this%torr = czero
     
-  end subroutine init_storr_sub
+  end procedure init_storr_sub
   
-  module pure subroutine init_smech_sub(this)
-    class(T_solution), intent(inout) :: this
+  module procedure init_smech_sub
     
     allocate( this%mech(6*this%nd+2,this%jms) )
     
     this%initsfer = .true.
     this%mech     = czero
     
-  end subroutine init_smech_sub
+  end procedure init_smech_sub
   
 end submodule init

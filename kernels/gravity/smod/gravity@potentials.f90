@@ -1,11 +1,7 @@
 submodule (gravity) potentials
   implicit none; contains
   
-  module pure complex(kind=dbl) function V_bnd_fn(this, j, m, ri, rb, drho, ujm)
-    class(T_gravity),  intent(in) :: this
-    integer,           intent(in) :: j, m
-    real(kind=dbl),    intent(in) :: ri, rb, drho
-    complex(kind=dbl), intent(in) :: ujm
+  module procedure V_bnd_fn
     
     V_bnd_fn = czero
     
@@ -15,23 +11,15 @@ submodule (gravity) potentials
       V_bnd_fn = 4 * pi * kappa * ri * this%Dcrust * drho * (rb/ri)**(j+2) * ujm / (2*j+1) / this%g
     end if
     
-  end function V_bnd_fn
+  end procedure V_bnd_fn
   
-  module pure complex(kind=dbl) function V_rho_fn(this, j, m, ri, field, rad_grid)
-    class(T_gravity),    intent(in) :: this
-    integer,             intent(in) :: j, m
-    real(kind=dbl),      intent(in) :: ri
-    complex(kind=dbl),   intent(in) :: field(:)
-    class(T_radialGrid), intent(in) :: rad_grid
+  module procedure V_rho_fn
     
     V_rho_fn = 4 * pi * kappa * ri * this%Dcrust * rad_grid%intR_fn(field) / (2*j+1) / this%g
   
-  end function V_rho_fn  
+  end procedure V_rho_fn  
   
-  module pure complex(kind=dbl) function V_tide_fn(this, j, m, ri, phase)
-    class(T_gravity), intent(in) :: this
-    integer,          intent(in) :: j, m
-    real(kind=dbl),   intent(in) :: ri, phase
+  module procedure V_tide_fn
     
     if ( (j == 2) .and. (m == 0) ) then
       V_tide_fn = (this%omega * ri)**2 * this%Dcrust * this%exc / this%g * r2c_fn( -sqrt(9*pi/5) * cos(phase) )
@@ -44,12 +32,9 @@ submodule (gravity) potentials
       V_tide_fn = czero
     end if
     
-  end function V_tide_fn
+  end procedure V_tide_fn
   
-  module pure complex(kind=dbl) function V_rt_fn(this, j, m, ri)
-    class(T_gravity), intent(in) :: this
-    integer,          intent(in) :: j, m
-    real(kind=dbl),   intent(in) :: ri
+  module procedure V_rt_fn
     
     if ( (j == 2) .and. (m == 0) ) then
       V_rt_fn = r2c_fn( -( this%omega * ri )**2 * this%Dcrust / this%g * sqrt(5*pi/9 ) )
@@ -61,6 +46,6 @@ submodule (gravity) potentials
       V_rt_fn = czero
     end if
     
-  end function V_rt_fn
+  end procedure V_rt_fn
   
 end submodule potentials

@@ -1,20 +1,9 @@
 submodule (lateral_grid) transform
   implicit none; contains
   
-  module pure subroutine transform_sub(this, nf, nb, cc, cr, grid_sub)
-    class(T_lateralGrid), intent(in)    :: this
-    integer,              intent(in)    :: nf, nb
-    complex(kind=dbl),    intent(in)    :: cc(nb,*)
-    complex(kind=dbl),    intent(inout) :: cr(nf,*)
-    integer                             :: itheta
-    real(kind=dbl),       allocatable   :: sumN(:), sumS(:)
-    
-    interface
-      pure subroutine grid_sub(step, nfour, gxyz); import :: dbl
-        integer,                intent(in)    :: step, nfour
-        real(kind=dbl), target, intent(inout) :: gxyz(step,*)
-      end subroutine grid_sub
-    end interface
+  module procedure transform_sub
+    integer                     :: itheta
+    real(kind=dbl), allocatable :: sumN(:), sumS(:)
     
     !Allocating memory :: step is set to 16
     allocate( sumN(16*nb*this%fourtrans%n), sumS(16*nb*this%fourtrans%n) )
@@ -84,6 +73,6 @@ submodule (lateral_grid) transform
     !Cleaning
     deallocate( sumN, sumS )
     
-  end subroutine transform_sub
+  end procedure transform_sub
   
 end submodule transform

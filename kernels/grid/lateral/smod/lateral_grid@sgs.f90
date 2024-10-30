@@ -1,23 +1,18 @@
 submodule (lateral_grid) sgs
   implicit none; contains
   
-  module pure subroutine allocate_grid_sub(this, grid)
-    class(T_lateralGrid),        intent(in)  :: this
-    real(kind=dbl), allocatable, intent(out) :: grid(:,:,:)
+  module procedure allocate_grid_sub
     
     if ( allocated(grid) ) deallocate( grid )
     
     allocate( grid(this%lgp%nLege,this%fourtrans%n,2) )
       call zero_rarray_sub( 2 * this%lgp%nLege * this%fourtrans%n, grid )
     
-  end subroutine allocate_grid_sub
+  end procedure allocate_grid_sub
   
-  module pure subroutine space_to_grid_sub(this, cc, grid)
-    class(T_lateralGrid), intent(in)  :: this
-    complex(kind=dbl),    intent(in)  :: cc(*)
-    real(kind=dbl),       intent(out) :: grid(:,:,:)
-    integer                           :: itheta, i1, i2
-    real(kind=dbl),       allocatable :: sumN(:), sumS(:)
+  module procedure space_to_grid_sub
+    integer                     :: itheta, i1, i2
+    real(kind=dbl), allocatable :: sumN(:), sumS(:)
     
     !Allocating memory
     allocate( sumN(16*this%fourtrans%n), sumS(16*this%fourtrans%n) )
@@ -73,14 +68,11 @@ submodule (lateral_grid) sgs
     !Cleaning
     deallocate( sumN, sumS )
     
-  end subroutine space_to_grid_sub
+  end procedure space_to_grid_sub
   
-  module pure subroutine grid_to_space_sub(this, grid, cr)
-    class(T_lateralGrid), intent(in)    :: this
-    real(kind=dbl),       intent(inout) :: grid(:,:,:)
-    complex(kind=dbl),    intent(out)   :: cr(*)
-    integer                             :: itheta, i1, i2
-    real(kind=dbl),       allocatable   :: sumN(:), sumS(:)
+  module procedure grid_to_space_sub
+    integer                     :: itheta, i1, i2
+    real(kind=dbl), allocatable :: sumN(:), sumS(:)
     
     !Allocating memory
     allocate( sumN(16*this%fourtrans%n), sumS(16*this%fourtrans%n) )
@@ -127,6 +119,6 @@ submodule (lateral_grid) sgs
     !Cleaning
     deallocate( sumN, sumS )
     
-  end subroutine grid_to_space_sub
+  end procedure grid_to_space_sub
   
 end submodule sgs

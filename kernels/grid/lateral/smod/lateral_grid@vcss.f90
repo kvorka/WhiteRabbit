@@ -1,11 +1,8 @@
 submodule (lateral_grid) vcss
   implicit none ; contains
   
-  module pure subroutine vcss_sub(this, cajm, cbjm, cjm)
-    class(T_lateralGrid), intent(in)  :: this
-    complex(kind=dbl),    intent(in)  :: cajm(*), cbjm(*)
-    complex(kind=dbl),    intent(out) :: cjm(*)
-    complex(kind=dbl),    allocatable :: cc(:), cr(:)
+  module procedure vcss_sub
+    complex(kind=dbl), allocatable :: cc(:), cr(:)
     
     !Array preparation
     call this%reindexing%allocate_scalars_sub( 2, cc )
@@ -23,6 +20,6 @@ submodule (lateral_grid) vcss
     !Cleaning
     deallocate( cr, cc )
     
-  end subroutine vcss_sub
+  end procedure vcss_sub
   
 end submodule vcss

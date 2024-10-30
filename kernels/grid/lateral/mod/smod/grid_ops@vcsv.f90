@@ -1,12 +1,10 @@
 submodule (grid_ops) vcsv
   implicit none; contains
   
-  module pure subroutine grid_op_vcsv_sub(step, nfour, grid)
-    integer,                intent(in)    :: nfour, step
-    real(kind=dbl), target, intent(inout) :: grid(step,*)
-    integer                               :: i1, i2, i3
-    real(kind=dbl), pointer               :: gout(:,:,:), gin(:,:,:)
-    real(kind=dbl), allocatable           :: tmp(:), tmp1(:)
+  module procedure grid_op_vcsv_sub
+    integer                     :: i1, i2, i3
+    real(kind=dbl), pointer     :: gout(:,:,:), gin(:,:,:)
+    real(kind=dbl), allocatable :: tmp(:), tmp1(:)
     
     gin(1:step,1:4,1:nfour)  => grid(:,1:4*nfour)
     gout(1:step,1:3,1:nfour) => grid(:,1:3*nfour)
@@ -30,6 +28,6 @@ submodule (grid_ops) vcsv
     gin  => null()
     gout => null()
     
-  end subroutine grid_op_vcsv_sub
+  end procedure grid_op_vcsv_sub
   
 end submodule vcsv
