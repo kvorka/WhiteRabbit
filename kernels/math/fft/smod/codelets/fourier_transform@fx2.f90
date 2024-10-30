@@ -1,12 +1,9 @@
 submodule (fourier_transform) fx2
   implicit none; contains
   
-  module pure subroutine fxzm2a(m, k, l, x, t)
-    integer,        intent(in)    :: m, k, l
-    real(kind=dbl), intent(in)    :: t(2,0:*)
-    real(kind=dbl), intent(inout) :: x(m,2,l/2,0:1,0:k-1)
-    integer                       :: i, j, iv
-    real(kind=dbl)                :: x1re, x1im, t1re, t1im
+  module procedure fxzm2a
+    integer        :: i, j, iv
+    real(kind=dbl) :: x1re, x1im, t1re, t1im
     
     do j = 0, k-1
       t1re = t(1,j)
@@ -23,12 +20,10 @@ submodule (fourier_transform) fx2
       end do
     end do
     
-  end subroutine fxzm2a
+  end procedure fxzm2a
   
-  module pure subroutine fxzm2b(m, l, x)
-    integer,        intent(in)    :: m, l
-    real(kind=dbl), intent(inout) :: x(m,2,l/2,0:1)
-    integer                       :: i, iv
+  module procedure fxzm2b
+    integer :: i, iv
     
     do concurrent ( i = 1:l/2 , iv = 1:m )
       x(iv,1,i,1) =     x(iv,1,i,0) - x(iv,1,i,1)
@@ -37,6 +32,6 @@ submodule (fourier_transform) fx2
       x(iv,2,i,0) = 2 * x(iv,2,i,0) - x(iv,2,i,1)
     end do
     
-  end subroutine fxzm2b
+  end procedure fxzm2b
   
 end submodule fx2

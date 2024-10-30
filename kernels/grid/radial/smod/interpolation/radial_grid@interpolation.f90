@@ -1,13 +1,8 @@
 submodule (radial_grid) interpolation
   implicit none ; contains
   
-  module pure function interpolation_fn(this, dimOut, i, rr1, field) result(resField)
-    class(T_radialGrid), intent(in) :: this
-    integer,             intent(in) :: i, dimOut
-    real(kind=dbl),      intent(in) :: rr1(:)
-    complex(kind=dbl),   intent(in) :: field(:,:)
-    complex(kind=dbl), allocatable  :: resField(:)
-    integer                         :: ii, dimjms, dimnd
+  module procedure interpolation_fn
+    integer :: ii, dimjms, dimnd
     
     dimnd  = size(field,1) ; dimjms = min(dimOut, size(field,2))
     
@@ -29,6 +24,6 @@ submodule (radial_grid) interpolation
       end do
     end if
     
-  end function interpolation_fn
+  end procedure interpolation_fn
   
 end submodule interpolation

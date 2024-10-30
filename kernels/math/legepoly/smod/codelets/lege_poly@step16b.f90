@@ -1,26 +1,17 @@
 submodule (lege_poly) step16
   implicit none; contains
   
-  module pure subroutine backward_sum_16_sub(this, nb, legep, cc, legesum)
-    class(T_legep),    intent(in)    :: this
-    integer,           intent(in)    :: nb
-    real(kind=dbl),    intent(in)    :: legep(16)
-    complex(kind=dbl), intent(in)    :: cc(nb)
-    complex(kind=dbl), intent(inout) :: legesum(16,nb)
-    integer                          :: i1, i2
+  module procedure backward_sum_16_sub
+    integer :: i1, i2
     
     do concurrent ( i1 = 1:nb, i2 = 1:16 )
       legesum(i2,i1) = legesum(i2,i1) + cc(i1) * legep(i2)
     end do
     
-  end subroutine backward_sum_16_sub
+  end procedure backward_sum_16_sub
   
-  module pure subroutine backward_rcb_16_sub(this, nb, sumsym, sumasym, sumN, sumS)
-    class(T_legep),    intent(in)  :: this
-    integer,           intent(in)  :: nb
-    complex(kind=dbl), intent(in)  :: sumsym(16,nb), sumasym(16,nb)
-    real(kind=dbl),    intent(out) :: sumN(16,nb,2), sumS(16,nb,2)
-    integer                        :: i1, i2
+  module procedure backward_rcb_16_sub
+    integer :: i1, i2
     
     do concurrent ( i2 = 1:nb, i1 = 1:16 )
       sumN(i1,i2,1) = sumsym(i1,i2)%re + sumasym(i1,i2)%re
@@ -29,13 +20,9 @@ submodule (lege_poly) step16
       sumS(i1,i2,2) = sumsym(i1,i2)%im - sumasym(i1,i2)%im
     end do
     
-  end subroutine backward_rcb_16_sub
+  end procedure backward_rcb_16_sub
   
-  module pure subroutine backward_legesum_16_sub(this, it, nb, cc, sumN, sumS)
-    class(T_legep),    intent(in)  :: this
-    integer,           intent(in)  :: it, nb
-    complex(kind=dbl), intent(in)  :: cc(nb,*)
-    real(kind=dbl),    intent(out) :: sumN(16,nb,2,0:this%jmax), sumS(16,nb,2,0:this%jmax)
+  module procedure backward_legesum_16_sub
     integer                        :: m, j, mj, i2
     real(kind=dbl),    allocatable :: pmj2(:), pmj1(:), pmj0(:), pmm(:), csx(:), snx(:)
     complex(kind=dbl), allocatable :: ssm(:), asm(:)
@@ -77,6 +64,6 @@ submodule (lege_poly) step16
     
     deallocate( pmj2, pmj1, pmj0, pmm, csx, snx, asm, ssm )
     
-  end subroutine backward_legesum_16_sub
+  end procedure backward_legesum_16_sub
 
 end submodule step16

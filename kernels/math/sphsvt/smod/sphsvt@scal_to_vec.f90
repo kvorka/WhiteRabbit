@@ -1,13 +1,9 @@
 submodule (sphsvt) scal_to_vec
   implicit none; contains
   
-  module pure subroutine scal2vecscal_mj_to_jm_sub(this, cr, ncr, crpadding, cjm, ncjm, cjmpadding)
-    class(T_sphsvt),   intent(in)    :: this
-    integer,           intent(in)    :: ncr, crpadding, ncjm, cjmpadding
-    complex(kind=dbl), intent(inout) :: cr(ncr,*)
-    complex(kind=dbl), intent(inout) :: cjm(ncjm,*)
-    integer                          :: i, j, m, mj, mj1, mj2, ijm
-    complex(kind=dbl)                :: cr12
+  module procedure scal2vecscal_mj_to_jm_sub
+    integer           :: i, j, m, mj, mj1, mj2, ijm
+    complex(kind=dbl) :: cr12
     
     do concurrent ( mj = 1:this%jms2 )
       cr12               = ( +cr(crpadding,mj) + cr(crpadding+1,mj) * cunit ) * sq2_1
@@ -59,15 +55,11 @@ submodule (sphsvt) scal_to_vec
       end do
     end do
     
-  end subroutine scal2vecscal_mj_to_jm_sub
+  end procedure scal2vecscal_mj_to_jm_sub
   
-  module pure subroutine scal2vec_mj_to_jml_sub(this, cr, ncr, crpadding, cjml, ncjml, cjmlpadding)
-    class(T_sphsvt),   intent(in)    :: this
-    integer,           intent(in)    :: ncr, crpadding, ncjml, cjmlpadding
-    complex(kind=dbl), intent(inout) :: cr(ncr,*)
-    complex(kind=dbl), intent(inout) :: cjml(ncjml,*)
-    integer                          :: i, j, m, mj, mj1, mj2, ijm, ijml
-    complex(kind=dbl)                :: cr12
+  module procedure scal2vec_mj_to_jml_sub
+    integer           :: i, j, m, mj, mj1, mj2, ijm, ijml
+    complex(kind=dbl) :: cr12
     
     do concurrent ( mj = 1:this%jms2 )
       cr12               = ( +cr(crpadding,mj) + cr(crpadding+1,mj) * cunit ) * sq2_1
@@ -130,6 +122,6 @@ submodule (sphsvt) scal_to_vec
       end do
     end do
     
-  end subroutine scal2vec_mj_to_jml_sub
+  end procedure scal2vec_mj_to_jml_sub
   
 end submodule scal_to_vec

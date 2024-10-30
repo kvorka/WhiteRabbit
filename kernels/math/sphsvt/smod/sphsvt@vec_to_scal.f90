@@ -1,14 +1,10 @@
 submodule (sphsvt) vec_to_scal
   implicit none; contains
   
-  module pure subroutine vec2scal_jml_to_mj_sub(this, cab, ncab, cc, ncc, ccpadding)
-    class(T_sphsvt),   intent(in)    :: this
-    integer,           intent(in)    :: ncab, ncc, ccpadding
-    complex(kind=dbl), intent(in)    :: cab(ncab,*)
-    complex(kind=dbl), intent(inout) :: cc(ncc,*)
-    integer                          :: j, m, l, mj, lmj, i1, indx
-    real(kind=dbl)                   :: cleb
-    complex(kind=dbl), allocatable   :: sum1(:), sum2(:), sum3(:)
+  module procedure vec2scal_jml_to_mj_sub
+    integer                        :: j, m, l, mj, lmj, i1, indx
+    real(kind=dbl)                 :: cleb
+    complex(kind=dbl), allocatable :: sum1(:), sum2(:), sum3(:)
     
     allocate( sum1(ncab), sum2(ncab), sum3(ncab) )
     
@@ -92,6 +88,6 @@ submodule (sphsvt) vec_to_scal
     
     deallocate( sum1, sum2, sum3 )
     
-  end subroutine vec2scal_jml_to_mj_sub
+  end procedure vec2scal_jml_to_mj_sub
   
 end submodule vec_to_scal

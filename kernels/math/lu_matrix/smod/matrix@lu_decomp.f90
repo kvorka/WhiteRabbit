@@ -1,11 +1,9 @@
 submodule (matrix) lu_decomp
   implicit none; contains
   
-  module pure subroutine lu_decomposition_sub(this, matrixU, matrixM)
-    class(T_matrix), intent(inout) :: this
-    real(kind=dbl),  intent(in)    :: matrixU(this%ldu,this%n), matrixM(this%ldu,this%n)
-    integer                        :: i, j, k, l
-    real(kind=dbl)                 :: pom
+  module procedure lu_decomposition_sub
+    integer        :: i, j, k, l
+    real(kind=dbl) :: pom
     
     this%U = matrixU
     this%M = matrixM
@@ -54,6 +52,6 @@ submodule (matrix) lu_decomp
       end do
     end do
     
-  end subroutine lu_decomposition_sub
+  end procedure lu_decomposition_sub
   
 end submodule lu_decomp

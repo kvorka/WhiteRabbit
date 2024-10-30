@@ -8,13 +8,10 @@ submodule (fourier_transform) fx5
   
   contains
   
-  module pure subroutine fxzm5a(m, k, l, x, t)
-    integer,        intent(in)    :: m, k, l
-    real(kind=dbl), intent(in)    :: t(2,0:*)
-    real(kind=dbl), intent(inout) :: x(m,2,l/5,0:4,0:k-1)
-    integer                       :: i, j, ij, iv
-    real(kind=dbl)                :: x0re, x0im, x1re, x1im, x2re, x2im, x3re, x3im, x4re, x4im, &
-                                   & t1re, t1im, t2re, t2im, t3re, t3im, t4re, t4im
+  module procedure fxzm5a
+    integer        :: i, j, ij, iv
+    real(kind=dbl) :: x0re, x0im, x1re, x1im, x2re, x2im, x3re, x3im, x4re, x4im, &
+                    & t1re, t1im, t2re, t2im, t3re, t3im, t4re, t4im
     
     ij = 0
     
@@ -74,13 +71,11 @@ submodule (fourier_transform) fx5
        ij = ij + 4
     end do
     
-  end subroutine fxzm5a
+  end procedure fxzm5a
   
-  module pure subroutine fxzm5b(m, l, x)
-    integer,        intent(in)    :: m, l
-    real(kind=dbl), intent(inout) :: x(m,2,l/5,0:4)
-    integer                       :: i, iv
-    real(kind=dbl)                :: x0re, x0im, x1re, x1im, x2re, x2im, x3re, x3im, x4re, x4im
+  module procedure fxzm5b
+    integer        :: i, iv
+    real(kind=dbl) :: x0re, x0im, x1re, x1im, x2re, x2im, x3re, x3im, x4re, x4im
     
     do concurrent ( i = 1:l/5 , iv = 1:m )
       x0re = x(iv,1,i,1) - x(iv,1,i,4)
@@ -120,6 +115,6 @@ submodule (fourier_transform) fx5
       x(iv,2,i,1) = 2 * x4im        -       x(iv,2,i,4)
     end do
     
-  end subroutine fxzm5b
+  end procedure fxzm5b
   
 end submodule fx5

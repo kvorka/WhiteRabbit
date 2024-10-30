@@ -1,11 +1,7 @@
 submodule (sphsvt) scal_to_devtens
   implicit none; contains
   
-  module pure subroutine scal2devtens_mj_to_jml2_sub(this, cr, ncr, crpadding, ctjml2)
-    class(T_sphsvt),   intent(in) :: this
-    integer,           intent(in)  :: ncr, crpadding
-    complex(kind=dbl), intent(in)  :: cr(ncr,*)
-    complex(kind=dbl), intent(out) :: ctjml2(*)
+  module procedure scal2devtens_mj_to_jml2_sub
     integer                        :: j, m, l, k, i1, lm, ijml2
     complex(kind=dbl)              :: csum
     complex(kind=dbl), allocatable :: caux(:)
@@ -102,6 +98,6 @@ submodule (sphsvt) scal_to_devtens
     
     deallocate( caux )
     
-  end subroutine scal2devtens_mj_to_jml2_sub
+  end procedure scal2devtens_mj_to_jml2_sub
   
 end submodule scal_to_devtens

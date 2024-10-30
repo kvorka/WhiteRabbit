@@ -1,13 +1,9 @@
 submodule (radial_grid) init
   implicit none ; contains
   
-  module pure subroutine init_grid_sub(this, nr, rd, ru, grid_type)
-    class(T_radialGrid), intent(inout) :: this
-    integer,             intent(in)    :: nr
-    real(kind=dbl),      intent(in)    :: rd, ru
-    character(len=5),    intent(in)    :: grid_type
-    integer                            :: i
-    real(kind=dbl)                     :: dr
+  module procedure init_grid_sub
+    integer        :: i
+    real(kind=dbl) :: dr
     
     this%nd = nr; allocate( this%r(this%nd), this%rr(this%nd+1) )
     
@@ -24,14 +20,13 @@ submodule (radial_grid) init
     
     this%volume = 4 * pi * ( ru**3 - rd**3 ) / 3
     
-  end subroutine init_grid_sub
+  end procedure init_grid_sub
   
-  module pure subroutine deallocate_grid_sub(this)
-    class(T_radialGrid), intent(inout) :: this
+  module procedure deallocate_grid_sub
     
     if ( allocated(this%r)  ) deallocate( this%r  )
     if ( allocated(this%rr) ) deallocate( this%rr )
     
-  end subroutine deallocate_grid_sub
+  end procedure deallocate_grid_sub
   
 end submodule init

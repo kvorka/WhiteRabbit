@@ -1,13 +1,9 @@
 submodule (sphsvt) devtens_to_scal
   implicit none; contains
   
-  module pure subroutine devtens2scal_jml2_to_mj_sub(this, ctjml2, cr, ncr, crpadding)
-    class(T_sphsvt),   intent(in)    :: this
-    integer,           intent(in)    :: ncr, crpadding
-    complex(kind=dbl), intent(in)    :: ctjml2(*)
-    complex(kind=dbl), intent(inout) :: cr(ncr,*)
-    integer                          :: j, m, l, k, lm
-    complex(kind=dbl)                :: csum, cpom
+  module procedure devtens2scal_jml2_to_mj_sub
+    integer           :: j, m, l, k, lm
+    complex(kind=dbl) :: csum, cpom
     
     do k = -2, 2
       do l = 0, this%jmax2
@@ -42,6 +38,6 @@ submodule (sphsvt) devtens_to_scal
       end do
     end do
     
-  end subroutine devtens2scal_jml2_to_mj_sub
+  end procedure devtens2scal_jml2_to_mj_sub
   
 end submodule devtens_to_scal

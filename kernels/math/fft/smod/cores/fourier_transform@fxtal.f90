@@ -1,11 +1,8 @@
 submodule (fourier_transform) fxtal
   implicit none; contains
   
-  module pure subroutine fxztal(this, m, x)
-    class(T_fft),   intent(in)    :: this
-    integer,        intent(in)    :: m
-    real(kind=dbl), intent(inout) :: x(*)
-    integer                       :: itsum, it1, l, ip, isd, ld, k1, icdd, it1d
+  module procedure fxztal
+    integer :: itsum, it1, l, ip, isd, ld, k1, icdd, it1d
     
     l     = this%n/2
     it1   = this%it(l-1)
@@ -48,6 +45,6 @@ submodule (fourier_transform) fxtal
       it1d = it1d / 4
     end do
     
-  end subroutine fxztal
+  end procedure fxztal
   
 end submodule fxtal

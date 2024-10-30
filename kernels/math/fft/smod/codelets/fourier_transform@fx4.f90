@@ -1,12 +1,9 @@
 submodule (fourier_transform) fx4
   implicit none; contains
   
-  module pure subroutine fxzm4a(m, k, l, x, t)
-    integer,        intent(in)    :: m, k, l
-    REAL(kind=dbl), intent(in)    :: t(2,0:*)
-    real(kind=dbl), intent(inout) :: x(m,2,l/4,0:3,0:k-1)
-    integer                       :: i, j, ij, iv
-    real(kind=dbl)                :: x0re, x0im, x1re, x1im, x2re, x2im, x3re, x3im, t1re, t1im, t2re, t2im
+  module procedure fxzm4a
+    integer        :: i, j, ij, iv
+    real(kind=dbl) :: x0re, x0im, x1re, x1im, x2re, x2im, x3re, x3im, t1re, t1im, t2re, t2im
     
     ij = 0
     
@@ -40,13 +37,11 @@ submodule (fourier_transform) fx4
       ij = ij + 3
     end do
     
-  end subroutine fxzm4a
+  end procedure fxzm4a
   
-  module pure subroutine fxzm4b(m, l, x)
-    integer,        intent(in)    :: m, l
-    real(kind=dbl), intent(inout) :: x(m,2,l/4,0:3)
-    integer                       :: i, iv
-    real(kind=dbl)                :: x0re, x0im, x1re, x1im, x2re, x2im, x3re, x3im
+  module procedure fxzm4b
+    integer        :: i, iv
+    real(kind=dbl) :: x0re, x0im, x1re, x1im, x2re, x2im, x3re, x3im
     
     do concurrent ( i = 1:l/4 , iv = 1:m )
       x2re = x(iv,1,i,0) - x(iv,1,i,2)
@@ -68,6 +63,6 @@ submodule (fourier_transform) fx4
       x(iv,2,i,3) = 2 * x2im - x(iv,2,i,1)       
     end do
     
-  end subroutine fxzm4b
+  end procedure fxzm4b
   
 end submodule fx4

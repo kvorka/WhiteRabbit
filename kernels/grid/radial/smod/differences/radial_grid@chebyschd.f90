@@ -1,9 +1,7 @@
 submodule (radial_grid) chebyschd
   implicit none; contains
   
-  module pure real(kind=dbl) function d(this, i, p)
-    class(T_radialGrid), intent(in) :: this
-    integer,             intent(in) :: i, p
+  module procedure d
     
     if ( i == 1 ) then
       select case (p)
@@ -82,11 +80,9 @@ submodule (radial_grid) chebyschd
       end select
     end if
 
-  end function d
+  end procedure d
   
-  module pure real(kind=dbl) function dd(this, i, p)
-    class(T_radialGrid), intent(in) :: this
-    integer,             intent(in) :: i, p
+  module procedure dd
     
     if ( i == 2 ) then
       select case (p)
@@ -165,11 +161,9 @@ submodule (radial_grid) chebyschd
       end select
     end if
 
-  end function dd
+  end procedure dd
   
-  module pure real(kind=dbl) function drr(this, i, p)
-    class(T_radialGrid), intent(in) :: this
-    integer,             intent(in) :: i, p
+  module procedure drr
     
     select case (p)
       case (-1)
@@ -184,6 +178,6 @@ submodule (radial_grid) chebyschd
         
     end select
     
-  end function drr
+  end procedure drr
   
 end submodule chebyschd

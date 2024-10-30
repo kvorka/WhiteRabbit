@@ -20,11 +20,10 @@ submodule (lege_poly) roots
     
   end function lege_fn
   
-  module subroutine find_roots_sub(this)
-    class(T_legep), intent(inout) :: this
-    integer                       :: i, n, ncnt
-    real(kind=qbl)                :: xincr, x1, fx1, x2, fx2, root, froot
-    real(kind=qbl), allocatable   :: xclose(:)
+  module procedure find_roots_sub
+    integer                     :: i, n, ncnt
+    real(kind=qbl)              :: xincr, x1, fx1, x2, fx2, root, froot
+    real(kind=qbl), allocatable :: xclose(:)
     
     !!**********************************************************************!!
     !!* Close to roots array holder and holder arrays.                     *!!
@@ -102,6 +101,6 @@ submodule (lege_poly) roots
     !!**********************************************************************!!
     deallocate( xclose )
     
-  end subroutine find_roots_sub
+  end procedure find_roots_sub
   
 end submodule roots

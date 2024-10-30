@@ -1,9 +1,7 @@
 submodule (radial_grid) interpd
   implicit none ; contains
   
-  module pure real(kind=dbl) function c(this, i, p)
-    class(T_radialGrid), intent(in) :: this
-    integer,             intent(in) :: i, p
+  module procedure c
     
     select case (p)
       case (-1)
@@ -14,11 +12,9 @@ submodule (radial_grid) interpd
       
     end select
     
-  end function c
+  end procedure c
   
-  module pure real(kind=dbl) function cc(this, i, p)
-    class(T_radialGrid), intent(in) :: this
-    integer,             intent(in) :: i, p
+  module procedure cc
     
     select case (p)
       case (-1)
@@ -29,6 +25,6 @@ submodule (radial_grid) interpd
       
     end select
     
-  end function cc
+  end procedure cc
   
 end submodule interpd

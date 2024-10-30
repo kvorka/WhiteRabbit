@@ -1,12 +1,9 @@
 submodule (fourier_transform) fxshf
   implicit none; contains
   
-  module pure subroutine fxzshf(this, m, x)
-    class(T_fft),   intent(in)    :: this
-    integer,        intent(in)    :: m
-    real(kind=dbl), intent(inout) :: x(m,2,0:this%n/2-1)
-    integer                       :: i, iv, j, isj, isj2
-    real(kind=dbl), allocatable   :: y(:,:)
+  module procedure fxzshf
+    integer                     :: i, iv, j, isj, isj2
+    real(kind=dbl), allocatable :: y(:,:)
     
     allocate( y(m,2) )
     
@@ -46,6 +43,6 @@ submodule (fourier_transform) fxshf
     
     deallocate( y )
     
-  end subroutine fxzshf
+  end procedure fxzshf
   
 end submodule fxshf

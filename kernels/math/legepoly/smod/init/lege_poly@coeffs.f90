@@ -1,9 +1,8 @@
 submodule (lege_poly) coeffs
   implicit none; contains
   
-  module pure subroutine compute_coeffs_sub(this)
-    class(T_legep), intent(inout) :: this
-    integer                       :: im, ij, imj
+  module procedure compute_coeffs_sub
+    integer :: im, ij, imj
     
     allocate( this%amj((this%jmax+2)*(this%jmax+1)/2), &
             & this%bmj((this%jmax+2)*(this%jmax+1)/2), &
@@ -30,6 +29,6 @@ submodule (lege_poly) coeffs
       end do
     end do
     
-  end subroutine compute_coeffs_sub
+  end procedure compute_coeffs_sub
   
 end submodule coeffs

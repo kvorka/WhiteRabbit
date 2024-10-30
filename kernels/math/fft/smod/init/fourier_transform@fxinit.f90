@@ -1,12 +1,9 @@
 submodule (fourier_transform) fxinit
   implicit none; contains
   
-  module pure subroutine fxzini(n, it, t)
-    integer,        intent(in)  :: n
-    integer,        intent(out) :: it(n)
-    real(kind=dbl), intent(out) :: t(2,0:n-1)
-    integer                     :: j, k, l, i, is, ic, i4, it1, isj, ipc, ip, ipd
-    integer,        allocatable :: ipn(:), itc(:), itw(:), iw(:)
+  module procedure fxzini
+    integer              :: j, k, l, i, is, ic, i4, it1, isj, ipc, ip, ipd
+    integer, allocatable :: ipn(:), itc(:), itw(:), iw(:)
     
     allocate( ipn(4), itc(2:5), itw(0:n-1) , iw(n-2) ) ; ipn = [5,4,3,2] ; t = zero ; iw = 0 ; itw = 0
     
@@ -100,6 +97,6 @@ submodule (fourier_transform) fxinit
       
     deallocate( ipn, itc, itw , iw )
     
-  end subroutine fxzini
+  end procedure fxzini
   
 end submodule fxinit

@@ -1,11 +1,9 @@
 submodule (radial_grid) rradint
   implicit none; contains
   
-  module pure real(kind=dbl) function radial_integral_real_fn(this, field)
-    class(T_radialGrid), intent(in) :: this
-    real(kind=dbl),      intent(in) :: field(:)
-    integer                         :: i
-    real(kind=dbl), allocatable     :: field_help(:)
+  module procedure radial_integral_real_fn
+    integer                     :: i
+    real(kind=dbl), allocatable :: field_help(:)
     
     allocate( field_help(2:this%nd) )
       
@@ -27,6 +25,6 @@ submodule (radial_grid) rradint
       
     deallocate( field_help )
     
-  end function radial_integral_real_fn
+  end procedure radial_integral_real_fn
   
 end submodule rradint

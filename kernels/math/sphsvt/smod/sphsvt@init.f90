@@ -1,9 +1,7 @@
 submodule (sphsvt) init
   implicit none; contains
   
-  module pure subroutine init_sphsvt_sub(this, jmax)
-    class(T_sphsvt), intent(inout) :: this
-    integer,         intent(in)    :: jmax
+  module procedure init_sphsvt_sub
     
     this%jmax  = jmax
     this%jmax1 = jmax+1
@@ -17,6 +15,6 @@ submodule (sphsvt) init
     this%jmv  = 3 * ( jmax   *(jmax+1)/2 +  jmax   ) + 1
     this%jmv1 = 3 * ((jmax+1)*(jmax+2)/2 + (jmax+1)) + 1
     
-  end subroutine init_sphsvt_sub
+  end procedure init_sphsvt_sub
   
 end submodule init

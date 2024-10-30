@@ -1,11 +1,9 @@
 submodule (radial_grid) cradint
   implicit none; contains
   
-  module pure complex(kind=dbl) function radial_integral_cmplx_fn(this, field)
-    class(T_radialGrid), intent(in) :: this
-    complex(kind=dbl),   intent(in) :: field(:)
-    integer                         :: i
-    complex(kind=dbl),  allocatable :: field_help(:)
+  module procedure radial_integral_cmplx_fn
+    integer                        :: i
+    complex(kind=dbl), allocatable :: field_help(:)
     
     allocate( field_help(2:this%nd) )
       
@@ -27,6 +25,6 @@ submodule (radial_grid) cradint
       
     deallocate( field_help )
     
-  end function radial_integral_cmplx_fn
+  end procedure radial_integral_cmplx_fn
   
 end submodule cradint

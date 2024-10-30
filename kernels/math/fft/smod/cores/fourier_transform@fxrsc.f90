@@ -1,13 +1,9 @@
 submodule (fourier_transform) fxrsc
   implicit none; contains
   
-  module pure subroutine fxzrsc(this, m, x, sgn, fac)
-    class(T_fft),   intent(in)    :: this
-    integer,        intent(in)    :: m, sgn
-    real(kind=dbl), intent(in)    :: fac
-    real(kind=dbl), intent(inout) :: x(m,2,0:this%n/2-1)
-    integer                       :: i, iv, in
-    real(kind=dbl)                :: tempre, tempim, addre, addim, subre, subim, fac2, t1, t2
+  module procedure fxzrsc
+    integer        :: i, iv, in
+    real(kind=dbl) :: tempre, tempim, addre, addim, subre, subim, fac2, t1, t2
     
     do concurrent ( iv = 1:m )
       tempre    =          x(iv,1,0)
@@ -45,6 +41,6 @@ submodule (fourier_transform) fxrsc
       end do
     end if
     
-  end subroutine fxzrsc
+  end procedure fxzrsc
   
 end submodule fxrsc

@@ -1,11 +1,9 @@
 submodule (matrix) lu_solve
   implicit none; contains
   
-  module pure subroutine lu_solve_sub(this, b)
-    class(T_matrix),   intent(in)    :: this
-    complex(kind=dbl), intent(inout) :: b(this%n)
-    integer                          :: i, j
-    complex(kind=dbl)                :: dum
+  module procedure lu_solve_sub
+    integer           :: i, j
+    complex(kind=dbl) :: dum
     
     do j = 1, this%n
       i   = this%I(j)
@@ -30,6 +28,6 @@ submodule (matrix) lu_solve
       b(i) = dum / this%U(1,i)
     end do
     
-  end subroutine lu_solve_sub
+  end procedure lu_solve_sub
   
 end submodule lu_solve

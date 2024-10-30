@@ -1,9 +1,7 @@
 submodule (matrix) init
   implicit none; contains
   
-  module pure subroutine init_matrix_sub(this, n, ld, lu)
-    class(T_matrix), intent(inout) :: this
-    integer,         intent(in)    :: n, ld, lu
+  module procedure init_matrix_sub
     
     this%n   = n
     this%ld  = ld
@@ -15,13 +13,12 @@ submodule (matrix) init
     allocate( this%L( this%ld , this%n ) ) ; this%L = zero
     allocate( this%I( this%n )           ) ; this%I = 0
     
-  end subroutine init_matrix_sub
+  end procedure init_matrix_sub
   
-  module pure subroutine deallocate_matrix_sub(this)
-    class(T_matrix), intent(inout) :: this
+  module procedure deallocate_matrix_sub
     
     deallocate( this%M, this%U, this%L, this%I )
     
-  end subroutine deallocate_matrix_sub
+  end procedure deallocate_matrix_sub
   
 end submodule init

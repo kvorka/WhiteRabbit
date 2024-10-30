@@ -1,27 +1,17 @@
 submodule (lege_poly) step8f
   implicit none; contains
   
-  module pure subroutine forward_sum_8_sub(this, nf, legep, legesum, cr)
-    class(T_legep),    intent(in)    :: this
-    integer,           intent(in)    :: nf
-    real(kind=dbl),    intent(in)    :: legep(8)
-    complex(kind=dbl), intent(in)    :: legesum(8,nf)
-    complex(kind=dbl), intent(inout) :: cr(nf)
-    integer                          :: i1
+  module procedure forward_sum_8_sub
+    integer :: i1
     
     do concurrent ( i1=1:nf )
       cr(i1) = cr(i1) + sum( legep(1:8) * legesum(1:8,i1) )
     end do
     
-  end subroutine forward_sum_8_sub
+  end procedure forward_sum_8_sub
   
-  module pure subroutine forward_rcb_8_sub(this, nf, w, sumN, sumS, sumsym, sumasym)
-    class(T_legep),    intent(in)  :: this
-    integer,           intent(in)  :: nf
-    real(kind=dbl),    intent(in)  :: w(8)
-    real(kind=dbl),    intent(in)  :: sumN(8,nf,2), sumS(8,nf,2)
-    complex(kind=dbl), intent(out) :: sumsym(8,nf), sumasym(8,nf)
-    integer                        :: i1, i2
+  module procedure forward_rcb_8_sub
+    integer :: i1, i2
     
     do concurrent ( i2 = 1:nf, i1 = 1:8 )
       sumsym(i1,i2)  = cmplx( sumN(i1,i2,1) + sumS(i1,i2,1), sumN(i1,i2,2) + sumS(i1,i2,2), kind=dbl )
@@ -33,16 +23,12 @@ submodule (lege_poly) step8f
       sumasym(i1,i2) = w(i1) * sumasym(i1,i2)
     end do
     
-  end subroutine forward_rcb_8_sub
+  end procedure forward_rcb_8_sub
   
-  module pure subroutine forward_legesum_8_sub(this, it, nf, sumN, sumS, cr)
-    class(T_legep),    intent(in)    :: this
-    integer,           intent(in)    :: it, nf
-    real(kind=dbl),    intent(in)    :: sumN(8,nf,2,0:this%jmax), sumS(8,nf,2,0:this%jmax)
-    complex(kind=dbl), intent(inout) :: cr(nf,*)
-    integer                          :: j, m, mj, i2
-    real(kind=dbl),    allocatable   :: pmj2(:), pmj1(:), pmj0(:), pmm(:), csx(:), snx(:), wgx(:)
-    complex(kind=dbl), allocatable   :: ssm(:), asm(:)
+  module procedure forward_legesum_8_sub
+    integer                        :: j, m, mj, i2
+    real(kind=dbl),    allocatable :: pmj2(:), pmj1(:), pmj0(:), pmm(:), csx(:), snx(:), wgx(:)
+    complex(kind=dbl), allocatable :: ssm(:), asm(:)
     
     allocate( pmj2(8), pmj1(8), pmj0(8), pmm(8), csx(8), snx(8), wgx(8), ssm(8*nf), asm(8*nf) )
     
@@ -79,6 +65,6 @@ submodule (lege_poly) step8f
     
     deallocate( pmj2, pmj1, pmj0, pmm, csx, snx, wgx, asm, ssm )
     
-  end subroutine forward_legesum_8_sub
+  end procedure forward_legesum_8_sub
   
 end submodule step8f

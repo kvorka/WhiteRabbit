@@ -1,11 +1,9 @@
 submodule (radial_grid) rvolint
   implicit none; contains
   
-  module pure real(kind=dbl) function volumetric_integral_real_fn(this, field)
-    class(T_radialGrid), intent(in) :: this
-    real(kind=dbl),      intent(in) :: field(:)
-    integer                         :: i
-    real(kind=dbl),     allocatable :: field_help(:)
+  module procedure volumetric_integral_real_fn
+    integer                     :: i
+    real(kind=dbl), allocatable :: field_help(:)
     
     allocate( field_help(2:this%nd) )
       
@@ -27,6 +25,6 @@ submodule (radial_grid) rvolint
     
     deallocate( field_help )
     
-  end function volumetric_integral_real_fn
+  end procedure volumetric_integral_real_fn
   
 end submodule rvolint

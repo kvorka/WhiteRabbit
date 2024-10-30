@@ -1,15 +1,10 @@
 submodule (sphsvt) gradvec_to_vec
   implicit none; contains
   
-  module pure subroutine gradvec2vec_jmlk_to_jml_sub(this, ri, v, dv_r, cab, ncab, cabpadding)
-    class(T_sphsvt),   intent(in)    :: this
-    integer,           intent(in)    :: cabpadding, ncab
-    real(kind=dbl),    intent(in)    :: ri
-    complex(kind=dbl), intent(in)    :: v(*), dv_r(*)
-    complex(kind=dbl), intent(inout) :: cab(ncab,*)
-    integer                          :: j, m, l, lmj, ijml, i1
-    real(kind=dbl)                   :: cleb, fac1, fac2, fac3, fac4
-    complex(kind=dbl), allocatable   :: sum1(:), sum2(:), sum3(:)
+  module procedure gradvec2vec_jmlk_to_jml_sub
+    integer                        :: j, m, l, lmj, ijml, i1
+    real(kind=dbl)                 :: cleb, fac1, fac2, fac3, fac4
+    complex(kind=dbl), allocatable :: sum1(:), sum2(:), sum3(:)
     
     allocate( sum1(2), sum2(2), sum3(2) )
     
@@ -90,6 +85,6 @@ submodule (sphsvt) gradvec_to_vec
     
     deallocate( sum1, sum2, sum3 )
     
-  end subroutine gradvec2vec_jmlk_to_jml_sub
+  end procedure gradvec2vec_jmlk_to_jml_sub
   
 end submodule gradvec_to_vec
