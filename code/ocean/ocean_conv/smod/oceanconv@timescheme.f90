@@ -2,8 +2,7 @@ submodule (oceanconv) timescheme
   implicit none; contains
   
   module procedure time_scheme_oceanConv_sub
-    integer        :: ir, ijm
-    real(kind=dbl) :: dt
+    integer :: ir, ijm
     
     !ir = 1 ; ijm = 1
       this%rtemp(1,1) = cs4pi
@@ -15,7 +14,7 @@ submodule (oceanconv) timescheme
     end do
     !$omp end do
 
-    !$omp do collapse (2)
+    !$omp do collapse (2) schedule (dynamic, ocean_chunk_size)
     do ijm = 1, this%jms
       do ir = 2, this%nd
         this%rtemp(ir,ijm) = (1-this%ab) * this%ntemp(ijm,ir)
@@ -29,7 +28,7 @@ submodule (oceanconv) timescheme
     
     call this%fullnl_sub()
     
-    !$omp parallel do collapse (2)
+    !$omp parallel do collapse (2) schedule (dynamic, ocean_chunk_size)
     do ijm = 1, this%jms
       do ir = 2, this%nd
         this%rtemp(ir,ijm) = this%rtemp(ir,ijm) + this%ab * this%ntemp(ijm,ir)

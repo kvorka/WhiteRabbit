@@ -69,11 +69,10 @@ submodule (ocean) nonlin
     real(kind=dbl)                 :: fac
     complex(kind=dbl), allocatable :: v(:), dv(:), T(:), gradT(:), nlm(:,:)
     
-    allocate( v(this%jmv) , dv(this%jmv),    &
-            & T(this%jms) , gradT(this%jmv), &
-            & nlm(4,this%jms) )
+    !$omp parallel private (v, dv, T, gradT, ijm, fac, nlm)
+    allocate( v(this%jmv), dv(this%jmv), T(this%jms), gradT(this%jmv), nlm(4,this%jms) )
     
-    !$omp parallel do private (v, dv, T, gradT, ijm, fac, nlm)
+    !$omp do schedule (dynamic, ocean_chunk_size)
     do ir = 2, this%nd
       call this%dv_dr_rr_jml_sub(ir, v, dv)
       call this%gradT_rr_ijml_sub(ir, T, gradT, -1)
@@ -101,9 +100,10 @@ submodule (ocean) nonlin
         this%nsph2(ijm,ir) = nlm(4,ijm)
       end do
     end do
-    !$omp end parallel do
+    !$omp end do
     
     deallocate( v , dv, T , gradT, nlm )
+    !$omp end parallel
     
   end procedure fullnl_ocean_sub
   

@@ -1,6 +1,7 @@
 module ocean
   use physicalobject
   use ocean_constants
+  use omp_lib
   implicit none
 
   type, extends(T_physicalObject), abstract, public :: T_ocean

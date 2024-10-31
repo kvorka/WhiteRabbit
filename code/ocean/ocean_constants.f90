@@ -38,4 +38,15 @@ module ocean_constants
   integer, parameter :: nd_init_ocean = 73
   integer, parameter :: jmax_init_ocean = 186
   
-  end module ocean_constants
+  !Pomocna ruka paralelizacii
+  integer, protected :: ocean_chunk_size
+  
+  contains
+  
+  module subroutine set_chunk_ocean()
+    
+    ocean_chunk_size = (nd_ocean-1) / omp_get_max_threads()
+    
+  end subroutine set_chunk_ocean
+  
+end module ocean_constants

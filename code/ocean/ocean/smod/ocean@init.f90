@@ -27,6 +27,8 @@ submodule (ocean) init
     open(unit=11, file='data/Nuss.dat', status='new', action='write')
     open(unit=12, file='data/Laws.dat', status='new', action='write')
     
+    call set_chunk_ocean()
+    
   end procedure init_ocean_sub
   
   module procedure deallocate_ocean_sub
