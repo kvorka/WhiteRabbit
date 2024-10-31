@@ -1,10 +1,9 @@
 submodule (ocean) iter
   implicit none; contains
   
-  module subroutine iter_ocean_sub(this)
-    class(T_ocean), intent(inout) :: this
-    integer                       :: k, ijm
-    real(kind=dbl)                :: avrg_flux
+  module procedure iter_ocean_sub
+    integer        :: k, ijm
+    real(kind=dbl) :: avrg_flux
     
     call zero_carray_sub( this%jms, this%bnd%flux_up )
     
@@ -29,17 +28,16 @@ submodule (ocean) iter
     
     call this%vypis_ocean_sub()
     
-  end subroutine iter_ocean_sub
+  end procedure iter_ocean_sub
   
-  module subroutine speed_sub(this)
-    class(T_ocean), intent(inout) :: this
-    integer                       :: k
+  module procedure speed_sub
+    integer :: k
     
     do k = 1, this%n_iter
       this%t = this%t + this%dt
         call this%time_scheme_sub()
     end do
     
-  end subroutine speed_sub
+  end procedure speed_sub
   
 end submodule iter

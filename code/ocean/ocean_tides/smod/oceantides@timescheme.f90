@@ -1,9 +1,8 @@
 submodule (oceantides) timescheme
   implicit none; contains
   
-  module subroutine time_scheme_oceanTides_sub(this)
-    class(T_oceanTides), intent(inout) :: this
-    integer                            :: ir, ijm
+  module procedure time_scheme_oceanTides_sub
+    integer :: ir, ijm
     
     !$omp parallel do collapse (2)
     do ijm = 1, this%jms
@@ -55,6 +54,6 @@ submodule (oceantides) timescheme
     call this%solve_torr_sub( ijmstart=2 , ijmend=this%jms, ijmstep=1, rematrix=.false., matxsol=.true. )
     call this%solve_mech_sub( ijmstart=2 , ijmend=this%jms, ijmstep=1, rematrix=.false., matxsol=.true. )
     
-  end subroutine time_scheme_oceanTides_sub
+  end procedure time_scheme_oceanTides_sub
   
 end submodule timescheme

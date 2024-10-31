@@ -1,10 +1,7 @@
 submodule (icecrust) nonlin
   implicit none; contains
   
-  module subroutine mvgradT_sub(this, ir, mvgradT)
-    class(T_iceCrust), intent(in)  :: this
-    integer,           intent(in)  :: ir
-    complex(kind=dbl), intent(out) :: mvgradT(:)
+  module procedure mvgradT_sub
     complex(kind=dbl), allocatable :: v(:), T(:), gradT(:)
     
     allocate( v(this%jmv), T(this%jms), gradT(this%jmv) )
@@ -16,12 +13,9 @@ submodule (icecrust) nonlin
     
     deallocate( v, T, gradT )
     
-  end subroutine mvgradT_sub
+  end procedure mvgradT_sub
   
-  module subroutine cpdivq_sub(this, ir, cpdivq)
-    class(T_iceCrust), intent(in)  :: this
-    integer,           intent(in)  :: ir
-    complex(kind=dbl), intent(out) :: cpdivq(:)
+  module procedure cpdivq_sub
     integer                        :: ijm
     complex(kind=dbl), allocatable :: divq(:), cp(:)
     
@@ -34,12 +28,11 @@ submodule (icecrust) nonlin
       
     deallocate( divq )
     
-  end subroutine cpdivq_sub
+  end procedure cpdivq_sub
   
-  module subroutine mvgradT_cpdivq_sub(this)
-    class(T_iceCrust), intent(inout) :: this
-    integer                          :: ir
-    complex(kind=dbl), allocatable   :: v(:), T(:), gradT(:), divq(:), cp(:)
+  module procedure mvgradT_cpdivq_sub
+    integer                        :: ir
+    complex(kind=dbl), allocatable :: v(:), T(:), gradT(:), divq(:), cp(:)
     
     allocate( v(this%jmv), T(this%jms), gradT(this%jmv), divq(this%jms), cp(this%jms) )
     
@@ -56,6 +49,6 @@ submodule (icecrust) nonlin
     
     deallocate( v, T, gradT, divq, cp )
     
-  end subroutine mvgradT_cpdivq_sub
+  end procedure mvgradT_cpdivq_sub
   
 end submodule nonlin

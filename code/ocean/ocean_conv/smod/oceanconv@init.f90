@@ -1,8 +1,7 @@
 submodule (oceanconv) init
   implicit none; contains
   
-  module subroutine init_oceanConv_sub(this)
-    class(T_oceanConv), intent(inout) :: this
+  module procedure init_oceanConv_sub
     
     call this%init_ocean_sub()
     
@@ -27,6 +26,6 @@ submodule (oceanconv) init
     
     call this%init_state_sub()
     
-  end subroutine init_oceanConv_sub
+  end procedure init_oceanConv_sub
   
 end submodule init

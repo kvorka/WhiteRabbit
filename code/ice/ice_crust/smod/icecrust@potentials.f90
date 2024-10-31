@@ -1,9 +1,7 @@
 submodule (icecrust) potentials
   implicit none; contains
   
-  module pure complex(kind=dbl) function Vdelta_iceCrust_fn(this, ir, ijm)
-    class(T_iceCrust),  intent(in) :: this
-    integer,            intent(in) :: ir, ijm
+  module procedure Vdelta_iceCrust_fn
     integer                        :: k, j, m
     real(kind=dbl)                 :: ri, fac
     complex(kind=dbl), allocatable :: field(:)
@@ -36,14 +34,13 @@ submodule (icecrust) potentials
     
     if ( m == 0 ) Vdelta_iceCrust_fn%im = zero
     
-  end function Vdelta_iceCrust_fn
+  end procedure Vdelta_iceCrust_fn
   
-  module subroutine set_layers_iceCrust_sub(this)
-    class(T_iceCrust), intent(inout) :: this
-    integer                          :: ir, j, m, ijm
-    real(kind=dbl)                   :: a11, a12, a21, a22, det, fac
-    complex(kind=dbl)                :: rhs1, rhs2
-    complex(kind=dbl), allocatable   :: field(:)
+  module procedure set_layers_iceCrust_sub
+    integer                        :: ir, j, m, ijm
+    real(kind=dbl)                 :: a11, a12, a21, a22, det, fac
+    complex(kind=dbl)              :: rhs1, rhs2
+    complex(kind=dbl), allocatable :: field(:)
     
     fac = -this%rhoI * this%alphaU * (this%Td-this%Tu) ; rhs1 = czero ; rhs2 = czero
     
@@ -87,6 +84,6 @@ submodule (icecrust) potentials
     
     deallocate(field)
     
-  end subroutine set_layers_iceCrust_sub
+  end procedure set_layers_iceCrust_sub
   
 end submodule potentials

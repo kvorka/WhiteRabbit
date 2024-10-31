@@ -1,8 +1,7 @@
 submodule (oceanice) init
   implicit none; contains
   
-  module subroutine init_oceanice_sub(this)
-    class(T_oceanice), intent(inout) :: this
+  module procedure init_oceanice_sub
     
     call this%init_ocean_sub()
     
@@ -29,6 +28,6 @@ submodule (oceanice) init
     
     call this%init_state_sub()
     
-  end subroutine init_oceanice_sub
+  end procedure init_oceanice_sub
   
 end submodule init

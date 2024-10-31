@@ -1,9 +1,8 @@
 submodule (oceantides) iter
   implicit none; contains
   
-  module subroutine iter_oceanTides_sub(this)
-    class(T_oceanTides), intent(inout) :: this
-    integer                            :: k
+  module procedure iter_oceanTides_sub
+    integer :: k
     
     this%heating = zero; this%number_of_periods = this%number_of_periods + 1
 
@@ -16,6 +15,6 @@ submodule (oceantides) iter
 
     call vypis_oceanTides_sub(this)
 
-  end subroutine iter_oceanTides_sub
+  end procedure iter_oceanTides_sub
   
 end submodule iter

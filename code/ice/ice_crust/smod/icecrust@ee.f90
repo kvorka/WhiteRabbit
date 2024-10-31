@@ -1,11 +1,9 @@
 submodule (icecrust) ee
   implicit none; contains
   
-  module subroutine EE_iceCrust_sub(this, flux_bnd)
-    class(T_iceCrust),           intent(inout) :: this
-    complex(kind=dbl), optional, intent(in)    :: flux_bnd(:)
-    integer                                    :: ijm
-    complex(kind=dbl), allocatable             :: flux(:)
+  module procedure EE_iceCrust_sub
+    integer                        :: ijm
+    complex(kind=dbl), allocatable :: flux(:)
     
     this%t = this%t + this%dt
     
@@ -54,13 +52,11 @@ submodule (icecrust) ee
     
     deallocate( flux )
     
-  end subroutine EE_iceCrust_sub
+  end procedure EE_iceCrust_sub
   
-  module subroutine EE_temp_iceCrust_sub(this, flux)
-    class(T_iceCrust), intent(inout) :: this
-    complex(kind=dbl), intent(inout) :: flux(:)
-    integer                          :: ir, ijm
-    real(kind=dbl)                   :: gradTCoeff
+  module procedure EE_temp_iceCrust_sub
+    integer        :: ir, ijm
+    real(kind=dbl) :: gradTCoeff
     
     !! At first, solve for degree zero in order to find the new heat flux
     ijm = 1
@@ -100,12 +96,10 @@ submodule (icecrust) ee
     
     call this%solve_temp_sub( ijmstart=2, ijmend=this%jms, ijmstep=1, rematrix=.true., matxsol=.true. )
     
-  end subroutine EE_temp_iceCrust_sub
+  end procedure EE_temp_iceCrust_sub
   
-  module subroutine EE_mech_iceCrust_sub(this, flux)
-    class(T_iceCrust), intent(inout) :: this
-    complex(kind=dbl), intent(in)    :: flux(:)
-    integer                          :: ir, ij, ijm
+  module procedure EE_mech_iceCrust_sub
+    integer :: ir, ij, ijm
     
     !$omp parallel do private (ir,ij)
     do ijm = 2, this%jms
@@ -129,6 +123,6 @@ submodule (icecrust) ee
 
     call this%solve_mech_sub( ijmstart=2, ijmend=this%jms, ijmstep=1, rematrix=.true., matxsol=.true. )
     
-  end subroutine EE_mech_iceCrust_sub
+  end procedure EE_mech_iceCrust_sub
   
 end submodule ee

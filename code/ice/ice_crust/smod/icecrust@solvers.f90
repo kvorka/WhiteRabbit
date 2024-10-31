@@ -1,12 +1,11 @@
 submodule (icecrust) solvers
   implicit none; contains
   
-  module subroutine solve_conduction_iceCrust_sub(this)
-    class(T_iceCrust), intent(inout) :: this
-    integer                          :: ir, ijm
-    real(kind=dbl)                   :: dT_T
-    complex(kind=dbl), allocatable   :: Temp1(:), Temp2(:)
-    character(len=5)                 :: thermal_bnd
+  module procedure solve_conduction_iceCrust_sub
+    integer                        :: ir, ijm
+    real(kind=dbl)                 :: dT_T
+    complex(kind=dbl), allocatable :: Temp1(:), Temp2(:)
+    character(len=5)               :: thermal_bnd
     
     !!Seeking for conduction solution with zero rhs 
     !!does not require time stepping
@@ -76,14 +75,12 @@ submodule (icecrust) solvers
     call this%set_cp_sub()
     call this%set_visc_sub()
     
-  end subroutine solve_conduction_iceCrust_sub
+  end procedure solve_conduction_iceCrust_sub
   
-  module subroutine solve_iceCrust_sub(this, flux)
-    class(T_iceCrust), intent(inout) :: this
-    complex(kind=dbl), intent(in)    :: flux(:)
-    integer                          :: ir
-    real(kind=dbl)                   :: du_u
-    complex(kind=dbl), allocatable   :: u_up1(:)
+  module procedure solve_iceCrust_sub
+    integer                        :: ir
+    real(kind=dbl)                 :: du_u
+    complex(kind=dbl), allocatable :: u_up1(:)
     
     !! Seek for conductive solution with zero rhs at first
     call this%solve_conduction_sub()
@@ -124,12 +121,10 @@ submodule (icecrust) solvers
     
     deallocate( u_up1 )
     
-  end subroutine solve_iceCrust_sub
+  end procedure solve_iceCrust_sub
   
-  module subroutine iter_iceCrust_sub(this, flux_bnd)
-    class(T_iceCrust), intent(inout) :: this
-    complex(kind=dbl), intent(in)    :: flux_bnd(:)
-    integer                          :: n
+  module procedure iter_iceCrust_sub
+    integer :: n
     
     do n = 1, this%n_iter
       call this%EE_sub( flux_bnd = flux_bnd )
@@ -137,6 +132,6 @@ submodule (icecrust) solvers
 
     call vypis_iceCrust_sub(this)
     
-  end subroutine iter_iceCrust_sub
+  end procedure iter_iceCrust_sub
   
 end submodule solvers

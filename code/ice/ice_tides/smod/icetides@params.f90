@@ -1,12 +1,11 @@
 submodule (icetides) params
   implicit none; contains
   
-  module subroutine visc_iceTides_jm_sub(this)
-    class(T_iceTides), intent(inout) :: this
-    integer                          :: ir, i1, i2, i3
-    real(kind=dbl)                   :: visc
-    real(kind=dbl),    allocatable   :: grid(:,:,:)
-    complex(kind=dbl), allocatable   :: visc_jm(:), cc_mj(:)
+  module procedure visc_iceTides_jm_sub
+    integer                        :: ir, i1, i2, i3
+    real(kind=dbl)                 :: visc
+    real(kind=dbl),    allocatable :: grid(:,:,:)
+    complex(kind=dbl), allocatable :: visc_jm(:), cc_mj(:)
     
     if ( this%mparams%initvisc ) then
       if ( this%mparams%visc_radial) then
@@ -25,6 +24,6 @@ submodule (icetides) params
       end if
     end if
     
-  end subroutine visc_iceTides_jm_sub
+  end procedure visc_iceTides_jm_sub
   
 end submodule params

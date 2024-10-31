@@ -1,11 +1,9 @@
 submodule (icetides) solvers
   implicit none; contains
   
-  module subroutine compute_iceTides_sub(this, visc_prof)
-    class(T_iceTides), intent(inout) :: this
-    complex(kind=dbl), intent(in)    :: visc_prof(:,:)
-    integer                          :: ijm, ir, n
-    real(kind=dbl)                   :: P, Pglobal
+  module procedure compute_iceTides_sub
+    integer        :: ijm, ir, n
+    real(kind=dbl) :: P, Pglobal
     
     call this%sol%nulify_sub() ; Pglobal = zero
     
@@ -44,6 +42,6 @@ submodule (icetides) solvers
         end if
     end do
     
-  end subroutine compute_iceTides_sub
+  end procedure compute_iceTides_sub
   
 end submodule solvers

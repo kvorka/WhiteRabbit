@@ -1,8 +1,7 @@
 submodule (icecrust) init
   implicit none; contains
   
-  module subroutine init_iceCrust_sub(this)
-    class(T_iceCrust), intent(inout) :: this
+  module procedure init_iceCrust_sub
    
     call this%init_ice_sub(jmax_in = jmax_ice, rheol_in = 'viscel', n_iter = n_iter_ice)
     
@@ -25,6 +24,6 @@ submodule (icecrust) init
     
     call this%tides%init_sub()
     
-  end subroutine init_iceCrust_sub
+  end procedure init_iceCrust_sub
   
 end submodule init

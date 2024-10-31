@@ -1,11 +1,10 @@
 submodule (icecrust) params
   implicit none; contains
   
-  module subroutine lambda_iceCrust_jm_sub(this)
-    class(T_iceCrust), intent(inout) :: this
-    integer                          :: ir, ijm, i1, i2, i3
-    real(kind=dbl),    allocatable   :: grid(:,:,:)
-    complex(kind=dbl), allocatable   :: temp_jm(:), cc_mj(:)
+  module procedure lambda_iceCrust_jm_sub
+    integer                        :: ir, ijm, i1, i2, i3
+    real(kind=dbl),    allocatable :: grid(:,:,:)
+    complex(kind=dbl), allocatable :: temp_jm(:), cc_mj(:)
     
     if ( this%mparams%initlambda ) then
 
@@ -57,13 +56,12 @@ submodule (icecrust) params
       end if
     end if
     
-  end subroutine lambda_iceCrust_jm_sub
+  end procedure lambda_iceCrust_jm_sub
   
-  module subroutine cp_iceCrust_jm_sub(this)
-    class(T_iceCrust), intent(inout) :: this
-    integer                          :: ir, ijm, i1, i2, i3
-    real(kind=dbl),    allocatable   :: grid(:,:,:)
-    complex(kind=dbl), allocatable   :: temp_jm(:), cc_mj(:)
+  module procedure cp_iceCrust_jm_sub
+    integer                        :: ir, ijm, i1, i2, i3
+    real(kind=dbl),    allocatable :: grid(:,:,:)
+    complex(kind=dbl), allocatable :: temp_jm(:), cc_mj(:)
     
     if ( this%mparams%initcp ) then
       
@@ -111,13 +109,12 @@ submodule (icecrust) params
       end if
     end if
     
-  end subroutine cp_iceCrust_jm_sub
+  end procedure cp_iceCrust_jm_sub
   
-  module subroutine alpha_iceCrust_jm_sub(this)
-    class(T_iceCrust), intent(inout) :: this
-    integer                          :: ir, ijm, i1, i2, i3
-    real(kind=dbl),    allocatable   :: grid(:,:,:)
-    complex(kind=dbl), allocatable   :: temp_jm(:), cc_mj(:)
+  module procedure alpha_iceCrust_jm_sub
+    integer                        :: ir, ijm, i1, i2, i3
+    real(kind=dbl),    allocatable :: grid(:,:,:)
+    complex(kind=dbl), allocatable :: temp_jm(:), cc_mj(:)
     
     if ( this%mparams%initalpha ) then
 
@@ -165,14 +162,13 @@ submodule (icecrust) params
       end if
     end if
     
-  end subroutine alpha_iceCrust_jm_sub
+  end procedure alpha_iceCrust_jm_sub
   
-  module subroutine visc_iceCrust_jm_sub(this)
-    class(T_iceCrust), intent(inout) :: this
-    integer                          :: ir, i1, i2, i3
-    real(kind=dbl)                   :: avrgstress
-    real(kind=dbl),    allocatable   :: grid(:,:,:)
-    complex(kind=dbl), allocatable   :: temp_jm(:), cc_mj(:)
+  module procedure visc_iceCrust_jm_sub
+    integer                        :: ir, i1, i2, i3
+    real(kind=dbl)                 :: avrgstress
+    real(kind=dbl),    allocatable :: grid(:,:,:)
+    complex(kind=dbl), allocatable :: temp_jm(:), cc_mj(:)
     
     if ( this%mparams%initvisc ) then
       if ( this%mparams%visc_radial) then
@@ -225,14 +221,13 @@ submodule (icecrust) params
       end if
     end if
     
-  end subroutine visc_iceCrust_jm_sub
+  end procedure visc_iceCrust_jm_sub
   
-  module subroutine surfTemp_iceCrust_jm_sub(this)
-    class(T_iceCrust), intent(inout) :: this
-    integer                          :: i1, i2
-    real(kind=dbl)                   :: theta
-    real(kind=dbl),    allocatable   :: grid(:,:,:)
-    complex(kind=dbl), allocatable   :: cc_mj(:)
+  module procedure surfTemp_iceCrust_jm_sub
+    integer                        :: i1, i2
+    real(kind=dbl)                 :: theta
+    real(kind=dbl),    allocatable :: grid(:,:,:)
+    complex(kind=dbl), allocatable :: cc_mj(:)
     
     call this%lat_grid%reindexing%allocate_scalars_sub(1, cc_mj)
     call this%lat_grid%allocate_grid_sub( grid )
@@ -252,6 +247,6 @@ submodule (icecrust) params
     
     deallocate( cc_mj, grid )
     
-  end subroutine surfTemp_iceCrust_jm_sub
+  end procedure surfTemp_iceCrust_jm_sub
   
 end submodule params

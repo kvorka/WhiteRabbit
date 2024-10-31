@@ -1,11 +1,9 @@
 submodule (icetides) potentials
   implicit none; contains
   
-  module pure complex(kind=dbl) function Vdelta_iceTides_fn(this, ir, ijm)
-    class(T_iceTides), intent(in) :: this
-    integer,           intent(in) :: ir, ijm
-    real(kind=dbl)                :: ri
-    integer                       :: j, m
+  module procedure Vdelta_iceTides_fn
+    real(kind=dbl) :: ri
+    integer        :: j, m
     
     j  = this%j_indx(ijm)
     m  = ijm - ( j*(j+1)/2 + 1 )
@@ -19,13 +17,12 @@ submodule (icetides) potentials
     
     Vdelta_iceTides_fn = Vdelta_iceTides_fn / this%gravity%g_fn( ri )
     
-  end function Vdelta_iceTides_fn
+  end procedure Vdelta_iceTides_fn
   
-  module subroutine set_layers_iceTides_sub(this)
-    class(T_iceTides), intent(inout) :: this
-    integer                          :: i, j, m, ijm
-    real(kind=dbl)                   :: a11, a12, a21, a22, det
-    complex(kind=dbl)                :: rhs1, rhs2
+  module procedure set_layers_iceTides_sub
+    integer           :: i, j, m, ijm
+    real(kind=dbl)    :: a11, a12, a21, a22, det
+    complex(kind=dbl) :: rhs1, rhs2
     
     j = 2
     
@@ -53,6 +50,6 @@ submodule (icetides) potentials
       this%bnd%u_C(ijm)  = a11 * rhs2 - a21 * rhs1
     end do
       
-  end subroutine set_layers_iceTides_sub
+  end procedure set_layers_iceTides_sub
   
 end submodule potentials

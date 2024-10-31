@@ -1,10 +1,9 @@
 submodule (ocean) nonlin
   implicit none; contains
   
-  module subroutine coriolis_ocean_sub(this)
-    class(T_ocean),    intent(inout) :: this
-    integer                          :: ir, ijm
-    complex(kind=dbl), allocatable   :: v(:), nlm(:,:)
+  module procedure coriolis_ocean_sub
+    integer                        :: ir, ijm
+    complex(kind=dbl), allocatable :: v(:), nlm(:,:)
     
     allocate( v(this%jmv), nlm(3,this%jms) )
     
@@ -25,13 +24,12 @@ submodule (ocean) nonlin
     
     deallocate( v, nlm )
     
-  end subroutine coriolis_ocean_sub
+  end procedure coriolis_ocean_sub
   
-  module subroutine coriolis_vgradv_ocean_sub(this)
-    class(T_ocean),    intent(inout) :: this
-    integer                          :: ir, ijm
-    real(kind=dbl)                   :: fac
-    complex(kind=dbl), allocatable   :: v(:), dv(:), nlm(:,:)
+  module procedure coriolis_vgradv_ocean_sub
+    integer                        :: ir, ijm
+    real(kind=dbl)                 :: fac
+    complex(kind=dbl), allocatable :: v(:), dv(:), nlm(:,:)
     
     allocate( v(this%jmv) , dv(this%jmv), nlm(3,this%jms) )
     
@@ -64,13 +62,12 @@ submodule (ocean) nonlin
     
     deallocate( v , dv, nlm )
     
-  end subroutine coriolis_vgradv_ocean_sub
+  end procedure coriolis_vgradv_ocean_sub
   
-  module subroutine fullnl_ocean_sub(this)
-    class(T_ocean),    intent(inout) :: this
-    integer                          :: ir, ijm
-    real(kind=dbl)                   :: fac
-    complex(kind=dbl), allocatable   :: v(:), dv(:), T(:), gradT(:), nlm(:,:)
+  module procedure fullnl_ocean_sub
+    integer                        :: ir, ijm
+    real(kind=dbl)                 :: fac
+    complex(kind=dbl), allocatable :: v(:), dv(:), T(:), gradT(:), nlm(:,:)
     
     allocate( v(this%jmv) , dv(this%jmv),    &
             & T(this%jms) , gradT(this%jmv), &
@@ -108,6 +105,6 @@ submodule (ocean) nonlin
     
     deallocate( v , dv, T , gradT, nlm )
     
-  end subroutine fullnl_ocean_sub
+  end procedure fullnl_ocean_sub
   
 end submodule nonlin

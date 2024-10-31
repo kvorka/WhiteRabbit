@@ -1,10 +1,9 @@
 submodule (oceantides) init
   implicit none; contains
   
-  module subroutine init_oceanTides_sub(this)
-    class(T_oceanTides), intent(inout) :: this
-    integer                            :: i
-    complex(kind=dbl), allocatable     :: u201(:), u203(:), u221(:), u223(:)
+  module procedure init_oceanTides_sub
+    integer                        :: i
+    complex(kind=dbl), allocatable :: u201(:), u203(:), u221(:), u223(:)
     
     call this%init_ocean_sub()
     
@@ -45,6 +44,6 @@ submodule (oceantides) init
 
       deallocate( u201, u203, u221, u223 )
     
-  end subroutine init_oceanTides_sub
+  end procedure init_oceanTides_sub
   
 end submodule init

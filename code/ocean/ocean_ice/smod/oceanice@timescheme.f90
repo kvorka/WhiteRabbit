@@ -1,10 +1,9 @@
 submodule (oceanice) timescheme
   implicit none; contains
   
-  module subroutine time_scheme_oceanice_sub(this)
-    class(T_oceanIce), intent(inout) :: this
-    integer                          :: ir, ijm
-    real(kind=dbl)                   :: q
+  module procedure time_scheme_oceanice_sub
+    integer        :: ir, ijm
+    real(kind=dbl) :: q
     
     ijm = 1 ; ir = 1
       this%rtemp(ir,ijm) = cs4pi
@@ -46,6 +45,6 @@ submodule (oceanice) timescheme
     
     if (this%mechanic_bnd == 'frees') call this%global_rotation_sub()
     
-  end subroutine time_scheme_oceanice_sub
+  end procedure time_scheme_oceanice_sub
   
 end submodule timescheme

@@ -1,11 +1,7 @@
 submodule (ice) init
   implicit none ; contains
   
-  module subroutine init_ice_sub(this, jmax_in, rheol_in, n_iter, noharm)
-    class(T_ice),      intent(inout) :: this
-    integer,           intent(in)    :: jmax_in, n_iter
-    character(len=*),  intent(in)    :: rheol_in
-    logical, optional, intent(in)    :: noharm
+  module procedure init_ice_sub
     
     if (present(noharm)) then
       call this%init_objects_sub( nd = nd_ice, jmax = jmax_in, r_ud = rdown_ice / rup_ice, rgrid = grid_type_ice, &
@@ -63,10 +59,9 @@ submodule (ice) init
     call this%gravity%set_sub( Dcrust = this%D_ud, omega = omega, exc = exc )
     call this%bnd%init_layers_sub()
     
-  end subroutine init_ice_sub
+  end procedure init_ice_sub
   
-  module subroutine deallocate_ice_sub(this)
-    class(T_ice), intent(inout) :: this
+  module procedure deallocate_ice_sub
     
     if ( allocated(this%nsph1) ) deallocate( this%nsph1 )
     if ( allocated(this%nsph2) ) deallocate( this%nsph2 )
@@ -76,6 +71,6 @@ submodule (ice) init
     call this%gravity%deallocate_sub()
     call this%deallocate_objects_sub()
     
-  end subroutine deallocate_ice_sub
+  end procedure deallocate_ice_sub
   
 end submodule init

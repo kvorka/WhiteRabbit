@@ -1,9 +1,8 @@
 submodule (icetides) ee
   implicit none; contains
   
-  module subroutine EE_mech_iceTides_sub(this)
-    class(T_iceTides), intent(inout) :: this
-    integer                          :: ijm
+  module procedure EE_mech_iceTides_sub
+    integer :: ijm
     
     do concurrent ( ijm = 4:6:2 )
       this%rsph1(          1,ijm) = -this%bnd%u_dn(ijm) + this%Vdelta_fn(1,ijm)
@@ -20,6 +19,6 @@ submodule (icetides) ee
       this%bnd%u_up(ijm) = this%bnd%u_up(ijm) + this%vr_r_fn(this%nd,ijm) * this%dt
     end do
     
-  end subroutine EE_mech_iceTides_sub
+  end procedure EE_mech_iceTides_sub
   
 end submodule ee
