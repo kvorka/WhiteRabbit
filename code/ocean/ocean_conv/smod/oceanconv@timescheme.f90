@@ -14,7 +14,7 @@ submodule (oceanconv) timescheme
     end do
     !$omp end do
 
-    !$omp do collapse (2) schedule (dynamic, ocean_chunk_size)
+    !$omp do collapse (2)
     do ijm = 1, this%jms
       do ir = 2, this%nd
         this%rtemp(ir,ijm) = (1-this%ab) * this%ntemp(ijm,ir)
@@ -28,7 +28,7 @@ submodule (oceanconv) timescheme
     
     call this%fullnl_sub()
     
-    !$omp parallel do collapse (2) schedule (dynamic, ocean_chunk_size)
+    !$omp parallel do collapse (2)
     do ijm = 1, this%jms
       do ir = 2, this%nd
         this%rtemp(ir,ijm) = this%rtemp(ir,ijm) + this%ab * this%ntemp(ijm,ir)

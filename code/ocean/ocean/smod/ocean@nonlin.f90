@@ -72,7 +72,7 @@ submodule (ocean) nonlin
     !$omp parallel private (v, dv, T, gradT, ijm, fac, nlm)
     allocate( v(this%jmv), dv(this%jmv), T(this%jms), gradT(this%jmv), nlm(4,this%jms) )
     
-    !$omp do schedule (dynamic, ocean_chunk_size)
+    !$omp do
     do ir = 2, this%nd
       call this%dv_dr_rr_jml_sub(ir, v, dv)
       call this%gradT_rr_ijml_sub(ir, T, gradT, -1)
