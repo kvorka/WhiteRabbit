@@ -1,9 +1,7 @@
 submodule (physicalobject) lambda
   implicit none; contains
   
-  module pure real(kind=dbl) function lambda_r_fn(this, ir)
-    class(T_physicalObject), intent(in) :: this
-    integer,                 intent(in) :: ir
+  module procedure lambda_r_fn
     
     if ( this%mparams%initlambda ) then
       lambda_r_fn = s4pi / c2r_fn( this%mparams%lambda(1,ir) )
@@ -11,11 +9,9 @@ submodule (physicalobject) lambda
       lambda_r_fn = one
     end if
     
-  end function lambda_r_fn
+  end procedure lambda_r_fn
   
-  module pure real(kind=dbl) function lambda_rr_fn(this, ir)
-    class(T_physicalObject), intent(in) :: this
-    integer,                 intent(in) :: ir
+  module procedure lambda_rr_fn
     
     if ( this%mparams%initlambda ) then
       lambda_rr_fn = s4pi * ( this%rad_grid%cc(ir,-1) / c2r_fn( this%mparams%lambda(1,ir-1) ) + &
@@ -24,13 +20,10 @@ submodule (physicalobject) lambda
       lambda_rr_fn = one
     end if
     
-  end function lambda_rr_fn
+  end procedure lambda_rr_fn
   
-  pure module subroutine varlambda_r_ijm_sub(this, ir, varlambda)
-    class(T_physicalObject), intent(in)  :: this
-    integer,                 intent(in)  :: ir
-    complex(kind=dbl),       intent(out) :: varlambda(:)
-    integer                              :: ijm
+  module procedure varlambda_r_ijm_sub
+    integer :: ijm
     
     if ( this%mparams%initlambda .and. .not. this%mparams%lambda_radial ) then
       !ijm = 1
@@ -45,6 +38,6 @@ submodule (physicalobject) lambda
       
     end if
     
-  end subroutine varlambda_r_ijm_sub
+  end procedure varlambda_r_ijm_sub
   
 end submodule lambda

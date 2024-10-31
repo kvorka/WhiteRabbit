@@ -1,11 +1,7 @@
 submodule (physicalobject) matrix_definitions
   implicit none ; contains
   
-  module pure function mat_temp_fn(this, j_in, a_in) result(matica)
-    class(T_physicalObject), intent(in) :: this
-    integer,                 intent(in) :: j_in
-    real(kind=dbl),          intent(in) :: a_in
-    real(kind=dbl),        allocatable  :: matica(:,:)
+  module procedure mat_temp_fn
     
     select case (this%grid_type)
       case('homog')
@@ -15,13 +11,9 @@ submodule (physicalobject) matrix_definitions
         matica = matica_temp_chb_fn(this, j_in, a_in)
     end select
     
-  end function mat_temp_fn
+  end procedure mat_temp_fn
   
-  module pure function mat_torr_fn(this, j_in, a_in) result(matica)
-    class(T_physicalObject), intent(in) :: this
-    integer,                 intent(in) :: j_in
-    real(kind=dbl),          intent(in) :: a_in
-    real(kind=dbl),        allocatable  :: matica(:,:)
+  module procedure mat_torr_fn
     
     select case (this%scaling)
       case('christ')
@@ -31,13 +23,9 @@ submodule (physicalobject) matrix_definitions
         matica = matica_torr_chb_viscos_fn(this, j_in, a_in)
     end select
     
-  end function mat_torr_fn
+  end procedure mat_torr_fn
   
-  module pure function mat_mech_fn(this, j_in, a_in) result(matica)
-    class(T_physicalObject), intent(in) :: this
-    integer,                 intent(in) :: j_in
-    real(kind=dbl),          intent(in) :: a_in
-    real(kind=dbl),        allocatable  :: matica(:,:)
+  module procedure mat_mech_fn
     
     select case(this%scaling)
       case('christ')
@@ -65,6 +53,6 @@ submodule (physicalobject) matrix_definitions
         end select
     end select
     
-  end function mat_mech_fn
+  end procedure mat_mech_fn
   
 end submodule matrix_definitions

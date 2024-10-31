@@ -1,13 +1,9 @@
 submodule (physicalobject) thermal_matrix
   implicit none ; contains
   
-  module pure function matica_temp_hom_fn(this, j_in, a_in) result(matica)
-    class(T_physicalObject), intent(in)  :: this
-    integer,                 intent(in)  :: j_in
-    real(kind=dbl),          intent(in)  :: a_in
-    real(kind=dbl),          allocatable :: matica(:,:)
-    integer                              :: ir, is
-    real(kind=dbl)                       :: j, dT_dr
+  module procedure matica_temp_hom_fn
+    integer        :: ir, is
+    real(kind=dbl) :: j, dT_dr
     
     allocate( matica(7,3*this%nd+1) ); associate(grid => this%rad_grid)
     
@@ -75,15 +71,11 @@ submodule (physicalobject) thermal_matrix
         
     end associate
     
-  end function matica_temp_hom_fn
+  end procedure matica_temp_hom_fn
   
-  module pure function matica_temp_chb_fn(this, j_in, a_in) result(matica)
-    class(T_physicalObject), intent(in) :: this
-    integer,                 intent(in) :: j_in
-    real(kind=dbl),          intent(in) :: a_in
-    real(kind=dbl),         allocatable :: matica(:,:)
-    integer                             :: ir, is
-    real(kind=dbl)                      :: j, dT_dr
+  module procedure matica_temp_chb_fn
+    integer        :: ir, is
+    real(kind=dbl) :: j, dT_dr
 
     allocate(matica(11,3*this%nd+1) ); associate( grid => this%rad_grid )
     
@@ -159,6 +151,6 @@ submodule (physicalobject) thermal_matrix
     
     end associate
     
-  end function matica_temp_chb_fn
+  end procedure matica_temp_chb_fn
   
 end submodule thermal_matrix

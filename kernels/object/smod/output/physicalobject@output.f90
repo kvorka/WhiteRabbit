@@ -1,12 +1,9 @@
 submodule (physicalobject) output
   implicit none ; contains
   
-  module subroutine vypis_sub(this, filenum, path, quantity)
-    class(T_physicalObject), intent(in) :: this
-    integer,                 intent(in) :: filenum
-    character(len=*),        intent(in) :: path, quantity
-    integer                             :: ir, ijm
-    complex(kind=dbl),      allocatable :: field(:)
+  module procedure vypis_sub
+    integer                        :: ir, ijm
+    complex(kind=dbl), allocatable :: field(:)
     
     select case (quantity)
       case ('temperature')
@@ -65,6 +62,6 @@ submodule (physicalobject) output
         close(filenum)
     end select
     
-  end subroutine vypis_sub
+  end procedure vypis_sub
   
 end submodule output

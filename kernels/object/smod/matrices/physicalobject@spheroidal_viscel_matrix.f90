@@ -1,13 +1,9 @@
 submodule (physicalobject) spheroidal_viscel_matrix
   implicit none ; contains
   
-  module pure function matica_mech_hom_viscel_fn(this, j_in, a_in) result(matica)
-    class(T_physicalObject), intent(in) :: this
-    integer,                 intent(in) :: j_in
-    real(kind=dbl),          intent(in) :: a_in
-    real(kind=dbl),         allocatable :: matica(:,:)
-    integer                             :: ir, is
-    real(kind=dbl)                      :: j
+  module procedure matica_mech_hom_viscel_fn
+    integer        :: ir, is
+    real(kind=dbl) :: j
     
     allocate( matica(15,6*this%nd+2) ); associate( grid => this%rad_grid )
     
@@ -94,15 +90,11 @@ submodule (physicalobject) spheroidal_viscel_matrix
     
     end associate
     
-  end function matica_mech_hom_viscel_fn
+  end procedure matica_mech_hom_viscel_fn
   
-  module pure function matica_mech_chb_viscel_fn(this, j_in, a_in) result(matica)
-    class(T_physicalObject), intent(in) :: this
-    integer,                 intent(in) :: j_in
-    real(kind=dbl),          intent(in) :: a_in
-    real(kind=dbl),         allocatable :: matica(:,:)
-    integer                             :: ir, is
-    real(kind=dbl)                      :: j
+  module procedure matica_mech_chb_viscel_fn
+    integer        :: ir, is
+    real(kind=dbl) :: j
     
     allocate( matica(23,6*this%nd+2) ) ; associate( grid => this%rad_grid )
     
@@ -213,6 +205,6 @@ submodule (physicalobject) spheroidal_viscel_matrix
     
     end associate
     
-  end function matica_mech_chb_viscel_fn
+  end procedure matica_mech_chb_viscel_fn
   
 end submodule spheroidal_viscel_matrix

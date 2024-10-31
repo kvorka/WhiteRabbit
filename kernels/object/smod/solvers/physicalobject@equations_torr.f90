@@ -1,8 +1,7 @@
 submodule (physicalobject) equations_torr
   implicit none ; contains
   
-  module subroutine init_eq_torr_sub(this)
-    class(T_physicalObject), intent(inout) :: this
+  module procedure init_eq_torr_sub
     
     call this%sol%init_storr_sub()
     call this%mat%init_mtorr_sub()
@@ -10,12 +9,10 @@ submodule (physicalobject) equations_torr
     allocate( this%rtorr(this%nd+1,this%jms) )
       this%rtorr = czero
     
-  end subroutine init_eq_torr_sub
+  end procedure init_eq_torr_sub
   
-  module subroutine prepare_mat_torr_sub(this, ijstart, ijend)
-    class(T_physicalObject), intent(inout) :: this
-    integer,                 intent(in)    :: ijstart, ijend
-    integer                                :: ij
+  module procedure prepare_mat_torr_sub
+    integer :: ij
     
     !$omp parallel do
     do ij = ijstart, ijend
@@ -24,13 +21,10 @@ submodule (physicalobject) equations_torr
     end do
     !$omp end parallel do
     
-  end subroutine prepare_mat_torr_sub
+  end procedure prepare_mat_torr_sub
   
-  module subroutine solve_torr_sub(this, ijmstart, ijmend, ijmstep, rematrix, matxsol)
-    class(T_physicalObject), intent(inout) :: this
-    integer,                 intent(in)    :: ijmstart, ijmend, ijmstep
-    logical,                 intent(in)    :: rematrix, matxsol
-    integer                                :: ij, ijm, ir, is
+  module procedure solve_torr_sub
+    integer :: ij, ijm, ir, is
     
     if (rematrix) call this%prepare_mat_torr_sub( this%j_indx(ijmstart) , this%j_indx(ijmend) )
     
@@ -59,6 +53,6 @@ submodule (physicalobject) equations_torr
     end do
     !$omp end parallel do
 
-  end subroutine solve_torr_sub
+  end procedure solve_torr_sub
   
 end submodule equations_torr

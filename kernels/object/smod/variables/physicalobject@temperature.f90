@@ -1,22 +1,17 @@
 submodule (physicalobject) temperature
   implicit none ; contains
   
-  module pure complex(kind=dbl) function temp_r_fn(this, ir, ijm)
-    class(T_physicalObject), intent(in) :: this
-    integer,                 intent(in) :: ir, ijm
+  module procedure temp_r_fn
     
     temp_r_fn = this%rad_grid%c(ir,-1) * this%sol%temp_fn(ir  ,ijm) + &
               & this%rad_grid%c(ir,+1) * this%sol%temp_fn(ir+1,ijm)
     
-  end function temp_r_fn
+  end procedure temp_r_fn
   
-  module pure subroutine temp_r_ijm_sub(this, ir, temp_r_ijm)
-    class(T_physicalObject), intent(in)  :: this
-    integer,                 intent(in)  :: ir
-    complex(kind=dbl),       intent(out) :: temp_r_ijm(:)
-    integer                              :: ijm
-    real(kind=dbl)                       :: cr1, cr2
-    complex(kind=dbl),       allocatable :: temp1(:), temp2(:)
+  module procedure temp_r_ijm_sub
+    integer                        :: ijm
+    real(kind=dbl)                 :: cr1, cr2
+    complex(kind=dbl), allocatable :: temp1(:), temp2(:)
     
     cr1 = this%rad_grid%c(ir,-1)
     cr2 = this%rad_grid%c(ir,+1)
@@ -32,14 +27,11 @@ submodule (physicalobject) temperature
     
     deallocate( temp1, temp2 )
     
-  end subroutine temp_r_ijm_sub
+  end procedure temp_r_ijm_sub
   
-  module pure subroutine temp_ir_jm_sub(this, ijm, temp_ir_jm)
-    class(T_physicalObject), intent(in)  :: this
-    integer,                 intent(in)  :: ijm
-    complex(kind=dbl),       intent(out) :: temp_ir_jm(:)
-    integer                              :: ir
-    complex(kind=dbl),       allocatable :: temp1(:)
+  module procedure temp_ir_jm_sub
+    integer                        :: ir
+    complex(kind=dbl), allocatable :: temp1(:)
     
     allocate( temp1(this%nd+1) )
       
@@ -52,12 +44,10 @@ submodule (physicalobject) temperature
     
     deallocate( temp1 )
     
-  end subroutine temp_ir_jm_sub
+  end procedure temp_ir_jm_sub
   
-  module pure complex(kind=dbl) function dT_dr_r_fn(this, ir, ijm)
-    class(T_physicalObject), intent(in) :: this
-    integer,                 intent(in) :: ir, ijm
-    real(kind=dbl)                      :: fac1, fac2, fac3, fac4
+  module procedure dT_dr_r_fn
+    real(kind=dbl) :: fac1, fac2, fac3, fac4
     
     select case (this%grid_type)
       case ('homog')
@@ -92,15 +82,12 @@ submodule (physicalobject) temperature
     
     end if
     
-  end function dT_dr_r_fn
+  end procedure dT_dr_r_fn
   
-  module pure subroutine dT_dr_r_ijm_sub(this, ir, dT_dr_r)
-    class(T_physicalObject), intent(in)  :: this
-    integer,                 intent(in)  :: ir
-    complex(kind=dbl),       intent(out) :: dT_dr_r(:)
-    integer                              :: ijm
-    real(kind=dbl)                       :: fac1, fac2, fac3, fac4
-    complex(kind=dbl),       allocatable :: temp1(:), temp2(:), temp3(:), temp4(:)
+  module procedure dT_dr_r_ijm_sub
+    integer                        :: ijm
+    real(kind=dbl)                 :: fac1, fac2, fac3, fac4
+    complex(kind=dbl), allocatable :: temp1(:), temp2(:), temp3(:), temp4(:)
     
     select case (this%grid_type)
       case ('homog')
@@ -159,15 +146,12 @@ submodule (physicalobject) temperature
     
     end if
     
-  end subroutine dT_dr_r_ijm_sub
+  end procedure dT_dr_r_ijm_sub
   
-  module pure subroutine gradT_r_ijml_sub(this, ir, gradT, sgn)
-    class(T_physicalObject), intent(in)  :: this
-    integer,                 intent(in)  :: ir, sgn
-    complex(kind=dbl),       intent(out) :: gradT(:)
-    integer                              :: ij, im, ijm, ijml
-    real(kind=dbl)                       :: cj1, cj2, cjr1, cjr2
-    complex(kind=dbl),       allocatable :: dT_dr(:), T(:)
+  module procedure gradT_r_ijml_sub
+    integer                        :: ij, im, ijm, ijml
+    real(kind=dbl)                 :: cj1, cj2, cjr1, cjr2
+    complex(kind=dbl), allocatable :: dT_dr(:), T(:)
     
     allocate( dT_dr(this%jms) ) ; call this%dT_dr_r_ijm_sub( ir, dT_dr )
     allocate( T(this%jms) )     ; call this%temp_r_ijm_sub( ir, T )
@@ -195,38 +179,28 @@ submodule (physicalobject) temperature
       
     deallocate( dT_dr, T )
     
-  end subroutine gradT_r_ijml_sub
+  end procedure gradT_r_ijml_sub
   
-  module pure complex(kind=dbl) function temp_rr_fn(this, ir, ijm)
-    class(T_physicalObject), intent(in) :: this
-    integer,                 intent(in) :: ir, ijm
+  module procedure temp_rr_fn
     
     temp_rr_fn = this%sol%temp_fn(ir,ijm)
     
-  end function temp_rr_fn
+  end procedure temp_rr_fn
   
-  module pure subroutine temp_rr_ijm_sub(this, ir, temp_rr_ijm)
-    class(T_physicalObject), intent(in)  :: this
-    integer,                 intent(in)  :: ir
-    complex(kind=dbl),       intent(out) :: temp_rr_ijm(:)
+  module procedure temp_rr_ijm_sub
     
     call this%sol%temp_jm_many1_sub( ir, temp_rr_ijm )
     
-  end subroutine temp_rr_ijm_sub
+  end procedure temp_rr_ijm_sub
   
-  module pure subroutine temp_irr_jm_sub(this, ijm, temp_irr_jm)
-    class(T_physicalObject), intent(in)  :: this
-    integer,                 intent(in)  :: ijm
-    complex(kind=dbl),       intent(out) :: temp_irr_jm(:)
+  module procedure temp_irr_jm_sub
     
     call this%sol%temp_rr_many1_sub( ijm, temp_irr_jm )
     
-  end subroutine temp_irr_jm_sub
+  end procedure temp_irr_jm_sub
   
-  module pure complex(kind=dbl) function dT_dr_rr_fn(this, ir, ijm)
-    class(T_physicalObject), intent(in) :: this
-    integer,                 intent(in) :: ir, ijm
-    real(kind=dbl)                      :: fac1, fac2, fac3
+  module procedure dT_dr_rr_fn
+    real(kind=dbl) :: fac1, fac2, fac3
     
     select case ( this%grid_type )
       case ('homog')
@@ -244,15 +218,12 @@ submodule (physicalobject) temperature
                 & fac2 * this%sol%temp_fn(ir  ,ijm) + &
                 & fac3 * this%sol%temp_fn(ir+1,ijm)
     
-  end function dT_dr_rr_fn
+  end procedure dT_dr_rr_fn
   
-  module pure subroutine dT_dr_rr_ijm_sub(this, ir, T, dT)
-    class(T_physicalObject), intent(in)  :: this
-    integer,                 intent(in)  :: ir
-    complex(kind=dbl),       intent(out) :: T(:), dT(:)
-    integer                              :: ijm
-    real(kind=dbl)                       :: fac1, fac2, fac3
-    complex(kind=dbl), allocatable       :: temp1(:), temp3(:)
+  module procedure dT_dr_rr_ijm_sub
+    integer                        :: ijm
+    real(kind=dbl)                 :: fac1, fac2, fac3
+    complex(kind=dbl), allocatable :: temp1(:), temp3(:)
     
     select case ( this%grid_type )
       case ('homog')
@@ -278,15 +249,12 @@ submodule (physicalobject) temperature
     
     deallocate( temp1, temp3 )
     
-  end subroutine dT_dr_rr_ijm_sub
+  end procedure dT_dr_rr_ijm_sub
   
-  module pure subroutine gradT_rr_ijml_sub(this, ir, T, gradT, sgn)
-    class(T_physicalObject), intent(in)  :: this
-    integer,                 intent(in)  :: ir, sgn
-    complex(kind=dbl),       intent(out) :: T(:), gradT(:)
-    integer                              :: ij, im, ijm, ijml
-    real(kind=dbl)                       :: cj1, cj2, cjr1, cjr2
-    complex(kind=dbl),       allocatable :: dT_dr(:)
+  module procedure gradT_rr_ijml_sub
+    integer                        :: ij, im, ijm, ijml
+    real(kind=dbl)                 :: cj1, cj2, cjr1, cjr2
+    complex(kind=dbl), allocatable :: dT_dr(:)
     
     allocate( dT_dr(this%jms) )
       
@@ -315,6 +283,6 @@ submodule (physicalobject) temperature
       
     deallocate( dT_dr )
     
-  end subroutine gradT_rr_ijml_sub
+  end procedure gradT_rr_ijml_sub
   
 end submodule temperature

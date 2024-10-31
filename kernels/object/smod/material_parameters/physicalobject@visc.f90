@@ -1,9 +1,7 @@
 submodule (physicalobject) visc
   implicit none; contains
   
-  module pure real(kind=dbl) function visc_r_fn(this, ir)
-    class(T_physicalObject), intent(in) :: this
-    integer,                 intent(in) :: ir
+  module procedure visc_r_fn
     
     if ( this%mparams%initvisc ) then
       visc_r_fn = s4pi / c2r_fn( this%mparams%visc(1,ir) )
@@ -11,11 +9,9 @@ submodule (physicalobject) visc
       visc_r_fn = one
     end if
     
-  end function visc_r_fn
+  end procedure visc_r_fn
   
-  module pure real(kind=dbl) function visc_rr_fn(this, ir)
-    class(T_physicalObject), intent(in) :: this
-    integer,                 intent(in) :: ir
+  module procedure visc_rr_fn
     
     if ( this%mparams%initvisc ) then
       visc_rr_fn = s4pi * ( this%rad_grid%cc(ir,-1) / c2r_fn( this%mparams%visc(1,ir-1) ) + &
@@ -24,6 +20,6 @@ submodule (physicalobject) visc
       visc_rr_fn = one
     end if
     
-  end function visc_rr_fn
+  end procedure visc_rr_fn
   
 end submodule visc

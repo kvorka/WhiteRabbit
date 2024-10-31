@@ -1,42 +1,32 @@
 submodule (physicalobject) heatflux
   implicit none; contains
   
-  module pure complex(kind=dbl) function q_r_fn(this, ir, il, ijm)
-    class(T_physicalObject), intent(in) :: this
-    integer,                 intent(in) :: ir, il, ijm
+  module procedure q_r_fn
     
     q_r_fn = this%sol%flux_fn(ir, il, ijm)
     
-  end function q_r_fn
+  end procedure q_r_fn
   
-  module pure subroutine q_r_ijml_sub(this, ir, q_r_ijml)
-    class(T_physicalObject), intent(in)  :: this
-    integer,                 intent(in)  :: ir
-    complex(kind=dbl),       intent(out) :: q_r_ijml(:)
+  module procedure q_r_ijml_sub
     
     call this%sol%flux_jml_many1_sub( ir, q_r_ijml )
     
-  end subroutine q_r_ijml_sub
+  end procedure q_r_ijml_sub
   
-  module pure complex(kind=dbl) function qr_r_fn(this, ir, ijm)
-    class(T_physicalObject), intent(in) :: this
-    integer,                 intent(in) :: ir, ijm
-    real(kind=dbl)                      :: j
+  module procedure qr_r_fn
+    real(kind=dbl) :: j
     
     j = i2r_fn( this%j_indx(ijm) )
     
     qr_r_fn = sqrt((j  )/(2*j+1)) * this%sol%flux_fn(ir,-1,ijm) - &
             & sqrt((j+1)/(2*j+1)) * this%sol%flux_fn(ir,+1,ijm)
     
-  end function qr_r_fn
+  end procedure qr_r_fn
   
-  module pure subroutine qr_r_ijm_sub(this, ir, qr_r_ijm)
-    class(T_physicalObject), intent(in)  :: this
-    integer,                 intent(in)  :: ir
-    complex(kind=dbl),       intent(out) :: qr_r_ijm(*)
-    integer                              :: ij, im, ijm, ijml
-    real(kind=dbl)                       :: cj1, cj2
-    complex(kind=dbl),       allocatable :: flux1(:)
+  module procedure qr_r_ijm_sub
+    integer                        :: ij, im, ijm, ijml
+    real(kind=dbl)                 :: cj1, cj2
+    complex(kind=dbl), allocatable :: flux1(:)
     
     allocate( flux1(this%jmv) )
       
@@ -62,15 +52,12 @@ submodule (physicalobject) heatflux
     
     deallocate( flux1 )
     
-  end subroutine qr_r_ijm_sub
+  end procedure qr_r_ijm_sub
   
-  module pure subroutine qr_ir_jm_sub(this, ijm, qr_ir_jm)
-    class(T_physicalObject), intent(in)  :: this
-    integer,                 intent(in)  :: ijm
-    complex(kind=dbl),       intent(out) :: qr_ir_jm(*)
-    integer                              :: ir
-    real(kind=dbl)                       :: j, cj1, cj2
-    complex(kind=dbl),       allocatable :: flux1(:,:)
+  module procedure qr_ir_jm_sub
+    integer                        :: ir
+    real(kind=dbl)                 :: j, cj1, cj2
+    complex(kind=dbl), allocatable :: flux1(:,:)
     
     j = i2r_fn( this%j_indx(ijm) )
     
@@ -88,12 +75,10 @@ submodule (physicalobject) heatflux
       
     deallocate( flux1 )
     
-  end subroutine qr_ir_jm_sub
+  end procedure qr_ir_jm_sub
   
-  module pure complex(kind=dbl) function q_rr_fn(this, ir, il, ijm)
-    class(T_physicalObject), intent(in) :: this
-    integer,                 intent(in) :: ir, il, ijm
-    real(kind=dbl)                      :: cr1, cr2
+  module procedure q_rr_fn
+    real(kind=dbl) :: cr1, cr2
     
     cr1 = this%rad_grid%cc(ir,-1)
     cr2 = this%rad_grid%cc(ir,+1)
@@ -101,15 +86,12 @@ submodule (physicalobject) heatflux
     q_rr_fn = cr1 * this%sol%flux_fn(ir-1, il, ijm) + &
             & cr2 * this%sol%flux_fn(ir  , il, ijm)
     
-  end function q_rr_fn
+  end procedure q_rr_fn
   
-  module pure subroutine q_rr_ijml_sub(this, ir, q_rr_ijml)
-    class(T_physicalObject), intent(in)  :: this
-    integer,                 intent(in)  :: ir
-    complex(kind=dbl),       intent(out) :: q_rr_ijml(:)
-    integer                              :: ijml
-    real(kind=dbl)                       :: cr1, cr2
-    complex(kind=dbl),       allocatable :: flux1(:), flux2(:)
+  module procedure q_rr_ijml_sub
+    integer                        :: ijml
+    real(kind=dbl)                 :: cr1, cr2
+    complex(kind=dbl), allocatable :: flux1(:), flux2(:)
     
     cr1 = this%rad_grid%cc(ir,-1)
     cr2 = this%rad_grid%cc(ir,+1)
@@ -125,12 +107,10 @@ submodule (physicalobject) heatflux
     
     deallocate( flux1, flux2 )
     
-  end subroutine q_rr_ijml_sub
+  end procedure q_rr_ijml_sub
   
-  module pure complex(kind=dbl) function dq_dr_rr_fn(this, ir, il, ijm)
-    class(T_physicalObject), intent(in) :: this
-    integer,                 intent(in) :: ir, il, ijm
-    real(kind=dbl)                      :: fac1, fac2, fac3, fac4
+  module procedure dq_dr_rr_fn
+    real(kind=dbl) :: fac1, fac2, fac3, fac4
     
     select case (this%grid_type)
       case ('homog')
@@ -165,15 +145,12 @@ submodule (physicalobject) heatflux
     
     end if
     
-  end function dq_dr_rr_fn
+  end procedure dq_dr_rr_fn
   
-  module pure subroutine dq_dr_rr_ijml_sub(this, ir, dq_dr_rr_ijml)
-    class(T_physicalObject), intent(in)  :: this
-    integer,                 intent(in)  :: ir
-    complex(kind=dbl),       intent(out) :: dq_dr_rr_ijml(:)
-    integer                              :: ijml
-    real(kind=dbl)                       :: fac1, fac2, fac3, fac4
-    complex(kind=dbl),       allocatable :: flux1(:), flux2(:), flux3(:), flux4(:) 
+  module procedure dq_dr_rr_ijml_sub
+    integer                        :: ijml
+    real(kind=dbl)                 :: fac1, fac2, fac3, fac4
+    complex(kind=dbl), allocatable :: flux1(:), flux2(:), flux3(:), flux4(:) 
     
     select case (this%grid_type)
       case ('homog')
@@ -235,15 +212,12 @@ submodule (physicalobject) heatflux
       
     end if
     
-  end subroutine dq_dr_rr_ijml_sub
+  end procedure dq_dr_rr_ijml_sub
   
-  module pure subroutine divq_rr_ijm_sub(this, ir, divq_rr_ijm, sgn)
-    class(T_physicalObject), intent(in)  :: this
-    integer,                 intent(in)  :: ir, sgn
-    complex(kind=dbl),       intent(out) :: divq_rr_ijm(:)
-    integer                              :: ij, im, ijm, ijml
-    real(kind=dbl)                       :: cj1, cj2, cjr1, cjr2
-    complex(kind=dbl),       allocatable :: dq_dr(:), q(:)
+  module procedure divq_rr_ijm_sub
+    integer                        :: ij, im, ijm, ijml
+    real(kind=dbl)                 :: cj1, cj2, cjr1, cjr2
+    complex(kind=dbl), allocatable :: dq_dr(:), q(:)
     
     allocate( dq_dr(this%jmv), q(this%jmv) )
       
@@ -273,12 +247,10 @@ submodule (physicalobject) heatflux
       
     deallocate( dq_dr, q )
     
-  end subroutine divq_rr_ijm_sub
+  end procedure divq_rr_ijm_sub
   
-  module pure complex(kind=dbl) function qr_rr_fn(this, ir, ijm)
-    class(T_physicalObject), intent(in) :: this
-    integer,                 intent(in) :: ir, ijm
-    real(kind=dbl)                      :: j, cj1, cj2, cr1, cr2
+  module procedure qr_rr_fn
+    real(kind=dbl) :: j, cj1, cj2, cr1, cr2
     
     j = i2r_fn( this%j_indx(ijm) )
     
@@ -288,15 +260,12 @@ submodule (physicalobject) heatflux
     qr_rr_fn = cr1 * ( cj1 * this%sol%flux_fn(ir-1,-1,ijm) + cj2 * this%sol%flux_fn(ir-1,+1,ijm) ) + &
              & cr2 * ( cj1 * this%sol%flux_fn(ir  ,-1,ijm) + cj2 * this%sol%flux_fn(ir  ,+1,ijm) )
     
-  end function qr_rr_fn
+  end procedure qr_rr_fn
   
-  module pure subroutine qr_rr_ijm_sub(this, ir, qr_rr_ijm)
-    class(T_physicalObject), intent(in)  :: this
-    integer,                 intent(in)  :: ir
-    complex(kind=dbl),       intent(out) :: qr_rr_ijm(*)
-    integer                              :: ij, im, ijm, ijml
-    real(kind=dbl)                       :: cr1, cr2, cj1, cj2
-    complex(kind=dbl),       allocatable :: flux1(:), flux2(:)
+  module procedure qr_rr_ijm_sub
+    integer                        :: ij, im, ijm, ijml
+    real(kind=dbl)                 :: cr1, cr2, cj1, cj2
+    complex(kind=dbl), allocatable :: flux1(:), flux2(:)
     
     cr1 = this%rad_grid%cc(ir,-1)
     cr2 = this%rad_grid%cc(ir,+1)
@@ -320,15 +289,12 @@ submodule (physicalobject) heatflux
     
     deallocate( flux1, flux2 )
     
-  end subroutine qr_rr_ijm_sub
+  end procedure qr_rr_ijm_sub
   
-  module pure subroutine qr_irr_jm_sub(this, ijm, qr_irr_jm)
-    class(T_physicalObject), intent(in)  :: this
-    integer,                 intent(in)  :: ijm
-    complex(kind=dbl),       intent(out) :: qr_irr_jm(2:this%nd)
-    integer                              :: ir
-    real(kind=dbl)                       :: j, cj1, cj2, cr1, cr2
-    complex(kind=dbl),       allocatable :: flux1(:,:)
+  module procedure qr_irr_jm_sub
+    integer                        :: ir
+    real(kind=dbl)                 :: j, cj1, cj2, cr1, cr2
+    complex(kind=dbl), allocatable :: flux1(:,:)
     
     j = i2r_fn( this%j_indx(ijm) )
     
@@ -349,6 +315,6 @@ submodule (physicalobject) heatflux
       
     deallocate( flux1 )
     
-  end subroutine qr_irr_jm_sub
+  end procedure qr_irr_jm_sub
   
 end submodule heatflux

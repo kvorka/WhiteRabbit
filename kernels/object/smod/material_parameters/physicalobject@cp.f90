@@ -1,9 +1,7 @@
 submodule (physicalobject) cp
   implicit none; contains
   
-  module pure real(kind=dbl) function cp_r_fn(this, ir)
-    class(T_physicalObject), intent(in) :: this
-    integer,                 intent(in) :: ir
+  module procedure cp_r_fn
     
     if ( this%mparams%initcp ) then
       cp_r_fn = s4pi * ( this%rad_grid%c(ir,-1) / c2r_fn( this%mparams%cp(1,ir  ) ) + &
@@ -12,11 +10,9 @@ submodule (physicalobject) cp
       cp_r_fn = one
     end if
     
-  end function cp_r_fn
+  end procedure cp_r_fn
   
-  module pure real(kind=dbl) function cp_rr_fn(this, ir)
-    class(T_physicalObject), intent(in) :: this
-    integer,                 intent(in) :: ir
+  module procedure cp_rr_fn
     
     if ( this%mparams%initcp ) then
       cp_rr_fn = s4pi / c2r_fn( this%mparams%cp(1,ir) )
@@ -24,13 +20,10 @@ submodule (physicalobject) cp
       cp_rr_fn = one
     end if
     
-  end function cp_rr_fn
+  end procedure cp_rr_fn
   
-  pure module subroutine varcp_rr_ijm_sub(this, ir, varcp)
-    class(T_physicalObject), intent(in)  :: this
-    integer,                 intent(in)  :: ir
-    complex(kind=dbl),       intent(out) :: varcp(:)
-    integer                              :: ijm
+  module procedure varcp_rr_ijm_sub
+    integer :: ijm
     
     if ( this%mparams%initcp .and. .not. this%mparams%cp_radial ) then
       !ijm = 1
@@ -45,6 +38,6 @@ submodule (physicalobject) cp
       
     end if
     
-  end subroutine varcp_rr_ijm_sub
+  end procedure varcp_rr_ijm_sub
   
 end submodule cp

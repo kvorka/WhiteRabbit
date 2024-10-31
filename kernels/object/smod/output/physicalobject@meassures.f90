@@ -1,19 +1,16 @@
 submodule (physicalobject) meassures
   implicit none ; contains
   
-  module pure real(kind=dbl) function nuss_fn(this)
-    class(T_physicalObject), intent(in) :: this
+  module procedure nuss_fn
     
     nuss_fn = c2r_fn( -this%q_r_fn(this%nd,1,1) ) / ( this%r_ud * s4pi )
     
-  end function nuss_fn
+  end procedure nuss_fn
   
-  module real(kind=dbl) function reynolds_fn(this, choice)
-    class(T_physicalObject), intent(in)           :: this
-    character(len=*),        intent(in), optional :: choice
-    integer                                       :: ir
-    real(kind=dbl),          allocatable          :: field_vals(:)
-    complex(kind=dbl),       allocatable          :: velocity(:)
+  module procedure reynolds_fn
+    integer                        :: ir
+    real(kind=dbl),    allocatable :: field_vals(:)
+    complex(kind=dbl), allocatable :: velocity(:)
     
     allocate( field_vals(this%nd+1), velocity(this%jmv) )
       
@@ -41,6 +38,6 @@ submodule (physicalobject) meassures
       
     deallocate( field_vals, velocity )
     
-  end function reynolds_fn
+  end procedure reynolds_fn
 
 end submodule meassures

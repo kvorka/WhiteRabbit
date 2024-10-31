@@ -1,13 +1,9 @@
 submodule (physicalobject) spheroidal_visc_matrix
   implicit none ; contains
   
-  module pure function matica_mech_hom_viscos_fn(this, j_in, a_in) result(matica)
-    class(T_physicalObject), intent(in) :: this
-    integer,                 intent(in) :: j_in
-    real(kind=dbl),          intent(in) :: a_in
-    real(kind=dbl),         allocatable :: matica(:,:)
-    integer                             :: ir, is
-    real(kind=dbl)                      :: j
+  module procedure matica_mech_hom_viscos_fn
+    integer        :: ir, is
+    real(kind=dbl) :: j
     
     allocate( matica(15,6*this%nd+2) ); associate( grid => this%rad_grid )
     
@@ -129,15 +125,11 @@ submodule (physicalobject) spheroidal_visc_matrix
     
     end associate
   
-  end function matica_mech_hom_viscos_fn
+  end procedure matica_mech_hom_viscos_fn
   
-  module pure function matica_mech_chb_viscos_fn(this, j_in, a_in) result(matica)
-    class(T_physicalObject), intent(in) :: this
-    integer,                 intent(in) :: j_in
-    real(kind=dbl),          intent(in) :: a_in
-    real(kind=dbl),         allocatable :: matica(:,:)
-    integer                             :: ir, is
-    real(kind=dbl)                      :: j
+  module procedure matica_mech_chb_viscos_fn
+    integer        :: ir, is
+    real(kind=dbl) :: j
     
     allocate( matica(23,6*this%nd+2) ); associate( grid => this%rad_grid )
     
@@ -282,15 +274,11 @@ submodule (physicalobject) spheroidal_visc_matrix
     
     end associate
     
-  end function matica_mech_chb_viscos_fn
+  end procedure matica_mech_chb_viscos_fn
   
-  module pure function matica_mech_chb_christ_viscos_fn(this, j_in, a_in) result(matica)
-    class(T_physicalObject), intent(in) :: this
-    integer,                 intent(in) :: j_in
-    real(kind=dbl),          intent(in) :: a_in
-    real(kind=dbl),         allocatable :: matica(:,:)
-    integer                             :: ir, is
-    real(kind=dbl)                      :: pref, j
+  module procedure matica_mech_chb_christ_viscos_fn
+    integer        :: ir, is
+    real(kind=dbl) :: pref, j
     
     allocate( matica(23,6*this%nd+2) ); associate( grid => this%rad_grid )
     
@@ -408,6 +396,6 @@ submodule (physicalobject) spheroidal_visc_matrix
     
     end associate
     
-  end function matica_mech_chb_christ_viscos_fn
+  end procedure matica_mech_chb_christ_viscos_fn
   
 end submodule spheroidal_visc_matrix

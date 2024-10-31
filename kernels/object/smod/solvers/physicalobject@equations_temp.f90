@@ -1,8 +1,7 @@
 submodule (physicalobject) equations_temp
   implicit none ; contains
   
-  module subroutine init_eq_temp_sub(this)
-    class(T_physicalObject), intent(inout) :: this
+  module procedure init_eq_temp_sub
     
     call this%sol%init_stemp_sub()
     call this%mat%init_mtemp_sub()
@@ -10,12 +9,10 @@ submodule (physicalobject) equations_temp
     allocate( this%rtemp(this%nd+1,this%jms) )
       this%rtemp = czero
     
-  end subroutine init_eq_temp_sub
+  end procedure init_eq_temp_sub
   
-  module subroutine prepare_mat_temp_sub(this, ijstart, ijend)
-    class(T_physicalObject), intent(inout) :: this
-    integer,                 intent(in)    :: ijstart, ijend
-    integer                                :: ij
+  module procedure prepare_mat_temp_sub
+    integer :: ij
     
     !$omp parallel do
     do ij = ijstart, ijend
@@ -23,13 +20,10 @@ submodule (physicalobject) equations_temp
     end do
     !$omp end parallel do
     
-  end subroutine prepare_mat_temp_sub
+  end procedure prepare_mat_temp_sub
   
-  module subroutine solve_temp_sub(this, ijmstart, ijmend, ijmstep, rematrix, matxsol)
-    class(T_physicalObject), intent(inout) :: this
-    integer,                 intent(in)    :: ijmstart, ijmend, ijmstep
-    logical,                 intent(in)    :: rematrix, matxsol
-    integer                                :: ij, ir, is, ijm
+  module procedure solve_temp_sub
+    integer :: ij, ir, is, ijm
     
     if (rematrix) call this%prepare_mat_temp_sub( this%j_indx(ijmstart) , this%j_indx(ijmend) )
     
@@ -58,6 +52,6 @@ submodule (physicalobject) equations_temp
     end do
     !$omp end parallel do
     
-  end subroutine solve_temp_sub
+  end procedure solve_temp_sub
   
 end submodule equations_temp

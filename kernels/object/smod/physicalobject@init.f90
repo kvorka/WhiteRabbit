@@ -1,13 +1,8 @@
 submodule (physicalobject) init
   implicit none ; contains
   
-  module subroutine init_objects_sub( this, nd, jmax, r_ud, rgrid, gmod, g, noobj, noharm )
-    class(T_physicalObject),    intent(inout) :: this
-    integer,                    intent(in)    :: nd, jmax
-    real(kind=dbl),             intent(in)    :: r_ud, g
-    character(len=*),           intent(in)    :: rgrid, gmod
-    logical,          optional, intent(in)    :: noobj, noharm
-    integer                                   :: j, m
+  module procedure init_objects_sub
+    integer :: j, m
     
     this%nd        = nd
     this%jmax      = jmax
@@ -60,10 +55,9 @@ submodule (physicalobject) init
     
     call this%set_dt_sub()
     
-  end subroutine init_objects_sub
+  end procedure init_objects_sub
   
-  module subroutine set_dt_sub(this)
-    class(T_physicalObject), intent(inout) :: this
+  module procedure set_dt_sub
     
     if (this%noobj) then
       call this%rad_grid%init_sub(this%nd, this%rd, this%ru, this%grid_type)
@@ -73,10 +67,9 @@ submodule (physicalobject) init
       this%dt  = 0.49_dbl * ( this%rad_grid%r(2)-this%rad_grid%r(1) )**2
     end if
     
-  end subroutine set_dt_sub
+  end procedure set_dt_sub
   
-  module subroutine deallocate_objects_sub(this)
-    class(T_physicalObject), intent(inout) :: this
+  module procedure deallocate_objects_sub
     
     if ( allocated(this%j_indx)  ) deallocate( this%j_indx )
     
@@ -96,6 +89,6 @@ submodule (physicalobject) init
       if (.not. this%noharm) call this%lat_grid%deallocate_sub()
     end if
     
-  end subroutine deallocate_objects_sub
-
+  end procedure deallocate_objects_sub
+  
 end submodule init
