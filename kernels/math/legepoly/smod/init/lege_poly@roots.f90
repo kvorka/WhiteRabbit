@@ -28,7 +28,7 @@ submodule (lege_poly) roots
     !!**********************************************************************!!
     !!* Close to roots array holder and holder arrays.                     *!!
     !!**********************************************************************!!
-    allocate( this%rootsweights(3,this%nLege), xclose(this%nLege) )
+    allocate( this%rw(this%nLege,3), xclose(this%nLege) )
     
     !!**********************************************************************!!
     !!* Seek for efficient stepping to use within the bisection method and *!!
@@ -90,9 +90,9 @@ submodule (lege_poly) roots
         end if
       end do
       
-      this%rootsweights(1,i) = root
-      this%rootsweights(2,i) = sqrt( 1 - root**2 )
-      this%rootsweights(3,i) = qpi * (1-root**2) / ( this%nLege * lege_fn(2*this%nLege-1, root) )**2
+      this%rw(i,1) = root
+      this%rw(i,2) = sqrt( 1 - root**2 )
+      this%rw(i,3) = qpi * (1-root**2) / ( this%nLege * lege_fn(2*this%nLege-1, root) )**2
     end do
     !$omp end parallel do
     

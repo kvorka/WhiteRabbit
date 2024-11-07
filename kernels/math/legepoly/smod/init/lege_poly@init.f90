@@ -6,17 +6,14 @@ submodule (lege_poly) init
     this%nLege = nLege; call this%roots_sub()
     this%jmax  = jmax; call this%coeffs_sub()
     
-    this%rootsweights(3,:) = this%rootsweights(3,:) / wfac
+    this%rw(:,3) = this%rw(:,3) / wfac
     
   end procedure init_lege_sub
   
   module procedure deallocate_lege_sub
     
-    if ( allocated(this%rootsweights) ) deallocate( this%rootsweights )
-    
-    if ( allocated(this%amj) ) deallocate( this%amj )
-    if ( allocated(this%bmj) ) deallocate( this%bmj )
-    if ( allocated(this%cmm) ) deallocate( this%cmm )
+    if ( allocated(this%rw) ) deallocate( this%rw )
+    if ( allocated(this%ab) ) deallocate( this%ab )
     
   end procedure deallocate_lege_sub
   

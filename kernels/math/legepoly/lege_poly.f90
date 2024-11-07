@@ -4,7 +4,7 @@ module lege_poly
   
   type, public :: T_legep
     integer                     :: jmax, nLege
-    real(kind=dbl), allocatable :: amj(:), bmj(:), cmm(:), rootsweights(:,:)
+    real(kind=dbl), allocatable :: ab(:,:), rw(:,:)
     
     contains
     
@@ -49,9 +49,9 @@ module lege_poly
       class(T_legep), intent(inout) :: this
     end subroutine compute_coeffs_sub
     
-    module pure subroutine mmset_4_sub(this, m, sinx, pmm, pmj2, pmj1, pmj0)
+    module pure subroutine mmset_4_sub(this, mj, sinx, pmm, pmj2, pmj1, pmj0)
       class(T_legep), intent(in)    :: this
-      integer,        intent(in)    :: m
+      integer,        intent(in)    :: mj
       real(kind=dbl), intent(in)    :: sinx(4)
       real(kind=dbl), intent(inout) :: pmm(4)
       real(kind=dbl), intent(out)   :: pmj2(4), pmj1(4), pmj0(4)
@@ -95,23 +95,24 @@ module lege_poly
       complex(kind=dbl), intent(out) :: sumsym(4,nf), sumasym(4,nf)
     end subroutine forward_rcb_4_sub
     
-    module pure subroutine backward_legesum_4_sub(this, it, nb, cc, sumN, sumS)
+    module pure subroutine backward_legesum_4_sub(this, nb, cc, sumN, sumS, rwork)
       class(T_legep),    intent(in)  :: this
-      integer,           intent(in)  :: it, nb
+      integer,           intent(in)  :: nb
       complex(kind=dbl), intent(in)  :: cc(nb,*)
       real(kind=dbl),    intent(out) :: sumN(4,nb,2,0:this%jmax), sumS(4,nb,2,0:this%jmax)
+      real(kind=dbl),    intent(in)  :: rwork(4,2)
     end subroutine backward_legesum_4_sub
     
-    module pure subroutine forward_legesum_4_sub(this, it, nf, sumN, sumS, cr)
+    module pure subroutine forward_legesum_4_sub(this, nf, sumN, sumS, cr, rwork)
       class(T_legep),    intent(in)    :: this
-      integer,           intent(in)    :: it, nf
-      real(kind=dbl),    intent(in)    :: sumN(4,nf,2,0:this%jmax), sumS(4,nf,2,0:this%jmax)
+      integer,           intent(in)    :: nf
+      real(kind=dbl),    intent(in)    :: sumN(4,nf,2,0:this%jmax), sumS(4,nf,2,0:this%jmax), rwork(4,3)
       complex(kind=dbl), intent(inout) :: cr(nf,*)
     end subroutine forward_legesum_4_sub
     
-    module pure subroutine mmset_8_sub(this, m, sinx, pmm, pmj2, pmj1, pmj0)
+    module pure subroutine mmset_8_sub(this, mj, sinx, pmm, pmj2, pmj1, pmj0)
       class(T_legep), intent(in)    :: this
-      integer,        intent(in)    :: m
+      integer,        intent(in)    :: mj
       real(kind=dbl), intent(in)    :: sinx(8)
       real(kind=dbl), intent(inout) :: pmm(8)
       real(kind=dbl), intent(out)   :: pmj2(8), pmj1(8), pmj0(8)
@@ -155,23 +156,24 @@ module lege_poly
       complex(kind=dbl), intent(out) :: sumsym(8,nf), sumasym(8,nf)
     end subroutine forward_rcb_8_sub
     
-    module pure subroutine backward_legesum_8_sub(this, it, nb, cc, sumN, sumS)
+    module pure subroutine backward_legesum_8_sub(this, nb, cc, sumN, sumS, rwork)
       class(T_legep),    intent(in)  :: this
-      integer,           intent(in)  :: it, nb
+      integer,           intent(in)  :: nb
       complex(kind=dbl), intent(in)  :: cc(nb,*)
       real(kind=dbl),    intent(out) :: sumN(8,nb,2,0:this%jmax), sumS(8,nb,2,0:this%jmax)
+      real(kind=dbl),    intent(in)  :: rwork(8,2)
     end subroutine backward_legesum_8_sub
     
-    module pure subroutine forward_legesum_8_sub(this, it, nf, sumN, sumS, cr)
+    module pure subroutine forward_legesum_8_sub(this, nf, sumN, sumS, cr, rwork)
       class(T_legep),    intent(in)    :: this
-      integer,           intent(in)    :: it, nf
-      real(kind=dbl),    intent(in)    :: sumN(8,nf,2,0:this%jmax), sumS(8,nf,2,0:this%jmax)
+      integer,           intent(in)    :: nf
+      real(kind=dbl),    intent(in)    :: sumN(8,nf,2,0:this%jmax), sumS(8,nf,2,0:this%jmax), rwork(8,3)
       complex(kind=dbl), intent(inout) :: cr(nf,*)
     end subroutine forward_legesum_8_sub
     
-    module pure subroutine mmset_16_sub(this, m, sinx, pmm, pmj2, pmj1, pmj0)
+    module pure subroutine mmset_16_sub(this, mj, sinx, pmm, pmj2, pmj1, pmj0)
       class(T_legep), intent(in)    :: this
-      integer,        intent(in)    :: m
+      integer,        intent(in)    :: mj
       real(kind=dbl), intent(in)    :: sinx(16)
       real(kind=dbl), intent(inout) :: pmm(16)
       real(kind=dbl), intent(out)   :: pmj2(16), pmj1(16), pmj0(16)
@@ -215,17 +217,18 @@ module lege_poly
       complex(kind=dbl), intent(out) :: sumsym(16,nf), sumasym(16,nf)
     end subroutine forward_rcb_16_sub
     
-    module pure subroutine backward_legesum_16_sub(this, it, nb, cc, sumN, sumS)
+    module pure subroutine backward_legesum_16_sub(this, nb, cc, sumN, sumS, rwork)
       class(T_legep),    intent(in)  :: this
-      integer,           intent(in)  :: it, nb
+      integer,           intent(in)  :: nb
       complex(kind=dbl), intent(in)  :: cc(nb,*)
       real(kind=dbl),    intent(out) :: sumN(16,nb,2,0:this%jmax), sumS(16,nb,2,0:this%jmax)
+      real(kind=dbl),    intent(in)  :: rwork(16,2)
     end subroutine backward_legesum_16_sub
     
-    module pure subroutine forward_legesum_16_sub(this, it, nf, sumN, sumS, cr)
+    module pure subroutine forward_legesum_16_sub(this, nf, sumN, sumS, cr, rwork)
       class(T_legep),    intent(in)    :: this
-      integer,           intent(in)    :: it, nf
-      real(kind=dbl),    intent(in)    :: sumN(16,nf,2,0:this%jmax), sumS(16,nf,2,0:this%jmax)
+      integer,           intent(in)    :: nf
+      real(kind=dbl),    intent(in)    :: sumN(16,nf,2,0:this%jmax), sumS(16,nf,2,0:this%jmax), rwork(16,3)
       complex(kind=dbl), intent(inout) :: cr(nf,*)
     end subroutine forward_legesum_16_sub
   end interface

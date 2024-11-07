@@ -56,8 +56,13 @@ $compile -c kernels/math/legepoly/lege_poly.f90
   $compile -c kernels/math/legepoly/smod/codelets/lege_poly@step16p.f90 &
   $compile -c kernels/math/legepoly/smod/codelets/lege_poly@step16b.f90 &
   $compile -c kernels/math/legepoly/smod/codelets/lege_poly@step16f.f90 &
+wait
 
-$compile -c kernels/math/sphsvt/clebsch_gordan.f90
+$compile -c kernels/math/sphsvt/mod/cleb.f90
+  $compile -c kernels/math/sphsvt/mod/smod/cleb@gordan1.f90 &
+  $compile -c kernels/math/sphsvt/mod/smod/cleb@gordan2.f90 &
+wait
+
 $compile -c kernels/math/sphsvt/sphsvt.f90
   $compile -c kernels/math/sphsvt/smod/sphsvt@init.f90 &
   $compile -c kernels/math/sphsvt/smod/sphsvt@allocators.f90 &

@@ -1,5 +1,5 @@
 module sphsvt
-  use clebsch_gordan
+  use cleb
   implicit none
   
   type, public :: T_sphsvt

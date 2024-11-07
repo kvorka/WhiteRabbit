@@ -11,6 +11,7 @@ module math
   real(kind=qbl),    parameter :: qzero = 0._qbl
   real(kind=dbl),    parameter :: half  = 0.5_dbl
   real(kind=dbl),    parameter :: one   = 1._dbl
+  real(kind=dbl),    parameter :: two   = 2._dbl
   real(kind=qbl),    parameter :: qone  = 1._qbl
   real(kind=dbl),    parameter :: sq2_1 = 1 / sqrt(2._dbl)
   real(kind=dbl),    parameter :: pi    = acos(-one)
