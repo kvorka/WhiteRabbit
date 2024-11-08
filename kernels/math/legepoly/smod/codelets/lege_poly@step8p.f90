@@ -6,17 +6,17 @@ submodule (lege_poly) step8p
     
     select case (mj)
       case (1)
-        do i2 = 1, 8
+        do concurrent ( i2 = 1:8 )
           pmm(i2) = this%ab(1,1)
         end do
       
       case default
-        do i2 = 1, 8
+        do concurrent ( i2 = 1:8 )
           pmm(i2) = this%ab(1,mj) * sinx(i2) * pmm(i2)
         end do
     end select
     
-    do i2 = 1, 8
+    do concurrent ( i2 = 1:8 )
       pmj2(i2) = zero
       pmj1(i2) = zero
       pmj0(i2) = pmm(i2)

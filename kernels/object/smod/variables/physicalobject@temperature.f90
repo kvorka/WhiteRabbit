@@ -21,8 +21,7 @@ submodule (physicalobject) temperature
       call this%sol%temp_jm_many2_sub(ir, temp1, temp2)
       
       do concurrent ( ijm = 1:this%jms )
-        temp_r_ijm(ijm) = cr1 * temp1(ijm) + &
-                        & cr2 * temp2(ijm)
+        temp_r_ijm(ijm) = cr1 * temp1(ijm) + cr2 * temp2(ijm)
       end do
     
     deallocate( temp1, temp2 )
@@ -38,8 +37,8 @@ submodule (physicalobject) temperature
       call this%sol%temp_rr_many1_sub( ijm, temp1 )
       
       do concurrent ( ir = 1:this%nd )
-        temp_ir_jm(ijm) = this%rad_grid%c(ir,-1) * temp1(ir  ) + &
-                        & this%rad_grid%c(ir,+1) * temp1(ir+1)
+        temp_ir_jm(ir) = this%rad_grid%c(ir,-1) * temp1(ir  ) + &
+                       & this%rad_grid%c(ir,+1) * temp1(ir+1)
       end do
     
     deallocate( temp1 )
@@ -149,26 +148,27 @@ submodule (physicalobject) temperature
   end procedure dT_dr_r_ijm_sub
   
   module procedure gradT_r_ijml_sub
-    integer                        :: ij, im, ijm, ijml
+    integer                        :: ij, ij0, ijm, ijml
     real(kind=dbl)                 :: cj1, cj2, cjr1, cjr2
     complex(kind=dbl), allocatable :: dT_dr(:), T(:)
     
     allocate( dT_dr(this%jms) ) ; call this%dT_dr_r_ijm_sub( ir, dT_dr )
     allocate( T(this%jms) )     ; call this%temp_r_ijm_sub( ir, T )
       
-      ij = 0
-        im = 0
+      !ij = 0
+        !ijm = 1
           gradT(1) = -dT_dr(1)
       
       do ij = 1, this%jmax
+        ij0 = ij*(ij+1)/2+1
+        
         cj1 = +sqrt( (ij  ) / (2*ij+one) ) * sgn
         cj2 = -sqrt( (ij+1) / (2*ij+one) ) * sgn
         
         cjr1 = +(ij+1) / this%rad_grid%r(ir)
         cjr2 = -(ij  ) / this%rad_grid%r(ir)
         
-        do im = 0, ij
-          ijm  = ij*(ij+1)/2+im+1
+        do concurrent ( ijm = ij0:ij0+ij )
           ijml = 3*(ijm-1)-1
           
           gradT(ijml  ) = cj1 * ( dT_dr(ijm) + cjr1 * T(ijm) )
@@ -252,7 +252,7 @@ submodule (physicalobject) temperature
   end procedure dT_dr_rr_ijm_sub
   
   module procedure gradT_rr_ijml_sub
-    integer                        :: ij, im, ijm, ijml
+    integer                        :: ij, ij0, ijm, ijml
     real(kind=dbl)                 :: cj1, cj2, cjr1, cjr2
     complex(kind=dbl), allocatable :: dT_dr(:)
     
@@ -260,19 +260,20 @@ submodule (physicalobject) temperature
       
       call this%dT_dr_rr_ijm_sub( ir, T, dT_dr )
       
-      ij = 0
-        im = 0
+      !ij = 0
+        !ijm = 1
           gradT(1) = -sgn * dT_dr(1)
       
       do ij = 1, this%jmax
+        ij0 = ij*(ij+1)/2+1
+        
         cj1 = +sqrt( (ij  ) / (2*ij+one) ) * sgn
         cj2 = -sqrt( (ij+1) / (2*ij+one) ) * sgn
         
         cjr1 = +(ij+1) / this%rad_grid%rr(ir)
         cjr2 = -(ij  ) / this%rad_grid%rr(ir)
         
-        do im = 0, ij
-          ijm  = ij*(ij+1)/2+im+1
+        do concurrent ( ijm = ij0:ij0+ij )
           ijml = 3*(ijm-1)-1
           
           gradT(ijml  ) = cj1 * ( dT_dr(ijm) + cjr1 * T(ijm) )

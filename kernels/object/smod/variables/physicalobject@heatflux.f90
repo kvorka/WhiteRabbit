@@ -24,7 +24,7 @@ submodule (physicalobject) heatflux
   end procedure qr_r_fn
   
   module procedure qr_r_ijm_sub
-    integer                        :: ij, im, ijm, ijml
+    integer                        :: ij, ij0, ijm, ijml
     real(kind=dbl)                 :: cj1, cj2
     complex(kind=dbl), allocatable :: flux1(:)
     
@@ -32,21 +32,21 @@ submodule (physicalobject) heatflux
       
       call this%sol%flux_jml_many1_sub( ir, flux1 )
       
-      ij = 0
-        ijm  = 1
-        ijml = 1
+      !ij = 0
+        !ijm  = 1
+        !ijml = 1
           qr_r_ijm(1) = -flux1(1)
       
       do ij = 1, this%jmax
+        ij0 = ij*(ij+1)/2+1
+        
         cj1 = +sqrt( (ij  ) / (2*ij+one) )
         cj2 = -sqrt( (ij+1) / (2*ij+one) )
         
-        do im = 0, ij
-          ijm  = ij*(ij+1)/2+im+1
+        do concurrent ( ijm = ij0:ij0+ij )
           ijml = 3*(ijm-1)-1
           
-          qr_r_ijm(ijm) = cj1 * flux1(ijml  ) + &
-                        & cj2 * flux1(ijml+2)
+          qr_r_ijm(ijm) = cj1 * flux1(ijml) + cj2 * flux1(ijml+2)
         end do
       end do
     
@@ -69,8 +69,7 @@ submodule (physicalobject) heatflux
       call this%sol%flux_r_many1_sub( ijm, flux1 )
       
       do concurrent ( ir = 1:this%nd )
-        qr_ir_jm(ijm) = cj1 * flux1(1,ijm) + &
-                      & cj2 * flux1(3,ijm)
+        qr_ir_jm(ir) = cj1 * flux1(1,ijm) + cj2 * flux1(3,ijm)
       end do
       
     deallocate( flux1 )
@@ -101,8 +100,7 @@ submodule (physicalobject) heatflux
       call this%sol%flux_jml_many2_sub( ir-1, flux1, flux2 )
       
       do concurrent ( ijml = 1:this%jmv )
-        q_rr_ijml(ijml  ) = cr1 * flux1(ijml) + &
-                          & cr2 * flux2(ijml)
+        q_rr_ijml(ijml) = cr1 * flux1(ijml) + cr2 * flux2(ijml)
       end do
     
     deallocate( flux1, flux2 )
@@ -215,7 +213,7 @@ submodule (physicalobject) heatflux
   end procedure dq_dr_rr_ijml_sub
   
   module procedure divq_rr_ijm_sub
-    integer                        :: ij, im, ijm, ijml
+    integer                        :: ij, ij0, ijm, ijml
     real(kind=dbl)                 :: cj1, cj2, cjr1, cjr2
     complex(kind=dbl), allocatable :: dq_dr(:), q(:)
     
@@ -224,20 +222,21 @@ submodule (physicalobject) heatflux
       call this%dq_dr_rr_ijml_sub(ir, dq_dr)
       call this%q_rr_ijml_sub(ir, q)
       
-      ij = 0
-        ijm  = 1
-        ijml = 1
+      !ij = 0
+        !ijm  = 1
+        !ijml = 1
           divq_rr_ijm(1) = -sgn * ( dq_dr(1) + 2 * q(1) / this%rad_grid%rr(ir) )
       
       do ij = 1, this%jmax
+        ij0 = ij*(ij+1)/2+1
+        
         cj1 = +sgn * sqrt( (ij  ) / (2*ij+one) )
         cj2 = -sgn * sqrt( (ij+1) / (2*ij+one) )
         
         cjr1 = -(ij-1) / this%rad_grid%rr(ir)
         cjr2 = +(ij+2) / this%rad_grid%rr(ir)
         
-        do im = 0, ij
-          ijm  = ij*(ij+1)/2+im+1
+        do concurrent ( ijm = ij0:ij0+ij )
           ijml = 3*(ijm-1)-1
           
           divq_rr_ijm(ijm) = cj1 * ( dq_dr(ijml  ) + cjr1 * q(ijml  ) ) + &
@@ -309,8 +308,8 @@ submodule (physicalobject) heatflux
         cr1 = this%rad_grid%cc(ir,-1)
         cr2 = this%rad_grid%cc(ir,+1)
         
-        qr_irr_jm(ijm) = cr1 * ( cj1 * flux1(1,ir-1) + cj2 * flux1(3,ir-1) ) + &
-                       & cr2 * ( cj1 * flux1(1,ir  ) + cj2 * flux1(3,ir  ) )
+        qr_irr_jm(ir) = cr1 * ( cj1 * flux1(1,ir-1) + cj2 * flux1(3,ir-1) ) + &
+                      & cr2 * ( cj1 * flux1(1,ir  ) + cj2 * flux1(3,ir  ) )
       end do
       
     deallocate( flux1 )

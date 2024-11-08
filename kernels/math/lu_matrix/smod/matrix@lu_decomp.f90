@@ -15,15 +15,14 @@ submodule (matrix) lu_decomp
         end do
         
         k = k-1
-          do concurrent ( l = this%ldu-k:this%ldu )
-            this%U(l,i) = zero
-          end do
+          call zero_rarray_sub( k, this%U(this%ldu-k,i) )
       end do
     
     do j = 1, this%n
       k = min(this%ld+j,this%n)
       
-      i = j; pom = abs( this%U(1,j) )
+      i   = j
+      pom = abs( this%U(1,j) )
         do l = j, k
           if ( abs(this%U(1,l)) > pom ) then
             i   = l

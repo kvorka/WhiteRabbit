@@ -3,35 +3,33 @@ submodule (sphsvt) vec_to_scal
   
   module procedure vec2scal_jml_to_mj_sub
     integer                        :: j, m, l, mj, lmj, i1, indx
-    real(kind=dbl)                 :: cleb
+    real(kind=dbl)                 :: cg
     complex(kind=dbl), allocatable :: sum1(:), sum2(:), sum3(:)
     
     allocate( sum1(ncab), sum2(ncab), sum3(ncab) )
     
     m = 0
       do j = m, this%jmax2
-        do concurrent ( i1 = 1:ncab )
-          sum1(i1) = czero
-          sum2(i1) = czero
-          sum3(i1) = czero
-        end do
+        call zero_carray_sub( ncab, sum1(1) )
+        call zero_carray_sub( ncab, sum2(1) )
+        call zero_carray_sub( ncab, sum3(1) )
         
         do l = abs(j-1), min(this%jmax1, j+1)
           lmj = 3*(l*(l+1)/2+m+1)+j-l
           
-          cleb = cleb1_fn(j,m,1,0,l,m)
+          cg = cleb1_fn(j,m,1,0,l,m)
             do concurrent ( i1 = 1:ncab )
-              sum3(i1) = sum3(i1) + cab(i1,lmj-3) * cleb
+              sum3(i1) = sum3(i1) + cab(i1,lmj-3) * cg
             end do
           
-          cleb = cleb1_fn(j,m,1,-1,l,m-1) * (-1)**(j+l)
+          cg = cleb1_fn(j,m,1,-1,l,m-1) * (-1)**(j+l)
             do concurrent ( i1 = 1:ncab )
-              sum1(i1) = sum1(i1) + conjg( cab(i1,lmj) ) * cleb
+              sum1(i1) = sum1(i1) + conjg( cab(i1,lmj) ) * cg
             end do
           
-          cleb = cleb1_fn(j,m,1,+1,l,m+1)
+          cg = cleb1_fn(j,m,1,+1,l,m+1)
             do concurrent ( i1 = 1:ncab )
-              sum2(i1) = sum2(i1) + cab(i1,lmj) * cleb
+              sum2(i1) = sum2(i1) + cab(i1,lmj) * cg
             end do
         end do
         
@@ -46,32 +44,30 @@ submodule (sphsvt) vec_to_scal
     
     do m = 1, this%jmax2
       do j = m, this%jmax2
-        do concurrent ( i1 = 1:ncab )
-          sum1(i1) = czero
-          sum2(i1) = czero
-          sum3(i1) = czero
-        end do
+        call zero_carray_sub( ncab, sum1(1) )
+        call zero_carray_sub( ncab, sum2(1) )
+        call zero_carray_sub( ncab, sum3(1) )
         
         do l = j-1, min(this%jmax1, j+1)
           lmj = 3*(l*(l+1)/2+m-1)+j-l
           
           !every time
-            cleb = cleb1_fn(j,m,1,-1,l,m-1)
+            cg = cleb1_fn(j,m,1,-1,l,m-1)
               do concurrent ( i1 = 1:ncab )
-                sum1(i1) = sum1(i1) + cab(i1,lmj) * cleb
+                sum1(i1) = sum1(i1) + cab(i1,lmj) * cg
               end do
           
           if ( l > m-1 ) then
-            cleb = cleb1_fn(j,m,1,0,l,m)
+            cg = cleb1_fn(j,m,1,0,l,m)
               do concurrent ( i1 = 1:ncab )
-                sum3(i1) = sum3(i1) + cab(i1,lmj+3) * cleb
+                sum3(i1) = sum3(i1) + cab(i1,lmj+3) * cg
               end do
           end if
           
           if ( l > m ) then
-            cleb = cleb1_fn(j,m,1,+1,l,m+1)
+            cg = cleb1_fn(j,m,1,+1,l,m+1)
               do concurrent ( i1 = 1:ncab )
-                sum2(i1) = sum2(i1) + cab(i1,lmj+6) * cleb
+                sum2(i1) = sum2(i1) + cab(i1,lmj+6) * cg
               end do
           end if
         end do
