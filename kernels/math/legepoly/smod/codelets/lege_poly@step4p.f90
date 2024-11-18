@@ -6,17 +6,17 @@ submodule (lege_poly) step4p
     
     select case (mj)
       case (1)
-        do i2 = 1, 4
+        do concurrent ( i2 = 1:4 )
           pmm(i2) = this%abmj(1,1)
         end do
       
       case default
-        do i2 = 1, 4
+        do concurrent ( i2 = 1:4 )
           pmm(i2) = this%abmj(1,mj) * sinx(i2) * pmm(i2)
         end do
     end select
     
-    do i2 = 1, 4
+    do concurrent ( i2 = 1:4 )
       pmj(i2,1) = zero
       pmj(i2,2) = zero
       pmj(i2,3) = pmm(i2)
@@ -27,7 +27,7 @@ submodule (lege_poly) step4p
   module procedure recursion_4_sub
     integer :: i2
     
-    do i2 = 1, 4
+    do concurrent ( i2 = 1:4 )
       pmj(i2,1) = pmj(i2,2)
       pmj(i2,2) = pmj(i2,3)
       pmj(i2,3) = cosx(i2) * this%abmj(2,mj) * pmj(i2,2) - this%abmj(1,mj) * pmj(i2,1)
@@ -38,7 +38,7 @@ submodule (lege_poly) step4p
   module procedure recursion2_4_sub
     integer :: i2
     
-    do i2 = 1, 4
+    do concurrent ( i2 = 1:4 )
       pmj(i2,1) = pmj(i2,2)
       pmj(i2,2) = pmj(i2,3)
       pmj(i2,3) = cosx(i2) * this%abmj(2,mj) * pmj(i2,2) - this%abmj(1,mj) * pmj(i2,1)

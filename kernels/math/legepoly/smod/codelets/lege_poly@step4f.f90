@@ -4,7 +4,7 @@ submodule (lege_poly) step4f
   module procedure forward_sum_4_sub
     integer :: i1
     
-    do i1 = 1, nf
+    do concurrent ( i1 = 1:nf )
       cr(i1) = cr(i1) + sum( legep(1:4) * legesum(1:4,i1) )
     end do
     
@@ -13,10 +13,8 @@ submodule (lege_poly) step4f
   module procedure forward_sum2_4_sub
     integer :: i1, i2
     
-    do i2 = 1, 2
-      do i1 = 1, nf
-        cr(i1,i2) = cr(i1,i2) + sum( legep(1:4,i2) * legesum(1:4,i1,i2) )
-      end do
+    do concurrent ( i2 = 1:2, i1 = 1:nf )
+      cr(i1,i2) = cr(i1,i2) + sum( legep(1:4,i2) * legesum(1:4,i1,i2) )
     end do
     
   end procedure forward_sum2_4_sub
@@ -24,19 +22,13 @@ submodule (lege_poly) step4f
   module procedure forward_rcb_4_sub
     integer :: i1, i2, i3
     
-    do i2 = 1, nf
-      do i1 = 1, 4
-        swork(i1,i2,1) = cmplx( sumN(i1,i2,1) - sumS(i1,i2,1), sumN(i1,i2,2) - sumS(i1,i2,2), kind=dbl )
-        swork(i1,i2,2) = cmplx( sumN(i1,i2,1) + sumS(i1,i2,1), sumN(i1,i2,2) + sumS(i1,i2,2), kind=dbl )
-      end do
+    do concurrent ( i2 = 1:nf, i1 = 1:4 )
+      swork(i1,i2,1) = cmplx( sumN(i1,i2,1) - sumS(i1,i2,1), sumN(i1,i2,2) - sumS(i1,i2,2), kind=dbl )
+      swork(i1,i2,2) = cmplx( sumN(i1,i2,1) + sumS(i1,i2,1), sumN(i1,i2,2) + sumS(i1,i2,2), kind=dbl )
     end do
     
-    do i3 = 1, 2
-      do i2 = 1, nf
-        do i1 = 1, 4
-          swork(i1,i2,i3)  = w(i1) * swork(i1,i2,i3)
-        end do
-      end do
+    do concurrent ( i3 = 1:2, i2 = 1:nf, i1 = 1:4 )
+      swork(i1,i2,i3)  = w(i1) * swork(i1,i2,i3)
     end do
     
   end procedure forward_rcb_4_sub

@@ -4,10 +4,8 @@ submodule (lege_poly) step8b
   module procedure backward_sum_8_sub
     integer :: i1, i2
     
-    do i1 = 1, nb
-      do i2 = 1, 8
-        legesum(i2,i1) = legesum(i2,i1) + cc(i1) * legep(i2)
-      end do
+    do concurrent ( i1 = 1:nb, i2 = 1:8 )
+      legesum(i2,i1) = legesum(i2,i1) + cc(i1) * legep(i2)
     end do
     
   end procedure backward_sum_8_sub
@@ -15,12 +13,8 @@ submodule (lege_poly) step8b
   module procedure backward_sum2_8_sub
     integer :: i1, i2, i3
     
-    do i3 = 1, 2
-      do i2 = 1, nb
-        do i1 = 1, 8
-          legesum(i1,i2,i3) = legesum(i1,i2,i3) + legep(i1,i3) * cc(i2,i3)
-        end do
-      end do
+    do concurrent ( i3 = 1:2, i2 = 1:nb, i1 = 1:8 )
+      legesum(i1,i2,i3) = legesum(i1,i2,i3) + legep(i1,i3) * cc(i2,i3)
     end do
     
   end procedure backward_sum2_8_sub
@@ -28,13 +22,11 @@ submodule (lege_poly) step8b
   module procedure backward_rcb_8_sub
     integer :: i2, i1
     
-    do i2 = 1, nb
-      do i1 = 1, 8
-        sumN(i1,i2,1) = swork(i1,i2,2)%re + swork(i1,i2,1)%re
-        sumS(i1,i2,1) = swork(i1,i2,2)%re - swork(i1,i2,1)%re
-        sumN(i1,i2,2) = swork(i1,i2,2)%im + swork(i1,i2,1)%im
-        sumS(i1,i2,2) = swork(i1,i2,2)%im - swork(i1,i2,1)%im
-      end do
+    do concurrent ( i2 = 1:nb, i1 = 1:8 )
+      sumN(i1,i2,1) = swork(i1,i2,2)%re + swork(i1,i2,1)%re
+      sumS(i1,i2,1) = swork(i1,i2,2)%re - swork(i1,i2,1)%re
+      sumN(i1,i2,2) = swork(i1,i2,2)%im + swork(i1,i2,1)%im
+      sumS(i1,i2,2) = swork(i1,i2,2)%im - swork(i1,i2,1)%im
     end do
     
   end procedure backward_rcb_8_sub
