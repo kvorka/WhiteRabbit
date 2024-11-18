@@ -22,8 +22,8 @@ submodule (fourier_transform) fxrsc
         addim = ( x(iv,2,i) + x(iv,2,in) ) * fac
         subim = ( x(iv,2,i) - x(iv,2,in) ) * fac
         
-        tempre = ( addre - subre * t2 - addim * t1 )
-        tempim = ( subim - addim * t2 + subre * t1 )
+        tempre = addre - subre * t2 - addim * t1
+        tempim = subim - addim * t2 + subre * t1
         
         x(iv,1,i ) = +( tempre             )
         x(iv,2,i ) = +( tempim             ) * sgn

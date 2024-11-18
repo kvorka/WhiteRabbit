@@ -8,7 +8,7 @@ submodule (fourier_transform) init
       allocate( this%it(n/2)  ) ; this%it = 0
       allocate( this%t(3*n/2) ) ; this%t = zero
     
-    call fxzini(n/2, this%it, this%t)
+    call fxzini( n/2, this%it, this%t )
     
     do i = 1, (n-2) / 4
       this%t(n+2*i-1) = cos(2 * pi * i / n)

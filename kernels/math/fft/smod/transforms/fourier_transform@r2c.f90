@@ -5,7 +5,7 @@ submodule (fourier_transform) r2c
     
     call this%fxztal( m, x )
     call this%fxzshf( m, x )
-    call this%fxzrsc( m, x, -1, 0.5_dbl )
+    call this%fxzrsc( m, x, -1, half )
     
   end procedure fft_r2c_sub
   

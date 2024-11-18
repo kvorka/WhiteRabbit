@@ -18,7 +18,7 @@ submodule (fourier_transform) fx3
       t2re = t(1,ij+1)
       t2im = t(2,ij+1)
       
-      do concurrent ( i = 1:l/3 , iv = 1:m )
+      do concurrent ( i = 1:l/3, iv = 1:m )
         x0re =        t1re * x(iv,1,i,1,j) - t1im * x(iv,2,i,1,j)
         x0im =        t1re * x(iv,2,i,1,j) + t1im * x(iv,1,i,1,j)
         x1re = x0re - t2re * x(iv,1,i,2,j) + t2im * x(iv,2,i,2,j)
@@ -46,7 +46,7 @@ submodule (fourier_transform) fx3
     integer        :: i, iv
     real(kind=dbl) :: x0re, x0im, x1re, x1im, x2re, x2im
     
-    do concurrent ( i = 1:l/3 , iv = 1:m )
+    do concurrent ( i = 1:l/3, iv = 1:m )
       x1re = x(iv,1,i,1) -       x(iv,1,i,2)
       x1im = x(iv,2,i,1) -       x(iv,2,i,2)
       x0re = x(iv,1,i,1) +       x(iv,1,i,2)

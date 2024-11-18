@@ -58,7 +58,7 @@ submodule (lege_poly) roots
       if ( ncnt == this%nLege ) then
         exit
       else
-        do concurrent ( i = 1:ncnt )
+        do i = 1, ncnt
           xclose(i) = qzero
         end do
       end if

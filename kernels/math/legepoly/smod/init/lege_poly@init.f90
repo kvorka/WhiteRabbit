@@ -13,7 +13,7 @@ submodule (lege_poly) init
   module procedure deallocate_lege_sub
     
     if ( allocated(this%rw) ) deallocate( this%rw )
-    if ( allocated(this%ab) ) deallocate( this%ab )
+    if ( allocated(this%abmj)         ) deallocate( this%abmj )
     
   end procedure deallocate_lege_sub
   

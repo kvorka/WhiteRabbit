@@ -13,7 +13,7 @@ submodule (fourier_transform) fx4
       t2re = t(1,ij+1)
       t2im = t(2,ij+1)
       
-      do concurrent ( i = 1:l/4 , iv = 1:m )
+      do concurrent ( i = 1:l/4, iv = 1:m )
         x2re = ( x(iv,1,i,0,j) - t2re * x(iv,1,i,2,j) ) + t2im * x(iv,2,i,2,j)
         x2im = ( x(iv,2,i,0,j) - t2im * x(iv,1,i,2,j) ) - t2re * x(iv,2,i,2,j)
         x3re = ( x(iv,1,i,1,j) - t2re * x(iv,1,i,3,j) ) + t2im * x(iv,2,i,3,j)
@@ -43,7 +43,7 @@ submodule (fourier_transform) fx4
     integer        :: i, iv
     real(kind=dbl) :: x0re, x0im, x1re, x1im, x2re, x2im, x3re, x3im
     
-    do concurrent ( i = 1:l/4 , iv = 1:m )
+    do concurrent ( i = 1:l/4, iv = 1:m )
       x2re = x(iv,1,i,0) - x(iv,1,i,2)
       x2im = x(iv,2,i,0) - x(iv,2,i,2)
       x0re = x(iv,1,i,0) + x(iv,1,i,2)
@@ -60,7 +60,7 @@ submodule (fourier_transform) fx4
       x(iv,1,i,1) =     x2re - x3im
       x(iv,2,i,1) =     x2im + x3re
       x(iv,1,i,3) = 2 * x2re - x(iv,1,i,1)
-      x(iv,2,i,3) = 2 * x2im - x(iv,2,i,1)       
+      x(iv,2,i,3) = 2 * x2im - x(iv,2,i,1)
     end do
     
   end procedure fxzm4b
