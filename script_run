@@ -3,7 +3,7 @@
 ####                              POSSIBLE CODE SETTINGS                               ####
 ####       test_speed, ocean_convection, ice_ocean, ocean_tides, ice_deformation       ####
 ###########################################################################################
-code_type="test_speed"
+code_type="ice_deformation"
 
 ###########################################################################################
 ####                              COMPILER SET UP                                      ####

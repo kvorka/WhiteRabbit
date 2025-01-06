@@ -17,6 +17,8 @@ submodule (sphsvt) scal_to_vec
         mj  = m*this%jmax3-m*(m+1)/2+j+1
         mj2 = mj + this%jmax + 3 - m
         
+        cjm(cjmpadding  ,ijm) = czero
+        cjm(cjmpadding+1,ijm) = czero
         cjm(cjmpadding+2,ijm) =      cr(crpadding  ,mj2 )   * cleb1_fn(j+1,m+1,1,-1,j,m) + &
                             &        cr(crpadding+2,mj+1)   * cleb1_fn(j+1,m+0,1, 0,j,m) + &
                             & conjg( cr(crpadding  ,mj2 ) ) * cleb1_fn(j+1,m-1,1,+1,j,m) ; cjm(cjmpadding+2,ijm)%im = zero

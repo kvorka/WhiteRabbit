@@ -23,12 +23,9 @@ submodule (icecrust) solvers
         !! Save the mean temperature before the iteration
         call this%temp_irr_jm_sub(1, Temp1)
         
-        !! Compute the non-linear term div(q)/cp
-        !$omp parallel do
-        do ir = 2, this%nd
-          call this%cpdivq_sub(ir, this%ntemp(:,ir))
-        end do
-        !$omp end parallel do
+        !! Compute the non-linear term div(q)/cp and lambda*gradT
+        call this%cpdivq_sub()
+        call this%mlambdagradT_sub()
         
         !! Prepare the zero RHS equations
         !$omp parallel do private (ir)
@@ -40,8 +37,13 @@ submodule (icecrust) solvers
               this%rtemp(1,ijm) = cs4pi
             end if
             
+            this%rflux(1,ir,ijm) = this%nflux(1,ijm,ir)
+            this%rflux(2,ir,ijm) = this%nflux(3,ijm,ir)
+            
           do concurrent ( ir = 2:this%nd )
-            this%rtemp(ir,ijm) = this%ntemp(ijm,ir)
+            this%rtemp(ir,ijm)   = this%ntemp(ijm,ir)
+            this%rflux(1,ir,ijm) = this%nflux(1,ijm,ir)
+            this%rflux(2,ir,ijm) = this%nflux(3,ijm,ir)
           end do
           
           ir = this%nd+1
@@ -51,18 +53,18 @@ submodule (icecrust) solvers
         
         !! Solve the conduction problem
         call this%solve_temp_sub( ijmstart=1, ijmend=this%jms, ijmstep=1, rematrix=.true., matxsol=.true. )
-
+        
         !! Check the difference in mean temperature before and after the iteration
         call this%temp_irr_jm_sub(1, Temp2)
         
-        dT_T = maxval(abs(Temp2-Temp1)/abs(Temp1))
-        if ( dT_T < 1e-4 ) exit
+        dT_T = maxval(abs(Temp2-Temp1))
+        if ( dT_T < 1e-8 ) exit
         
         !! Update the parameters for the next iteration
         call this%set_lambda_sub()
         call this%set_cp_sub()
       end do
-    
+      
     deallocate( Temp1, Temp2 )
     
     !! Set back the time step and the thermal boundary
@@ -94,8 +96,8 @@ submodule (icecrust) solvers
       u_up1(:) = this%bnd%u_up(:)
       
       !! Find tidal heating for given viscosity field
-      call this%tides%compute_sub( this%mparams%visc )
-      call this%tides%htide_ir_ijm_sub( this%tdheat%htide )
+      !call this%tides%compute_sub( this%mparams%visc )
+      !call this%tides%htide_ir_ijm_sub( this%tdheat%htide )
       
       !! Reset the timestep and solve for given tidal heating
       call this%set_dt_sub()
@@ -106,20 +108,23 @@ submodule (icecrust) solvers
         
         du_u = sqrt( scalnorm2_fn(this%jmax, this%bnd%v_up(1)) / &
                      scalnorm2_fn(this%jmax, this%bnd%u_up(1))   ) * this%dt
-        write(*,*) du_u
         
-        if ( du_u < 1e-3 / this%nd**2 ) exit
+        !write(*,*) du_u, this%bnd%u_up(4)%re * this%D_ud, this%bnd%t_up(4)%re * this%D_ud
+        if ( du_u < 1e-3 / this%nd**2 ) then
+          exit
+        end if
       end do
       
       !! Stopping criterion
       du_u = sqrt( scalnorm2_fn(this%jmax, this%bnd%u_up-u_up1) / &
                  & scalnorm2_fn(this%jmax, this%bnd%u_up)         )
-      write(*,*) 'du_u: ', du_u
       
       if ( du_u < 1e-3 ) exit
     end do
     
     deallocate( u_up1 )
+    
+    call this%vypis_iceCrust_sub()
     
   end procedure solve_iceCrust_sub
   

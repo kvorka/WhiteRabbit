@@ -8,6 +8,7 @@ submodule (icecrust) ee
     this%t = this%t + this%dt
     
     call this%mvgradT_cpdivq_sub()
+    call this%mlambdagradT_sub()
     
     allocate( flux(this%jms) )
       if ( present(flux_bnd) ) then
@@ -61,10 +62,14 @@ submodule (icecrust) ee
     !! At first, solve for degree zero in order to find the new heat flux
     ijm = 1
       ir = 1
-        this%rtemp(ir,ijm) = cs4pi
+        this%rtemp(ir,ijm)   = cs4pi
+        this%rflux(1,ir,ijm) = this%nflux(1,ijm,ir)
+        this%rflux(2,ir,ijm) = this%nflux(3,ijm,ir)
       
       do concurrent ( ir = 2:this%nd )
-        this%rtemp(ir,ijm) = this%htide_rr_fn(ir,ijm) + this%ntemp(ijm,ir)
+        this%rtemp(ir,ijm)   = this%htide_rr_fn(ir,ijm) + this%ntemp(ijm,ir)
+        this%rflux(1,ir,ijm) = this%nflux(1,ijm,ir)
+        this%rflux(2,ir,ijm) = this%nflux(3,ijm,ir)
       end do
       
       ir = this%nd+1
@@ -73,7 +78,7 @@ submodule (icecrust) ee
       call this%solve_temp_sub( ijmstart=ijm, ijmend=ijm, ijmstep=1, rematrix=.true., matxsol=.true. )
     
     !! Update the heat flux
-    flux = flux * c2r_fn( this%qr_r_fn(1,1) / s4pi )
+    flux = flux * c2r_fn( this%qr_r_fn(1,1) / s4pi ) - this%gam * (this%bnd%u_dn + this%bnd%t_dn)
     
     !! Solve for other degrees
     !$omp parallel do private (ir, gradTCoeff)
@@ -82,9 +87,13 @@ submodule (icecrust) ee
         gradTCoeff = c2r_fn( this%dT_dr_r_fn(1,1) ) / s4pi - this%Cl
         this%rtemp(1,ijm) = -( this%bnd%u_dn(ijm) + ( this%vr_r_fn(1,ijm) + this%Raf * flux(ijm) ) * this%dt + &
                              & this%Cl / gradTCoeff * this%Vdelta_fn(1,ijm) )
+        this%rflux(1,ir,ijm) = this%nflux(1,ijm,ir)
+        this%rflux(2,ir,ijm) = this%nflux(3,ijm,ir)
       
       do concurrent ( ir = 2:this%nd )
         this%rtemp(ir,ijm) = this%htide_rr_fn(ir,ijm) + this%ntemp(ijm,ir)
+        this%rflux(1,ir,ijm) = this%nflux(1,ijm,ir)
+        this%rflux(2,ir,ijm) = this%nflux(3,ijm,ir)
       end do
       
       ir = this%nd+1

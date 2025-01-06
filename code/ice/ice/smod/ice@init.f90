@@ -23,7 +23,7 @@ submodule (ice) init
     this%g    = g_ice
     this%D_ud = D_ice
     this%Td   = name_meltingTemp_fn( D_ice )
-    this%Tu   = theta_average_fn( name_surfaceTemp_fn )
+    this%Tu   = theta_average_fn( name_surfaceTemp_fn, 0.0054_dbl )
     
     this%rhoI  = rho_ice
     this%rhoW  = rho_water
@@ -55,6 +55,7 @@ submodule (ice) init
     this%Ds   = this%alphaU * this%g * this%D_ud / this%cU
     this%Cl   = this%g * this%D_ud * (this%rhoW-this%rhoI) * this%Td / ( this%rhoI * lI_ice * (this%Td-this%Tu) )
     
+    this%gam = gamma_ice * this%D_ud**2 / this%lambdaU / (this%Td-this%Tu)
     
     call this%gravity%set_sub( Dcrust = this%D_ud, omega = omega, exc = exc )
     call this%bnd%init_layers_sub()
@@ -67,6 +68,7 @@ submodule (ice) init
     if ( allocated(this%nsph2) ) deallocate( this%nsph2 )
     if ( allocated(this%ntorr) ) deallocate( this%ntorr )
     if ( allocated(this%ntemp) ) deallocate( this%ntemp )
+    if ( allocated(this%nflux) ) deallocate( this%nflux )
     
     call this%gravity%deallocate_sub()
     call this%deallocate_objects_sub()

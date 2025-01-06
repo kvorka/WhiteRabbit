@@ -20,7 +20,7 @@ module physicalobject
     integer                        :: nd, jmax, jms, jms2, jmv, jmt, n_iter, poc
     real(kind=dbl)                 :: t, dt, cf, ab, rd, ru, r_ud, D_ud, gd, gu, Pr, Ra, Ek, St, Cl, Ds, Raf, Ramu, Rad, Rau
     integer,           allocatable :: j_indx(:)
-    complex(kind=dbl), allocatable :: rsph1(:,:), rsph2(:,:), rtorr(:,:), rtemp(:,:)
+    complex(kind=dbl), allocatable :: rsph1(:,:), rsph2(:,:), rtorr(:,:), rtemp(:,:), rflux(:,:,:)
     
     type(T_radialGrid)   :: rad_grid
     type(T_lateralGrid)  :: lat_grid
@@ -41,7 +41,7 @@ module physicalobject
     
     !Material parameters
     procedure, pass :: lambda_r_fn, lambda_rr_fn, varlambda_r_ijm_sub
-    procedure, pass :: cp_r_fn, cp_rr_fn, varcp_rr_ijm_sub
+    procedure, pass :: cp1_r_fn, cp1_rr_fn, varcp1_rr_ijm_sub
     procedure, pass :: alpha_r_fn, alpha_rr_fn
     procedure, pass :: visc_r_fn, visc_rr_fn
     
@@ -305,10 +305,10 @@ module physicalobject
       integer,                 intent(in) :: ir
     end function lambda_r_fn
     
-    module pure real(kind=dbl) function cp_r_fn(this, ir)
+    module pure real(kind=dbl) function cp1_r_fn(this, ir)
       class(T_physicalObject), intent(in) :: this
       integer,                 intent(in) :: ir
-    end function cp_r_fn
+    end function cp1_r_fn
     
     module pure real(kind=dbl) function visc_r_fn(this, ir)
       class(T_physicalObject), intent(in) :: this
@@ -325,10 +325,10 @@ module physicalobject
       integer,                 intent(in) :: ir
     end function lambda_rr_fn
     
-    module pure real(kind=dbl) function cp_rr_fn(this, ir)
+    module pure real(kind=dbl) function cp1_rr_fn(this, ir)
       class(T_physicalObject), intent(in) :: this
       integer,                 intent(in) :: ir
-    end function cp_rr_fn
+    end function cp1_rr_fn
     
     module pure real(kind=dbl) function visc_rr_fn(this, ir)
       class(T_physicalObject), intent(in) :: this
@@ -340,11 +340,11 @@ module physicalobject
       integer,                 intent(in) :: ir
     end function alpha_rr_fn
     
-    pure module subroutine varcp_rr_ijm_sub(this, ir, varcp)
+    pure module subroutine varcp1_rr_ijm_sub(this, ir, varcp)
       class(T_physicalObject), intent(in)  :: this
       integer,                 intent(in)  :: ir
       complex(kind=dbl),       intent(out) :: varcp(:)
-    end subroutine varcp_rr_ijm_sub
+    end subroutine varcp1_rr_ijm_sub
     
     pure module subroutine varlambda_r_ijm_sub(this, ir, varlambda)
       class(T_physicalObject), intent(in)  :: this
@@ -496,8 +496,9 @@ module physicalobject
       real(kind=dbl),         allocatable :: matica(:,:)
     end function matica_torr_chb_christ_viscos_fn
     
-    module subroutine init_eq_temp_sub(this)
+    module subroutine init_eq_temp_sub(this, rflux)
       class(T_physicalObject), intent(inout) :: this
+      logical, optional,       intent(in)    :: rflux
     end subroutine init_eq_temp_sub
     
     module subroutine init_eq_torr_sub(this)

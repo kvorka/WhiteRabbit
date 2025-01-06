@@ -12,9 +12,9 @@ submodule (icecrust) params
         !$omp parallel do
         do ir = 1, this%nd
           if ( this%rad_grid%r(ir) < this%ru - this%hC ) then
-            this%mparams%lambda(1,ir) = r2c_fn( s4pi * this%lambdaU / name_conductivity_fn( this%avrg_temperature_ice_ir_fn(ir) ) )
+            this%mparams%lambda(1,ir) = r2c_fn( s4pi * name_conductivity_fn( this%avrg_temperature_ice_ir_fn(ir) ) / this%lambdaU )
           else
-            this%mparams%lambda(1,ir) = r2c_fn( s4pi * this%lambdaU / this%lambdaC )
+            this%mparams%lambda(1,ir) = r2c_fn( s4pi * this%lambdaC / this%lambdaU )
           end if
         end do
         !$omp end parallel do
@@ -39,7 +39,7 @@ submodule (icecrust) params
           !Compute non-dimensional 1/conductivity on the grid
           do concurrent ( i3 = 1:2, i2 = 1:size(grid,dim=2), i1 = 1:size(grid,dim=1) )
             grid(i1,i2,i3) = ( this%Td - this%Tu ) * grid(i1,i2,i3) + this%Tu
-            grid(i1,i2,i3) = this%lambdaU / name_conductivity_fn( grid(i1,i2,i3) )
+            grid(i1,i2,i3) = name_conductivity_fn( grid(i1,i2,i3) ) / this%lambdaU
           end do
           
           !Grid to space :: non-dimensional conductivity
@@ -224,7 +224,7 @@ submodule (icecrust) params
   end procedure visc_iceCrust_jm_sub
   
   module procedure surfTemp_iceCrust_jm_sub
-    integer                        :: i1, i2
+    integer                        :: i1, i2, j, m
     real(kind=dbl)                 :: theta
     real(kind=dbl),    allocatable :: grid(:,:,:)
     complex(kind=dbl), allocatable :: cc_mj(:)
@@ -234,8 +234,8 @@ submodule (icecrust) params
     
     !to grid :: non-dimensional surface temperature
     do concurrent ( i2 = 1:size(grid,dim=2), i1 = 1:size(grid,dim=1) )
-      grid(i1,i2,1) = ( name_surfaceTemp_fn(   acos(this%lat_grid%lgp%rw(i1,1))) - this%Tu ) / ( this%Td - this%Tu )
-      grid(i1,i2,2) = ( name_surfaceTemp_fn(pi-acos(this%lat_grid%lgp%rw(i1,1))) - this%Tu ) / ( this%Td - this%Tu )
+      grid(i1,i2,1) = ( name_surfaceTemp_fn(   acos(this%lat_grid%lgp%rw(i1,1)), 0.0054_dbl) - this%Tu ) / ( this%Td - this%Tu )
+      grid(i1,i2,2) = ( name_surfaceTemp_fn(pi-acos(this%lat_grid%lgp%rw(i1,1)), 0.0054_dbl) - this%Tu ) / ( this%Td - this%Tu )
     end do
     
     !Grid to space :: non-dim surface temperature
@@ -246,6 +246,12 @@ submodule (icecrust) params
     call this%lat_grid%reindexing%scal2scal_mj_to_jm_sub( cc_mj(1), 1, 1, this%bnd%temp_up(1), 1, 1)
     
     deallocate( cc_mj, grid )
+    
+    do j = 0, this%jmax
+      do m = 0, j
+        if ( ( mod(j,2) /= 0 ) .or. ( m > 0 ) ) this%bnd%temp_up(j*(j+1)/2+m+1) = czero
+      end do
+    end do
     
   end procedure surfTemp_iceCrust_jm_sub
   

@@ -65,6 +65,7 @@ submodule (physicalobject) balance_eqs
     
   end procedure laws_mech_fn
   
+  !!TODO: implement non-constant capacity case
   module procedure laws_temp_fn
     integer                        :: ir
     real(kind=dbl)                 :: flow_dn, flow_up, totheat, totheattide
@@ -83,7 +84,7 @@ submodule (physicalobject) balance_eqs
             call this%v_r_ijml_sub( ir, velocity )
             call this%gradT_r_ijml_sub( ir, gradT, -1 )
             
-            heat(ir)     = dotproduct_fn( this%jmax , this%cp_r_fn(ir) * velocity , gradT )
+            heat(ir)     = dotproduct_fn( this%jmax , velocity , gradT )
             heattide(ir) = c2r_fn( this%htide_r_fn(ir,1) )
           end do
           !$omp end parallel do

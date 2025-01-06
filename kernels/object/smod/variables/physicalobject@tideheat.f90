@@ -3,7 +3,7 @@ submodule (physicalobject) tideheat
   
   module procedure htide_r_fn
     
-    htide_r_fn = this%Ds/this%Ra * this%tdheat%htide(ir,ijm) / this%cp_r_fn(ir)
+    htide_r_fn = this%Ds/this%Ra * this%tdheat%htide(ir,ijm) * this%cp1_r_fn(ir)
     
   end procedure htide_r_fn
   
@@ -19,7 +19,7 @@ submodule (physicalobject) tideheat
   module procedure htide_rr_fn
     
     htide_rr_fn = this%Ds/this%Ra * ( this%rad_grid%cc(ir,-1) * this%tdheat%htide(ir-1,ijm) + &
-                                    & this%rad_grid%cc(ir,+1) * this%tdheat%htide(ir  ,ijm)   ) / this%cp_rr_fn(ir)
+                                    & this%rad_grid%cc(ir,+1) * this%tdheat%htide(ir  ,ijm)   ) * this%cp1_rr_fn(ir)
     
   end procedure htide_rr_fn
   

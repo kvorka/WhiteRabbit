@@ -35,20 +35,20 @@ submodule (physicalobject) thermal_matrix
       is = 3*(ir-1)+1
         
         if (ir > 1) then
-          matica(2,is) = +a_in*sqrt((j  )/(2*j+1))*(grid%hdd(ir,-1) - grid%cc(ir,-1)*(j-1)/grid%rr(ir)) / this%cp_rr_fn(ir)
-          matica(3,is) = -a_in*sqrt((j+1)/(2*j+1))*(grid%hdd(ir,-1) + grid%cc(ir,-1)*(j+2)/grid%rr(ir)) / this%cp_rr_fn(ir)
-          matica(4,is) = 1/this%dt
-          matica(5,is) = +a_in*sqrt((j  )/(2*j+1))*(grid%hdd(ir,+1) - grid%cc(ir,+1)*(j-1)/grid%rr(ir)) / this%cp_rr_fn(ir)
-          matica(6,is) = -a_in*sqrt((j+1)/(2*j+1))*(grid%hdd(ir,+1) + grid%cc(ir,+1)*(j+2)/grid%rr(ir)) / this%cp_rr_fn(ir)
+          matica(2,is) = +a_in*sqrt((j  )/(2*j+1))*(grid%hdd(ir,-1) - grid%cc(ir,-1)*(j-1)/grid%rr(ir)) * this%cp1_rr_fn(ir)
+          matica(3,is) = -a_in*sqrt((j+1)/(2*j+1))*(grid%hdd(ir,-1) + grid%cc(ir,-1)*(j+2)/grid%rr(ir)) * this%cp1_rr_fn(ir)
+          matica(4,is) = 1 / this%dt
+          matica(5,is) = +a_in*sqrt((j  )/(2*j+1))*(grid%hdd(ir,+1) - grid%cc(ir,+1)*(j-1)/grid%rr(ir)) * this%cp1_rr_fn(ir)
+          matica(6,is) = -a_in*sqrt((j+1)/(2*j+1))*(grid%hdd(ir,+1) + grid%cc(ir,+1)*(j+2)/grid%rr(ir)) * this%cp1_rr_fn(ir)
         end if
         
-        matica(3,is+1) = +sqrt((j  )/(2*j+1))*(grid%hd(ir,-1) + grid%c(ir,-1)*(j+1)/grid%r(ir))
-        matica(4,is+1) = 1 / this%lambda_r_fn(ir)
-        matica(6,is+1) = +sqrt((j  )/(2*j+1))*(grid%hd(ir,+1) + grid%c(ir,+1)*(j+1)/grid%r(ir))
+        matica(3,is+1) = +sqrt((j  )/(2*j+1))*(grid%hd(ir,-1) + grid%c(ir,-1)*(j+1)/grid%r(ir)) * this%lambda_r_fn(ir)
+        matica(4,is+1) = one
+        matica(6,is+1) = +sqrt((j  )/(2*j+1))*(grid%hd(ir,+1) + grid%c(ir,+1)*(j+1)/grid%r(ir)) * this%lambda_r_fn(ir)
         
-        matica(2,is+2) = -sqrt((j+1)/(2*j+1))*(grid%hd(ir,-1) - grid%c(ir,-1)*(j  )/grid%r(ir))
-        matica(4,is+2) = 1 / this%lambda_r_fn(ir)
-        matica(5,is+2) = -sqrt((j+1)/(2*j+1))*(grid%hd(ir,+1) - grid%c(ir,+1)*(j  )/grid%r(ir))
+        matica(2,is+2) = -sqrt((j+1)/(2*j+1))*(grid%hd(ir,-1) - grid%c(ir,-1)*(j  )/grid%r(ir)) * this%lambda_r_fn(ir)
+        matica(4,is+2) = one
+        matica(5,is+2) = -sqrt((j+1)/(2*j+1))*(grid%hd(ir,+1) - grid%c(ir,+1)*(j  )/grid%r(ir)) * this%lambda_r_fn(ir)
     end do
     
     ir = this%nd
@@ -107,28 +107,28 @@ submodule (physicalobject) thermal_matrix
       is = 3*(ir-1)+1
       
         if (ir > 1) then
-          matica( 1,is) = +a_in*sqrt((j  )/(2*j+1))*(grid%dd(ir,-2)                                   ) / this%cp_rr_fn(ir)
-          matica( 2,is) = -a_in*sqrt((j+1)/(2*j+1))*(grid%dd(ir,-2)                                   ) / this%cp_rr_fn(ir)
-          matica( 4,is) = +a_in*sqrt((j  )/(2*j+1))*(grid%dd(ir,-1) - grid%cc(ir,-1)*(j-1)/grid%rr(ir)) / this%cp_rr_fn(ir)
-          matica( 5,is) = -a_in*sqrt((j+1)/(2*j+1))*(grid%dd(ir,-1) + grid%cc(ir,-1)*(j+2)/grid%rr(ir)) / this%cp_rr_fn(ir)
+          matica( 1,is) = +a_in*sqrt((j  )/(2*j+1))*(grid%dd(ir,-2)                                   ) * this%cp1_rr_fn(ir)
+          matica( 2,is) = -a_in*sqrt((j+1)/(2*j+1))*(grid%dd(ir,-2)                                   ) * this%cp1_rr_fn(ir)
+          matica( 4,is) = +a_in*sqrt((j  )/(2*j+1))*(grid%dd(ir,-1) - grid%cc(ir,-1)*(j-1)/grid%rr(ir)) * this%cp1_rr_fn(ir)
+          matica( 5,is) = -a_in*sqrt((j+1)/(2*j+1))*(grid%dd(ir,-1) + grid%cc(ir,-1)*(j+2)/grid%rr(ir)) * this%cp1_rr_fn(ir)
           matica( 6,is) = 1 / this%dt
-          matica( 7,is) = +a_in*sqrt((j  )/(2*j+1))*(grid%dd(ir,+1) - grid%cc(ir,+1)*(j-1)/grid%rr(ir)) / this%cp_rr_fn(ir)
-          matica( 8,is) = -a_in*sqrt((j+1)/(2*j+1))*(grid%dd(ir,+1) + grid%cc(ir,+1)*(j+2)/grid%rr(ir)) / this%cp_rr_fn(ir)
-          matica(10,is) = +a_in*sqrt((j  )/(2*j+1))*(grid%dd(ir,+2)                                   ) / this%cp_rr_fn(ir)
-          matica(11,is) = -a_in*sqrt((j+1)/(2*j+1))*(grid%dd(ir,+2)                                   ) / this%cp_rr_fn(ir)
+          matica( 7,is) = +a_in*sqrt((j  )/(2*j+1))*(grid%dd(ir,+1) - grid%cc(ir,+1)*(j-1)/grid%rr(ir)) * this%cp1_rr_fn(ir)
+          matica( 8,is) = -a_in*sqrt((j+1)/(2*j+1))*(grid%dd(ir,+1) + grid%cc(ir,+1)*(j+2)/grid%rr(ir)) * this%cp1_rr_fn(ir)
+          matica(10,is) = +a_in*sqrt((j  )/(2*j+1))*(grid%dd(ir,+2)                                   ) * this%cp1_rr_fn(ir)
+          matica(11,is) = -a_in*sqrt((j+1)/(2*j+1))*(grid%dd(ir,+2)                                   ) * this%cp1_rr_fn(ir)
         end if
         
-        matica( 2,is+1) = +sqrt((j  )/(2*j+1))*(grid%d(ir,-2)                                 )
-        matica( 5,is+1) = +sqrt((j  )/(2*j+1))*(grid%d(ir,-1) + grid%c(ir,-1)*(j+1)/grid%r(ir))
-        matica( 6,is+1) = 1 / this%lambda_r_fn(ir)
-        matica( 8,is+1) = +sqrt((j  )/(2*j+1))*(grid%d(ir,+1) + grid%c(ir,+1)*(j+1)/grid%r(ir))
-        matica(11,is+1) = +sqrt((j  )/(2*j+1))*(grid%d(ir,+2)                                 )
+        matica( 2,is+1) = +sqrt((j  )/(2*j+1))*(grid%d(ir,-2)                                 ) * this%lambda_r_fn(ir)
+        matica( 5,is+1) = +sqrt((j  )/(2*j+1))*(grid%d(ir,-1) + grid%c(ir,-1)*(j+1)/grid%r(ir)) * this%lambda_r_fn(ir)
+        matica( 6,is+1) = one
+        matica( 8,is+1) = +sqrt((j  )/(2*j+1))*(grid%d(ir,+1) + grid%c(ir,+1)*(j+1)/grid%r(ir)) * this%lambda_r_fn(ir)
+        matica(11,is+1) = +sqrt((j  )/(2*j+1))*(grid%d(ir,+2)                                 ) * this%lambda_r_fn(ir)
         
-        matica( 1,is+2) = -sqrt((j+1)/(2*j+1))*(grid%d(ir,-2)                                 )
-        matica( 4,is+2) = -sqrt((j+1)/(2*j+1))*(grid%d(ir,-1) - grid%c(ir,-1)*(j  )/grid%r(ir))
-        matica( 6,is+2) = 1 / this%lambda_r_fn(ir)
-        matica( 7,is+2) = -sqrt((j+1)/(2*j+1))*(grid%d(ir,+1) - grid%c(ir,+1)*(j  )/grid%r(ir))
-        matica(10,is+2) = -sqrt((j+1)/(2*j+1))*(grid%d(ir,+2)                                 )
+        matica( 1,is+2) = -sqrt((j+1)/(2*j+1))*(grid%d(ir,-2)                                 ) * this%lambda_r_fn(ir)
+        matica( 4,is+2) = -sqrt((j+1)/(2*j+1))*(grid%d(ir,-1) - grid%c(ir,-1)*(j  )/grid%r(ir)) * this%lambda_r_fn(ir)
+        matica( 6,is+2) = one
+        matica( 7,is+2) = -sqrt((j+1)/(2*j+1))*(grid%d(ir,+1) - grid%c(ir,+1)*(j  )/grid%r(ir)) * this%lambda_r_fn(ir)
+        matica(10,is+2) = -sqrt((j+1)/(2*j+1))*(grid%d(ir,+2)                                 ) * this%lambda_r_fn(ir)
     end do
     
     ir = this%nd

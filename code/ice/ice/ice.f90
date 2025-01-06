@@ -10,9 +10,9 @@ module ice
   implicit none
   
   type, extends(T_physicalObject), abstract, public :: T_ice
-    complex(kind=dbl), allocatable :: nsph1(:,:), nsph2(:,:), ntorr(:,:), ntemp(:,:)
+    complex(kind=dbl), allocatable :: nsph1(:,:), nsph2(:,:), ntorr(:,:), ntemp(:,:), nflux(:,:,:)
     real(kind=dbl)                 :: diam, lambdaC, hC, lambdaU, viscU, cutoff, alphaU, &
-                                    & cU, kappaU, Td, Tu, period, omega, g, mu
+                                    & cU, kappaU, Td, Tu, period, omega, g, mu, gam
     real(kind=dbl)                 :: rC, rI2, rhoC, rhoI2, rhoW, rhoI
     
     contains

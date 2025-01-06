@@ -1,28 +1,28 @@
 submodule (physicalobject) cp
   implicit none; contains
   
-  module procedure cp_r_fn
+  module procedure cp1_r_fn
     
     if ( this%mparams%initcp ) then
-      cp_r_fn = s4pi * ( this%rad_grid%c(ir,-1) / c2r_fn( this%mparams%cp(1,ir  ) ) + &
-                       & this%rad_grid%c(ir,+1) / c2r_fn( this%mparams%cp(1,ir+1) )   )
+      cp1_r_fn = ( this%rad_grid%c(ir,-1) * c2r_fn( this%mparams%cp(1,ir  ) ) + &
+                 & this%rad_grid%c(ir,+1) * c2r_fn( this%mparams%cp(1,ir+1) )   ) / s4pi
     else
-      cp_r_fn = one
+      cp1_r_fn = one
     end if
     
-  end procedure cp_r_fn
+  end procedure cp1_r_fn
   
-  module procedure cp_rr_fn
+  module procedure cp1_rr_fn
     
     if ( this%mparams%initcp ) then
-      cp_rr_fn = s4pi / c2r_fn( this%mparams%cp(1,ir) )
+      cp1_rr_fn = c2r_fn( this%mparams%cp(1,ir) ) / s4pi
     else
-      cp_rr_fn = one
+      cp1_rr_fn = one
     end if
     
-  end procedure cp_rr_fn
+  end procedure cp1_rr_fn
   
-  module procedure varcp_rr_ijm_sub
+  module procedure varcp1_rr_ijm_sub
     integer :: ijm
     
     if ( this%mparams%initcp .and. .not. this%mparams%cp_radial ) then
@@ -38,6 +38,6 @@ submodule (physicalobject) cp
       
     end if
     
-  end procedure varcp_rr_ijm_sub
+  end procedure varcp1_rr_ijm_sub
   
 end submodule cp

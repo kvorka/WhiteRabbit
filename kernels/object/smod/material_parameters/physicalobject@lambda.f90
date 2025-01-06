@@ -4,7 +4,7 @@ submodule (physicalobject) lambda
   module procedure lambda_r_fn
     
     if ( this%mparams%initlambda ) then
-      lambda_r_fn = s4pi / c2r_fn( this%mparams%lambda(1,ir) )
+      lambda_r_fn = c2r_fn( this%mparams%lambda(1,ir) ) / s4pi
     else
       lambda_r_fn = one
     end if
@@ -14,8 +14,8 @@ submodule (physicalobject) lambda
   module procedure lambda_rr_fn
     
     if ( this%mparams%initlambda ) then
-      lambda_rr_fn = s4pi * ( this%rad_grid%cc(ir,-1) / c2r_fn( this%mparams%lambda(1,ir-1) ) + &
-                            & this%rad_grid%cc(ir,+1) / c2r_fn( this%mparams%lambda(1,ir  ) )   )
+      lambda_rr_fn = ( this%rad_grid%cc(ir,-1) * c2r_fn( this%mparams%lambda(1,ir-1) ) + &
+                     & this%rad_grid%cc(ir,+1) * c2r_fn( this%mparams%lambda(1,ir  ) )   ) / s4pi
     else
       lambda_rr_fn = one
     end if

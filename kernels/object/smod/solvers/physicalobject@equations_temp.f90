@@ -9,6 +9,10 @@ submodule (physicalobject) equations_temp
     allocate( this%rtemp(this%nd+1,this%jms) )
       this%rtemp = czero
     
+    if ( ( present(rflux) ) .and. ( rflux .eqv. .true. ) ) then
+      allocate( this%rflux(2,this%nd,this%jms) )
+    end if
+    
   end procedure init_eq_temp_sub
   
   module procedure prepare_mat_temp_sub
@@ -27,30 +31,58 @@ submodule (physicalobject) equations_temp
     
     if (rematrix) call this%prepare_mat_temp_sub( this%j_indx(ijmstart) , this%j_indx(ijmend) )
     
-    !$omp parallel do private (ir,is,ij)
-    do ijm = ijmstart, ijmend, ijmstep
-      ij = this%j_indx(ijm)
-      
-      if ( matxsol ) then
-        do concurrent ( ir=2:this%nd )
-          this%rtemp(ir,ijm) = this%rtemp(ir,ijm) + this%mat%temp(ij)%multipl_fn(3*(ir-1)+1, this%sol%temp(:,ijm))
+    if ( allocated(this%rflux) ) then
+      !$omp parallel do private (ir,is,ij)
+      do ijm = ijmstart, ijmend, ijmstep
+        ij = this%j_indx(ijm)
+        
+        if ( matxsol ) then
+          do concurrent ( ir=2:this%nd )
+            this%rtemp(ir,ijm) = this%rtemp(ir,ijm) + this%mat%temp(ij)%multipl_fn(3*(ir-1)+1, this%sol%temp(:,ijm))
+          end do
+        end if
+        
+        do concurrent ( ir=1:this%nd )
+          is = 3*(ir-1)+1
+          
+          this%sol%temp(is  ,ijm) = this%rtemp(ir,ijm)
+          this%sol%temp(is+1,ijm) = this%rflux(1,ir,ijm)
+          this%sol%temp(is+2,ijm) = this%rflux(2,ir,ijm)
         end do
-      end if
-      
-      do concurrent ( ir=1:this%nd )
-        is = 3*(ir-1)+1
-        
-        this%sol%temp(is  ,ijm) = this%rtemp(ir,ijm)
-        this%sol%temp(is+1,ijm) = czero
-        this%sol%temp(is+2,ijm) = czero
+          
+        ir = this%nd+1
+          this%sol%temp(3*this%nd+1,ijm) = this%rtemp(ir,ijm)
+          
+        call this%mat%temp(ij)%luSolve_sub( this%sol%temp(:,ijm) )
       end do
+      !$omp end parallel do
+      
+    else
+      !$omp parallel do private (ir,is,ij)
+      do ijm = ijmstart, ijmend, ijmstep
+        ij = this%j_indx(ijm)
         
-      ir = this%nd+1
-        this%sol%temp(3*this%nd+1,ijm) = this%rtemp(ir,ijm)
+        if ( matxsol ) then
+          do concurrent ( ir=2:this%nd )
+            this%rtemp(ir,ijm) = this%rtemp(ir,ijm) + this%mat%temp(ij)%multipl_fn(3*(ir-1)+1, this%sol%temp(:,ijm))
+          end do
+        end if
         
-      call this%mat%temp(ij)%luSolve_sub( this%sol%temp(:,ijm) )
-    end do
-    !$omp end parallel do
+        do concurrent ( ir=1:this%nd )
+          is = 3*(ir-1)+1
+          
+          this%sol%temp(is  ,ijm) = this%rtemp(ir,ijm)
+          this%sol%temp(is+1,ijm) = czero
+          this%sol%temp(is+2,ijm) = czero
+        end do
+          
+        ir = this%nd+1
+          this%sol%temp(3*this%nd+1,ijm) = this%rtemp(ir,ijm)
+          
+        call this%mat%temp(ij)%luSolve_sub( this%sol%temp(:,ijm) )
+      end do
+      !$omp end parallel do
+    end if
     
   end procedure solve_temp_sub
   
