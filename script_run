@@ -14,6 +14,7 @@ fcompile="gfortran-12 -Ofast \
                       -fno-bounds-check \
                       -flto=auto \
                       -fwhole-program \
+                      -mprefer-vector-width=512 \
                       -fopenmp"
 
 ccompile="gcc-12 -Ofast \
@@ -23,6 +24,7 @@ ccompile="gcc-12 -Ofast \
                  -fno-bounds-check \
                  -flto=auto \
                  -fwhole-program \
+                 -mprefer-vector-width=512 \
                  -fopenmp"
 
 ###########################################################################################
