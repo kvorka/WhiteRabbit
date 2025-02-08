@@ -1,7 +1,7 @@
 submodule (lege_poly) roots
   implicit none; contains
   
-  pure real(kind=qbl) function lege_fn(deg, x)
+   real(kind=qbl) function lege_fn(deg, x)
     integer,        intent(in) :: deg
     real(kind=qbl), intent(in) :: x
     real(kind=qbl)             :: p1, p2, fac
@@ -28,7 +28,8 @@ submodule (lege_poly) roots
     !!**********************************************************************!!
     !!* Close to roots array holder and holder arrays.                     *!!
     !!**********************************************************************!!
-    allocate( this%rw(this%nLege,3), xclose(this%nLege) )
+    call calloc_sub( 4*this%nLege, step, this%c_rw ); call c_f_pointer( this%c_rw, this%rw, [this%nLege,4] )
+    allocate( xclose(this%nLege) )
     
     !!**********************************************************************!!
     !!* Seek for efficient stepping to use within the bisection method and *!!
@@ -58,7 +59,7 @@ submodule (lege_poly) roots
       if ( ncnt == this%nLege ) then
         exit
       else
-        do concurrent ( i = 1:ncnt )
+        do i = 1, ncnt
           xclose(i) = qzero
         end do
       end if
@@ -92,7 +93,8 @@ submodule (lege_poly) roots
       
       this%rw(i,1) = root
       this%rw(i,2) = sqrt( 1 - root**2 )
-      this%rw(i,3) = qpi * (1-root**2) / ( this%nLege * lege_fn(2*this%nLege-1, root) )**2
+      this%rw(i,3) = root**2
+      this%rw(i,4) = qpi * (1-root**2) / ( this%nLege * lege_fn(2*this%nLege-1, root) )**2
     end do
     !$omp end parallel do
     

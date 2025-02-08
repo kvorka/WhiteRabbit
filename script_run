@@ -3,254 +3,265 @@
 ####                              POSSIBLE CODE SETTINGS                               ####
 ####       test_speed, ocean_convection, ice_ocean, ocean_tides, ice_deformation       ####
 ###########################################################################################
-code_type="ice_deformation"
+code_type="test_legendre"
 
 ###########################################################################################
 ####                              COMPILER SET UP                                      ####
 ###########################################################################################
-compile="gfortran-12 -Ofast \
-                     -march=native \
-                     -fno-bounds-check \
-                     -flto=auto \
-                     -fwhole-program \
-                     -fopenmp"
+fcompile="gfortran-12 -Ofast \
+                      -march=native \
+                      -funroll-loops \
+                      -fno-bounds-check \
+                      -flto=auto \
+                      -fwhole-program \
+                      -fopenmp"
+
+ccompile="gcc-12 -Ofast \
+                 -fno-strict-aliasing \
+                 -march=native \
+                 -funroll-loops \
+                 -fno-bounds-check \
+                 -flto=auto \
+                 -fwhole-program \
+                 -fopenmp"
 
 ###########################################################################################
 ####                    COMPILATION OF THE BASELINE, DIRS SET UP                       ####
 ###########################################################################################
-$compile -c kernels/math/math/math.f90
-  $compile -c kernels/math/math/smod/math@conversions.f90 &
-  $compile -c kernels/math/math/smod/math@nulify.f90 &
+$fcompile -c kernels/math/math/math.f90
+  $fcompile -c kernels/math/math/smod/math@conversions.f90 &
+  $fcompile -c kernels/math/math/smod/math@nulify.f90 &
+  $ccompile -c kernels/math/math/cmod/c_alloc.c &
+  $ccompile -c kernels/math/math/cmod/c_free.c &
+  $ccompile -c kernels/math/math/cmod/c_zero.c &
 wait
 
-  $compile -c kernels/math/sph/sph_indexing.f90 &
-  $compile -c kernels/math/sph/sph_norms.f90 &
-  $compile -c kernels/math/sph/sph_unitvec_op.f90 &
-  $compile -c kernels/math/sph/lateral_integral.f90 &
+  $fcompile -c kernels/math/sph/sph_indexing.f90 &
+  $fcompile -c kernels/math/sph/sph_norms.f90 &
+  $fcompile -c kernels/math/sph/sph_unitvec_op.f90 &
+  $fcompile -c kernels/math/sph/lateral_integral.f90 &
 wait
 
-$compile -c kernels/math/fft/fourier_transform.f90
-  $compile -c kernels/math/fft/smod/init/fourier_transform@init.f90 &
-  $compile -c kernels/math/fft/smod/init/fourier_transform@fxinit.f90 &
-  $compile -c kernels/math/fft/smod/codelets/fourier_transform@fx2.f90 &
-  $compile -c kernels/math/fft/smod/codelets/fourier_transform@fx3.f90 &
-  $compile -c kernels/math/fft/smod/codelets/fourier_transform@fx4.f90 &
-  $compile -c kernels/math/fft/smod/codelets/fourier_transform@fx5.f90 &
-  $compile -c kernels/math/fft/smod/cores/fourier_transform@fxtal.f90 &
-  $compile -c kernels/math/fft/smod/cores/fourier_transform@fxrsc.f90 &
-  $compile -c kernels/math/fft/smod/cores/fourier_transform@fxshf.f90 &
-  $compile -c kernels/math/fft/smod/transforms/fourier_transform@r2c.f90 &
-  $compile -c kernels/math/fft/smod/transforms/fourier_transform@c2r.f90 &
+$fcompile -c kernels/math/fft/fourier_transform.f90
+  $fcompile -c kernels/math/fft/smod/init/fourier_transform@init.f90 &
+  $fcompile -c kernels/math/fft/smod/init/fourier_transform@fxinit.f90 &
+  $fcompile -c kernels/math/fft/smod/codelets/fourier_transform@fx2.f90 &
+  $fcompile -c kernels/math/fft/smod/codelets/fourier_transform@fx3.f90 &
+  $fcompile -c kernels/math/fft/smod/codelets/fourier_transform@fx4.f90 &
+  $fcompile -c kernels/math/fft/smod/codelets/fourier_transform@fx5.f90 &
+  $fcompile -c kernels/math/fft/smod/cores/fourier_transform@fxtal.f90 &
+  $fcompile -c kernels/math/fft/smod/cores/fourier_transform@fxrsc.f90 &
+  $fcompile -c kernels/math/fft/smod/cores/fourier_transform@fxshf.f90 &
+  $fcompile -c kernels/math/fft/smod/transforms/fourier_transform@r2c.f90 &
+  $fcompile -c kernels/math/fft/smod/transforms/fourier_transform@c2r.f90 &
 wait
 
-$compile -c kernels/math/legepoly/lege_poly.f90
-  $compile -c kernels/math/legepoly/smod/init/lege_poly@init.f90 &
-  $compile -c kernels/math/legepoly/smod/init/lege_poly@roots.f90 &
-  $compile -c kernels/math/legepoly/smod/init/lege_poly@coeffs.f90 &
-  $compile -c kernels/math/legepoly/smod/codelets/lege_poly@step4p.f90 &
-  $compile -c kernels/math/legepoly/smod/codelets/lege_poly@step4b.f90 &
-  $compile -c kernels/math/legepoly/smod/codelets/lege_poly@step4f.f90 &
-  $compile -c kernels/math/legepoly/smod/codelets/lege_poly@step8p.f90 &
-  $compile -c kernels/math/legepoly/smod/codelets/lege_poly@step8b.f90 &
-  $compile -c kernels/math/legepoly/smod/codelets/lege_poly@step8f.f90 &
-  $compile -c kernels/math/legepoly/smod/codelets/lege_poly@step16p.f90 &
-  $compile -c kernels/math/legepoly/smod/codelets/lege_poly@step16b.f90 &
-  $compile -c kernels/math/legepoly/smod/codelets/lege_poly@step16f.f90 &
+$fcompile -c kernels/math/legepoly/lege_poly.f90
+  $fcompile -c kernels/math/legepoly/smod/init/lege_poly@init.f90 &
+  $fcompile -c kernels/math/legepoly/smod/init/lege_poly@roots.f90 &
+  $fcompile -c kernels/math/legepoly/smod/init/lege_poly@coeffs.f90 &
+  $fcompile -c kernels/math/legepoly/smod/indexing/lege_poly@allocators.f90 &
+  $fcompile -c kernels/math/legepoly/smod/indexing/lege_poly@c2r.f90 &
+  $fcompile -c kernels/math/legepoly/smod/indexing/lege_poly@r2c.f90 &
+  $fcompile -c kernels/math/legepoly/smod/codelets/lege_poly@bwd.f90 &
+  $fcompile -c kernels/math/legepoly/smod/codelets/lege_poly@fwd.f90 &
+  $ccompile -c kernels/math/legepoly/smod/codelets/cmod/c_poly.c &
+  $ccompile -c kernels/math/legepoly/smod/codelets/cmod/c_bwd.c &
+  $ccompile -c kernels/math/legepoly/smod/codelets/cmod/c_fwd.c &
+
+$fcompile -c kernels/math/sphsvt/mod/cleb.f90
+  $fcompile -c kernels/math/sphsvt/mod/smod/cleb@gordan1.f90 &
+  $fcompile -c kernels/math/sphsvt/mod/smod/cleb@gordan2.f90 &
 wait
 
-$compile -c kernels/math/sphsvt/mod/cleb.f90
-  $compile -c kernels/math/sphsvt/mod/smod/cleb@gordan1.f90 &
-  $compile -c kernels/math/sphsvt/mod/smod/cleb@gordan2.f90 &
+$fcompile -c kernels/math/sphsvt/sphsvt.f90
+  $fcompile -c kernels/math/sphsvt/smod/sphsvt@init.f90 &
+  $fcompile -c kernels/math/sphsvt/smod/sphsvt@allocators.f90 &
+  $fcompile -c kernels/math/sphsvt/smod/sphsvt@devtens_to_scal.f90 &
+  $fcompile -c kernels/math/sphsvt/smod/sphsvt@scal_to_devtens.f90 &
+  $fcompile -c kernels/math/sphsvt/smod/sphsvt@gradvec_to_vec.f90 &
+  $fcompile -c kernels/math/sphsvt/smod/sphsvt@scal_to_scal.f90 &
+  $fcompile -c kernels/math/sphsvt/smod/sphsvt@vec_to_vec.f90 &
+  $fcompile -c kernels/math/sphsvt/smod/sphsvt@scal_to_vec.f90 &
+  $fcompile -c kernels/math/sphsvt/smod/sphsvt@vec_to_scal.f90 &
 wait
 
-$compile -c kernels/math/sphsvt/sphsvt.f90
-  $compile -c kernels/math/sphsvt/smod/sphsvt@init.f90 &
-  $compile -c kernels/math/sphsvt/smod/sphsvt@allocators.f90 &
-  $compile -c kernels/math/sphsvt/smod/sphsvt@devtens_to_scal.f90 &
-  $compile -c kernels/math/sphsvt/smod/sphsvt@scal_to_devtens.f90 &
-  $compile -c kernels/math/sphsvt/smod/sphsvt@gradvec_to_vec.f90 &
-  $compile -c kernels/math/sphsvt/smod/sphsvt@scal_to_scal.f90 &
-  $compile -c kernels/math/sphsvt/smod/sphsvt@vec_to_vec.f90 &
-  $compile -c kernels/math/sphsvt/smod/sphsvt@scal_to_vec.f90 &
-  $compile -c kernels/math/sphsvt/smod/sphsvt@vec_to_scal.f90 &
+$fcompile -c kernels/math/lu_matrix/matrix.f90
+  $fcompile -c kernels/math/lu_matrix/smod/matrix@init.f90 &
+  $fcompile -c kernels/math/lu_matrix/smod/matrix@lu_decomp.f90 &
+  $fcompile -c kernels/math/lu_matrix/smod/matrix@lu_solve.f90 &
+  $fcompile -c kernels/math/lu_matrix/smod/matrix@mult.f90 &
 wait
 
-$compile -c kernels/math/lu_matrix/matrix.f90
-  $compile -c kernels/math/lu_matrix/smod/matrix@init.f90 &
-  $compile -c kernels/math/lu_matrix/smod/matrix@lu_decomp.f90 &
-  $compile -c kernels/math/lu_matrix/smod/matrix@lu_solve.f90 &
-  $compile -c kernels/math/lu_matrix/smod/matrix@mult.f90 &
+$fcompile -c kernels/grid/radial/radial_grid.f90
+  $fcompile -c kernels/grid/radial/smod/radial_grid@init.f90 &
+  $fcompile -c kernels/grid/radial/smod/differences/radial_grid@homogd.f90 &
+  $fcompile -c kernels/grid/radial/smod/differences/radial_grid@chebyschd.f90 &
+  $fcompile -c kernels/grid/radial/smod/differences/radial_grid@interpd.f90 &
+  $fcompile -c kernels/grid/radial/smod/integration/radial_grid@cvolint.f90 &
+  $fcompile -c kernels/grid/radial/smod/integration/radial_grid@rvolint.f90 &
+  $fcompile -c kernels/grid/radial/smod/integration/radial_grid@cradint.f90 &
+  $fcompile -c kernels/grid/radial/smod/integration/radial_grid@rradint.f90 &
+  $fcompile -c kernels/grid/radial/smod/interpolation/radial_grid@interpolation.f90 &
 wait
 
-$compile -c kernels/grid/radial/radial_grid.f90
-  $compile -c kernels/grid/radial/smod/radial_grid@init.f90 &
-  $compile -c kernels/grid/radial/smod/differences/radial_grid@homogd.f90 &
-  $compile -c kernels/grid/radial/smod/differences/radial_grid@chebyschd.f90 &
-  $compile -c kernels/grid/radial/smod/differences/radial_grid@interpd.f90 &
-  $compile -c kernels/grid/radial/smod/integration/radial_grid@cvolint.f90 &
-  $compile -c kernels/grid/radial/smod/integration/radial_grid@rvolint.f90 &
-  $compile -c kernels/grid/radial/smod/integration/radial_grid@cradint.f90 &
-  $compile -c kernels/grid/radial/smod/integration/radial_grid@rradint.f90 &
-  $compile -c kernels/grid/radial/smod/interpolation/radial_grid@interpolation.f90 &
+$fcompile -c kernels/grid/lateral/mod/grid_ops.f90
+  $fcompile -c kernels/grid/lateral/mod/smod/grid_ops@vcvxv.f90 &
+  $fcompile -c kernels/grid/lateral/mod/smod/grid_ops@vcvv.f90 &
+  $fcompile -c kernels/grid/lateral/mod/smod/grid_ops@vcvv_vcvgv.f90 &
+  $fcompile -c kernels/grid/lateral/mod/smod/grid_ops@vcvgv.f90 &
+  $fcompile -c kernels/grid/lateral/mod/smod/grid_ops@vcsv.f90 &
+  $fcompile -c kernels/grid/lateral/mod/smod/grid_ops@vcst.f90 &
+  $fcompile -c kernels/grid/lateral/mod/smod/grid_ops@vcss.f90 &
+  $fcompile -c kernels/grid/lateral/mod/smod/grid_ops@vcss_add_vcvv.f90 &
 wait
 
-$compile -c kernels/grid/lateral/mod/grid_ops.f90
-  $compile -c kernels/grid/lateral/mod/smod/grid_ops@vcvxv.f90 &
-  $compile -c kernels/grid/lateral/mod/smod/grid_ops@vcvv.f90 &
-  $compile -c kernels/grid/lateral/mod/smod/grid_ops@vcvv_vcvgv.f90 &
-  $compile -c kernels/grid/lateral/mod/smod/grid_ops@vcvgv.f90 &
-  $compile -c kernels/grid/lateral/mod/smod/grid_ops@vcsv.f90 &
-  $compile -c kernels/grid/lateral/mod/smod/grid_ops@vcst.f90 &
-  $compile -c kernels/grid/lateral/mod/smod/grid_ops@vcss.f90 &
-  $compile -c kernels/grid/lateral/mod/smod/grid_ops@vcss_add_vcvv.f90 &
+$fcompile -c kernels/grid/lateral/lateral_grid.f90
+  $fcompile -c kernels/grid/lateral/smod/lateral_grid@init.f90 &
+  $fcompile -c kernels/grid/lateral/smod/lateral_grid@sgs.f90 &
+  $fcompile -c kernels/grid/lateral/smod/lateral_grid@transform.f90 &
+  $fcompile -c kernels/grid/lateral/smod/lateral_grid@vcss.f90 &
+  $fcompile -c kernels/grid/lateral/smod/lateral_grid@vcsv.f90 &
+  $fcompile -c kernels/grid/lateral/smod/lateral_grid@vcst.f90 &
+  $fcompile -c kernels/grid/lateral/smod/lateral_grid@vcvv.f90 &
+  $fcompile -c kernels/grid/lateral/smod/lateral_grid@vcvxv.f90 &
+  $fcompile -c kernels/grid/lateral/smod/lateral_grid@vcvgv.f90 &
+  $fcompile -c kernels/grid/lateral/smod/lateral_grid@vcvv_vcvgv.f90 &
+  $fcompile -c kernels/grid/lateral/smod/lateral_grid@vcss_add_vcvv.f90 &
 wait
 
-$compile -c kernels/grid/lateral/lateral_grid.f90
-  $compile -c kernels/grid/lateral/smod/lateral_grid@init.f90 &
-  $compile -c kernels/grid/lateral/smod/lateral_grid@sgs.f90 &
-  $compile -c kernels/grid/lateral/smod/lateral_grid@transform.f90 &
-  $compile -c kernels/grid/lateral/smod/lateral_grid@vcss.f90 &
-  $compile -c kernels/grid/lateral/smod/lateral_grid@vcsv.f90 &
-  $compile -c kernels/grid/lateral/smod/lateral_grid@vcst.f90 &
-  $compile -c kernels/grid/lateral/smod/lateral_grid@vcvv.f90 &
-  $compile -c kernels/grid/lateral/smod/lateral_grid@vcvxv.f90 &
-  $compile -c kernels/grid/lateral/smod/lateral_grid@vcvgv.f90 &
-  $compile -c kernels/grid/lateral/smod/lateral_grid@vcvv_vcvgv.f90 &
-  $compile -c kernels/grid/lateral/smod/lateral_grid@vcss_add_vcvv.f90 &
+$fcompile -c kernels/equations/solution/solution.f90
+  $fcompile -c kernels/equations/solution/smod/solution@init.f90 &
+  $fcompile -c kernels/equations/solution/smod/solution@nulify.f90 &
+  $fcompile -c kernels/equations/solution/smod/solution@temperature.f90 &
+  $fcompile -c kernels/equations/solution/smod/solution@flux.f90 &
+  $fcompile -c kernels/equations/solution/smod/solution@velocity.f90 &
+  $fcompile -c kernels/equations/solution/smod/solution@stress.f90 &
 wait
 
-$compile -c kernels/equations/solution/solution.f90
-  $compile -c kernels/equations/solution/smod/solution@init.f90 &
-  $compile -c kernels/equations/solution/smod/solution@nulify.f90 &
-  $compile -c kernels/equations/solution/smod/solution@temperature.f90 &
-  $compile -c kernels/equations/solution/smod/solution@flux.f90 &
-  $compile -c kernels/equations/solution/smod/solution@velocity.f90 &
-  $compile -c kernels/equations/solution/smod/solution@stress.f90 &
+$fcompile -c kernels/equations/matrices/matrices.f90
+  $fcompile -c kernels/equations/matrices/smod/matrices@init.f90 &
+  $fcompile -c kernels/equations/matrices/smod/matrices@inittemp.f90 &
+  $fcompile -c kernels/equations/matrices/smod/matrices@inittorr.f90 &
+  $fcompile -c kernels/equations/matrices/smod/matrices@initmech.f90 &
 wait
 
-$compile -c kernels/equations/matrices/matrices.f90
-  $compile -c kernels/equations/matrices/smod/matrices@init.f90 &
-  $compile -c kernels/equations/matrices/smod/matrices@inittemp.f90 &
-  $compile -c kernels/equations/matrices/smod/matrices@inittorr.f90 &
-  $compile -c kernels/equations/matrices/smod/matrices@initmech.f90 &
+$fcompile -c kernels/gravity/gravity.f90
+  $fcompile -c kernels/gravity/smod/gravity@init.f90 &
+  $fcompile -c kernels/gravity/smod/gravity@acceleration.f90 &
+  $fcompile -c kernels/gravity/smod/gravity@potentials.f90 &
 wait
 
-$compile -c kernels/gravity/gravity.f90
-  $compile -c kernels/gravity/smod/gravity@init.f90 &
-  $compile -c kernels/gravity/smod/gravity@acceleration.f90 &
-  $compile -c kernels/gravity/smod/gravity@potentials.f90 &
+$fcompile -c kernels/mparams/mparams.f90
+  $fcompile -c kernels/mparams/smod/mparams@init.f90 &
+  $fcompile -c kernels/mparams/smod/mparams@alpha.f90 &
+  $fcompile -c kernels/mparams/smod/mparams@cond.f90 &
+  $fcompile -c kernels/mparams/smod/mparams@cap.f90 &
+  $fcompile -c kernels/mparams/smod/mparams@visc.f90 &
 wait
 
-$compile -c kernels/mparams/mparams.f90
-  $compile -c kernels/mparams/smod/mparams@init.f90 &
-  $compile -c kernels/mparams/smod/mparams@alpha.f90 &
-  $compile -c kernels/mparams/smod/mparams@cond.f90 &
-  $compile -c kernels/mparams/smod/mparams@cap.f90 &
-  $compile -c kernels/mparams/smod/mparams@visc.f90 &
+$fcompile -c kernels/boundaries/boundaries.f90
+  $fcompile -c kernels/boundaries/smod/boundaries@init.f90 &
+  $fcompile -c kernels/boundaries/smod/boundaries@nulify.f90 &
+  $fcompile -c kernels/boundaries/smod/boundaries@inittemp.f90 &
+  $fcompile -c kernels/boundaries/smod/boundaries@initlayers.f90 &
 wait
 
-$compile -c kernels/boundaries/boundaries.f90
-  $compile -c kernels/boundaries/smod/boundaries@init.f90 &
-  $compile -c kernels/boundaries/smod/boundaries@nulify.f90 &
-  $compile -c kernels/boundaries/smod/boundaries@inittemp.f90 &
-  $compile -c kernels/boundaries/smod/boundaries@initlayers.f90 &
+$fcompile -c kernels/tidal_heating/tidalheating.f90
+  $fcompile -c kernels/tidal_heating/smod/tidalheating@init.f90 &
 wait
 
-$compile -c kernels/tidal_heating/tidalheating.f90
-  $compile -c kernels/tidal_heating/smod/tidalheating@init.f90 &
-wait
-
-$compile -c kernels/object/physicalobject.f90
-  $compile -c kernels/object/smod/physicalobject@init.f90 &
+$fcompile -c kernels/object/physicalobject.f90
+  $fcompile -c kernels/object/smod/physicalobject@init.f90 &
   
-  $compile -c kernels/object/smod/matrices/physicalobject@matrix_definitions.f90 &
-  $compile -c kernels/object/smod/matrices/physicalobject@spheroidal_visc_matrix.f90 &
-  $compile -c kernels/object/smod/matrices/physicalobject@spheroidal_viscel_matrix.f90 &
-  $compile -c kernels/object/smod/matrices/physicalobject@toroidal_visc_matrix.f90 &
-  $compile -c kernels/object/smod/matrices/physicalobject@thermal_matrix.f90 &
+  $fcompile -c kernels/object/smod/matrices/physicalobject@matrix_definitions.f90 &
+  $fcompile -c kernels/object/smod/matrices/physicalobject@spheroidal_visc_matrix.f90 &
+  $fcompile -c kernels/object/smod/matrices/physicalobject@spheroidal_viscel_matrix.f90 &
+  $fcompile -c kernels/object/smod/matrices/physicalobject@toroidal_visc_matrix.f90 &
+  $fcompile -c kernels/object/smod/matrices/physicalobject@thermal_matrix.f90 &
   
-  $compile -c kernels/object/smod/heating/physicalobject@viscdissip.f90 &
+  $fcompile -c kernels/object/smod/heating/physicalobject@viscdissip.f90 &
   
-  $compile -c kernels/object/smod/solvers/physicalobject@equations_mech.f90 &
-  $compile -c kernels/object/smod/solvers/physicalobject@equations_torr.f90 &
-  $compile -c kernels/object/smod/solvers/physicalobject@equations_temp.f90 &
+  $fcompile -c kernels/object/smod/solvers/physicalobject@equations_mech.f90 &
+  $fcompile -c kernels/object/smod/solvers/physicalobject@equations_torr.f90 &
+  $fcompile -c kernels/object/smod/solvers/physicalobject@equations_temp.f90 &
   
-  $compile -c kernels/object/smod/variables/physicalobject@temperature.f90 &
-  $compile -c kernels/object/smod/variables/physicalobject@heatflux.f90 &
-  $compile -c kernels/object/smod/variables/physicalobject@velocity.f90 &
-  $compile -c kernels/object/smod/variables/physicalobject@tideheat.f90 &
+  $fcompile -c kernels/object/smod/variables/physicalobject@temperature.f90 &
+  $fcompile -c kernels/object/smod/variables/physicalobject@heatflux.f90 &
+  $fcompile -c kernels/object/smod/variables/physicalobject@velocity.f90 &
+  $fcompile -c kernels/object/smod/variables/physicalobject@tideheat.f90 &
   
-  $compile -c kernels/object/smod/material_parameters/physicalobject@alpha.f90 &
-  $compile -c kernels/object/smod/material_parameters/physicalobject@lambda.f90 &
-  $compile -c kernels/object/smod/material_parameters/physicalobject@cp.f90 &
-  $compile -c kernels/object/smod/material_parameters/physicalobject@visc.f90 &
+  $fcompile -c kernels/object/smod/material_parameters/physicalobject@alpha.f90 &
+  $fcompile -c kernels/object/smod/material_parameters/physicalobject@lambda.f90 &
+  $fcompile -c kernels/object/smod/material_parameters/physicalobject@cp.f90 &
+  $fcompile -c kernels/object/smod/material_parameters/physicalobject@visc.f90 &
   
-  $compile -c kernels/object/smod/forces/physicalobject@buoyancy.f90 &
-  $compile -c kernels/object/smod/forces/physicalobject@coriolis.f90 &
-  $compile -c kernels/object/smod/forces/physicalobject@globrot.f90 &
+  $fcompile -c kernels/object/smod/forces/physicalobject@buoyancy.f90 &
+  $fcompile -c kernels/object/smod/forces/physicalobject@coriolis.f90 &
+  $fcompile -c kernels/object/smod/forces/physicalobject@globrot.f90 &
   
-  $compile -c kernels/object/smod/output/physicalobject@meassures.f90 &
-  $compile -c kernels/object/smod/output/physicalobject@output.f90 &
+  $fcompile -c kernels/object/smod/output/physicalobject@meassures.f90 &
+  $fcompile -c kernels/object/smod/output/physicalobject@output.f90 &
   
-  $compile -c kernels/object/smod/balances/physicalobject@balance_eqs.f90 &
+  $fcompile -c kernels/object/smod/balances/physicalobject@balance_eqs.f90 &
 wait
 
-$compile -c code/ocean/ocean_constants.f90
+$fcompile -c code/ocean/ocean_constants.f90
 
-$compile -c code/ocean/ocean/ocean.f90
-  $compile -c code/ocean/ocean/smod/ocean@init.f90 &
-  $compile -c code/ocean/ocean/smod/ocean@iter.f90 &
-  $compile -c code/ocean/ocean/smod/ocean@nonlin.f90 &
-  $compile -c code/ocean/ocean/smod/ocean@output.f90 &
-  $compile -c code/ocean/ocean/smod/ocean@set_bnd.f90 &
+$fcompile -c code/ocean/ocean/ocean.f90
+  $fcompile -c code/ocean/ocean/smod/ocean@init.f90 &
+  $fcompile -c code/ocean/ocean/smod/ocean@iter.f90 &
+  $fcompile -c code/ocean/ocean/smod/ocean@nonlin.f90 &
+  $fcompile -c code/ocean/ocean/smod/ocean@output.f90 &
+  $fcompile -c code/ocean/ocean/smod/ocean@set_bnd.f90 &
 wait
 
-$compile -c code/ocean/ocean_conv/oceanconv.f90
-  $compile -c code/ocean/ocean_conv/smod/oceanconv@init.f90 &
-  $compile -c code/ocean/ocean_conv/smod/oceanconv@timescheme.f90 &
+$fcompile -c code/ocean/ocean_conv/oceanconv.f90
+  $fcompile -c code/ocean/ocean_conv/smod/oceanconv@init.f90 &
+  $fcompile -c code/ocean/ocean_conv/smod/oceanconv@timescheme.f90 &
 wait
 
-$compile -c code/ocean/ocean_ice/oceanice.f90
-  $compile -c code/ocean/ocean_ice/smod/oceanice@init.f90 &
-  $compile -c code/ocean/ocean_ice/smod/oceanice@timescheme.f90 &
+$fcompile -c code/ocean/ocean_ice/oceanice.f90
+  $fcompile -c code/ocean/ocean_ice/smod/oceanice@init.f90 &
+  $fcompile -c code/ocean/ocean_ice/smod/oceanice@timescheme.f90 &
 wait
 
-$compile -c code/ocean/ocean_tides/oceantides.f90
-  $compile -c code/ocean/ocean_tides/smod/oceantides@init.f90 &
-  $compile -c code/ocean/ocean_tides/smod/oceantides@timescheme.f90 &
-  $compile -c code/ocean/ocean_tides/smod/oceantides@iter.f90 &
-  $compile -c code/ocean/ocean_tides/smod/oceantides@output.f90 &
+$fcompile -c code/ocean/ocean_tides/oceantides.f90
+  $fcompile -c code/ocean/ocean_tides/smod/oceantides@init.f90 &
+  $fcompile -c code/ocean/ocean_tides/smod/oceantides@timescheme.f90 &
+  $fcompile -c code/ocean/ocean_tides/smod/oceantides@iter.f90 &
+  $fcompile -c code/ocean/ocean_tides/smod/oceantides@output.f90 &
 wait
 
-$compile -c code/ice/ice_constants.f90
-  $compile -c code/ice/ice_parameters/ice_bndtemp.f90 &
-  $compile -c code/ice/ice_parameters/ice_cp.f90 &
-  $compile -c code/ice/ice_parameters/ice_cond.f90 &
-  $compile -c code/ice/ice_parameters/ice_alpha.f90 &
-  $compile -c code/ice/ice_parameters/ice_visc.f90 &
+$fcompile -c code/ice/ice_constants.f90
+  $fcompile -c code/ice/ice_parameters/ice_bndtemp.f90 &
+  $fcompile -c code/ice/ice_parameters/ice_cp.f90 &
+  $fcompile -c code/ice/ice_parameters/ice_cond.f90 &
+  $fcompile -c code/ice/ice_parameters/ice_alpha.f90 &
+  $fcompile -c code/ice/ice_parameters/ice_visc.f90 &
 wait
 
-$compile -c code/ice/ice/ice.f90
-  $compile -c code/ice/ice/smod/ice@init.f90 &
-  $compile -c code/ice/ice/smod/ice@variables.f90 &
+$fcompile -c code/ice/ice/ice.f90
+  $fcompile -c code/ice/ice/smod/ice@init.f90 &
+  $fcompile -c code/ice/ice/smod/ice@variables.f90 &
 wait
 
-$compile -c code/ice/ice_tides/icetides.f90
-  $compile -c code/ice/ice_tides/smod/icetides@init.f90 &
-  $compile -c code/ice/ice_tides/smod/icetides@ee.f90 &
-  $compile -c code/ice/ice_tides/smod/icetides@params.f90 &
-  $compile -c code/ice/ice_tides/smod/icetides@potentials.f90 &
-  $compile -c code/ice/ice_tides/smod/icetides@solvers.f90 &
+$fcompile -c code/ice/ice_tides/icetides.f90
+  $fcompile -c code/ice/ice_tides/smod/icetides@init.f90 &
+  $fcompile -c code/ice/ice_tides/smod/icetides@ee.f90 &
+  $fcompile -c code/ice/ice_tides/smod/icetides@params.f90 &
+  $fcompile -c code/ice/ice_tides/smod/icetides@potentials.f90 &
+  $fcompile -c code/ice/ice_tides/smod/icetides@solvers.f90 &
 wait
 
-$compile -c code/ice/ice_crust/icecrust.f90
-  $compile -c code/ice/ice_crust/smod/icecrust@init.f90 &
-  $compile -c code/ice/ice_crust/smod/icecrust@ee.f90 &
-  $compile -c code/ice/ice_crust/smod/icecrust@params.f90 &
-  $compile -c code/ice/ice_crust/smod/icecrust@potentials.f90 &
-  $compile -c code/ice/ice_crust/smod/icecrust@nonlin.f90 &
-  $compile -c code/ice/ice_crust/smod/icecrust@output.f90 &
-  $compile -c code/ice/ice_crust/smod/icecrust@solvers.f90 &
+$fcompile -c code/ice/ice_crust/icecrust.f90
+  $fcompile -c code/ice/ice_crust/smod/icecrust@init.f90 &
+  $fcompile -c code/ice/ice_crust/smod/icecrust@ee.f90 &
+  $fcompile -c code/ice/ice_crust/smod/icecrust@params.f90 &
+  $fcompile -c code/ice/ice_crust/smod/icecrust@potentials.f90 &
+  $fcompile -c code/ice/ice_crust/smod/icecrust@nonlin.f90 &
+  $fcompile -c code/ice/ice_crust/smod/icecrust@output.f90 &
+  $fcompile -c code/ice/ice_crust/smod/icecrust@solvers.f90 &
 wait
 
 rm -r -f data || true
@@ -267,7 +278,7 @@ case $code_type in
         mkdir data/data_ocean_veloc
         mkdir data/data_ocean_flux
 
-        $compile code/codes/BielyKralik_legeTest.f90 *.o -o Test_lege
+        $fcompile code/codes/BielyKralik_legeTest.f90 *.o -o Test_lege
     ;;
 
     test_speed)
@@ -277,7 +288,7 @@ case $code_type in
         mkdir data/data_ocean_veloc
         mkdir data/data_ocean_flux
         
-        $compile code/codes/BielyKralik_speedTest.f90 *.o -o Test_speed
+        $fcompile code/codes/BielyKralik_speedTest.f90 *.o -o Test_speed
     ;;
     
     ocean_convection)
@@ -287,7 +298,7 @@ case $code_type in
         mkdir data/data_ocean_veloc
         mkdir data/data_ocean_flux
         
-        $compile code/codes/BielyKralik_oceanConv.f90 *.o -o Test_convection
+        $fcompile code/codes/BielyKralik_oceanConv.f90 *.o -o Test_convection
     ;;
     
     ice_ocean)
@@ -301,7 +312,7 @@ case $code_type in
         mkdir data/data_ocean_veloc
         mkdir data/data_ocean_flux
         
-        $compile code/codes/BielyKralik_oceanIce.f90 *.o -o Test_oceanIce
+        $fcompile code/codes/BielyKralik_oceanIce.f90 *.o -o Test_oceanIce
     ;;
     
     ocean_tides)
@@ -309,7 +320,7 @@ case $code_type in
 
         mkdir data/data_ocean_veloc
     
-        $compile code/codes/BielyKralik_tidesOcean.f90 *.o -o Test_tides
+        $fcompile code/codes/BielyKralik_tidesOcean.f90 *.o -o Test_tides
     ;;
     
     ice_deformation)
@@ -319,7 +330,7 @@ case $code_type in
         mkdir data/data_ice_shape
         mkdir data/data_ice_tides
         
-        $compile code/codes/BielyKralik_Ice.f90 *.o -o Test_ice
+        $fcompile code/codes/BielyKralik_Ice.f90 *.o -o Test_ice
     ;;
     
 esac

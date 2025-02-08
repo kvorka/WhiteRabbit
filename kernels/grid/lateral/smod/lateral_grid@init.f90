@@ -10,7 +10,7 @@ submodule (lateral_grid) init
     
     call this%reindexing%init_sub( jmax )
     call this%fourtrans%init_sub( 3*(jmax+3) )
-    call this%lgp%init_sub( jmax+2, (3*(jmax+3)/2+1)/2+5-mod((3*(jmax+3)/2+1)/2+1,4), 3._dbl*(jmax+3) )
+    call this%lgp%init_sub( jmax+2, (3*(jmax+3)/2+1)/2+step+1-mod((3*(jmax+3)/2+1)/2+1,step), 3._dbl*(jmax+3) )
     
   end procedure init_harmonics_sub
   

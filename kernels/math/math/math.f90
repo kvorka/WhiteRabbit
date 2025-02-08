@@ -1,10 +1,12 @@
 module math
   use iso_fortran_env, only: real64, real128
   use omp_lib
+  use iso_c_binding
   implicit none; public
   
   integer,           parameter :: dbl   = real64
   integer,           parameter :: qbl   = real128
+  integer,           parameter :: step  = 16
   real(kind=dbl),    parameter :: deps  = 1.0d-15
   real(kind=qbl),    parameter :: qeps  = 1.0d-28
   real(kind=dbl),    parameter :: zero  = 0._dbl
@@ -49,6 +51,25 @@ module math
       integer,           intent(in)  :: length
       complex(kind=dbl), intent(out) :: arr(*)
     end subroutine zero_carray_sub
+  end interface
+  
+  interface
+     subroutine calloc_sub(n1, n2, cptr) bind(C, name='memalloc')
+      import                     :: c_ptr
+      type(c_ptr), intent(inout) :: cptr
+      integer,     intent(in)    :: n1, n2
+    end subroutine calloc_sub
+
+    subroutine cfree_sub(cptr) bind(C, name='memfree')
+      import                     :: c_ptr
+      type(c_ptr), intent(inout) :: cptr
+    end subroutine cfree_sub
+    
+    subroutine czero_sub(n, arr) bind(C, name='memzero')
+      import                      :: dbl
+      integer,        intent(in)  :: n
+      real(kind=dbl), intent(out) :: arr(*)
+    end subroutine czero_sub
   end interface
   
 end module math
