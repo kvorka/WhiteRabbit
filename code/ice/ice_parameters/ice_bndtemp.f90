@@ -5,7 +5,8 @@ module ice_bndtemp
   
   real(kind=dbl), parameter, private :: sun_lumin = 3.830d26
   real(kind=dbl), parameter, private :: stfbtzconst = 5.670d-8
-  real(kind=dbl), parameter, private :: Lconst = (1-albedo) * sun_lumin / ( 8 * pi**3 * sun_to_body_dist**2 * sqrt(1-exc**2) )
+  real(kind=dbl), parameter, private :: sun_const   = sun_lumin / ( 4 * pi * sun_to_body_dist**2 )
+  real(kind=dbl), parameter, private :: Lconst = (1-albedo) * sun_const / ( 2 * pi**2 * sqrt(1-exc**2) )
   
   contains
   

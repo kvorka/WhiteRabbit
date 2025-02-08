@@ -80,12 +80,22 @@ submodule (icecrust) solvers
   end procedure solve_conduction_iceCrust_sub
   
   module procedure solve_iceCrust_sub
-    integer                        :: ir
+    integer                        :: ir, ijm
     real(kind=dbl)                 :: du_u
     complex(kind=dbl), allocatable :: u_up1(:)
     
     !! Seek for conductive solution with zero rhs at first
     call this%solve_conduction_sub()
+    
+    open( unit=1, file='conductive-flux.dat', status='old', action='write' )
+      do ijm = 1, this%jms
+        write(1,*) ijm, this%qr_r_fn(1,ijm)
+      end do
+    close(1)
+    
+    write(*,*) this%lambdaU * (this%Td-this%Tu) / this%D_ud * this%q_r_fn(this%nd,1,1) / s4pi * &
+             & 4 * pi * this%ru**2 * this%D_ud**2 / 1e9
+    stop
     
     !! Control variable to hold old shape
     allocate( u_up1(this%jms) )

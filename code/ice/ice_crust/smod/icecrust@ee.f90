@@ -78,7 +78,7 @@ submodule (icecrust) ee
       call this%solve_temp_sub( ijmstart=ijm, ijmend=ijm, ijmstep=1, rematrix=.true., matxsol=.true. )
     
     !! Update the heat flux
-    flux = flux * c2r_fn( this%qr_r_fn(1,1) / s4pi ) - this%gam * (this%bnd%u_dn + this%bnd%t_dn)
+    flux = flux * c2r_fn( this%qr_r_fn(1,1) / s4pi ) - this%gam * (this%bnd%u_dn + 3*this%bnd%t_dn)
     
     !! Solve for other degrees
     !$omp parallel do private (ir, gradTCoeff)

@@ -42,6 +42,6 @@ module ice_constants
   
   real(kind=dbl), parameter :: sun_to_body_dist = 7.780d11
   real(kind=dbl), parameter :: albedo = 0.43_dbl
-  real(kind=dbl), parameter :: gamma_ice = 0._dbl
+  real(kind=dbl), parameter :: gamma_ice = 1.0d-7
   
 end module ice_constants
