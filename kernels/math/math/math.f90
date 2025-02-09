@@ -4,9 +4,12 @@ module math
   use iso_c_binding
   implicit none; public
   
-  integer,           parameter :: dbl   = real64
-  integer,           parameter :: qbl   = real128
-  integer,           parameter :: step  = 16
+  integer,           parameter :: dbl   = real64                       !double precision
+  integer,           parameter :: qbl   = real128                      !quadruple precision
+  integer,           parameter :: step  = 8                            !number of doubles handled at once
+  integer,           parameter :: alig  = 16                           !memory alignement in bytes
+  integer,           parameter :: size_step = step * c_sizeof(0._dbl)  !number of bytes in step
+  
   real(kind=dbl),    parameter :: deps  = 1.0d-15
   real(kind=qbl),    parameter :: qeps  = 1.0d-28
   real(kind=dbl),    parameter :: zero  = 0._dbl
@@ -54,16 +57,15 @@ module math
   end interface
   
   interface
-     subroutine calloc_sub(n, cptr) bind(C, name='memalloc')
-      import                     :: c_ptr
-      type(c_ptr), intent(inout) :: cptr
-      integer,     intent(in)    :: n
-    end subroutine calloc_sub
-
-    subroutine cfree_sub(cptr) bind(C, name='memfree')
-      import                     :: c_ptr
-      type(c_ptr), intent(inout) :: cptr
-    end subroutine cfree_sub
+    type(c_ptr) function malloc(alignement, n) bind(C, name='aligned_alloc')
+      import         :: c_ptr
+      integer, value :: alignement, n
+    end function malloc
+    
+    subroutine free(ptr) bind(C, name="free")
+      import             :: c_ptr
+      type(c_ptr), value :: ptr
+    end subroutine free
   end interface
   
 end module math

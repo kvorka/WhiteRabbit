@@ -29,7 +29,10 @@ submodule (lege_poly) init
   
   module procedure deallocate_lege_sub
     
-    if ( c_associated(this%c_rw) ) call cfree_sub( this%c_rw )
+    if ( c_associated(this%c_rw) ) then
+      nullify( this%rw )
+      call free( this%c_rw )
+    end if
     
     if ( allocated(this%emj) ) deallocate( this%emj )
     if ( allocated(this%fmj) ) deallocate( this%fmj )

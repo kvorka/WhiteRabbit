@@ -12,28 +12,40 @@ submodule (lateral_grid) sgs
   
   module procedure space_to_grid_sub
     integer                        :: itheta, i1, i2
-    real(kind=dbl),    pointer     :: swork(:)
-    real(kind=dbl),    pointer     :: pmm(:), pmj2(:), pmj1(:), pmj(:)
+    real(kind=dbl),    pointer     :: swork(:), pmm(:), pmj2(:), pmj1(:), pmj(:)
     real(kind=dbl),    pointer     :: cosx(:), sinx(:), cosx2(:)
     real(kind=dbl),    pointer     :: sumN(:), sumS(:)
     complex(kind=dbl), allocatable :: rcc(:)
-    type(c_ptr)                    :: c_swork, c_pmm, c_pmj2, c_pmj1, c_pmj, c_cosx, c_sinx, c_cosx2, c_sumN, c_sumS
+    type(c_ptr)                    :: c_swork, c_pmm, c_pmj2, c_pmj1, c_pmj
+    type(c_ptr)                    :: c_cosx, c_sinx, c_cosx2
+    type(c_ptr)                    :: c_sumN, c_sumS
     
     !Transform to suitable real input
     call this%lgp%alloc_cscal_sub( 1, rcc )
     call this%lgp%index_bwd_sub( 1, cc, rcc )
     
     !Allocating memory
-    call calloc_sub( 4*step,                  c_swork ); call c_f_pointer( c_swork, swork, [ 4*step                  ] )
-    call calloc_sub(   step,                  c_pmm   ); call c_f_pointer( c_pmm,   pmm,   [   step                  ] )
-    call calloc_sub(   step,                  c_pmj   ); call c_f_pointer( c_pmj,   pmj,   [   step                  ] )
-    call calloc_sub(   step,                  c_pmj1  ); call c_f_pointer( c_pmj1,  pmj1,  [   step                  ] )
-    call calloc_sub(   step,                  c_pmj2  ); call c_f_pointer( c_pmj2,  pmj2,  [   step                  ] )
-    call calloc_sub(   step,                  c_cosx  ); call c_f_pointer( c_cosx,  cosx,  [   step                  ] )
-    call calloc_sub(   step,                  c_cosx2 ); call c_f_pointer( c_cosx2, cosx2, [   step                  ] )
-    call calloc_sub(   step,                  c_sinx  ); call c_f_pointer( c_sinx,  sinx,  [   step                  ] )
-    call calloc_sub(   step*this%fourtrans%n, c_sumN  ); call c_f_pointer( c_sumN,  sumN,  [   step*this%fourtrans%n ] )
-    call calloc_sub(   step*this%fourtrans%n, c_sumS  ); call c_f_pointer( c_sumS,  sumS,  [   step*this%fourtrans%n ] )
+    c_swork = malloc( alig, 4*size_step                  )
+    c_pmm   = malloc( alig,   size_step                  )
+    c_pmj   = malloc( alig,   size_step                  )
+    c_pmj1  = malloc( alig,   size_step                  )
+    c_pmj2  = malloc( alig,   size_step                  )
+    c_cosx  = malloc( alig,   size_step                  )
+    c_cosx2 = malloc( alig,   size_step                  )
+    c_sinx  = malloc( alig,   size_step                  )
+    c_sumN  = malloc( alig,   size_step*this%fourtrans%n )
+    c_sumS  = malloc( alig,   size_step*this%fourtrans%n )
+    
+    call c_f_pointer( c_swork, swork, [ 4*step                  ] )
+    call c_f_pointer( c_pmm,   pmm,   [   step                  ] )
+    call c_f_pointer( c_pmj,   pmj,   [   step                  ] )
+    call c_f_pointer( c_pmj1,  pmj1,  [   step                  ] )
+    call c_f_pointer( c_pmj2,  pmj2,  [   step                  ] )
+    call c_f_pointer( c_cosx,  cosx,  [   step                  ] )
+    call c_f_pointer( c_cosx2, cosx2, [   step                  ] )
+    call c_f_pointer( c_sinx,  sinx,  [   step                  ] )
+    call c_f_pointer( c_sumN,  sumN,  [   step*this%fourtrans%n ] )
+    call c_f_pointer( c_sumS,  sumS,  [   step*this%fourtrans%n ] )
     
     !Cycle over latitudes :: calculating step at once
     do itheta = 1, (this%lgp%nLege/step)*step, step
@@ -56,16 +68,27 @@ submodule (lateral_grid) sgs
     end do
     
     !Cleaning
-    call cfree_sub( c_swork )
-    call cfree_sub( c_pmm   )
-    call cfree_sub( c_pmj2  )
-    call cfree_sub( c_pmj1  )
-    call cfree_sub( c_pmj   )
-    call cfree_sub( c_cosx  )
-    call cfree_sub( c_sumN  )
-    call cfree_sub( c_sumS  )
-    call cfree_sub( c_sinx  )
-    call cfree_sub( c_cosx2 )
+    nullify( swork )
+    nullify( pmm   )
+    nullify( pmj   )
+    nullify( pmj1  )
+    nullify( pmj2  )
+    nullify( cosx  )
+    nullify( sinx  )
+    nullify( cosx2 )
+    nullify( sumN  )
+    nullify( sumS  )
+    
+    call free( c_swork )
+    call free( c_pmm   )
+    call free( c_pmj2  )
+    call free( c_pmj1  )
+    call free( c_pmj   )
+    call free( c_cosx  )
+    call free( c_sumN  )
+    call free( c_sumS  )
+    call free( c_sinx  )
+    call free( c_cosx2 )
     
     deallocate( rcc )
     
@@ -73,29 +96,42 @@ submodule (lateral_grid) sgs
   
   module procedure grid_to_space_sub
     integer                        :: itheta, i1, i2
-    real(kind=dbl),    pointer     :: swork(:)
-    real(kind=dbl),    pointer     :: pmm(:), pmj2(:), pmj1(:), pmj(:)
+    real(kind=dbl),    pointer     :: swork(:), pmm(:), pmj2(:), pmj1(:), pmj(:)
     real(kind=dbl),    pointer     :: cosx(:), sinx(:), cosx2(:), wght(:)
     real(kind=dbl),    pointer     :: sumN(:), sumS(:)
     complex(kind=dbl), allocatable :: crr(:), rcr(:)
-    type(c_ptr)                    :: c_swork, c_pmm, c_pmj2, c_pmj1, c_pmj, c_cosx, c_sinx, c_cosx2, c_wght, c_sumN, c_sumS
+    type(c_ptr)                    :: c_swork, c_pmm, c_pmj2, c_pmj1, c_pmj
+    type(c_ptr)                    :: c_cosx, c_sinx, c_cosx2, c_wght
+    type(c_ptr)                    :: c_sumN, c_sumS
     
     !Allocate input array
     call this%lgp%alloc_cscal_sub( 1, rcr )
     call this%reindexing%allocate_scalars_sub( 1, crr )
     
     !Allocating memory
-    call calloc_sub( 4*step,                  c_swork ); call c_f_pointer( c_swork, swork, [ 4*step                  ] )
-    call calloc_sub(   step,                  c_pmm   ); call c_f_pointer( c_pmm,   pmm,   [   step                  ] )
-    call calloc_sub(   step,                  c_pmj   ); call c_f_pointer( c_pmj,   pmj,   [   step                  ] )
-    call calloc_sub(   step,                  c_pmj1  ); call c_f_pointer( c_pmj1,  pmj1,  [   step                  ] )
-    call calloc_sub(   step,                  c_pmj2  ); call c_f_pointer( c_pmj2,  pmj2,  [   step                  ] )
-    call calloc_sub(   step,                  c_cosx  ); call c_f_pointer( c_cosx,  cosx,  [   step                  ] )
-    call calloc_sub(   step,                  c_cosx2 ); call c_f_pointer( c_cosx2, cosx2, [   step                  ] )
-    call calloc_sub(   step,                  c_sinx  ); call c_f_pointer( c_sinx,  sinx,  [   step                  ] )
-    call calloc_sub(   step,                  c_wght  ); call c_f_pointer( c_wght,  wght,  [   step                  ] )
-    call calloc_sub(   step*this%fourtrans%n, c_sumN  ); call c_f_pointer( c_sumN,  sumN,  [   step*this%fourtrans%n ] )
-    call calloc_sub(   step*this%fourtrans%n, c_sumS  ); call c_f_pointer( c_sumS,  sumS,  [   step*this%fourtrans%n ] )
+    c_swork = malloc( alig, 4*size_step                  )
+    c_pmm   = malloc( alig,   size_step                  )
+    c_pmj   = malloc( alig,   size_step                  )
+    c_pmj1  = malloc( alig,   size_step                  )
+    c_pmj2  = malloc( alig,   size_step                  )
+    c_cosx  = malloc( alig,   size_step                  )
+    c_cosx2 = malloc( alig,   size_step                  )
+    c_sinx  = malloc( alig,   size_step                  )
+    c_wght  = malloc( alig,   size_step                  )
+    c_sumN  = malloc( alig,   size_step*this%fourtrans%n )
+    c_sumS  = malloc( alig,   size_step*this%fourtrans%n )
+    
+    call c_f_pointer( c_swork, swork, [ 4*step                  ] )
+    call c_f_pointer( c_pmm,   pmm,   [   step                  ] )
+    call c_f_pointer( c_pmj,   pmj,   [   step                  ] )
+    call c_f_pointer( c_pmj1,  pmj1,  [   step                  ] )
+    call c_f_pointer( c_pmj2,  pmj2,  [   step                  ] )
+    call c_f_pointer( c_cosx,  cosx,  [   step                  ] )
+    call c_f_pointer( c_cosx2, cosx2, [   step                  ] )
+    call c_f_pointer( c_sinx,  sinx,  [   step                  ] )
+    call c_f_pointer( c_wght,  wght,  [   step                  ] )
+    call c_f_pointer( c_sumN,  sumN,  [   step*this%fourtrans%n ] )
+    call c_f_pointer( c_sumS,  sumS,  [   step*this%fourtrans%n ] )
     
     !Cycle over latitudes :: computing step at once
     do itheta = 1, (this%lgp%nLege/step)*step, step
@@ -120,17 +156,29 @@ submodule (lateral_grid) sgs
     call this%reindexing%scal2scal_mj_to_jm_sub( crr, 1, 1, cr, 1, 1 )
     
     !Cleaning
-    call cfree_sub( c_swork )
-    call cfree_sub( c_pmm   )
-    call cfree_sub( c_pmj2  )
-    call cfree_sub( c_pmj1  )
-    call cfree_sub( c_pmj   )
-    call cfree_sub( c_cosx  )
-    call cfree_sub( c_sumN  )
-    call cfree_sub( c_sumS  )
-    call cfree_sub( c_sinx  )
-    call cfree_sub( c_cosx2 )
-    call cfree_sub( c_wght  )
+    nullify( swork )
+    nullify( pmm   )
+    nullify( pmj   )
+    nullify( pmj1  )
+    nullify( pmj2  )
+    nullify( cosx  )
+    nullify( sinx  )
+    nullify( cosx2 )
+    nullify( wght  )
+    nullify( sumN  )
+    nullify( sumS  )
+    
+    call free( c_swork )
+    call free( c_pmm   )
+    call free( c_pmj2  )
+    call free( c_pmj1  )
+    call free( c_pmj   )
+    call free( c_cosx  )
+    call free( c_sumN  )
+    call free( c_sumS  )
+    call free( c_sinx  )
+    call free( c_cosx2 )
+    call free( c_wght  )
     
     deallocate( crr, rcr )
     

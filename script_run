@@ -17,24 +17,12 @@ fcompile="gfortran-12 -Ofast \
                       -mprefer-vector-width=512 \
                       -fopenmp"
 
-ccompile="gcc-12 -Ofast \
-                 -fno-strict-aliasing \
-                 -march=native \
-                 -funroll-loops \
-                 -fno-bounds-check \
-                 -flto=auto \
-                 -fwhole-program \
-                 -mprefer-vector-width=512 \
-                 -fopenmp"
-
 ###########################################################################################
 ####                    COMPILATION OF THE BASELINE, DIRS SET UP                       ####
 ###########################################################################################
 $fcompile -c kernels/math/math/math.f90
   $fcompile -c kernels/math/math/smod/math@conversions.f90 &
   $fcompile -c kernels/math/math/smod/math@nulify.f90 &
-  $ccompile -c kernels/math/math/cmod/c_alloc.c &
-  $ccompile -c kernels/math/math/cmod/c_free.c &
 wait
 
   $fcompile -c kernels/math/sph/sph_indexing.f90 &

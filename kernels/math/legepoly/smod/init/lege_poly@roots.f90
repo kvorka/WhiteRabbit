@@ -28,13 +28,15 @@ submodule (lege_poly) roots
     !!**********************************************************************!!
     !!* Close to roots array holder and holder arrays.                     *!!
     !!**********************************************************************!!
-    call calloc_sub( 4*this%nLege, this%c_rw ); call c_f_pointer( this%c_rw, this%rw, [this%nLege,4] )
-    allocate( xclose(this%nLege) )
+    this%c_rw = malloc( alig, 4*size_step*this%nLege )
+    call c_f_pointer( this%c_rw, this%rw, [this%nLege,4] )
     
     !!**********************************************************************!!
     !!* Seek for efficient stepping to use within the bisection method and *!!
     !!* starting points [xclose,xclose+xincr].                             *!!
     !!**********************************************************************!!
+    allocate( xclose(this%nLege) )
+    
     n = this%nLege**2 / 4
     
     do
