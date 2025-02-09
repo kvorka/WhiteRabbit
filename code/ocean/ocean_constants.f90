@@ -3,8 +3,8 @@ module ocean_constants
   implicit none
   
   !Vseobecne nastavenie konstant
-  integer, parameter :: nd_ocean = 145
-  integer, parameter :: jmax_ocean = 213
+  integer, parameter :: nd_ocean = 73
+  integer, parameter :: jmax_ocean = 125
   integer, parameter :: n_iter_ocean = 20  !Nastavit na N_period pre slapy
   logical, parameter :: noharm_ocean = .false.
   

@@ -24,16 +24,16 @@ submodule (lateral_grid) sgs
     call this%lgp%index_bwd_sub( 1, cc, rcc )
     
     !Allocating memory
-    call calloc_sub( 4*step,                  step, c_swork ); call c_f_pointer( c_swork, swork, [ 4*step                  ] )
-    call calloc_sub(   step,                  step, c_pmm   ); call c_f_pointer( c_pmm,   pmm,   [   step                  ] )
-    call calloc_sub(   step,                  step, c_pmj   ); call c_f_pointer( c_pmj,   pmj,   [   step                  ] )
-    call calloc_sub(   step,                  step, c_pmj1  ); call c_f_pointer( c_pmj1,  pmj1,  [   step                  ] )
-    call calloc_sub(   step,                  step, c_pmj2  ); call c_f_pointer( c_pmj2,  pmj2,  [   step                  ] )
-    call calloc_sub(   step,                  step, c_cosx  ); call c_f_pointer( c_cosx,  cosx,  [   step                  ] )
-    call calloc_sub(   step,                  step, c_cosx2 ); call c_f_pointer( c_cosx2, cosx2, [   step                  ] )
-    call calloc_sub(   step,                  step, c_sinx  ); call c_f_pointer( c_sinx,  sinx,  [   step                  ] )
-    call calloc_sub(   step*this%fourtrans%n, step, c_sumN  ); call c_f_pointer( c_sumN,  sumN,  [   step*this%fourtrans%n ] )
-    call calloc_sub(   step*this%fourtrans%n, step, c_sumS  ); call c_f_pointer( c_sumS,  sumS,  [   step*this%fourtrans%n ] )
+    call calloc_sub( 4*step,                  c_swork ); call c_f_pointer( c_swork, swork, [ 4*step                  ] )
+    call calloc_sub(   step,                  c_pmm   ); call c_f_pointer( c_pmm,   pmm,   [   step                  ] )
+    call calloc_sub(   step,                  c_pmj   ); call c_f_pointer( c_pmj,   pmj,   [   step                  ] )
+    call calloc_sub(   step,                  c_pmj1  ); call c_f_pointer( c_pmj1,  pmj1,  [   step                  ] )
+    call calloc_sub(   step,                  c_pmj2  ); call c_f_pointer( c_pmj2,  pmj2,  [   step                  ] )
+    call calloc_sub(   step,                  c_cosx  ); call c_f_pointer( c_cosx,  cosx,  [   step                  ] )
+    call calloc_sub(   step,                  c_cosx2 ); call c_f_pointer( c_cosx2, cosx2, [   step                  ] )
+    call calloc_sub(   step,                  c_sinx  ); call c_f_pointer( c_sinx,  sinx,  [   step                  ] )
+    call calloc_sub(   step*this%fourtrans%n, c_sumN  ); call c_f_pointer( c_sumN,  sumN,  [   step*this%fourtrans%n ] )
+    call calloc_sub(   step*this%fourtrans%n, c_sumS  ); call c_f_pointer( c_sumS,  sumS,  [   step*this%fourtrans%n ] )
     
     !Cycle over latitudes :: calculating step at once
     do itheta = 1, (this%lgp%nLege/step)*step, step
@@ -41,8 +41,8 @@ submodule (lateral_grid) sgs
       sinx  = this%lgp%rw(itheta:itheta+step-1,2)
       cosx2 = this%lgp%rw(itheta:itheta+step-1,3)
       
-      call czero_sub( step*this%fourtrans%n, sumN )
-      call czero_sub( step*this%fourtrans%n, sumS )
+      call zero_rarray_sub( step*this%fourtrans%n, sumN )
+      call zero_rarray_sub( step*this%fourtrans%n, sumS )
       
       call this%lgp%bwd_legesum_sub( 1, rcc, sumN, sumS, cosx, sinx, cosx2, pmm, pmj2, pmj1, pmj, swork )
       
@@ -85,17 +85,17 @@ submodule (lateral_grid) sgs
     call this%reindexing%allocate_scalars_sub( 1, crr )
     
     !Allocating memory
-    call calloc_sub( 4*step,                  step, c_swork ); call c_f_pointer( c_swork, swork, [ 4*step                  ] )
-    call calloc_sub(   step,                  step, c_pmm   ); call c_f_pointer( c_pmm,   pmm,   [   step                  ] )
-    call calloc_sub(   step,                  step, c_pmj   ); call c_f_pointer( c_pmj,   pmj,   [   step                  ] )
-    call calloc_sub(   step,                  step, c_pmj1  ); call c_f_pointer( c_pmj1,  pmj1,  [   step                  ] )
-    call calloc_sub(   step,                  step, c_pmj2  ); call c_f_pointer( c_pmj2,  pmj2,  [   step                  ] )
-    call calloc_sub(   step,                  step, c_cosx  ); call c_f_pointer( c_cosx,  cosx,  [   step                  ] )
-    call calloc_sub(   step,                  step, c_cosx2 ); call c_f_pointer( c_cosx2, cosx2, [   step                  ] )
-    call calloc_sub(   step,                  step, c_sinx  ); call c_f_pointer( c_sinx,  sinx,  [   step                  ] )
-    call calloc_sub(   step,                  step, c_wght  ); call c_f_pointer( c_wght,  wght,  [   step                  ] )
-    call calloc_sub(   step*this%fourtrans%n, step, c_sumN  ); call c_f_pointer( c_sumN,  sumN,  [   step*this%fourtrans%n ] )
-    call calloc_sub(   step*this%fourtrans%n, step, c_sumS  ); call c_f_pointer( c_sumS,  sumS,  [   step*this%fourtrans%n ] )
+    call calloc_sub( 4*step,                  c_swork ); call c_f_pointer( c_swork, swork, [ 4*step                  ] )
+    call calloc_sub(   step,                  c_pmm   ); call c_f_pointer( c_pmm,   pmm,   [   step                  ] )
+    call calloc_sub(   step,                  c_pmj   ); call c_f_pointer( c_pmj,   pmj,   [   step                  ] )
+    call calloc_sub(   step,                  c_pmj1  ); call c_f_pointer( c_pmj1,  pmj1,  [   step                  ] )
+    call calloc_sub(   step,                  c_pmj2  ); call c_f_pointer( c_pmj2,  pmj2,  [   step                  ] )
+    call calloc_sub(   step,                  c_cosx  ); call c_f_pointer( c_cosx,  cosx,  [   step                  ] )
+    call calloc_sub(   step,                  c_cosx2 ); call c_f_pointer( c_cosx2, cosx2, [   step                  ] )
+    call calloc_sub(   step,                  c_sinx  ); call c_f_pointer( c_sinx,  sinx,  [   step                  ] )
+    call calloc_sub(   step,                  c_wght  ); call c_f_pointer( c_wght,  wght,  [   step                  ] )
+    call calloc_sub(   step*this%fourtrans%n, c_sumN  ); call c_f_pointer( c_sumN,  sumN,  [   step*this%fourtrans%n ] )
+    call calloc_sub(   step*this%fourtrans%n, c_sumS  ); call c_f_pointer( c_sumS,  sumS,  [   step*this%fourtrans%n ] )
     
     !Cycle over latitudes :: computing step at once
     do itheta = 1, (this%lgp%nLege/step)*step, step

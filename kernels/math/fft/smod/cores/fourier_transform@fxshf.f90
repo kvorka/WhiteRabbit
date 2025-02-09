@@ -14,8 +14,11 @@ submodule (fourier_transform) fxshf
         if (isj < 0) then
           j = j + 1
         else
-          do concurrent ( i = 1:2, iv = 1:m )
-            y(iv,i) = x(iv,i,isj)
+          !$omp simd collapse(2)
+          do i = 1, 2
+            do iv = 1, m
+              y(iv,i) = x(iv,i,isj)
+            end do
           end do
           
           do
@@ -23,16 +26,22 @@ submodule (fourier_transform) fxshf
             isj2 = this%it(j)
             
             if ( isj2 < 0 ) then
-              do concurrent ( i = 1:2, iv = 1:m )
-                x(iv,i,isj)      = x(iv,i,isj2-imm)
-                x(iv,i,isj2-imm) = y(iv,i)
+              !$omp simd collapse(2)
+              do i = 1, 2
+                do iv = 1, m
+                  x(iv,i,isj)      = x(iv,i,isj2-imm)
+                  x(iv,i,isj2-imm) = y(iv,i)
+                end do
               end do
               
               j = j + 1
               exit
             else
-              do concurrent ( i = 1:2, iv = 1:m )
-                x(iv,i,isj) = x(iv,i,isj2)
+              !$omp simd collapse(2)
+              do i = 1, 2
+                do iv = 1, m
+                  x(iv,i,isj) = x(iv,i,isj2)
+                end do
               end do
               
               isj = isj2

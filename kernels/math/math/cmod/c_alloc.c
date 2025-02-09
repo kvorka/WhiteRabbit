@@ -1,6 +1,6 @@
 #include <stdlib.h>
 
-void memalloc( int *n, int *step, void **p ) 
+void memalloc( int *n, void **p )
 {
-  int msg = posix_memalign(p, 8*(*step), (size_t)((size_t)*n *8));
+  int msg = posix_memalign(p, 32, (size_t)((size_t)*n *8));
 }

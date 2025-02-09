@@ -28,7 +28,7 @@ submodule (lege_poly) roots
     !!**********************************************************************!!
     !!* Close to roots array holder and holder arrays.                     *!!
     !!**********************************************************************!!
-    call calloc_sub( 4*this%nLege, step, this%c_rw ); call c_f_pointer( this%c_rw, this%rw, [this%nLege,4] )
+    call calloc_sub( 4*this%nLege, this%c_rw ); call c_f_pointer( this%c_rw, this%rw, [this%nLege,4] )
     allocate( xclose(this%nLege) )
     
     !!**********************************************************************!!

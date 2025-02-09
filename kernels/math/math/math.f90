@@ -54,22 +54,16 @@ module math
   end interface
   
   interface
-     subroutine calloc_sub(n1, n2, cptr) bind(C, name='memalloc')
+     subroutine calloc_sub(n, cptr) bind(C, name='memalloc')
       import                     :: c_ptr
       type(c_ptr), intent(inout) :: cptr
-      integer,     intent(in)    :: n1, n2
+      integer,     intent(in)    :: n
     end subroutine calloc_sub
 
     subroutine cfree_sub(cptr) bind(C, name='memfree')
       import                     :: c_ptr
       type(c_ptr), intent(inout) :: cptr
     end subroutine cfree_sub
-    
-    subroutine czero_sub(n, arr) bind(C, name='memzero')
-      import                      :: dbl
-      integer,        intent(in)  :: n
-      real(kind=dbl), intent(out) :: arr(*)
-    end subroutine czero_sub
   end interface
   
 end module math

@@ -3,7 +3,7 @@
 ####                              POSSIBLE CODE SETTINGS                               ####
 ####       test_speed, ocean_convection, ice_ocean, ocean_tides, ice_deformation       ####
 ###########################################################################################
-code_type="test_legendre"
+code_type="ocean_convection"
 
 ###########################################################################################
 ####                              COMPILER SET UP                                      ####
@@ -35,7 +35,6 @@ $fcompile -c kernels/math/math/math.f90
   $fcompile -c kernels/math/math/smod/math@nulify.f90 &
   $ccompile -c kernels/math/math/cmod/c_alloc.c &
   $ccompile -c kernels/math/math/cmod/c_free.c &
-  $ccompile -c kernels/math/math/cmod/c_zero.c &
 wait
 
   $fcompile -c kernels/math/sph/sph_indexing.f90 &
@@ -65,11 +64,9 @@ $fcompile -c kernels/math/legepoly/lege_poly.f90
   $fcompile -c kernels/math/legepoly/smod/indexing/lege_poly@allocators.f90 &
   $fcompile -c kernels/math/legepoly/smod/indexing/lege_poly@c2r.f90 &
   $fcompile -c kernels/math/legepoly/smod/indexing/lege_poly@r2c.f90 &
+  $fcompile -c kernels/math/legepoly/smod/codelets/lege_poly@poly.f90 &
   $fcompile -c kernels/math/legepoly/smod/codelets/lege_poly@bwd.f90 &
   $fcompile -c kernels/math/legepoly/smod/codelets/lege_poly@fwd.f90 &
-  $ccompile -c kernels/math/legepoly/smod/codelets/cmod/c_poly.c &
-  $ccompile -c kernels/math/legepoly/smod/codelets/cmod/c_bwd.c &
-  $ccompile -c kernels/math/legepoly/smod/codelets/cmod/c_fwd.c &
 
 $fcompile -c kernels/math/sphsvt/mod/cleb.f90
   $fcompile -c kernels/math/sphsvt/mod/smod/cleb@gordan1.f90 &

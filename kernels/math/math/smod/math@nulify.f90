@@ -4,7 +4,8 @@ submodule (math) nulify
   module procedure zero_rarray_sub
     integer :: i
     
-    do concurrent ( i = 1:length )
+    !$omp simd
+    do i = 1, length
       arr(i) = zero
     end do
     
@@ -13,7 +14,8 @@ submodule (math) nulify
   module procedure zero_carray_sub
     integer :: i
     
-    do concurrent ( i = 1:length )
+    !$omp simd
+    do i = 1, length
       arr(i) = czero
     end do
     
