@@ -1,7 +1,7 @@
 submodule (lege_poly) roots
   implicit none; contains
   
-   real(kind=qbl) function lege_fn(deg, x)
+  real(kind=qbl) function lege_fn(deg, x)
     integer,        intent(in) :: deg
     real(kind=qbl), intent(in) :: x
     real(kind=qbl)             :: p1, p2, fac
@@ -28,7 +28,7 @@ submodule (lege_poly) roots
     !!**********************************************************************!!
     !!* Close to roots array holder and holder arrays.                     *!!
     !!**********************************************************************!!
-    this%c_rw = malloc( alig, 4*size_step*this%nLege )
+    this%c_rw = malloc( alig, 4*size_d*this%nLege )
     call c_f_pointer( this%c_rw, this%rw, [this%nLege,4] )
     
     !!**********************************************************************!!

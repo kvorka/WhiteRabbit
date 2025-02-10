@@ -21,15 +21,15 @@ submodule (lege_poly) fwd
   end procedure fwd_sum_sub
   
   module procedure fwd_shuffle_sub
-    integer :: i1, i2, i3, i4
+    integer :: i1, i2, i3
     
-    do i2 = 1, n
-      !$omp simd
-      do i1 = 1, step
-        swork(i1,1,i2,1) = sumN(i1,i2,1) - sumS(i1,i2,1)
-        swork(i1,2,i2,1) = sumN(i1,i2,2) - sumS(i1,i2,2)
-        swork(i1,1,i2,2) = sumN(i1,i2,1) + sumS(i1,i2,1)
-        swork(i1,2,i2,2) = sumN(i1,i2,2) + sumS(i1,i2,2)
+    !$omp simd collapse (3)
+    do i3 = 1, n
+      do i2 = 1, 2
+        do i1 = 1, step
+          swork(i1,i2,i3,1) = sumN(i1,i3,i2) - sumS(i1,i3,i2)
+          swork(i1,i2,i3,2) = sumN(i1,i3,i2) + sumS(i1,i3,i2)
+        end do
       end do
     end do
     

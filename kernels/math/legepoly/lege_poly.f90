@@ -53,13 +53,13 @@ module lege_poly
       class(T_legep),    intent(in)  :: this
       integer,           intent(in)  :: ncab
       complex(kind=dbl), intent(in)  :: cab(ncab,*)
-      complex(kind=dbl), intent(out) :: rcab(ncab,2,this%nrma)
+      complex(kind=dbl), intent(out) :: rcab(ncab,2,*)
     end subroutine c2r_mj_to_mj_sub
     
     module  subroutine r2c_mj_to_mj_sub(this, ncab, cab, rcab)
       class(T_legep),    intent(in)  :: this
       integer,           intent(in)  :: ncab
-      complex(kind=dbl), intent(in)  :: rcab(ncab,2,this%nrma)
+      complex(kind=dbl), intent(in)  :: rcab(ncab,2,*)
       complex(kind=dbl), intent(out) :: cab(ncab,*)
     end subroutine r2c_mj_to_mj_sub
     

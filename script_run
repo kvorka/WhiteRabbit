@@ -10,17 +10,17 @@ code_type="test_speed"
 ###########################################################################################
 fcompile="gfortran-12 -Ofast \
                       -march=native \
-                      -funroll-loops \
+                      -mprefer-vector-width=512 \
                       -fno-bounds-check \
                       -flto=auto \
                       -fwhole-program \
-                      -mprefer-vector-width=512 \
                       -fopenmp"
 
 ###########################################################################################
 ####                    COMPILATION OF THE BASELINE, DIRS SET UP                       ####
 ###########################################################################################
 $fcompile -c kernels/math/math/math.f90
+  $fcompile -c kernels/math/math/smod/math@allocator.f90 &
   $fcompile -c kernels/math/math/smod/math@conversions.f90 &
   $fcompile -c kernels/math/math/smod/math@nulify.f90 &
 wait
