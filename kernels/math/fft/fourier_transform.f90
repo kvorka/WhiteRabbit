@@ -70,11 +70,6 @@ module fourier_transform
       real(kind=dbl), intent(out) :: t(2,0:n-1)
     end subroutine fxzini
     
-    module  function prime_adjustement_sub(n) result (nn)
-      integer, intent(in) :: n
-      integer             :: nn
-    end function prime_adjustement_sub
-    
     module  subroutine fxzm2a(m, k, l, x, t)
       integer,        intent(in)    :: m, k, l
       real(kind=dbl), intent(in)    :: t(2,0:*)
