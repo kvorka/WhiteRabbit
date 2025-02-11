@@ -1,7 +1,7 @@
 submodule (lege_poly) roots
   implicit none; contains
   
-  real(kind=qbl) function lege_fn(deg, x)
+   real(kind=qbl) function lege_fn(deg, x)
     integer,        intent(in) :: deg
     real(kind=qbl), intent(in) :: x
     real(kind=qbl)             :: p1, p2, fac

@@ -51,9 +51,14 @@ $fcompile -c kernels/math/legepoly/lege_poly.f90
   $fcompile -c kernels/math/legepoly/smod/indexing/lege_poly@allocators.f90 &
   $fcompile -c kernels/math/legepoly/smod/indexing/lege_poly@c2r.f90 &
   $fcompile -c kernels/math/legepoly/smod/indexing/lege_poly@r2c.f90 &
-  $fcompile -c kernels/math/legepoly/smod/codelets/lege_poly@poly.f90 &
-  $fcompile -c kernels/math/legepoly/smod/codelets/lege_poly@bwd.f90 &
-  $fcompile -c kernels/math/legepoly/smod/codelets/lege_poly@fwd.f90 &
+  $fcompile -c kernels/math/legepoly/smod/cores/lege_poly@bwd.f90 &
+  $fcompile -c kernels/math/legepoly/smod/cores/lege_poly@fwd.f90 &
+  $fcompile -c kernels/math/legepoly/smod/codelets/lege_poly@poly_mm.f90 &
+  $fcompile -c kernels/math/legepoly/smod/codelets/lege_poly@poly_mj.f90 &
+  $fcompile -c kernels/math/legepoly/smod/codelets/lege_poly@bwd_sum.f90 &
+  $fcompile -c kernels/math/legepoly/smod/codelets/lege_poly@fwd_sum.f90 &
+  $fcompile -c kernels/math/legepoly/smod/codelets/lege_poly@bwd_shuffle.f90 &
+  $fcompile -c kernels/math/legepoly/smod/codelets/lege_poly@fwd_shuffle.f90 &
 
 $fcompile -c kernels/math/sphsvt/mod/cleb.f90
   $fcompile -c kernels/math/sphsvt/mod/smod/cleb@gordan1.f90 &
