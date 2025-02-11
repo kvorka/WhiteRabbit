@@ -5,9 +5,9 @@ submodule (fourier_transform) fx4
     integer        :: i, j, ij, iv
     real(kind=dbl) :: x0re, x0im, x1re, x1im, x2re, x2im, x3re, x3im, t1re, t1im, t2re, t2im
     
-    ij = 0
-    
-    do j = 0, k-1
+    do concurrent ( j = 0:k-1 )
+      ij = 3 * j
+      
       t1re = t(1,ij  )
       t1im = t(2,ij  )
       t2re = t(1,ij+1)
@@ -36,8 +36,6 @@ submodule (fourier_transform) fx4
           x(iv,2,i,3,j) = 2 * x2im - x(iv,2,i,1,j)
         end do
       end do
-      
-      ij = ij + 3
     end do
     
   end procedure fxzm4a

@@ -13,9 +13,9 @@ submodule (fourier_transform) fx5
     real(kind=dbl) :: x0re, x0im, x1re, x1im, x2re, x2im, x3re, x3im, x4re, x4im, &
                     & t1re, t1im, t2re, t2im, t3re, t3im, t4re, t4im
     
-    ij = 0
-    
-    do j = 0, k-1
+    do concurrent ( j = 0:k-1 )
+      ij = 4 * j
+      
       t1re = t(1,ij  )
       t1im = t(2,ij  )
       t2re = t(1,ij+1)
@@ -70,8 +70,6 @@ submodule (fourier_transform) fx5
           x(iv,2,i,1,j) = 2 * x4im          -       x(iv,2,i,4,j)
         end do
       end do
-      
-      ij = ij + 4
     end do
     
   end procedure fxzm5a

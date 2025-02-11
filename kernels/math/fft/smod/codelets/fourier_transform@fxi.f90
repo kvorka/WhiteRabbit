@@ -1,4 +1,4 @@
-submodule (fourier_transform) fxinit
+submodule (fourier_transform) fxi
   implicit none; contains
   
   module procedure fxzini
@@ -128,4 +128,4 @@ submodule (fourier_transform) fxinit
     
   end procedure fxzini
   
-end submodule fxinit
+end submodule fxi

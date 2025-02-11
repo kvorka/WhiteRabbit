@@ -5,7 +5,7 @@ submodule (fourier_transform) fx2
     integer        :: i, j, iv
     real(kind=dbl) :: x1re, x1im, t1re, t1im
     
-    do j = 0, k-1
+    do concurrent ( j = 0:k-1 )
       t1re = t(1,j)
       t1im = t(2,j)
       

@@ -5,7 +5,7 @@ submodule (lege_poly) fwd
     integer        :: i1, i2
     real(kind=dbl) :: rcr, icr
     
-    do i2 = 1, n
+    do concurrent ( i2 = 1:n )
       rcr = zero
       icr = zero
       

@@ -5,7 +5,7 @@ submodule (lege_poly) bwd
     integer        :: i1, i2
     real(kind=dbl) :: rcc, icc
     
-    do i2 = 1, n
+    do concurrent ( i2 = 1:n )
       rcc = cc(i2)%re
       icc = cc(i2)%im
       
