@@ -21,7 +21,7 @@ submodule (matrix) lu_solve
     
     do i = this%n, 1, -1
       dum = b(i)
-        do j = 2, min(this%ldu,this%n-i+1)
+        do concurrent ( j = 2:min(this%ldu,this%n-i+1) )
           dum = dum - this%U(j,i) * b(i+j-1)
         end do
       

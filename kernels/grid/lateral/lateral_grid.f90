@@ -44,9 +44,10 @@ module lateral_grid
       complex(kind=dbl),    intent(inout) :: cr(nf,*)
       
       interface
-        pure subroutine grid_sub(nfour, gxyz); import :: dbl, step
+        subroutine grid_sub(nfour, gxyz, gtemp); import :: dbl, step
           integer,                intent(in)    :: nfour
           real(kind=dbl), target, intent(inout) :: gxyz(step,*)
+          real(kind=dbl), target, intent(out)   :: gtemp(step,*)
         end subroutine grid_sub
       end interface
     end subroutine transform_sub

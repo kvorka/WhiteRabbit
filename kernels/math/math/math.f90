@@ -48,16 +48,27 @@ module math
       complex(kind=dbl), intent(in) :: cx
     end function c2r_fn
     
-    module subroutine alloc_aligned_sub( n, c_arr, f_arr )
+    module subroutine alloc_aligned1d_sub( n, c_arr, f_arr )
       integer,                 intent(in)  :: n
       type(c_ptr),             intent(out) :: c_arr
       real(kind=dbl), pointer, intent(out) :: f_arr(:)
-    end subroutine alloc_aligned_sub
+    end subroutine alloc_aligned1d_sub
     
-    module subroutine free_aligned_sub( c_arr, f_arr )
+    module subroutine free_aligned1d_sub( c_arr, f_arr )
       type(c_ptr),             intent(inout) :: c_arr
       real(kind=dbl), pointer, intent(inout) :: f_arr(:)
-    end subroutine free_aligned_sub
+    end subroutine free_aligned1d_sub
+    
+    module subroutine alloc_aligned2d_sub( n1, n2, c_arr, f_arr )
+      integer,                 intent(in)  :: n1, n2
+      type(c_ptr),             intent(out) :: c_arr
+      real(kind=dbl), pointer, intent(out) :: f_arr(:,:)
+    end subroutine alloc_aligned2d_sub
+    
+    module subroutine free_aligned2d_sub( c_arr, f_arr )
+      type(c_ptr),             intent(inout) :: c_arr
+      real(kind=dbl), pointer, intent(inout) :: f_arr(:,:)
+    end subroutine free_aligned2d_sub
     
     module pure subroutine zero_rarray_sub(length, arr)
       integer,        intent(in)  :: length

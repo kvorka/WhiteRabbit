@@ -3,13 +3,12 @@ submodule (lateral_grid) transform
   
   module procedure transform_sub
     integer                        :: itheta
-    real(kind=dbl),    pointer     :: swork(:), pmm(:), pmj2(:), pmj1(:), pmj(:)
+    type(c_ptr)                    :: c_work
+    real(kind=dbl),    pointer     :: work(:)
+    real(kind=dbl),    pointer     :: pmm(:), pmj2(:), pmj1(:), pmj(:)
     real(kind=dbl),    pointer     :: cosx(:), sinx(:), cosx2(:), wght(:)
-    real(kind=dbl),    pointer     :: sumN(:), sumS(:)
+    real(kind=dbl),    pointer     :: sumN(:), sumS(:), swork(:), grid(:)
     complex(kind=dbl), allocatable :: rcr(:), rcc(:)
-    type(c_ptr)                    :: c_swork, c_pmm, c_pmj2, c_pmj1, c_pmj
-    type(c_ptr)                    :: c_cosx, c_sinx, c_cosx2, c_wght
-    type(c_ptr)                    :: c_sumN, c_sumS
     
     !Prepare input and output arrays
     call this%lgp%alloc_cscal_sub( nb, rcc )
@@ -18,24 +17,23 @@ submodule (lateral_grid) transform
     call this%lgp%index_bwd_sub( nb, cc, rcc )
     
     !Allocating memory
-    call alloc_aligned_sub( 4*nb*step,                  c_swork, swork )
-    call alloc_aligned_sub(      step,                  c_pmm,   pmm   )
-    call alloc_aligned_sub(      step,                  c_pmj,   pmj   )
-    call alloc_aligned_sub(      step,                  c_pmj1,  pmj1  )
-    call alloc_aligned_sub(      step,                  c_pmj2,  pmj2  )
-    call alloc_aligned_sub(      step,                  c_cosx,  cosx  )
-    call alloc_aligned_sub(      step,                  c_cosx2, cosx2 )
-    call alloc_aligned_sub(      step,                  c_sinx,  sinx  )
-    call alloc_aligned_sub(      step,                  c_wght,  wght  )
-    call alloc_aligned_sub(   nb*step*this%fourtrans%n, c_sumN,  sumN  )
-    call alloc_aligned_sub(   nb*step*this%fourtrans%n, c_sumS,  sumS  )
+    call alloc_aligned1d_sub( 2*(2*(nb+1)+nb+nb*this%fourtrans%n)*step, c_work, work )
+      
+      pmm   => work(                                         1 :                                       step )
+      pmj   => work(                                    step+1 :   2*                                  step )
+      pmj1  => work(   2*                               step+1 :   3*                                  step )
+      pmj2  => work(   3*                               step+1 :   4*                                  step )
+      swork => work(   4*                               step+1 :   4*(nb+1)*                           step )
+      sumN  => work(   4*(nb+1)*                        step+1 : ( 4*(nb+1)+     nb*this%fourtrans%n )*step )
+      sumS  => work( ( 4*(nb+1)+  nb*this%fourtrans%n )*step+1 : ( 4*(nb+1)   +2*nb*this%fourtrans%n )*step )
+      grid  => work( ( 4*(nb+1)+2*nb*this%fourtrans%n )*step+1 : ( 4*(nb+1)+nb+2*nb*this%fourtrans%n )*step )
     
     !Cycle over latitudes :: calculating step at once
     do itheta = 1, (this%lgp%nLege/step)*step, step
-      cosx  = this%lgp%rw(itheta:itheta+step-1,1)
-      sinx  = this%lgp%rw(itheta:itheta+step-1,2)
-      cosx2 = this%lgp%rw(itheta:itheta+step-1,3)
-      wght  = this%lgp%rw(itheta:itheta+step-1,4)
+      cosx  => this%lgp%rw(itheta:itheta+step-1,1)
+      sinx  => this%lgp%rw(itheta:itheta+step-1,2)
+      cosx2 => this%lgp%rw(itheta:itheta+step-1,3)
+      wght  => this%lgp%rw(itheta:itheta+step-1,4)
       
       call zero_rarray_sub( nb*step*this%fourtrans%n, sumN )
       call zero_rarray_sub( nb*step*this%fourtrans%n, sumS )
@@ -45,8 +43,8 @@ submodule (lateral_grid) transform
       call this%fourtrans%fft_c2r_sub( step*nb, sumN )
       call this%fourtrans%fft_c2r_sub( step*nb, sumS )
       
-      call grid_sub( this%fourtrans%n, sumS )
-      call grid_sub( this%fourtrans%n, sumN )
+      call grid_sub( this%fourtrans%n, sumS, grid )
+      call grid_sub( this%fourtrans%n, sumN, grid )
       
       call this%fourtrans%fft_r2c_sub( step*nf, sumN )
       call this%fourtrans%fft_r2c_sub( step*nf, sumS )
@@ -57,17 +55,7 @@ submodule (lateral_grid) transform
     call this%lgp%index_fwd_sub( nf, cr, rcr )
     
     !Cleaning
-    call free_aligned_sub( c_swork, swork )
-    call free_aligned_sub( c_pmm,   pmm   )
-    call free_aligned_sub( c_pmj,   pmj   )
-    call free_aligned_sub( c_pmj1,  pmj1  )
-    call free_aligned_sub( c_pmj2,  pmj2  )
-    call free_aligned_sub( c_cosx,  cosx  )
-    call free_aligned_sub( c_sinx,  sinx  )
-    call free_aligned_sub( c_cosx2, cosx2 )
-    call free_aligned_sub( c_wght,  wght  )
-    call free_aligned_sub( c_sumN,  sumN  )
-    call free_aligned_sub( c_sumS,  sumS  )
+    call free_aligned1d_sub( c_work, work )
     
     deallocate( rcc, rcr )
     

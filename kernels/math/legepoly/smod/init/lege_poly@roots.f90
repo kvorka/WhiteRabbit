@@ -28,8 +28,7 @@ submodule (lege_poly) roots
     !!**********************************************************************!!
     !!* Close to roots array holder and holder arrays.                     *!!
     !!**********************************************************************!!
-    this%c_rw = malloc( alig, 4*size_d*this%nLege )
-    call c_f_pointer( this%c_rw, this%rw, [this%nLege,4] )
+    call alloc_aligned2d_sub( this%nLege, 4, this%c_rw, this%rw )
     
     !!**********************************************************************!!
     !!* Seek for efficient stepping to use within the bisection method and *!!

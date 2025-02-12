@@ -6,7 +6,7 @@ submodule (fourier_transform) fxshf
     real(kind=dbl), pointer :: y(:)
     type(c_ptr)             :: c_y
     
-    call alloc_aligned_sub( m, c_y, y )
+    call alloc_aligned1d_sub( m, c_y, y )
     
     j = 1  
       do while (j <= this%n/2-2)
@@ -47,7 +47,7 @@ submodule (fourier_transform) fxshf
         end if
       end do
     
-    call free_aligned_sub( c_y, y )
+    call free_aligned1d_sub( c_y, y )
     
   end procedure fxzshf
   

@@ -12,35 +12,33 @@ submodule (lateral_grid) sgs
   
   module procedure space_to_grid_sub
     integer                        :: itheta, i1, i2
-    real(kind=dbl),    pointer     :: swork(:), pmm(:), pmj2(:), pmj1(:), pmj(:)
-    real(kind=dbl),    pointer     :: cosx(:), sinx(:), cosx2(:)
-    real(kind=dbl),    pointer     :: sumN(:), sumS(:)
+    type(c_ptr)                    :: c_work
+    real(kind=dbl),    pointer     :: work(:)
     complex(kind=dbl), allocatable :: rcc(:)
-    type(c_ptr)                    :: c_swork, c_pmm, c_pmj2, c_pmj1, c_pmj
-    type(c_ptr)                    :: c_cosx, c_sinx, c_cosx2
-    type(c_ptr)                    :: c_sumN, c_sumS
+    real(kind=dbl),    pointer     :: pmm(:), pmj2(:), pmj1(:), pmj(:)
+    real(kind=dbl),    pointer     :: cosx(:), sinx(:), cosx2(:)
+    real(kind=dbl),    pointer     :: sumN(:), sumS(:), swork(:)
     
     !Transform to suitable real input
     call this%lgp%alloc_cscal_sub( 1, rcc )
     call this%lgp%index_bwd_sub( 1, cc, rcc )
     
     !Allocating memory
-    call alloc_aligned_sub( 4*step,                  c_swork, swork )
-    call alloc_aligned_sub(   step,                  c_pmm,   pmm   )
-    call alloc_aligned_sub(   step,                  c_pmj,   pmj   )
-    call alloc_aligned_sub(   step,                  c_pmj1,  pmj1  )
-    call alloc_aligned_sub(   step,                  c_pmj2,  pmj2  )
-    call alloc_aligned_sub(   step,                  c_cosx,  cosx  )
-    call alloc_aligned_sub(   step,                  c_cosx2, cosx2 )
-    call alloc_aligned_sub(   step,                  c_sinx,  sinx  )
-    call alloc_aligned_sub(   step*this%fourtrans%n, c_sumN,  sumN  )
-    call alloc_aligned_sub(   step*this%fourtrans%n, c_sumS,  sumS  )
+    call alloc_aligned1d_sub( 2*(4+this%fourtrans%n)*step, c_work, work )
+      
+      pmm   => work(                             1 :                          step )
+      pmj   => work(                        step+1 :   2*                     step )
+      pmj1  => work(   2*                   step+1 :   3*                     step )
+      pmj2  => work(   3*                   step+1 :   4*                     step )
+      swork => work(   4*                   step+1 :   8*                     step )
+      sumN  => work(   8*                   step+1 : ( 8+  this%fourtrans%n )*step )
+      sumS  => work( ( 8+this%fourtrans%n )*step+1 : ( 8+2*this%fourtrans%n )*step )
     
     !Cycle over latitudes :: calculating step at once
     do itheta = 1, (this%lgp%nLege/step)*step, step
-      cosx  = this%lgp%rw(itheta:itheta+step-1,1)
-      sinx  = this%lgp%rw(itheta:itheta+step-1,2)
-      cosx2 = this%lgp%rw(itheta:itheta+step-1,3)
+      cosx  => this%lgp%rw(itheta:itheta+step-1,1)
+      sinx  => this%lgp%rw(itheta:itheta+step-1,2)
+      cosx2 => this%lgp%rw(itheta:itheta+step-1,3)
       
       call zero_rarray_sub( step*this%fourtrans%n, sumN )
       call zero_rarray_sub( step*this%fourtrans%n, sumS )
@@ -57,16 +55,7 @@ submodule (lateral_grid) sgs
     end do
     
     !Cleaning
-    call free_aligned_sub( c_swork, swork )
-    call free_aligned_sub( c_pmm,   pmm   )
-    call free_aligned_sub( c_pmj,   pmj   )
-    call free_aligned_sub( c_pmj1,  pmj1  )
-    call free_aligned_sub( c_pmj2,  pmj2  )
-    call free_aligned_sub( c_cosx,  cosx  )
-    call free_aligned_sub( c_sinx,  sinx  )
-    call free_aligned_sub( c_cosx2, cosx2 )
-    call free_aligned_sub( c_sumN,  sumN  )
-    call free_aligned_sub( c_sumS,  sumS  )
+    call free_aligned1d_sub( c_work, work )
     
     deallocate( rcc )
     
@@ -74,37 +63,34 @@ submodule (lateral_grid) sgs
   
   module procedure grid_to_space_sub
     integer                        :: itheta, i1, i2
-    real(kind=dbl),    pointer     :: swork(:), pmm(:), pmj2(:), pmj1(:), pmj(:)
-    real(kind=dbl),    pointer     :: cosx(:), sinx(:), cosx2(:), wght(:)
-    real(kind=dbl),    pointer     :: sumN(:), sumS(:)
+    type(c_ptr)                    :: c_work
+    real(kind=dbl),    pointer     :: work(:)
     complex(kind=dbl), allocatable :: crr(:), rcr(:)
-    type(c_ptr)                    :: c_swork, c_pmm, c_pmj2, c_pmj1, c_pmj
-    type(c_ptr)                    :: c_cosx, c_sinx, c_cosx2, c_wght
-    type(c_ptr)                    :: c_sumN, c_sumS
+    real(kind=dbl),    pointer     :: pmm(:), pmj2(:), pmj1(:), pmj(:)
+    real(kind=dbl),    pointer     :: cosx(:), sinx(:), cosx2(:), wght(:)
+    real(kind=dbl),    pointer     :: sumN(:), sumS(:), swork(:)
     
     !Allocate input array
     call this%lgp%alloc_cscal_sub( 1, rcr )
     call this%reindexing%allocate_scalars_sub( 1, crr )
     
     !Allocating memory
-    call alloc_aligned_sub( 4*step,                  c_swork, swork )
-    call alloc_aligned_sub(   step,                  c_pmm,   pmm   )
-    call alloc_aligned_sub(   step,                  c_pmj,   pmj   )
-    call alloc_aligned_sub(   step,                  c_pmj1,  pmj1  )
-    call alloc_aligned_sub(   step,                  c_pmj2,  pmj2  )
-    call alloc_aligned_sub(   step,                  c_cosx,  cosx  )
-    call alloc_aligned_sub(   step,                  c_cosx2, cosx2 )
-    call alloc_aligned_sub(   step,                  c_sinx,  sinx  )
-    call alloc_aligned_sub(   step,                  c_wght,  wght  )
-    call alloc_aligned_sub(   step*this%fourtrans%n, c_sumN,  sumN  )
-    call alloc_aligned_sub(   step*this%fourtrans%n, c_sumS,  sumS  )
+    call alloc_aligned1d_sub( 2*(4+this%fourtrans%n)*step, c_work, work )
+      
+      pmm   => work(                             1 :                          step )
+      pmj   => work(                        step+1 :   2*                     step )
+      pmj1  => work(   2*                   step+1 :   3*                     step )
+      pmj2  => work(   3*                   step+1 :   4*                     step )
+      swork => work(   4*                   step+1 :   8*                     step )
+      sumN  => work(   8*                   step+1 : ( 8+  this%fourtrans%n )*step )
+      sumS  => work( ( 8+this%fourtrans%n )*step+1 : ( 8+2*this%fourtrans%n )*step )
     
     !Cycle over latitudes :: computing step at once
     do itheta = 1, (this%lgp%nLege/step)*step, step
-      cosx  = this%lgp%rw(itheta:itheta+step-1,1)
-      sinx  = this%lgp%rw(itheta:itheta+step-1,2)
-      cosx2 = this%lgp%rw(itheta:itheta+step-1,3)
-      wght  = this%lgp%rw(itheta:itheta+step-1,4)
+      cosx  => this%lgp%rw(itheta:itheta+step-1,1)
+      sinx  => this%lgp%rw(itheta:itheta+step-1,2)
+      cosx2 => this%lgp%rw(itheta:itheta+step-1,3)
+      wght  => this%lgp%rw(itheta:itheta+step-1,4)
       
       do concurrent ( i2 = 1:this%fourtrans%n, i1 = 0:step-1 )
         sumN(i1+1+step*(i2-1)) = grid(itheta+i1,i2,1)
@@ -122,17 +108,7 @@ submodule (lateral_grid) sgs
     call this%reindexing%scal2scal_mj_to_jm_sub( crr, 1, 1, cr, 1, 1 )
     
     !Cleaning
-    call free_aligned_sub( c_swork, swork )
-    call free_aligned_sub( c_pmm,   pmm   )
-    call free_aligned_sub( c_pmj,   pmj   )
-    call free_aligned_sub( c_pmj1,  pmj1  )
-    call free_aligned_sub( c_pmj2,  pmj2  )
-    call free_aligned_sub( c_cosx,  cosx  )
-    call free_aligned_sub( c_sinx,  sinx  )
-    call free_aligned_sub( c_cosx2, cosx2 )
-    call free_aligned_sub( c_wght,  wght  )
-    call free_aligned_sub( c_sumN,  sumN  )
-    call free_aligned_sub( c_sumS,  sumS  )
+    call free_aligned1d_sub( c_work, work )
     
     deallocate( crr, rcr )
     

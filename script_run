@@ -20,7 +20,8 @@ fcompile="gfortran-12 -Ofast \
 ####                    COMPILATION OF THE BASELINE, DIRS SET UP                       ####
 ###########################################################################################
 $fcompile -c kernels/math/math/math.f90
-  $fcompile -c kernels/math/math/smod/math@allocator.f90 &
+  $fcompile -c kernels/math/math/smod/math@allocator1.f90 &
+  $fcompile -c kernels/math/math/smod/math@allocator2.f90 &
   $fcompile -c kernels/math/math/smod/math@conversions.f90 &
   $fcompile -c kernels/math/math/smod/math@nulify.f90 &
 wait
