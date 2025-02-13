@@ -2,28 +2,30 @@ submodule (grid_ops) vcss
   implicit none; contains
   
   module procedure grid_op_vcss_sub
-    integer                     :: i1, i2
-    real(kind=dbl), pointer     :: gout(:,:), gin(:,:,:)
-    real(kind=dbl), allocatable :: tmp1(:), tmp2(:)
+    integer                 :: i1, i2, i3
+    real(kind=dbl), pointer :: gout(:,:), gin(:,:,:), gtmp(:,:)
     
     gin(1:step,1:2,1:nfour) => grid(:,1:2*nfour)
     gout(1:step,1:nfour)    => grid(:,1:  nfour)
+    gtmp(1:step,1:2)        => tempgrid(:,1:2)
     
-    allocate( tmp1(step), tmp2(step) )
-    
-    do i1 = 1, nfour
-      tmp1 = gin(1:step,1,i1)
-      tmp2 = gin(1:step,2,i1)
+    do i3 = 1, nfour
+      !$omp simd collapse (2)
+      do i2 = 1, 2
+        do i1 = 1, step
+          gtmp(i1,i2) = gin(i1,i2,i3)
+        end do
+      end do
       
-      do concurrent ( i2 = 1:step )
-        gout(i2,i1) = tmp1(i2) * tmp2(i2)
+      !$omp simd
+      do i1 = 1, step
+        gout(i1,i3) = gtmp(i1,1) * gtmp(i1,2)
       end do
     end do
     
-    deallocate( tmp1, tmp2 )
-    
     gin  => null()
     gout => null()
+    gtmp => null()
     
   end procedure grid_op_vcss_sub
   
