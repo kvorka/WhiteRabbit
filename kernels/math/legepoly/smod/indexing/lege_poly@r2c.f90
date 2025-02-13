@@ -10,7 +10,7 @@ submodule (lege_poly) r2c
         mj = 1
         
         do concurrent ( i = 1:ncab )
-          cab(i,mj) = rcab(i,2,ma)
+          cab(i,mj) = cmplx( rcab(1,i,2,ma), rcab(2,i,2,ma), kind=dbl )
         end do
       
       do j = 1, (this%jmax-1)/2
@@ -18,8 +18,9 @@ submodule (lege_poly) r2c
         mj = mj+2
         
         do concurrent ( i = 1:ncab )
-          cab(i,mj-1) = this%emj(mj) * rcab(i,1,ma) + this%emj(mj-1) * rcab(i,1,ma-1)
-          cab(i,mj)   =                rcab(i,2,ma)
+          cab(i,mj-1) = this%emj(mj)   * cmplx( rcab(1,i,1,ma  ), rcab(2,i,1,ma  ), kind=dbl ) + &
+                      & this%emj(mj-1) * cmplx( rcab(1,i,1,ma-1), rcab(2,i,1,ma-1), kind=dbl )
+          cab(i,mj)   =                  cmplx( rcab(1,i,2,ma  ), rcab(2,i,2,ma  ), kind=dbl )
         end do
       end do
       
@@ -29,8 +30,9 @@ submodule (lege_poly) r2c
         mj = mj+2
         
         do concurrent ( i = 1:ncab )
-          cab(i,mj-1) = this%emj(mj) * rcab(i,1,ma) + this%emj(mj-1) * rcab(i,1,ma-1)
-          cab(i,mj)   =                rcab(i,2,ma)
+          cab(i,mj-1) = this%emj(mj)   * cmplx( rcab(1,i,1,ma  ), rcab(2,i,1,ma  ), kind=dbl ) + &
+                      & this%emj(mj-1) * cmplx( rcab(1,i,1,ma-1), rcab(2,i,1,ma-1), kind=dbl )
+          cab(i,mj)   =                  cmplx( rcab(1,i,2,ma  ), rcab(2,i,2,ma  ), kind=dbl )
         end do
       
       else
@@ -38,7 +40,8 @@ submodule (lege_poly) r2c
         mj = mj+1
         
         do concurrent ( i = 1:ncab )
-          cab(i,mj) = this%emj(mj+1) * rcab(i,1,ma) + this%emj(mj) * rcab(i,1,ma-1)
+          cab(i,mj) = this%emj(mj+1) * cmplx( rcab(1,i,1,ma  ), rcab(2,i,1,ma  ), kind=dbl ) + &
+                    & this%emj(mj)   * cmplx( rcab(1,i,1,ma-1), rcab(2,i,1,ma-1), kind=dbl )
         end do
       end if
     
@@ -48,7 +51,7 @@ submodule (lege_poly) r2c
         mj = mj+1
         
         do concurrent ( i = 1:ncab )
-          cab(i,mj) = rcab(i,2,ma)
+          cab(i,mj) = cmplx( rcab(1,i,2,ma), rcab(2,i,2,ma), kind=dbl )
         end do
       
       do j = 1, (this%jmax-m-1)/2
@@ -56,8 +59,9 @@ submodule (lege_poly) r2c
         mj = mj+2
         
         do concurrent ( i = 1:ncab )
-          cab(i,mj-1) = this%emj(mj+m) * rcab(i,1,ma) + this%emj(mj+m-1) * rcab(i,1,ma-1)
-          cab(i,mj)   =                  rcab(i,2,ma)
+          cab(i,mj-1) = this%emj(mj+m)   * cmplx( rcab(1,i,1,ma  ), rcab(2,i,1,ma  ), kind=dbl ) + &
+                      & this%emj(mj+m-1) * cmplx( rcab(1,i,1,ma-1), rcab(2,i,1,ma-1), kind=dbl )
+          cab(i,mj)   =                    cmplx( rcab(1,i,2,ma  ), rcab(2,i,2,ma  ), kind=dbl )
         end do
       end do
       
@@ -67,8 +71,11 @@ submodule (lege_poly) r2c
         mj = mj+2
         
         do concurrent ( i = 1:ncab )
-          cab(i,mj-1) = this%emj(mj+m) * rcab(i,1,ma) + this%emj(mj+m-1) * rcab(i,1,ma-1)
-          cab(i,mj)   =                  rcab(i,2,ma)
+          do concurrent ( i = 1:ncab )
+            cab(i,mj-1) = this%emj(mj+m)   * cmplx( rcab(1,i,1,ma  ), rcab(2,i,1,ma  ), kind=dbl ) + &
+                        & this%emj(mj+m-1) * cmplx( rcab(1,i,1,ma-1), rcab(2,i,1,ma-1), kind=dbl )
+            cab(i,mj)   =                    cmplx( rcab(1,i,2,ma  ), rcab(2,i,2,ma  ), kind=dbl )
+          end do
         end do
       
       else
@@ -76,7 +83,8 @@ submodule (lege_poly) r2c
         mj = mj+1
         
         do concurrent ( i = 1:ncab )
-          cab(i,mj) = this%emj(mj+m+1) * rcab(i,1,ma) + this%emj(mj+m) * rcab(i,1,ma-1)
+          cab(i,mj) = this%emj(mj+m+1) * cmplx( rcab(1,i,1,ma  ), rcab(2,i,1,ma  ), kind=dbl ) + &
+                    & this%emj(mj+m)   * cmplx( rcab(1,i,1,ma-1), rcab(2,i,1,ma-1), kind=dbl )
         end do
       end if
     end do
@@ -87,7 +95,7 @@ submodule (lege_poly) r2c
         mj = mj+1
         
         do concurrent ( i = 1:ncab )
-          cab(i,mj) = rcab(i,2,ma)
+          cab(i,mj) = cmplx( rcab(1,i,2,ma), rcab(2,i,2,ma), kind=dbl )
         end do
       
   end procedure r2c_mj_to_mj_sub

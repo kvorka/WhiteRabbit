@@ -11,16 +11,16 @@ submodule (lateral_grid) sgs
   end procedure allocate_grid_sub
   
   module procedure space_to_grid_sub
-    integer                        :: itheta, i1, i2
-    type(c_ptr)                    :: c_work
-    real(kind=dbl),    pointer     :: work(:)
-    complex(kind=dbl), allocatable :: rcc(:)
-    real(kind=dbl),    pointer     :: pmm(:), pmj2(:), pmj1(:), pmj(:)
-    real(kind=dbl),    pointer     :: cosx(:), sinx(:), cosx2(:)
-    real(kind=dbl),    pointer     :: sumN(:), sumS(:), swork(:)
+    integer                     :: itheta, i1, i2
+    type(c_ptr)                 :: c_work
+    real(kind=dbl), pointer     :: work(:)
+    real(kind=dbl), allocatable :: rcc(:)
+    real(kind=dbl), pointer     :: pmm(:), pmj2(:), pmj1(:), pmj(:)
+    real(kind=dbl), pointer     :: cosx(:), sinx(:), cosx2(:)
+    real(kind=dbl), pointer     :: sumN(:), sumS(:), swork(:)
     
     !Transform to suitable real input
-    call this%lgp%alloc_cscal_sub( 1, rcc )
+    call this%lgp%alloc_rscal_sub( 1, rcc )
     call this%lgp%index_bwd_sub( 1, cc, rcc )
     
     !Allocating memory
@@ -65,13 +65,14 @@ submodule (lateral_grid) sgs
     integer                        :: itheta, i1, i2
     type(c_ptr)                    :: c_work
     real(kind=dbl),    pointer     :: work(:)
-    complex(kind=dbl), allocatable :: crr(:), rcr(:)
+    real(kind=dbl),    allocatable :: rcr(:)
+    complex(kind=dbl), allocatable :: crr(:)
     real(kind=dbl),    pointer     :: pmm(:), pmj2(:), pmj1(:), pmj(:)
     real(kind=dbl),    pointer     :: cosx(:), sinx(:), cosx2(:), wght(:)
     real(kind=dbl),    pointer     :: sumN(:), sumS(:), swork(:)
     
     !Allocate input array
-    call this%lgp%alloc_cscal_sub( 1, rcr )
+    call this%lgp%alloc_rscal_sub( 1, rcr )
     call this%reindexing%allocate_scalars_sub( 1, crr )
     
     !Allocating memory

@@ -1,10 +1,11 @@
 submodule (lege_poly) allocators
   implicit none; contains
   
-  module procedure allocate_cscalars_sub
+  module procedure allocate_rscalars_sub
     
-    allocate( cscal(2*ns*this%nrma) ); cscal = czero
+    allocate( rscal(4*ns*this%nrma) )
+      call zero_rarray_sub( 4*ns*this%nrma, rscal )
     
-  end procedure allocate_cscalars_sub
+  end procedure allocate_rscalars_sub
   
 end submodule allocators
