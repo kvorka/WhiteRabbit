@@ -11,13 +11,13 @@ submodule (lateral_grid) sgs
   end procedure allocate_grid_sub
   
   module procedure space_to_grid_sub
-    integer                     :: itheta, i1, i2
-    type(c_ptr)                 :: c_work
-    real(kind=dbl), pointer     :: work(:)
-    real(kind=dbl), allocatable :: rcc(:)
-    real(kind=dbl), pointer     :: pmm(:), pmj2(:), pmj1(:), pmj(:)
-    real(kind=dbl), pointer     :: cosx(:), sinx(:), cosx2(:)
-    real(kind=dbl), pointer     :: sumN(:), sumS(:), swork(:)
+    integer                             :: itheta, i1, i2
+    type(c_ptr)                         :: c_work
+    real(kind=dbl), pointer, contiguous :: work(:)
+    real(kind=dbl), pointer, contiguous :: pmm(:), pmj2(:), pmj1(:), pmj(:)
+    real(kind=dbl), pointer, contiguous :: cosx(:), sinx(:), cosx2(:)
+    real(kind=dbl), pointer, contiguous :: sumN(:), sumS(:), swork(:)
+    real(kind=dbl), allocatable         :: rcc(:)
     
     !Transform to suitable real input
     call this%lgp%alloc_rscal_sub( 1, rcc )
@@ -62,14 +62,14 @@ submodule (lateral_grid) sgs
   end procedure space_to_grid_sub
   
   module procedure grid_to_space_sub
-    integer                        :: itheta, i1, i2
-    type(c_ptr)                    :: c_work
-    real(kind=dbl),    pointer     :: work(:)
-    real(kind=dbl),    allocatable :: rcr(:)
-    complex(kind=dbl), allocatable :: crr(:)
-    real(kind=dbl),    pointer     :: pmm(:), pmj2(:), pmj1(:), pmj(:)
-    real(kind=dbl),    pointer     :: cosx(:), sinx(:), cosx2(:), wght(:)
-    real(kind=dbl),    pointer     :: sumN(:), sumS(:), swork(:)
+    integer                                :: itheta, i1, i2
+    type(c_ptr)                            :: c_work
+    real(kind=dbl),    pointer, contiguous :: work(:)
+    real(kind=dbl),    pointer, contiguous :: pmm(:), pmj2(:), pmj1(:), pmj(:)
+    real(kind=dbl),    pointer, contiguous :: cosx(:), sinx(:), cosx2(:), wght(:)
+    real(kind=dbl),    pointer, contiguous :: sumN(:), sumS(:), swork(:)
+    real(kind=dbl),    allocatable         :: rcr(:)
+    complex(kind=dbl), allocatable         :: crr(:)
     
     !Allocate input array
     call this%lgp%alloc_rscal_sub( 1, rcr )

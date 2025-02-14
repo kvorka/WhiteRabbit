@@ -2,13 +2,13 @@ submodule (lateral_grid) transform
   implicit none; contains
   
   module procedure transform_sub
-    integer                     :: itheta
-    type(c_ptr)                 :: c_work
-    real(kind=dbl), pointer     :: work(:)
-    real(kind=dbl), pointer     :: pmm(:), pmj2(:), pmj1(:), pmj(:)
-    real(kind=dbl), pointer     :: cosx(:), sinx(:), cosx2(:), wght(:)
-    real(kind=dbl), pointer     :: sumN(:), sumS(:), swork(:), grid(:)
-    real(kind=dbl), allocatable :: rcr(:), rcc(:)
+    integer                             :: itheta
+    type(c_ptr)                         :: c_work
+    real(kind=dbl), pointer, contiguous :: work(:)
+    real(kind=dbl), pointer, contiguous :: pmm(:), pmj2(:), pmj1(:), pmj(:)
+    real(kind=dbl), pointer, contiguous :: cosx(:), sinx(:), cosx2(:), wght(:)
+    real(kind=dbl), pointer, contiguous :: sumN(:), sumS(:), swork(:), grid(:)
+    real(kind=dbl), allocatable         :: rcr(:), rcc(:)
     
     !Prepare input and output arrays
     call this%lgp%alloc_rscal_sub( nb, rcc )

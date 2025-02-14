@@ -2,9 +2,9 @@ submodule (fourier_transform) fxshf
   implicit none; contains
   
   module procedure fxzshf
-    integer                 :: iv, j, isj, isj2
-    real(kind=dbl), pointer :: y(:)
-    type(c_ptr)             :: c_y
+    integer                             :: iv, j, isj, isj2
+    real(kind=dbl), pointer, contiguous :: y(:)
+    type(c_ptr)                         :: c_y
     
     call alloc_aligned1d_sub( m, c_y, y )
     
