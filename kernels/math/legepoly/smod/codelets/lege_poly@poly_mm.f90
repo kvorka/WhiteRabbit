@@ -18,10 +18,11 @@ submodule (lege_poly) poly_mm
         end do
     end select
     
+    call zero_rarray_sub( step, pmj2 )
+    call zero_rarray_sub( step, pmj1 )
+    
     !$omp simd
     do i2 = 1, step
-      pmj2(i2) = zero
-      pmj1(i2) = zero
       pmj(i2)  = pmm(i2) / cosx(i2)
     end do
     

@@ -7,7 +7,7 @@ submodule (grid_ops) vcsv
     
     gin(1:step,1:4,1:nfour)  => grid(:,1:4*nfour)
     gout(1:step,1:3,1:nfour) => grid(:,1:3*nfour)
-    gtmp(1:step,1:4)         => grid(:,1:4)
+    gtmp(1:step,1:4)         => tempgrid(:,1:4)
     
     do i3 = 1, nfour
       !$omp simd collapse (2)
