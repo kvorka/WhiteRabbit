@@ -377,9 +377,9 @@ module physicalobject
     
     !Interfaces :: to be continued
     module pure subroutine coriolis_rr_jml_sub(this, v, coriolis)
-      class(T_physicalObject), intent(in)    :: this
-      complex(kind=dbl),       intent(in)    :: v(:)
-      complex(kind=dbl),       intent(inout) :: coriolis(:,:)
+      class(T_physicalObject), intent(in)  :: this
+      complex(kind=dbl),       intent(in)  :: v(*)
+      complex(kind=dbl),       intent(out) :: coriolis(3,*)
     end subroutine coriolis_rr_jml_sub
     
     module pure complex(kind=dbl) function buoy_rr_fn(this, ir, il, ijm, sgn)
@@ -394,10 +394,10 @@ module physicalobject
     end subroutine er_buoy_rr_jm_sub
     
     module pure subroutine buoy_rr_jml_sub(this, ir, T, force)
-      class(T_physicalObject), intent(in)    :: this
-      integer,                 intent(in)    :: ir
-      complex(kind=dbl),       intent(in)    :: T(:)
-      complex(kind=dbl),       intent(inout) :: force(:,:)
+      class(T_physicalObject), intent(in)  :: this
+      integer,                 intent(in)  :: ir
+      complex(kind=dbl),       intent(in)  :: T(*)
+      complex(kind=dbl),       intent(out) :: force(2,*)
     end subroutine buoy_rr_jml_sub
     
     module subroutine global_rotation_sub(this)

@@ -5,9 +5,10 @@ submodule (ocean) nonlin
     integer                        :: ir, ijm
     complex(kind=dbl), allocatable :: v(:), nlm(:,:)
     
+    !$omp parallel private (v, nlm, ijm)
     allocate( v(this%jmv), nlm(3,this%jms) )
     
-    !$omp parallel do private (v, nlm, ijm)
+    !$omp do
     do ir = 2, this%nd
       call this%v_rr_ijml_sub(ir, v)
       
@@ -20,20 +21,24 @@ submodule (ocean) nonlin
         this%nsph2(ijm,ir) = nlm(3,ijm)
       end do
     end do
-    !$omp end parallel do
+    !$omp end do
     
     deallocate( v, nlm )
+    !$omp end parallel
     
   end procedure coriolis_ocean_sub
   
   module procedure coriolis_vgradv_ocean_sub
     integer                        :: ir, ijm
     real(kind=dbl)                 :: fac
-    complex(kind=dbl), allocatable :: v(:), dv(:), nlm(:,:)
+    complex(kind=dbl), allocatable :: v(:), dv(:), nlm(:,:), coriolis(:,:)
     
-    allocate( v(this%jmv) , dv(this%jmv), nlm(3,this%jms) )
+    allocate( v(this%jmv) , dv(this%jmv), nlm(3,this%jms), coriolis(3,this%jms) )
     
-    !$omp parallel do private (v, dv, ijm, fac, nlm)
+    !$omp parallel private (v, dv, ijm, fac, nlm, coriolis)
+    allocate( v(this%jmv) , dv(this%jmv), nlm(3,this%jms), coriolis(3,this%jms) )
+
+    !$omp do
     do ir = 2, this%nd
       call this%dv_dr_rr_jml_sub(ir, v, dv)
       
@@ -44,33 +49,35 @@ submodule (ocean) nonlin
           fac = 1 / this%Pr
           
           do concurrent ( ijm = 1:this%jms )
+            nlm(1,ijm) = nlm(1,ijm) * fac
             nlm(2,ijm) = nlm(2,ijm) * fac
             nlm(3,ijm) = nlm(3,ijm) * fac
-            nlm(4,ijm) = nlm(4,ijm) * fac
           end do
       end select
       
-      call this%coriolis_rr_jml_sub(v, nlm)
+      call this%coriolis_rr_jml_sub(v, coriolis)
       
       do concurrent ( ijm = 1:this%jms )
-        this%nsph1(ijm,ir) = nlm(1,ijm)
-        this%ntorr(ijm,ir) = nlm(2,ijm)
-        this%nsph2(ijm,ir) = nlm(3,ijm)
+        this%nsph1(ijm,ir) = nlm(1,ijm)+coriolis(1,ijm)
+        this%ntorr(ijm,ir) = nlm(2,ijm)+coriolis(2,ijm)
+        this%nsph2(ijm,ir) = nlm(3,ijm)+coriolis(3,ijm)
       end do
     end do
-    !$omp end parallel do
-    
-    deallocate( v , dv, nlm )
+    !$omp end do
+
+    deallocate( v , dv, nlm, coriolis )
+    !$omp end parallel
     
   end procedure coriolis_vgradv_ocean_sub
   
   module procedure fullnl_ocean_sub
     integer                        :: ir, ijm
     real(kind=dbl)                 :: fac
-    complex(kind=dbl), allocatable :: v(:), dv(:), T(:), gradT(:), nlm(:,:)
+    complex(kind=dbl), allocatable :: v(:), dv(:), T(:), gradT(:), nlm(:,:), buoy(:,:), coriolis(:,:)
     
     !$omp parallel private (v, dv, T, gradT, ijm, fac, nlm)
-    allocate( v(this%jmv), dv(this%jmv), T(this%jms), gradT(this%jmv), nlm(4,this%jms) )
+    allocate( v(this%jmv), dv(this%jmv), T(this%jms), gradT(this%jmv), &
+            & nlm(4,this%jms), buoy(2,this%jms), coriolis(3,this%jms)  )
     
     !$omp do
     do ir = 2, this%nd
@@ -90,19 +97,19 @@ submodule (ocean) nonlin
           end do
       end select
       
-      call this%coriolis_rr_jml_sub(v, nlm(2:4,:))
-      call this%buoy_rr_jml_sub(ir, T, nlm(2:4,:))
+      call this%coriolis_rr_jml_sub(v, coriolis)
+      call this%buoy_rr_jml_sub(ir, T, buoy)
       
       do concurrent ( ijm = 1:this%jms )
         this%ntemp(ijm,ir) = nlm(1,ijm)
-        this%nsph1(ijm,ir) = nlm(2,ijm)
-        this%ntorr(ijm,ir) = nlm(3,ijm)
-        this%nsph2(ijm,ir) = nlm(4,ijm)
+        this%nsph1(ijm,ir) = nlm(2,ijm)+buoy(1,ijm)+coriolis(1,ijm)
+        this%ntorr(ijm,ir) = nlm(3,ijm)+            coriolis(2,ijm)
+        this%nsph2(ijm,ir) = nlm(4,ijm)+buoy(2,ijm)+coriolis(3,ijm)
       end do
     end do
     !$omp end do
     
-    deallocate( v , dv, T , gradT, nlm )
+    deallocate( v , dv, T , gradT, nlm, buoy, coriolis )
     !$omp end parallel
     
   end procedure fullnl_ocean_sub

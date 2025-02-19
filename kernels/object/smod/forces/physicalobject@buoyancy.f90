@@ -45,8 +45,8 @@ submodule (physicalobject) buoyancy
       fac2 = +sqrt( (ij+1) / (2*ij+one) ) * fac
       
       do concurrent ( ijm = jm(ij,0):jm(ij,ij) )
-        force(1,ijm) = force(1,ijm) + fac1 * T(ijm)
-        force(3,ijm) = force(3,ijm) + fac2 * T(ijm)
+        force(1,ijm) = fac1 * T(ijm)
+        force(2,ijm) = fac2 * T(ijm)
       end do
     end do
       
