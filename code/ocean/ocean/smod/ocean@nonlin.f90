@@ -75,7 +75,7 @@ submodule (ocean) nonlin
     real(kind=dbl)                 :: fac
     complex(kind=dbl), allocatable :: v(:), dv(:), T(:), gradT(:), nlm(:,:), buoy(:,:), coriolis(:,:)
     
-    !$omp parallel private (v, dv, T, gradT, ijm, fac, nlm)
+    !$omp parallel private (v, dv, T, gradT, ijm, fac, nlm, coriolis, buoy)
     allocate( v(this%jmv), dv(this%jmv), T(this%jms), gradT(this%jmv), &
             & nlm(4,this%jms), buoy(2,this%jms), coriolis(3,this%jms)  )
     
