@@ -3,31 +3,28 @@ submodule (lateral_grid) transform
   
   module procedure transform_sub
     integer                             :: itheta
-    type(c_ptr)                         :: c_work
-    real(kind=dbl), pointer, contiguous :: work(:)
-    real(kind=dbl), pointer, contiguous :: pmm(:), pmj2(:), pmj1(:), pmj(:)
-    real(kind=dbl), pointer, contiguous :: cosx(:), sinx(:), cosx2(:), wght(:)
-    real(kind=dbl), pointer, contiguous :: sumN(:), sumS(:), swork(:), grid(:)
-    real(kind=dbl), allocatable         :: rcr(:), rcc(:)
+    type(c_ptr)                         :: c_work, c_rcc, c_rcr
+    real(kind=dbl), contiguous, pointer :: work(:)
+    real(kind=dbl), contiguous, pointer :: pwork(:), grid(:)
+    real(kind=dbl), contiguous, pointer :: cosx(:), sinx(:), cosx2(:), wght(:)
+    real(kind=dbl), contiguous, pointer :: sumN(:), sumS(:), swork(:)
+    real(kind=dbl), contiguous, pointer :: rcc(:), rcr(:)
     
     !Prepare input and output arrays
-    call this%lgp%alloc_rscal_sub( nb, rcc )
-    call this%lgp%alloc_rscal_sub( nf, rcr )
+    call this%lgp%alloc_rscal_sub( nb, c_rcc, rcc )
+    call this%lgp%alloc_rscal_sub( nf, c_rcr, rcr )
     
     call this%lgp%index_bwd_sub( nb, cc, rcc )
     
     !Allocating memory
-    call alloc_aligned1d_sub( 2*(2*(nb+1)+nb+nb*this%fourtrans%n)*step, c_work, work )
-      
-      pmm   => work(                                         1 :                                       step )
-      pmj   => work(                                    step+1 :   2*                                  step )
-      pmj1  => work(   2*                               step+1 :   3*                                  step )
-      pmj2  => work(   3*                               step+1 :   4*                                  step )
-      swork => work(   4*                               step+1 :   4*(nb+1)*                           step )
-      sumN  => work(   4*(nb+1)*                        step+1 : ( 4*(nb+1)+     nb*this%fourtrans%n )*step )
-      sumS  => work( ( 4*(nb+1)+  nb*this%fourtrans%n )*step+1 : ( 4*(nb+1)   +2*nb*this%fourtrans%n )*step )
-      grid  => work( ( 4*(nb+1)+2*nb*this%fourtrans%n )*step+1 : ( 4*(nb+1)+nb+2*nb*this%fourtrans%n )*step )
+    call alloc_aligned1d_sub( (2*nb*this%fourtrans%n+5*nb+3)*step, c_work, work )
     
+    pwork => work(                                           1 : (                              3 ) * step )
+    swork => work( (                            3 ) * step + 1 : (                         4*nb+3 ) * step )
+    grid  => work( (                       4*nb+3 ) * step + 1 : (                         5*nb+3 ) * step )
+    sumN  => work( (                       5*nb+3 ) * step + 1 : (   nb*this%fourtrans%n + 5*nb+3 ) * step )
+    sumS  => work( ( nb*this%fourtrans%n + 5*nb+3 ) * step + 1 : ( 2*nb*this%fourtrans%n + 5*nb+3 ) * step )
+      
     !Cycle over latitudes :: calculating step at once
     do itheta = 1, (this%lgp%nLege/step)*step, step
       cosx  => this%lgp%rw(itheta:itheta+step-1,1)
@@ -38,7 +35,7 @@ submodule (lateral_grid) transform
       call zero_rarray_sub( nb*step*this%fourtrans%n, sumN )
       call zero_rarray_sub( nb*step*this%fourtrans%n, sumS )
       
-      call this%lgp%bwd_legesum_sub( nb, rcc, sumN, sumS, cosx, sinx, cosx2, pmm, pmj2, pmj1, pmj, swork )
+      call this%lgp%bwd_legesum_sub( nb, rcc, sumN, sumS, cosx, sinx, cosx2, pwork, swork )
       
       call this%fourtrans%fft_c2r_sub( step*nb, sumN )
       call this%fourtrans%fft_c2r_sub( step*nb, sumS )
@@ -49,15 +46,15 @@ submodule (lateral_grid) transform
       call this%fourtrans%fft_r2c_sub( step*nf, sumN )
       call this%fourtrans%fft_r2c_sub( step*nf, sumS )
       
-      call this%lgp%fwd_legesum_sub( nf, sumN, sumS, rcr, cosx, sinx, cosx2, wght, pmm, pmj2, pmj1, pmj, swork )
+      call this%lgp%fwd_legesum_sub( nf, sumN, sumS, rcr, cosx, sinx, cosx2, wght, pwork, swork )
     end do
     
     call this%lgp%index_fwd_sub( nf, cr, rcr )
     
     !Cleaning
     call free_aligned1d_sub( c_work, work )
-    
-    deallocate( rcc, rcr )
+    call free_aligned1d_sub( c_rcc, rcc )
+    call free_aligned1d_sub( c_rcr, rcr )
     
   end procedure transform_sub
   

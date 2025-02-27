@@ -31,6 +31,7 @@ submodule (lege_poly) init
     
     if ( c_associated(this%c_rw) ) call free_aligned2d_sub( this%c_rw, this%rw )
     
+    if ( allocated(this%amj) ) deallocate( this%amj )
     if ( allocated(this%emj) ) deallocate( this%emj )
     if ( allocated(this%fmj) ) deallocate( this%fmj )
     

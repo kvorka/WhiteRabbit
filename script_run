@@ -50,6 +50,7 @@ $fcompile -c kernels/math/legepoly/lege_poly.f90
   $fcompile -c kernels/math/legepoly/smod/init/lege_poly@roots.f90 &
   $fcompile -c kernels/math/legepoly/smod/init/lege_poly@coeffs.f90 &
   $fcompile -c kernels/math/legepoly/smod/indexing/lege_poly@allocators.f90 &
+  $fcompile -c kernels/math/legepoly/smod/indexing/lege_poly@is_rescale.f90 &
   $fcompile -c kernels/math/legepoly/smod/indexing/lege_poly@c2r.f90 &
   $fcompile -c kernels/math/legepoly/smod/indexing/lege_poly@r2c.f90 &
   $fcompile -c kernels/math/legepoly/smod/cores/lege_poly@bwd.f90 &
@@ -98,6 +99,8 @@ $fcompile -c kernels/grid/radial/radial_grid.f90
 wait
 
 $fcompile -c kernels/grid/lateral/mod/grid_ops.f90
+  $fcompile -c kernels/grid/lateral/mod/smod/grid_ops@load.f90 &
+$fcompile -c kernels/grid/lateral/mod/smod/grid_ops@save.f90 &
   $fcompile -c kernels/grid/lateral/mod/smod/grid_ops@vcvxv.f90 &
   $fcompile -c kernels/grid/lateral/mod/smod/grid_ops@vcvv.f90 &
   $fcompile -c kernels/grid/lateral/mod/smod/grid_ops@vcvv_vcvgv.f90 &

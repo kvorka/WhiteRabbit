@@ -3,6 +3,18 @@ module grid_ops
   implicit none
   
   interface
+    module  subroutine grid_op_save_sub(nfour, tempgrid, grid, padding)
+      integer,        intent(in)  :: nfour, padding
+      real(kind=dbl), intent(in)  :: tempgrid(step,nfour)
+      real(kind=dbl), intent(out) :: grid(*)
+    end subroutine grid_op_save_sub
+    
+    module  subroutine grid_op_load_sub(nfour, tempgrid, grid, padding)
+      integer,        intent(in)  :: nfour, padding
+      real(kind=dbl), intent(out) :: tempgrid(step,nfour)
+      real(kind=dbl), intent(in)  :: grid(*)
+    end subroutine grid_op_load_sub
+    
     module subroutine grid_op_vcvv_sub(nfour, grid, tempgrid)
       integer,                intent(in)    :: nfour
       real(kind=dbl), target, intent(inout) :: grid(step,*)
