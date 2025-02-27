@@ -18,7 +18,8 @@ compile="gfortran-12 -Ofast \
 ###########################################################################################
 ####                             COMPILATION OF THE BASELINE                           ####
 ###########################################################################################
-$compile -c kernels/math/math.f90
+$compile -c kernels/math/math/math.f90
+$compile -c kernels/math/math/smod/math@conversions.f90
 $compile -c kernels/math/sph/sph_norms.f90
 $compile -c output/mod/Paths.f90
 $compile -c output/mod/OutputMod.f90
@@ -70,4 +71,4 @@ esac
 ###########################################################################################
 ####                                    CLEANING                                       ####
 ###########################################################################################
-rm *.mod *.o code_out
+rm *.smod *.mod *.o code_out
