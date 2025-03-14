@@ -43,30 +43,51 @@ submodule (ocean) init
   
   module procedure init_state_ocean_sub
     integer                        :: i, j, m, ijm, ndI1, jmsI, jmvI
-    real(kind=dbl)                 :: ab_help, re, im
+    real(kind=dbl)                 :: ab_help, dt_help, re, im
     real(kind=dbl),    allocatable :: r(:)
     complex(kind=dbl), allocatable :: velc(:), temp(:,:), spher1(:,:), torr(:,:), spher2(:,:)
 
     if (.not. init_through_file_ocean) then
       do i = 1, this%nd+1
-        do j = 0, this%jmax
+        this%sol%temp(3*(i-1)+1,1)%re = one
+        this%sol%temp(3*(i-1)+1,1)%im = zero
+      end do
+      
+      !Solve for conductive state
+      dt_help = this%dt
+      ab_help = this%ab
+      
+      this%dt = huge(zero)
+      this%ab = one
+      
+      call this%prepare_mat_temp_sub( ijstart=0 , ijend=0 )
+      
+      this%rtemp(1,1) = cs4pi
+      
+      do i = 1, 1000
+        call this%solve_temp_sub( ijmstart=1, ijmend=1, ijmstep=1, rematrix=.false., matxsol=.false. )
+      end do
+      
+      this%dt = dt_help
+      this%ab = ab_help
+      
+      do i = 1, this%nd+1
+        do j = 1, this%jmax
           do m = 0, j
             ijm = jm(j,m)
 
-            if ((j == 0) .and. (m == 0)) then
-              this%sol%temp(3*(i-1)+1,ijm)%re = (this%rad_grid%r(this%nd)/this%rad_grid%rr(i)-1)*this%rad_grid%r(1)*s4pi
-            else if (m == 0) then
+            if (m == 0) then
               call random_number( re )
               this%sol%temp(3*(i-1)+1, ijm)%re = re / 1e3
             else
               call random_number( re ); call random_number( im )
               this%sol%temp(3*(i-1)+1, ijm) = cmplx(re, im, kind=dbl) / 1e3
             end if
-
+            
           end do
         end do
       end do
-
+      
     else
       ndI1 = nd_init_ocean+1; jmsI = jm(jmax_init_ocean,jmax_init_ocean); jmvI = jml(jmax_init_ocean,jmax_init_ocean,+1)
 

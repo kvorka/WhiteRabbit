@@ -3,14 +3,14 @@ module ocean_constants
   implicit none
   
   !Vseobecne nastavenie konstant
-  integer, parameter :: nd_ocean = 145
-  integer, parameter :: jmax_ocean = 213
+  integer, parameter :: nd_ocean = 73
+  integer, parameter :: jmax_ocean = 125
   integer, parameter :: n_iter_ocean = 50  !Nastavit na N_period pre slapy
   logical, parameter :: noharm_ocean = .false.
   
   character(len=*), parameter :: grid_type_ocean    = 'chebv'
   character(len=*), parameter :: rheology_ocean     = 'viscos'
-  character(len=*), parameter :: thermal_bnd_ocean  = 'basic'
+  character(len=*), parameter :: thermal_bnd_ocean  = 'fluxd'
   character(len=*), parameter :: mechanic_bnd_ocean = 'noslp'
   character(len=*), parameter :: gravity_ocean      = 'new'
   character(len=*), parameter :: scaling_ocean      = 'basics'

@@ -98,6 +98,10 @@ submodule (physicalobject) thermal_matrix
                 matica(9,is) = grid%c(ir,+1) / dT_dr
             end if
           
+          case('fluxd')
+            matica(7,is) = +sqrt((j  )/(2*j+1))
+            matica(8,is) = -sqrt((j+1)/(2*j+1))
+          
           case('basic')
             matica(6,is) = grid%c(ir,-1)
             matica(9,is) = grid%c(ir,+1)
@@ -144,7 +148,7 @@ submodule (physicalobject) thermal_matrix
                 matica(6,is) = grid%c(ir,+1) / dT_dr
             end if
           
-          case('basic')
+          case('basic', 'fluxd')
             matica(3,is) = grid%c(ir,-1)
             matica(6,is) = grid%c(ir,+1)
         end select
