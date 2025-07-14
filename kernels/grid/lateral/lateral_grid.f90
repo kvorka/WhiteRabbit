@@ -60,12 +60,12 @@ module lateral_grid
     module subroutine space_to_grid_sub(this, cc, grid)
       class(T_lateralGrid), intent(in)  :: this
       complex(kind=dbl),    intent(in)  :: cc(*)
-      real(kind=dbl),       intent(out) :: grid(this%lgp%nLege,this%fourtrans%n,2)
+      real(kind=dbl),       intent(out) :: grid(:,:,:)
     end subroutine space_to_grid_sub
     
     module subroutine grid_to_space_sub(this, grid, cr)
       class(T_lateralGrid), intent(in)    :: this
-      real(kind=dbl),       intent(inout) :: grid(this%lgp%nLege,this%fourtrans%n,2)
+      real(kind=dbl),       intent(inout) :: grid(:,:,:)
       complex(kind=dbl),    intent(out)   :: cr(*)
     end subroutine grid_to_space_sub
     

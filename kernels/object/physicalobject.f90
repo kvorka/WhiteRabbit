@@ -16,6 +16,7 @@ module physicalobject
   type, abstract, public :: T_physicalObject
     character(len=6)               :: rheology, scaling
     character(len=5)               :: thermal_bnd, mechanic_bnd, grid_type
+    logical                        :: init_thermal_bnd
     logical                        :: noharm, noobj
     integer                        :: nd, jmax, jms, jms2, jmv, jmt, n_iter, poc
     real(kind=dbl)                 :: t, dt, cf, ab, rd, ru, r_ud, D_ud, gd, gu, Pr, Ra, Ek, St, Cl, Ds, Raf, Ramu, Rad, Rau
@@ -377,9 +378,9 @@ module physicalobject
     
     !Interfaces :: to be continued
     module pure subroutine coriolis_rr_jml_sub(this, v, coriolis)
-      class(T_physicalObject), intent(in)  :: this
-      complex(kind=dbl),       intent(in)  :: v(*)
-      complex(kind=dbl),       intent(out) :: coriolis(3,*)
+      class(T_physicalObject), intent(in)    :: this
+      complex(kind=dbl),       intent(in)    :: v(:)
+      complex(kind=dbl),       intent(inout) :: coriolis(:,:)
     end subroutine coriolis_rr_jml_sub
     
     module pure complex(kind=dbl) function buoy_rr_fn(this, ir, il, ijm, sgn)
@@ -394,10 +395,10 @@ module physicalobject
     end subroutine er_buoy_rr_jm_sub
     
     module pure subroutine buoy_rr_jml_sub(this, ir, T, force)
-      class(T_physicalObject), intent(in)  :: this
-      integer,                 intent(in)  :: ir
-      complex(kind=dbl),       intent(in)  :: T(*)
-      complex(kind=dbl),       intent(out) :: force(2,*)
+      class(T_physicalObject), intent(in)    :: this
+      integer,                 intent(in)    :: ir
+      complex(kind=dbl),       intent(in)    :: T(:)
+      complex(kind=dbl),       intent(inout) :: force(:,:)
     end subroutine buoy_rr_jml_sub
     
     module subroutine global_rotation_sub(this)

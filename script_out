@@ -8,7 +8,7 @@ code_type="ocean_convection"
 ###########################################################################################
 ####                              COMPILER SET UP                                      ####
 ###########################################################################################
-compile="gfortran-12 -Ofast \
+compile="gfortran -Ofast \
                      -march=native \
                      -fno-bounds-check \
                      -flto=auto \
@@ -35,7 +35,6 @@ case $code_type in
     ocean_convection)
         $compile -c code/ocean/ocean_constants.f90
         $compile output/OutputOcean.f90 *.o -o code_out
-        ./code_out
     ;;
     
     ocean_tides)
@@ -71,4 +70,4 @@ esac
 ###########################################################################################
 ####                                    CLEANING                                       ####
 ###########################################################################################
-rm *.smod *.mod *.o code_out
+rm *.mod *.o *.smod

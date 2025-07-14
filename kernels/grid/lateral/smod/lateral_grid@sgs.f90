@@ -11,25 +11,28 @@ submodule (lateral_grid) sgs
   end procedure allocate_grid_sub
   
   module procedure space_to_grid_sub
-    integer                             :: itheta
-    type(c_ptr)                         :: c_work, c_rcc
-    real(kind=dbl), contiguous, pointer :: work(:)
-    real(kind=dbl), contiguous, pointer :: rcc(:)
-    real(kind=dbl), contiguous, pointer :: pwork(:)
-    real(kind=dbl), contiguous, pointer :: cosx(:), sinx(:), cosx2(:)
-    real(kind=dbl), contiguous, pointer :: sumN(:), sumS(:), swork(:)
+    integer                             :: itheta, i1, i2
+    type(c_ptr)                         :: c_work
+    real(kind=dbl), pointer, contiguous :: work(:)
+    real(kind=dbl), pointer, contiguous :: pmm(:), pmj2(:), pmj1(:), pmj(:)
+    real(kind=dbl), pointer, contiguous :: cosx(:), sinx(:), cosx2(:)
+    real(kind=dbl), pointer, contiguous :: sumN(:), sumS(:), swork(:)
+    real(kind=dbl), allocatable         :: rcc(:)
     
     !Transform to suitable real input
-    call this%lgp%alloc_rscal_sub( 1, c_rcc, rcc )
+    call this%lgp%alloc_rscal_sub( 1, rcc )
     call this%lgp%index_bwd_sub( 1, cc, rcc )
     
     !Allocating memory
-    call alloc_aligned1d_sub( (7+2*this%fourtrans%n)*step, c_work, work )
+    call alloc_aligned1d_sub( 2*(4+this%fourtrans%n)*step, c_work, work )
       
-    pwork => work(                             1 : ( 3                    ) * step )
-    swork => work(   3*                   step+1 : ( 7                    ) * step )
-    sumN  => work(   7*                   step+1 : ( 7+  this%fourtrans%n ) * step )
-    sumS  => work( ( 7+this%fourtrans%n )*step+1 : ( 7+2*this%fourtrans%n ) * step )
+      pmm   => work(                             1 :                          step )
+      pmj   => work(                        step+1 :   2*                     step )
+      pmj1  => work(   2*                   step+1 :   3*                     step )
+      pmj2  => work(   3*                   step+1 :   4*                     step )
+      swork => work(   4*                   step+1 :   8*                     step )
+      sumN  => work(   8*                   step+1 : ( 8+  this%fourtrans%n )*step )
+      sumS  => work( ( 8+this%fourtrans%n )*step+1 : ( 8+2*this%fourtrans%n )*step )
     
     !Cycle over latitudes :: calculating step at once
     do itheta = 1, (this%lgp%nLege/step)*step, step
@@ -40,42 +43,48 @@ submodule (lateral_grid) sgs
       call zero_rarray_sub( step*this%fourtrans%n, sumN )
       call zero_rarray_sub( step*this%fourtrans%n, sumS )
       
-      call this%lgp%bwd_legesum_sub( 1, rcc, sumN, sumS, cosx, sinx, cosx2, pwork, swork )
+      call this%lgp%bwd_legesum_sub( 1, rcc, sumN, sumS, cosx, sinx, cosx2, pmm, pmj2, pmj1, pmj, swork )
       
       call this%fourtrans%fft_c2r_sub( step, sumN )
       call this%fourtrans%fft_c2r_sub( step, sumS )
       
-      call grid_op_save_sub( this%fourtrans%n, sumN, grid(itheta,1,1), this%lgp%nLege )
-      call grid_op_save_sub( this%fourtrans%n, sumS, grid(itheta,1,2), this%lgp%nLege )
+      do concurrent ( i2 = 1:this%fourtrans%n, i1 = 0:step-1 )
+        grid(itheta+i1,i2,1) = sumN(i1+1+step*(i2-1))
+        grid(itheta+i1,i2,2) = sumS(i1+1+step*(i2-1))
+      end do
     end do
     
     !Cleaning
     call free_aligned1d_sub( c_work, work )
-    call free_aligned1d_sub( c_rcc, rcc )
+    
+    deallocate( rcc )
     
   end procedure space_to_grid_sub
   
   module procedure grid_to_space_sub
-    integer                             :: itheta
-    type(c_ptr)                         :: c_work, c_rcr
-    real(kind=dbl), contiguous, pointer :: work(:)
-    real(kind=dbl), contiguous, pointer :: rcr(:)
-    real(kind=dbl), contiguous, pointer :: pwork(:)
-    real(kind=dbl), contiguous, pointer :: cosx(:), sinx(:), cosx2(:), wght(:)
-    real(kind=dbl), contiguous, pointer :: sumN(:), sumS(:), swork(:)
-    complex(kind=dbl), allocatable      :: crr(:)
+    integer                                :: itheta, i1, i2
+    type(c_ptr)                            :: c_work
+    real(kind=dbl),    pointer, contiguous :: work(:)
+    real(kind=dbl),    pointer, contiguous :: pmm(:), pmj2(:), pmj1(:), pmj(:)
+    real(kind=dbl),    pointer, contiguous :: cosx(:), sinx(:), cosx2(:), wght(:)
+    real(kind=dbl),    pointer, contiguous :: sumN(:), sumS(:), swork(:)
+    real(kind=dbl),    allocatable         :: rcr(:)
+    complex(kind=dbl), allocatable         :: crr(:)
     
     !Allocate input array
-    call this%lgp%alloc_rscal_sub( 1, c_rcr, rcr )
+    call this%lgp%alloc_rscal_sub( 1, rcr )
     call this%reindexing%allocate_scalars_sub( 1, crr )
     
     !Allocating memory
-    call alloc_aligned1d_sub( (7+2*this%fourtrans%n)*step, c_work, work )
-    
-    pwork => work(                             1 : ( 3                    ) * step )
-    swork => work(   3*                   step+1 : ( 7                    ) * step )
-    sumN  => work(   7*                   step+1 : ( 7+  this%fourtrans%n ) * step )
-    sumS  => work( ( 7+this%fourtrans%n )*step+1 : ( 7+2*this%fourtrans%n ) * step )
+    call alloc_aligned1d_sub( 2*(4+this%fourtrans%n)*step, c_work, work )
+      
+      pmm   => work(                             1 :                          step )
+      pmj   => work(                        step+1 :   2*                     step )
+      pmj1  => work(   2*                   step+1 :   3*                     step )
+      pmj2  => work(   3*                   step+1 :   4*                     step )
+      swork => work(   4*                   step+1 :   8*                     step )
+      sumN  => work(   8*                   step+1 : ( 8+  this%fourtrans%n )*step )
+      sumS  => work( ( 8+this%fourtrans%n )*step+1 : ( 8+2*this%fourtrans%n )*step )
     
     !Cycle over latitudes :: computing step at once
     do itheta = 1, (this%lgp%nLege/step)*step, step
@@ -84,13 +93,15 @@ submodule (lateral_grid) sgs
       cosx2 => this%lgp%rw(itheta:itheta+step-1,3)
       wght  => this%lgp%rw(itheta:itheta+step-1,4)
       
-      call grid_op_load_sub( this%fourtrans%n, sumN, grid(itheta,1,1), this%lgp%nLege )
-      call grid_op_load_sub( this%fourtrans%n, sumS, grid(itheta,1,2), this%lgp%nLege )
+      do concurrent ( i2 = 1:this%fourtrans%n, i1 = 0:step-1 )
+        sumN(i1+1+step*(i2-1)) = grid(itheta+i1,i2,1)
+        sumS(i1+1+step*(i2-1)) = grid(itheta+i1,i2,2)
+      end do
       
       call this%fourtrans%fft_r2c_sub( step, sumN )
       call this%fourtrans%fft_r2c_sub( step, sumS )
       
-      call this%lgp%fwd_legesum_sub( 1, sumN, sumS, rcr, cosx, sinx, cosx2, wght, pwork, swork )
+      call this%lgp%fwd_legesum_sub( 1, sumN, sumS, rcr, cosx, sinx, cosx2, wght, pmm, pmj2, pmj1, pmj, swork )
     end do
     
     !Reindex input array
@@ -99,9 +110,8 @@ submodule (lateral_grid) sgs
     
     !Cleaning
     call free_aligned1d_sub( c_work, work )
-    call free_aligned1d_sub( c_rcr, rcr   )
     
-    deallocate( crr )
+    deallocate( crr, rcr )
     
   end procedure grid_to_space_sub
   

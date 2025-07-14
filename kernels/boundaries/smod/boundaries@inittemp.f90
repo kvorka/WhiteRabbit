@@ -15,4 +15,11 @@ submodule (boundaries) inittemp
     
   end procedure init_flux_up_sub
   
+  module procedure init_flux_dn_sub
+    
+    allocate( this%flux_dn(this%jms) )
+      call zero_carray_sub( this%jms, this%flux_dn )
+    
+  end procedure init_flux_dn_sub
+  
 end submodule inittemp

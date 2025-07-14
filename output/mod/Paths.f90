@@ -2,9 +2,9 @@ module Paths
   use math
   implicit none
   
-  real(kind=dbl), parameter :: tNuss      = 0.01_dbl
-  integer,        parameter :: avrg_start = 5600
-  integer,        parameter :: avrg_end   = 6600
+  real(kind=dbl), parameter :: tNuss      = 0.26_dbl
+  integer,        parameter :: avrg_start = 1300
+  integer,        parameter :: avrg_end   = 1750
   
   character(len=*), parameter :: path_nuss         = 'data/Nuss.dat'
   character(len=*), parameter :: path_ocean_temp   = 'data/data_ocean_temp/Temp-'

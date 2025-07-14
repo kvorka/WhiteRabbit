@@ -4,15 +4,12 @@ submodule (lege_poly) r2c
   module procedure r2c_mj_to_mj_sub
     integer :: i, m, j, mj, ma
     
-    call this%is_rescale_sub( ncab, rcab )
-    
     m = 0
       !j == m
         ma = 1
         mj = 1
         
-        !$omp simd
-        do i = 1, ncab
+        do concurrent ( i = 1:ncab )
           cab(i,mj) = cmplx( rcab(1,i,2,ma), rcab(2,i,2,ma), kind=dbl )
         end do
       
@@ -20,8 +17,7 @@ submodule (lege_poly) r2c
         ma = ma+1
         mj = mj+2
         
-        !$omp simd
-        do i = 1, ncab
+        do concurrent ( i = 1:ncab )
           cab(i,mj-1) = this%emj(mj)   * cmplx( rcab(1,i,1,ma  ), rcab(2,i,1,ma  ), kind=dbl ) + &
                       & this%emj(mj-1) * cmplx( rcab(1,i,1,ma-1), rcab(2,i,1,ma-1), kind=dbl )
           cab(i,mj)   =                  cmplx( rcab(1,i,2,ma  ), rcab(2,i,2,ma  ), kind=dbl )
@@ -33,8 +29,7 @@ submodule (lege_poly) r2c
         ma = ma+1
         mj = mj+2
         
-        !$omp simd
-        do i = 1, ncab
+        do concurrent ( i = 1:ncab )
           cab(i,mj-1) = this%emj(mj)   * cmplx( rcab(1,i,1,ma  ), rcab(2,i,1,ma  ), kind=dbl ) + &
                       & this%emj(mj-1) * cmplx( rcab(1,i,1,ma-1), rcab(2,i,1,ma-1), kind=dbl )
           cab(i,mj)   =                  cmplx( rcab(1,i,2,ma  ), rcab(2,i,2,ma  ), kind=dbl )
@@ -44,8 +39,7 @@ submodule (lege_poly) r2c
         ma = ma+1
         mj = mj+1
         
-        !$omp simd
-        do i = 1, ncab
+        do concurrent ( i = 1:ncab )
           cab(i,mj) = this%emj(mj+1) * cmplx( rcab(1,i,1,ma  ), rcab(2,i,1,ma  ), kind=dbl ) + &
                     & this%emj(mj)   * cmplx( rcab(1,i,1,ma-1), rcab(2,i,1,ma-1), kind=dbl )
         end do
@@ -56,8 +50,7 @@ submodule (lege_poly) r2c
         ma = ma+1
         mj = mj+1
         
-        !$omp simd
-        do i = 1, ncab
+        do concurrent ( i = 1:ncab )
           cab(i,mj) = cmplx( rcab(1,i,2,ma), rcab(2,i,2,ma), kind=dbl )
         end do
       
@@ -65,8 +58,7 @@ submodule (lege_poly) r2c
         ma = ma+1
         mj = mj+2
         
-        !$omp simd
-        do i = 1, ncab
+        do concurrent ( i = 1:ncab )
           cab(i,mj-1) = this%emj(mj+m)   * cmplx( rcab(1,i,1,ma  ), rcab(2,i,1,ma  ), kind=dbl ) + &
                       & this%emj(mj+m-1) * cmplx( rcab(1,i,1,ma-1), rcab(2,i,1,ma-1), kind=dbl )
           cab(i,mj)   =                    cmplx( rcab(1,i,2,ma  ), rcab(2,i,2,ma  ), kind=dbl )
@@ -78,19 +70,19 @@ submodule (lege_poly) r2c
         ma = ma+1
         mj = mj+2
         
-        !$omp simd
-        do i = 1, ncab
-          cab(i,mj-1) = this%emj(mj+m)   * cmplx( rcab(1,i,1,ma  ), rcab(2,i,1,ma  ), kind=dbl ) + &
-                      & this%emj(mj+m-1) * cmplx( rcab(1,i,1,ma-1), rcab(2,i,1,ma-1), kind=dbl )
-          cab(i,mj)   =                    cmplx( rcab(1,i,2,ma  ), rcab(2,i,2,ma  ), kind=dbl )
+        do concurrent ( i = 1:ncab )
+          do concurrent ( i = 1:ncab )
+            cab(i,mj-1) = this%emj(mj+m)   * cmplx( rcab(1,i,1,ma  ), rcab(2,i,1,ma  ), kind=dbl ) + &
+                        & this%emj(mj+m-1) * cmplx( rcab(1,i,1,ma-1), rcab(2,i,1,ma-1), kind=dbl )
+            cab(i,mj)   =                    cmplx( rcab(1,i,2,ma  ), rcab(2,i,2,ma  ), kind=dbl )
+          end do
         end do
       
       else
         ma = ma+1
         mj = mj+1
         
-        !$omp simd
-        do i = 1, ncab
+        do concurrent ( i = 1:ncab )
           cab(i,mj) = this%emj(mj+m+1) * cmplx( rcab(1,i,1,ma  ), rcab(2,i,1,ma  ), kind=dbl ) + &
                     & this%emj(mj+m)   * cmplx( rcab(1,i,1,ma-1), rcab(2,i,1,ma-1), kind=dbl )
         end do
@@ -102,8 +94,7 @@ submodule (lege_poly) r2c
         ma = ma+1
         mj = mj+1
         
-        !$omp simd
-        do i = 1, ncab
+        do concurrent ( i = 1:ncab )
           cab(i,mj) = cmplx( rcab(1,i,2,ma), rcab(2,i,2,ma), kind=dbl )
         end do
       

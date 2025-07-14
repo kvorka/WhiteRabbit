@@ -7,13 +7,19 @@ submodule (oceanconv) timescheme
     !ir = 1 ; ijm = 1
       this%rtemp(1,1) = cs4pi
     
+    !boundary conditions
+    if ( this%init_thermal_bnd ) then
+      
+      select case ( this%thermal_bnd )
+        case ('fluxd')
+          do ijm = 2, this%jms
+            this%rtemp(1,ijm) = this%bnd%flux_dn(ijm)
+          end do
+      
+      end select
+    end if
+    
     !$omp parallel
-    !$omp do
-    do ijm = 2, this%jms
-      this%rsph2(this%nd+1,ijm) = -this%St * this%qr_r_fn(this%nd,ijm)
-    end do
-    !$omp end do
-
     !$omp do collapse (2)
     do ijm = 1, this%jms
       do ir = 2, this%nd
