@@ -271,7 +271,8 @@ case $code_type in
 
         mkdir data/data_ocean_temp
         mkdir data/data_ocean_veloc
-        mkdir data/data_ocean_flux
+        mkdir data/data_ocean_fluxu
+        mkdir data/data_ocean_fluxd
 
         $fcompile code/codes/BielyKralik_legeTest.f90 *.o -o Test_lege
     ;;
@@ -281,7 +282,8 @@ case $code_type in
         
         mkdir data/data_ocean_temp
         mkdir data/data_ocean_veloc
-        mkdir data/data_ocean_flux
+        mkdir data/data_ocean_fluxu
+        mkdir data/data_ocean_fluxd
         
         $fcompile code/codes/BielyKralik_speedTest.f90 *.o -o Test_speed
     ;;
@@ -291,7 +293,8 @@ case $code_type in
 
         mkdir data/data_ocean_temp
         mkdir data/data_ocean_veloc
-        mkdir data/data_ocean_flux
+        mkdir data/data_ocean_fluxu
+        mkdir data/data_ocean_fluxd
         
         $fcompile code/codes/BielyKralik_oceanConv.f90 *.o -o Test_convection
     ;;
@@ -305,7 +308,8 @@ case $code_type in
         
         mkdir data/data_ocean_temp
         mkdir data/data_ocean_veloc
-        mkdir data/data_ocean_flux
+        mkdir data/data_ocean_fluxu
+        mkdir data/data_ocean_fluxd
         
         $fcompile code/codes/BielyKralik_oceanIce.f90 *.o -o Test_oceanIce
     ;;
