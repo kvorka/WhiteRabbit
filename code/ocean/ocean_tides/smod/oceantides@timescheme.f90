@@ -39,11 +39,11 @@ submodule (oceantides) timescheme
       this%rtorr(this%nd+1,ijm) = czero
       
       if (ijm == 4) then
-        this%rsph1(this%nd+1,ijm) = this%v201(this%k_of_period)
-        this%rsph2(this%nd+1,ijm) = this%v203(this%k_of_period)
+        this%rsph1(this%nd+1,ijm) = this%v_t_up(1,this%k_of_period)
+        this%rsph2(this%nd+1,ijm) = this%v_t_up(2,this%k_of_period)
       else if (ijm == 6) then
-        this%rsph1(this%nd+1,ijm) = this%v221(this%k_of_period)
-        this%rsph2(this%nd+1,ijm) = this%v223(this%k_of_period)
+        this%rsph1(this%nd+1,ijm) = this%v_t_up(3,this%k_of_period)
+        this%rsph2(this%nd+1,ijm) = this%v_t_up(4,this%k_of_period)
       else
         this%rsph1(this%nd+1,ijm) = czero
         this%rsph2(this%nd+1,ijm) = czero

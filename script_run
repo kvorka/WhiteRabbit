@@ -8,13 +8,13 @@ code_type="ocean_convection"
 ###########################################################################################
 ####                              COMPILER SET UP                                      ####
 ###########################################################################################
-fcompile="gfortran -Ofast \
-                   -march=native \
-                   -mprefer-vector-width=512 \
-                   -fno-bounds-check \
-                   -flto=auto \
-                   -fwhole-program \
-                   -fopenmp"
+fcompile="gfortran-12 -Ofast \
+                      -march=native \
+                      -mprefer-vector-width=512 \
+                      -fno-bounds-check \
+                      -flto=auto \
+                      -fwhole-program \
+                      -fopenmp"
 
 ###########################################################################################
 ####                    COMPILATION OF THE BASELINE, DIRS SET UP                       ####

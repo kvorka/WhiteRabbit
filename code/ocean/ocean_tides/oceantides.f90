@@ -3,7 +3,7 @@ module oceantides
   implicit none
 
   type, extends(T_ocean), public :: T_oceanTides
-    complex(kind=dbl), allocatable, private :: v201(:), v203(:), v221(:), v223(:)
+    complex(kind=dbl), allocatable, private :: v_t_up(:,:)
     real(kind=dbl)                          :: heating
     integer                                 :: number_of_periods, k_of_period
 
