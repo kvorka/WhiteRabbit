@@ -1,7 +1,7 @@
 submodule (oceantides) nonlin
   implicit none; contains
   
-  module procedure coriolis_oceantides_sub
+  module procedure coriolis_oceanTides_sub
     integer                        :: ir, ijm
     complex(kind=dbl), allocatable :: v(:), nlm(:,:)
     
@@ -26,9 +26,9 @@ submodule (oceantides) nonlin
     deallocate( v, nlm )
     !$omp end parallel
     
-  end procedure coriolis_oceantides_sub
+  end procedure coriolis_oceanTides_sub
   
-  module procedure coriolis_vgradv_oceantides_sub
+  module procedure coriolis_vgradv_oceanTides_sub
     integer                        :: ir, ijm
     real(kind=dbl)                 :: fac
     complex(kind=dbl), allocatable :: v(:), dv(:), nlm(:,:), coriolis(:,:)
@@ -68,6 +68,6 @@ submodule (oceantides) nonlin
     deallocate( v , dv, nlm, coriolis )
     !$omp end parallel
     
-  end procedure coriolis_vgradv_oceantides_sub
+  end procedure coriolis_vgradv_oceanTides_sub
   
 end submodule nonlin

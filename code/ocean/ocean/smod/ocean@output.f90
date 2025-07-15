@@ -8,7 +8,8 @@ submodule (ocean) output
 
     call this%vypis_sub(8, 'data/data_ocean_temp' , 'temperature')
     call this%vypis_sub(8, 'data/data_ocean_veloc', 'velocity'   )
-    call this%vypis_sub(8, 'data/data_ocean_flux' , 'flux'       )
+    call this%vypis_sub(8, 'data/data_ocean_fluxu', 'flux'       )
+    call this%vypis_sub(8, 'data/data_ocean_fluxd', 'fluxd'      )
 
     this%poc = this%poc + 1
 

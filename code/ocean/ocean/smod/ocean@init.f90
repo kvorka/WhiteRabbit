@@ -6,8 +6,6 @@ submodule (ocean) init
     call this%init_objects_sub( nd = nd_ocean, jmax = jmax_ocean, r_ud = r_ud_ocean, rgrid = grid_type_ocean, &
                               & gmod = gravity_ocean , g = (1-r_ud_ocean)**2 , noharm = noharm_ocean          )
     
-    call this%bnd%init_flux_up_sub()
-    
     this%n_iter = n_iter_ocean
     this%cf     = 0.6_dbl
     this%ab     = 1.5_dbl

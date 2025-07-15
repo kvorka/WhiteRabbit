@@ -222,6 +222,7 @@ wait
 
 $fcompile -c code/ocean/ocean_tides/oceantides.f90
   $fcompile -c code/ocean/ocean_tides/smod/oceantides@init.f90 &
+  $fcompile -c code/ocean/ocean_tides/smod/oceantides@init_ubnd.f90 &
   $fcompile -c code/ocean/ocean_tides/smod/oceantides@timescheme.f90 &
   $fcompile -c code/ocean/ocean_tides/smod/oceantides@iter.f90 &
   $fcompile -c code/ocean/ocean_tides/smod/oceantides@output.f90 &

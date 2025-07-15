@@ -25,8 +25,9 @@ submodule (oceanice) init
     !! Set the thermal bottom boundary condition
     call this%init_temp_bbnd_sub()
     
-    !! Initialize the upper layer deformation
+    !! Initialize the upper layer deformation and heat flux
     call this%bnd%init_layer_up_sub()
+    call this%bnd%init_flux_up_sub()
     
     !! Initialize the state
     call this%init_state_sub()
