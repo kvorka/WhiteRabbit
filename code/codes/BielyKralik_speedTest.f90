@@ -11,12 +11,12 @@ program BielyKralik_speedTest
   
   !Casova slucka
   start = omp_get_wtime()
-    call oceanmodel%speed_sub()
+    call oceanmodel%iter_sub()
   end = omp_get_wtime()
 
   write(*,*) (end-start) / oceanmodel%n_iter
   
   !Cistenie
   call oceanmodel%deallocate_sub()
-
+  
 end program BielyKralik_speedTest

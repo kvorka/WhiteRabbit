@@ -9,10 +9,12 @@ module oceantides
 
     contains
 
-    procedure, public, pass :: init_sub        => init_oceanTides_sub
-    procedure, public, pass :: iter_sub        => iter_oceanTides_sub
-    procedure, public, pass :: time_scheme_sub => time_scheme_oceanTides_sub
-    procedure, public, pass :: vypis_ocean_sub => vypis_oceanTides_sub
+    procedure, public, pass :: init_sub            => init_oceanTides_sub
+    procedure, public, pass :: iter_sub            => iter_oceanTides_sub
+    procedure, public, pass :: coriolis_sub        => coriolis_oceantides_sub
+    procedure, public, pass :: coriolis_vgradv_sub => coriolis_vgradv_oceantides_sub
+    procedure, public, pass :: time_scheme_sub     => time_scheme_oceanTides_sub
+    procedure, public, pass :: vypis_ocean_sub     => vypis_oceanTides_sub
 
   end type T_oceanTides
   
@@ -24,6 +26,14 @@ module oceantides
     module subroutine time_scheme_oceanTides_sub(this)
       class(T_oceanTides), intent(inout) :: this
     end subroutine time_scheme_oceanTides_sub
+    
+    module subroutine coriolis_oceantides_sub(this)
+      class(T_oceanTides), intent(inout) :: this
+    end subroutine coriolis_oceantides_sub
+    
+    module subroutine coriolis_vgradv_oceantides_sub(this)
+      class(T_oceanTides), intent(inout) :: this
+    end subroutine coriolis_vgradv_oceantides_sub
     
     module subroutine iter_oceanTides_sub(this)
       class(T_oceanTides), intent(inout) :: this

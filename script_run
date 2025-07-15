@@ -202,20 +202,22 @@ $fcompile -c code/ocean/ocean_constants.f90
 
 $fcompile -c code/ocean/ocean/ocean.f90
   $fcompile -c code/ocean/ocean/smod/ocean@init.f90 &
-  $fcompile -c code/ocean/ocean/smod/ocean@iter.f90 &
+  $fcompile -c code/ocean/ocean/smod/ocean@init_temp_bbnd.f90 &
   $fcompile -c code/ocean/ocean/smod/ocean@nonlin.f90 &
   $fcompile -c code/ocean/ocean/smod/ocean@output.f90 &
-  $fcompile -c code/ocean/ocean/smod/ocean@set_bnd.f90 &
 wait
 
 $fcompile -c code/ocean/ocean_conv/oceanconv.f90
   $fcompile -c code/ocean/ocean_conv/smod/oceanconv@init.f90 &
   $fcompile -c code/ocean/ocean_conv/smod/oceanconv@timescheme.f90 &
+  $fcompile -c code/ocean/ocean_conv/smod/oceanconv@iter.f90 &
 wait
 
 $fcompile -c code/ocean/ocean_ice/oceanice.f90
   $fcompile -c code/ocean/ocean_ice/smod/oceanice@init.f90 &
   $fcompile -c code/ocean/ocean_ice/smod/oceanice@timescheme.f90 &
+  $fcompile -c code/ocean/ocean_ice/smod/oceanice@iter.f90 &
+  $fcompile -c code/ocean/ocean_ice/smod/oceanice@set_ubnd.f90 &
 wait
 
 $fcompile -c code/ocean/ocean_tides/oceantides.f90

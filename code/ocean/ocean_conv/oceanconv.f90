@@ -7,6 +7,7 @@ module oceanconv
     
     procedure, public, pass :: init_sub        => init_oceanConv_sub
     procedure, public, pass :: time_scheme_sub => time_scheme_oceanConv_sub
+    procedure, public, pass :: iter_sub        => iter_oceanConv_sub
   end type T_oceanConv
   
   interface
@@ -17,6 +18,10 @@ module oceanconv
     module subroutine time_scheme_oceanConv_sub(this)
       class(T_oceanConv), intent(inout) :: this
     end subroutine time_scheme_oceanConv_sub
+    
+    module subroutine iter_oceanConv_sub(this)
+      class(T_oceanConv), intent(inout) :: this
+    end subroutine iter_oceanConv_sub
   end interface
   
 end module oceanconv

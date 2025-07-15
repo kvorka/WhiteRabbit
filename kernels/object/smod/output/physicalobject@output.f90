@@ -35,6 +35,17 @@ submodule (physicalobject) output
           deallocate( field )
         close(filenum)
       
+      case ('fluxd')
+        open(unit=filenum, file=path//'/Fluxd-'//trim(adjustl(int2str_fn(this%poc)))//'.dat', status='new', action='write')
+          allocate( field(this%jms) )
+            call this%qr_r_ijm_sub(1, field)
+            
+            do ijm = 1, this%jms
+              write(filenum,*) ijm, field(ijm)
+            end do
+          deallocate( field )
+        close(filenum)
+      
       case ('topo')
         open(unit=filenum, file=path//'/Topo_dn-'//trim(adjustl(int2str_fn(this%poc)))//'.dat', status='new', action='write')
           do ijm = 1, this%jms

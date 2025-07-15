@@ -1,7 +1,7 @@
-submodule (ocean) iter
+submodule (oceanice) iter
   implicit none; contains
   
-  module procedure iter_ocean_sub
+  module procedure iter_oceanIce_sub
     integer        :: k, ijm
     real(kind=dbl) :: avrg_flux
     
@@ -28,16 +28,6 @@ submodule (ocean) iter
     
     call this%vypis_ocean_sub()
     
-  end procedure iter_ocean_sub
-  
-  module procedure speed_sub
-    integer :: k
-    
-    do k = 1, this%n_iter
-      this%t = this%t + this%dt
-        call this%time_scheme_sub()
-    end do
-    
-  end procedure speed_sub
+  end procedure iter_oceanIce_sub
   
 end submodule iter

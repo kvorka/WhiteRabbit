@@ -5,9 +5,6 @@ submodule (oceanice) timescheme
     integer        :: ir, ijm
     real(kind=dbl) :: q
     
-    !ijm = 1 ; ir = 1
-      this%rtemp(1,1) = cs4pi
-    
     !$omp parallel do collapse (2)
     do ijm = 1, this%jms
       do ir = 2, this%nd

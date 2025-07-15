@@ -47,7 +47,7 @@ submodule (ocean) init
     complex(kind=dbl), allocatable :: velc(:), temp(:,:), spher1(:,:), torr(:,:), spher2(:,:)
 
     if (.not. init_through_file_ocean) then
-      !Solve for conductive state
+      !! Solve for conductive state at degree zero
       dt_help = this%dt
       ab_help = this%ab
       cf_help = this%cf
@@ -57,22 +57,13 @@ submodule (ocean) init
       this%cf = one
       
       call this%prepare_mat_temp_sub( ijstart=0 , ijend=this%jmax )
-      
-      this%rtemp = czero
-      this%rtemp(1,1) = cs4pi
-      
-      if ( allocated(this%bnd%flux_dn) ) then
-        do ijm = 2, this%jms
-          this%rtemp(1,ijm) = this%bnd%flux_dn(ijm)
-        end do
-      end if
-      
       call this%solve_temp_sub( ijmstart=1, ijmend=this%jms, ijmstep=1, rematrix=.false., matxsol=.false. )
       
       this%dt = dt_help
       this%ab = ab_help
       this%cf = cf_help
       
+      !! Add a random perturbation to the conductive state
       do i = 1, this%nd+1
         do j = 1, this%jmax
           do m = 0, j
