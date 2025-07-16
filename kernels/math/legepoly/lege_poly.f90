@@ -66,17 +66,17 @@ module lege_poly
     module  subroutine bwd_legesum_sub(this, nb, cc, sumN, sumS, cosx, sinx, cosx2, pmm, pmj2, pmj1, pmj, swork)
       class(T_legep), intent(in)  :: this
       integer,        intent(in)  :: nb
-      real(kind=dbl), intent(in)  :: cosx(step), sinx(step), cosx2(step)
-      real(kind=dbl), intent(out) :: pmm(step), pmj2(step), pmj1(step), pmj(step), swork(4*nb*step)
-      real(kind=dbl), intent(out) :: sumN(2*nb*step,0:*), sumS(2*nb*step,0:*)
+      real(kind=dbl), intent(in)  :: cosx(16), sinx(16), cosx2(16)
+      real(kind=dbl), intent(out) :: pmm(16), pmj2(16), pmj1(16), pmj(16), swork(4*nb*16)
+      real(kind=dbl), intent(out) :: sumN(2*nb*16,0:*), sumS(2*nb*16,0:*)
       real(kind=dbl), intent(in)  :: cc(4*nb,this%nrma)
     end subroutine bwd_legesum_sub
     
     module  subroutine fwd_legesum_sub(this, nf, sumN, sumS, cr, cosx, sinx, cosx2, weight, pmm, pmj2, pmj1, pmj, swork)
       class(T_legep), intent(in)    :: this
       integer,        intent(in)    :: nf
-      real(kind=dbl), intent(out)   :: pmm(step), pmj2(step), pmj1(step), pmj(step), swork(step)
-      real(kind=dbl), intent(in)    :: sumN(2*nf*step,0:*), sumS(2*nf*step,0:*), cosx(step), sinx(step), cosx2(step), weight(step)
+      real(kind=dbl), intent(out)   :: pmm(16), pmj2(16), pmj1(16), pmj(16), swork(16)
+      real(kind=dbl), intent(in)    :: sumN(2*nf*16,0:*), sumS(2*nf*16,0:*), cosx(16), sinx(16), cosx2(16), weight(16)
       real(kind=dbl), intent(inout) :: cr(4*nf,this%nrma)
     end subroutine fwd_legesum_sub
   end interface
@@ -84,41 +84,41 @@ module lege_poly
   interface
     module pure subroutine mmset_sub(ma, cff, cosx, sinx, pmm, pmj2, pmj1, pmj)
       integer,        intent(in)    :: ma
-      real(kind=dbl), intent(in)    :: cff, cosx(step), sinx(step)
-      real(kind=dbl), intent(inout) :: pmm(step)
-      real(kind=dbl), intent(out)   :: pmj2(step), pmj1(step), pmj(step)
+      real(kind=dbl), intent(in)    :: cff, cosx(16), sinx(16)
+      real(kind=dbl), intent(inout) :: pmm(16)
+      real(kind=dbl), intent(out)   :: pmj2(16), pmj1(16), pmj(16)
     end subroutine mmset_sub
     
     module pure subroutine mjrec_sub(cff, cosx2, pmj2, pmj1, pmj)
-      real(kind=dbl), intent(in)    :: cff(step), cosx2(step)
-      real(kind=dbl), intent(inout) :: pmj2(step), pmj1(step), pmj(step)
+      real(kind=dbl), intent(in)    :: cff(16), cosx2(16)
+      real(kind=dbl), intent(inout) :: pmj2(16), pmj1(16), pmj(16)
     end subroutine mjrec_sub
     
     module pure subroutine bwd_sum_sub(n, pmj, cc, swork)
       integer,        intent(in)  :: n
-      real(kind=dbl), intent(in)  :: pmj(step)
+      real(kind=dbl), intent(in)  :: pmj(16)
       real(kind=dbl), intent(in)  :: cc(n)
-      real(kind=dbl), intent(out) :: swork(step,n)
+      real(kind=dbl), intent(out) :: swork(16,n)
     end subroutine bwd_sum_sub
     
     module pure subroutine bwd_shuffle_sub(n, cosx, swork, sumN, sumS)
       integer,        intent(in)    :: n
-      real(kind=dbl), intent(in)    :: cosx(step)
-      real(kind=dbl), intent(inout) :: swork(step,2,n,*)
-      real(kind=dbl), intent(out)   :: sumN(step,n,*), sumS(step,n,*)
+      real(kind=dbl), intent(in)    :: cosx(16)
+      real(kind=dbl), intent(inout) :: swork(16,2,n,*)
+      real(kind=dbl), intent(out)   :: sumN(16,n,*), sumS(16,n,*)
     end subroutine bwd_shuffle_sub
     
     module pure subroutine fwd_sum_sub(n, pmj, swork, cr)
       integer,        intent(in)    :: n
-      real(kind=dbl), intent(in)    :: pmj(step)
-      real(kind=dbl), intent(in)    :: swork(step,n)
+      real(kind=dbl), intent(in)    :: pmj(16)
+      real(kind=dbl), intent(in)    :: swork(16,n)
       real(kind=dbl), intent(inout) :: cr(n)
     end subroutine fwd_sum_sub
     
     module pure subroutine fwd_shuffle_sub(n, w, cosx, sumN, sumS, swork)
       integer,        intent(in)  :: n
-      real(kind=dbl), intent(in)  :: w(step), cosx(step), sumN(step,n,*), sumS(step,n,*)
-      real(kind=dbl), intent(out) :: swork(step,2,n,*)
+      real(kind=dbl), intent(in)  :: w(16), cosx(16), sumN(16,n,*), sumS(16,n,*)
+      real(kind=dbl), intent(out) :: swork(16,2,n,*)
     end subroutine fwd_shuffle_sub
   end interface
   

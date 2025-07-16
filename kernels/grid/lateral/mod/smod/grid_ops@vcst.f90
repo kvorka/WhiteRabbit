@@ -5,21 +5,21 @@ submodule (grid_ops) vcst
     integer                 :: i1, i2, i3
     real(kind=dbl), pointer :: gin(:,:,:), gout(:,:,:), gtmp(:,:)
     
-    gin(1:step,1:6,1:nfour)  => grid(:,1:6*nfour)
-    gout(1:step,1:5,1:nfour) => grid(:,1:5*nfour)
-    gtmp(1:step,1:6)         => tempgrid(:,1:6)
+    gin(1:16,1:6,1:nfour)  => grid(:,1:6*nfour)
+    gout(1:16,1:5,1:nfour) => grid(:,1:5*nfour)
+    gtmp(1:16,1:6)         => tempgrid(:,1:6)
     
     do i3 = 1, nfour
-      !$omp simd collapse (2)
       do i2 = 1, 6
-        do i1 = 1, step
+        !$omp simd
+        do i1 = 1, 16
           gtmp(i1,i2) = gin(i1,i2,i3)
         end do
       end do
       
-      !$omp simd collapse (2)
       do i2 = 1, 5
-        do i1 = 1, step
+        !$omp simd
+        do i1 = 1, 16
           gout(i1,i2,i3) = gtmp(i1,1) * gtmp(i1,i2+1)
         end do
       end do

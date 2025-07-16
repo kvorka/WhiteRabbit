@@ -37,13 +37,13 @@ module fourier_transform
      module subroutine fft_r2c_sub(this, m, x)
       class(T_fft),      intent(in)    :: this
       integer,           intent(in)    :: m
-      real(kind=dbl),    intent(inout) :: x(m,2,0:this%n/2-1)
+      real(kind=dbl),    intent(inout) :: x(16,m,2,0:this%n/2-1)
     end subroutine fft_r2c_sub
     
     module subroutine fft_c2r_sub(this, m, x)
       class(T_fft),   intent(in)    :: this
       integer,        intent(in)    :: m
-      real(kind=dbl), intent(inout) :: x(m,2,0:this%n/2-1)
+      real(kind=dbl), intent(inout) :: x(16,m,2,0:this%n/2-1)
     end subroutine fft_c2r_sub
     
     module pure subroutine fxztal(this, m, x)
@@ -55,7 +55,7 @@ module fourier_transform
     module subroutine fxzshf(this, m, x)
       class(T_fft),   intent(in)    :: this
       integer,        intent(in)    :: m
-      real(kind=dbl), intent(inout) :: x(m,0:this%n/2-1)
+      real(kind=dbl), intent(inout) :: x(16,m,0:this%n/2-1)
     end subroutine fxzshf
   end interface
   
@@ -69,45 +69,45 @@ module fourier_transform
     module pure subroutine fxzm2a(m, k, l, x, t)
       integer,        intent(in)    :: m, k, l
       real(kind=dbl), intent(in)    :: t(2,0:*)
-      real(kind=dbl), intent(inout) :: x(m,2,l/2,0:1,0:k-1)
+      real(kind=dbl), intent(inout) :: x(16,m,2,l/2,0:1,0:k-1)
     end subroutine fxzm2a
     
     module pure subroutine fxzm2b(m, l, x)
       integer,        intent(in)    :: m, l
-      real(kind=dbl), intent(inout) :: x(m,2,l/2,0:1)
+      real(kind=dbl), intent(inout) :: x(16,m,2,l/2,0:1)
     end subroutine fxzm2b
     
     module pure subroutine fxzm3a(m, k, l, x, t)
       integer,        intent(in)    :: m, k, l
       real(kind=dbl), intent(in)    :: t(2,0:*)
-      real(kind=dbl), intent(inout) :: x(m,2,l/3,0:2,0:k-1)
+      real(kind=dbl), intent(inout) :: x(16,m,2,l/3,0:2,0:k-1)
     end subroutine fxzm3a
     
     module pure subroutine fxzm3b(m, l, x)
       integer,        intent(in)    :: m, l
-      real(kind=dbl), intent(inout) :: x(m,2,l/3,0:2)
+      real(kind=dbl), intent(inout) :: x(16,m,2,l/3,0:2)
     end subroutine fxzm3b
     
     module pure subroutine fxzm4a(m, k, l, x, t)
       integer,        intent(in)    :: m, k, l
       REAL(kind=dbl), intent(in)    :: t(2,0:*)
-      real(kind=dbl), intent(inout) :: x(m,2,l/4,0:3,0:k-1)
+      real(kind=dbl), intent(inout) :: x(16,m,2,l/4,0:3,0:k-1)
     end subroutine fxzm4a
     
     module pure subroutine fxzm4b(m, l, x)
       integer,        intent(in)    :: m, l
-      real(kind=dbl), intent(inout) :: x(m,2,l/4,0:3)
+      real(kind=dbl), intent(inout) :: x(16,m,2,l/4,0:3)
     end subroutine fxzm4b
     
     module pure subroutine fxzm5a(m, k, l, x, t)
       integer,        intent(in)    :: m, k, l
       real(kind=dbl), intent(in)    :: t(2,0:*)
-      real(kind=dbl), intent(inout) :: x(m,2,l/5,0:4,0:k-1)
+      real(kind=dbl), intent(inout) :: x(16,m,2,l/5,0:4,0:k-1)
     end subroutine fxzm5a
     
     module pure subroutine fxzm5b(m, l, x)
       integer,        intent(in)    :: m, l
-      real(kind=dbl), intent(inout) :: x(m,2,l/5,0:4)
+      real(kind=dbl), intent(inout) :: x(16,m,2,l/5,0:4)
     end subroutine fxzm5b
   end interface
   

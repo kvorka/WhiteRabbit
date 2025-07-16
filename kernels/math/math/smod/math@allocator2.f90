@@ -3,7 +3,7 @@ submodule (math) allocator2
   
   module procedure alloc_aligned2d_sub
     
-    c_arr = malloc( alig, n1 * n2 * size_d )
+    c_arr = malloc( alig, n1 * n2 * int( c_sizeof(0._dbl) ) )
     call c_f_pointer( c_arr, f_arr, [n1,n2] )
     
   end procedure alloc_aligned2d_sub

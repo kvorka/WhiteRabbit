@@ -3,7 +3,13 @@
 ####                              POSSIBLE CODE SETTINGS                               ####
 ####       test_speed, ocean_convection, ice_ocean, ocean_tides, ice_deformation       ####
 ###########################################################################################
-code_type="ocean_convection"
+code_type="test_speed"
+
+###########################################################################################
+####                               INSTRUCTIONS SET UP                                 ####
+####                                avx, avx2, avx512                                  ####
+###########################################################################################
+instructions="avx2"
 
 ###########################################################################################
 ####                              COMPILER SET UP                                      ####
@@ -14,11 +20,16 @@ fcompile="gfortran-12 -Ofast \
                       -fno-bounds-check \
                       -flto=auto \
                       -fwhole-program \
-                      -fopenmp"
+                      -fopenmp \
+                      -D$instructions \
+                      -cpp"
 
 ###########################################################################################
 ####                    COMPILATION OF THE BASELINE, DIRS SET UP                       ####
 ###########################################################################################
+$fcompile -c kernels/math/processor/alignement.f90
+wait
+
 $fcompile -c kernels/math/math/math.f90
   $fcompile -c kernels/math/math/smod/math@allocator1.f90 &
   $fcompile -c kernels/math/math/smod/math@allocator2.f90 &

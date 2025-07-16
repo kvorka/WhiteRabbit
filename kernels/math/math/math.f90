@@ -2,14 +2,11 @@ module math
   use iso_fortran_env, only: real64, real128
   use omp_lib
   use iso_c_binding
+  use alignement
   implicit none; public
   
-  integer,           parameter :: dbl    = real64            !double precision
-  integer,           parameter :: qbl    = real128           !quadruple precision
-  integer,           parameter :: step   = 32                !number of doubles handled at once
-  integer,           parameter :: alig   = 64                !memory alignement: AVX (16), AVX2(32), AVX512(64)
-  integer,           parameter :: size_d = c_sizeof(0._dbl)  !size of fortran double
-  
+  integer,           parameter :: dbl  = real64    !double precision
+  integer,           parameter :: qbl  = real128   !quadruple precision
   real(kind=dbl),    parameter :: deps  = 1.0d-15
   real(kind=qbl),    parameter :: qeps  = 1.0d-28
   

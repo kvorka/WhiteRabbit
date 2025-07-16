@@ -8,7 +8,7 @@ submodule (lege_poly) bwd
     nb4 = 4 * nb
     
     do m = 0, this%jmax
-      call zero_rarray_sub( 4*nb*step, swork )
+      call zero_rarray_sub( 4*nb*16, swork )
       
       !j = m
         ma = ma+1
