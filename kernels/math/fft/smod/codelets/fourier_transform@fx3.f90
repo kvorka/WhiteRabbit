@@ -7,37 +7,37 @@ submodule (fourier_transform) fx3
   contains
   
   module procedure fxzm3a
-    integer        :: i, j, ij, iv, i1
+    integer        :: i1, i2, i3, i4
     real(kind=dbl) :: x0re, x0im, x1re, x1im, x2re, x2im, t1re, t1im, t2re, t2im
     
-    do j = 0, k-1
-      ij = 2 * j
+    do i4 = 0, k-1
+      i1 = 2 * i4
       
-      t1re = t(1,ij  )
-      t1im = t(2,ij  )            
-      t2re = t(1,ij+1)
-      t2im = t(2,ij+1)
+      t1re = t(1,i1  )
+      t1im = t(2,i1  )            
+      t2re = t(1,i1+1)
+      t2im = t(2,i1+1)
       
-      do i = 1, l/3
-        do iv = 1, m
+      do i3 = 1, l/3
+        do i2 = 1, m
           !$omp simd
           do i1 = 1, 16
-            x0re =        t1re * x(i1,iv,1,i,1,j) - t1im * x(i1,iv,2,i,1,j)
-            x0im =        t1re * x(i1,iv,2,i,1,j) + t1im * x(i1,iv,1,i,1,j)
-            x1re = x0re - t2re * x(i1,iv,1,i,2,j) + t2im * x(i1,iv,2,i,2,j)
-            x1im = x0im - t2re * x(i1,iv,2,i,2,j) - t2im * x(i1,iv,1,i,2,j)
+            x0re =        t1re * x(i1,i2,1,i3,1,i4) - t1im * x(i1,i2,2,i3,1,i4)
+            x0im =        t1re * x(i1,i2,2,i3,1,i4) + t1im * x(i1,i2,1,i3,1,i4)
+            x1re = x0re - t2re * x(i1,i2,1,i3,2,i4) + t2im * x(i1,i2,2,i3,2,i4)
+            x1im = x0im - t2re * x(i1,i2,2,i3,2,i4) - t2im * x(i1,i2,1,i3,2,i4)
             
-            x0re = 2 * x0re             -       x1re
-            x0im = 2 * x0im             -       x1im
-            x2re =     x(i1,iv,1,i,0,j) + C31 * x0re
-            x2im =     x(i1,iv,2,i,0,j) + C31 * x0im
+            x0re = 2 * x0re               -       x1re
+            x0im = 2 * x0im               -       x1im
+            x2re =     x(i1,i2,1,i3,0,i4) + C31 * x0re
+            x2im =     x(i1,i2,2,i3,0,i4) + C31 * x0im
             
-            x(i1,iv,1,i,0,j) =     x0re +       x(i1,iv,1,i,0,j)
-            x(i1,iv,2,i,0,j) =     x0im +       x(i1,iv,2,i,0,j)
-            x(i1,iv,1,i,2,j) =     x2re + C32 * x1im
-            x(i1,iv,2,i,2,j) =     x2im - C32 * x1re
-            x(i1,iv,1,i,1,j) = 2 * x2re -       x(i1,iv,1,i,2,j)
-            x(i1,iv,2,i,1,j) = 2 * x2im -       x(i1,iv,2,i,2,j)
+            x(i1,i2,1,i3,0,i4) =     x0re +       x(i1,i2,1,i3,0,i4)
+            x(i1,i2,2,i3,0,i4) =     x0im +       x(i1,i2,2,i3,0,i4)
+            x(i1,i2,1,i3,2,i4) =     x2re + C32 * x1im
+            x(i1,i2,2,i3,2,i4) =     x2im - C32 * x1re
+            x(i1,i2,1,i3,1,i4) = 2 * x2re -       x(i1,i2,1,i3,2,i4)
+            x(i1,i2,2,i3,1,i4) = 2 * x2im -       x(i1,i2,2,i3,2,i4)
           end do
         end do
       end do
@@ -46,26 +46,26 @@ submodule (fourier_transform) fx3
   end procedure fxzm3a
   
   module procedure fxzm3b
-    integer        :: i, iv, i1
+    integer        :: i1, i2, i3
     real(kind=dbl) :: x0re, x0im, x1re, x1im, x2re, x2im
     
-    do i = 1, l/3
-      do iv = 1, m
+    do i3 = 1, l/3
+      do i2 = 1, m
         !$omp simd
         do i1 = 1, 16
-          x1re = x(i1,iv,1,i,1) -       x(i1,iv,1,i,2)
-          x1im = x(i1,iv,2,i,1) -       x(i1,iv,2,i,2)
-          x0re = x(i1,iv,1,i,1) +       x(i1,iv,1,i,2)
-          x0im = x(i1,iv,2,i,1) +       x(i1,iv,2,i,2)
-          x2re = x(i1,iv,1,i,0) + C31 * x0re
-          x2im = x(i1,iv,2,i,0) + C31 * x0im
+          x1re = x(i1,i2,1,i3,1) -       x(i1,i2,1,i3,2)
+          x1im = x(i1,i2,2,i3,1) -       x(i1,i2,2,i3,2)
+          x0re = x(i1,i2,1,i3,1) +       x(i1,i2,1,i3,2)
+          x0im = x(i1,i2,2,i3,1) +       x(i1,i2,2,i3,2)
+          x2re = x(i1,i2,1,i3,0) + C31 * x0re
+          x2im = x(i1,i2,2,i3,0) + C31 * x0im
           
-          x(i1,iv,1,i,0) =     x0re +       x(i1,iv,1,i,0)
-          x(i1,iv,2,i,0) =     x0im +       x(i1,iv,2,i,0)
-          x(i1,iv,1,i,2) =     x2re + C32 * x1im
-          x(i1,iv,2,i,2) =     x2im - C32 * x1re
-          x(i1,iv,1,i,1) = 2 * x2re -       x(i1,iv,1,i,2)
-          x(i1,iv,2,i,1) = 2 * x2im -       x(i1,iv,2,i,2)
+          x(i1,i2,1,i3,0) =     x0re +       x(i1,i2,1,i3,0)
+          x(i1,i2,2,i3,0) =     x0im +       x(i1,i2,2,i3,0)
+          x(i1,i2,1,i3,2) =     x2re + C32 * x1im
+          x(i1,i2,2,i3,2) =     x2im - C32 * x1re
+          x(i1,i2,1,i3,1) = 2 * x2re -       x(i1,i2,1,i3,2)
+          x(i1,i2,2,i3,1) = 2 * x2im -       x(i1,i2,2,i3,2)
         end do
       end do
     end do
