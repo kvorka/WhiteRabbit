@@ -25,7 +25,6 @@ submodule (ocean) init_temp_bbnd
       end select
     else
       this%rtemp(1,1 ) = cs4pi
-      this%rtemp(1,2:) = czero
     end if
     
   end procedure init_temp_bbnd_ocean_sub

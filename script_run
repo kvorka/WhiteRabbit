@@ -214,6 +214,7 @@ $fcompile -c code/ocean/ocean_constants.f90
 $fcompile -c code/ocean/ocean/ocean.f90
   $fcompile -c code/ocean/ocean/smod/ocean@init.f90 &
   $fcompile -c code/ocean/ocean/smod/ocean@init_temp_bbnd.f90 &
+  $fcompile -c code/ocean/ocean/smod/ocean@init_state.f90 &
   $fcompile -c code/ocean/ocean/smod/ocean@nonlin.f90 &
   $fcompile -c code/ocean/ocean/smod/ocean@output.f90 &
 wait

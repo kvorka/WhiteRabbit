@@ -23,7 +23,7 @@ submodule (physicalobject) meassures
       
       if ( ( present(choice) ) .and. ( choice == 'convective' ) ) then
         
-        !$omp parallel do private(velocity)
+        !$omp parallel do private (velocity)
         do ir = 1, this%nd+1
           call this%sol%conv_velocity_jml_sub( ir, velocity )
           field_vals(ir) = vectnorm2_fn( this%jmax, velocity )
@@ -32,7 +32,7 @@ submodule (physicalobject) meassures
         
       else
         
-        !$omp parallel do private(velocity)
+        !$omp parallel do private (velocity)
         do ir = 1, this%nd+1
           call this%v_rr_ijml_sub( ir, velocity )
           field_vals(ir) = vectnorm2_fn( this%jmax, velocity )
@@ -46,5 +46,25 @@ submodule (physicalobject) meassures
     deallocate( field_vals, velocity )
     
   end procedure reynolds_fn
+  
+  module procedure temperature_fn
+    integer                        :: ir
+    real(kind=dbl),    allocatable :: field_vals(:)
+    complex(kind=dbl), allocatable :: temperature(:)
+    
+    allocate( field_vals(this%nd+1), temperature(this%jms) )
+    
+    !$omp parallel do private (temperature)
+    do ir = 1, this%nd+1
+      call this%temp_rr_ijm_sub( ir, temperature )
+      field_vals(ir) = scalnorm2_fn( this%jmax, temperature )
+    end do
+    !$omp end parallel do
+    
+    temperature_fn = sqrt( this%rad_grid%intV_fn( field_vals ) / this%rad_grid%volume )
+    
+    deallocate( field_vals, temperature )
+    
+  end procedure temperature_fn
 
 end submodule meassures

@@ -78,7 +78,7 @@ module physicalobject
     
     !Output, control measures
     procedure, pass :: vypis_sub
-    procedure, pass :: reynolds_fn, nuss_fn
+    procedure, pass :: reynolds_fn, temperature_fn, nuss_fn
     procedure, pass :: laws_temp_fn, laws_mech_fn, laws_force_fn
     
   end type T_physicalObject
@@ -551,6 +551,10 @@ module physicalobject
       class(T_physicalObject), intent(in)           :: this
       character(len=*),        intent(in), optional :: choice
     end function reynolds_fn
+    
+    module real(kind=dbl) function temperature_fn(this)
+      class(T_physicalObject), intent(in) :: this
+    end function temperature_fn
     
     module real(kind=dbl) function laws_mech_fn(this)
       class(T_physicalObject), intent(in) :: this

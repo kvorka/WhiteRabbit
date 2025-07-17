@@ -24,8 +24,8 @@ submodule (physicalobject) output
           deallocate( field )
         close(filenum)
       
-      case ('flux')
-        open(unit=filenum, file=path//'/Flux-'//trim(adjustl(int2str_fn(this%poc)))//'.dat', status='new', action='write')
+      case ('fluxu')
+        open(unit=filenum, file=path//'/Fluxu-'//trim(adjustl(int2str_fn(this%poc)))//'.dat', status='new', action='write')
           allocate( field(this%jms) )
             call this%qr_r_ijm_sub(this%nd, field)
             
