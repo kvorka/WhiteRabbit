@@ -79,9 +79,9 @@ module math
   end interface
   
   interface
-    type(c_ptr) function malloc(alignement, n) bind(C, name='aligned_alloc')
+    type(c_ptr) function malloc(alignmt, n) bind(C, name='aligned_alloc')
       import         :: c_ptr
-      integer, value :: alignement, n
+      integer, value :: alignmt, n
     end function malloc
     
     subroutine free(ptr) bind(C, name="free")
