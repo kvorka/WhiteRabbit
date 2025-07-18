@@ -1,0 +1,60 @@
+#!/bin/bash
+###########################################################################################
+####                              POSSIBLE CODE SETTINGS                               ####
+####               ocean_convection, ice_ocean, ocean_tides, ice_deformation           ####
+###########################################################################################
+code_type="ocean_convection"
+
+###########################################################################################
+####                             SPECIFY FROM/TO FOR DELETE                            ####
+###########################################################################################
+delstart="1"
+delend="0"
+
+###########################################################################################
+####                             DELETING SPECIFIED FILES                              ####
+###########################################################################################
+case $code_type in
+    
+    ocean_convection)
+        for i in $(seq $delstart $delend);
+        do
+            rm data/data_ocean_temp/Temp-$i.dat
+            rm data/data_ocean_veloc/Velc-$i.dat
+            rm data/data_ocean_fluxu/Fluxu-$i.dat
+            rm data/data_ocean_fluxd/Fluxd-$i.dat
+        done
+    ;;
+    
+    ice_ocean)
+        for i in $(seq $delstart $delend);
+        do
+            rm data/data_ocean_temp/Temp-$i.dat
+            rm data/data_ocean_veloc/Velc-$i.dat
+            rm data/data_ocean_fluxu/Fluxu-$i.dat
+            rm data/data_ocean_fluxd/Fluxd-$i.dat
+            
+            rm data/data_ice_topo/Topo_dn-$i.dat
+            rm data/data_ice_topo/Topo_up-$i.dat
+            rm data/data_ice_shape/Shape_dn-$i.dat
+            rm data/data_ice_shape/Shape_up-$i.dat
+        done
+    ;;
+    
+    ocean_tides)
+        for i in $(seq $delstart $delend);
+        do
+            rm data/data_ocean_veloc/Velc-$i.dat
+        done
+    ;;
+    
+    ice_deformation)
+        for i in $(seq $delstart $delend);
+        do
+            rm data/data_ice_topo/Topo_dn-$i.dat
+            rm data/data_ice_topo/Topo_up-$i.dat
+            rm data/data_ice_shape/Shape_dn-$i.dat
+            rm data/data_ice_shape/Shape_up-$i.dat
+        done
+    ;;
+esac

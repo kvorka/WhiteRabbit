@@ -16,7 +16,6 @@ module physicalobject
   type, abstract, public :: T_physicalObject
     character(len=6)               :: rheology, scaling
     character(len=5)               :: thermal_bnd, mechanic_bnd, grid_type
-    logical                        :: init_thermal_bnd
     logical                        :: noharm, noobj
     integer                        :: nd, jmax, jms, jms2, jmv, jmt, n_iter, poc
     real(kind=dbl)                 :: t, dt, cf, ab, rd, ru, r_ud, D_ud, gd, gu, Pr, Ra, Ek, St, Cl, Ds, Raf, Ramu, Rad, Rau

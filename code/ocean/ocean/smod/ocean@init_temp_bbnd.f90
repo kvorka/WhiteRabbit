@@ -5,7 +5,7 @@ submodule (ocean) init_temp_bbnd
     integer           :: j, m, error
     complex(kind=dbl) :: flux
     
-    if ( this%init_thermal_bnd ) then
+    if ( init_through_file_bnd_ocean ) then
       select case ( this%thermal_bnd )
         case ('fluxd')
           
@@ -24,7 +24,7 @@ submodule (ocean) init_temp_bbnd
           this%rtemp(1,:) = this%rtemp(1,:) / ( this%rtemp(1,1)%re / s4pi )
       end select
     else
-      this%rtemp(1,1 ) = cs4pi
+      this%rtemp(1,1) = cs4pi
     end if
     
   end procedure init_temp_bbnd_ocean_sub
