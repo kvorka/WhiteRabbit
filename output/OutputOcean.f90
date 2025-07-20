@@ -18,16 +18,17 @@ program OutputOcean
   
   subroutine nuss_curve_sub()
     integer         :: n, error
-    real(kind=dbl)  :: t, dt, Nuss, Re, sumNuss, sumRe
+    real(kind=dbl)  :: t, dt, Nuss, Re, Temp, sumNuss, sumRe, sumTemp
     
     n = 0
       sumNuss = zero
       sumRe   = zero
+      sumTemp = zero
     
     open(unit=1, file=path_nuss, status='old', action='read')
     
     do
-      read(1,*,iostat=error) t, dt, Nuss, Re
+      read(1,*,iostat=error) t, dt, Nuss, Re, Temp
       
       if ( error /= 0 ) then
         exit
@@ -35,13 +36,14 @@ program OutputOcean
         n = n + 1
           sumNuss = sumNuss + Nuss
           sumRe   = sumRe + Re
+          sumTemp = sumTemp + Temp
       end if
     end do
     
     close(1)
     
     open(unit=8, file='nuss', status='new', action='write')
-      write(8,*) sumNuss / n , sumRe / n
+      write(8,*) sumNuss / n , sumRe / n , sumTemp / n
     close(8)
     
   end subroutine nuss_curve_sub

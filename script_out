@@ -6,23 +6,32 @@
 code_type="ocean_convection"
 
 ###########################################################################################
-####                              COMPILER SET UP                                      ####
+####                               INSTRUCTIONS SET UP                                 ####
+####                                avx, avx2, avx512                                  ####
 ###########################################################################################
-compile="gfortran -Ofast \
-                     -march=native \
-                     -fno-bounds-check \
-                     -flto=auto \
-                     -fwhole-program \
-                     -fopenmp"
+instructions="avx2"
+
+###########################################################################################
+####                                 COMPILER SET UP                                   ####
+###########################################################################################
+fcompile="gfortran -Ofast \
+                  -march=native \
+                  -fno-bounds-check \
+                  -flto=auto \
+                  -fwhole-program \
+                  -fopenmp \
+                  -D$instructions \
+                  -cpp"
 
 ###########################################################################################
 ####                             COMPILATION OF THE BASELINE                           ####
 ###########################################################################################
-$compile -c kernels/math/math/math.f90
-$compile -c kernels/math/math/smod/math@conversions.f90
-$compile -c kernels/math/sph/sph_norms.f90
-$compile -c output/mod/Paths.f90
-$compile -c output/mod/OutputMod.f90
+$fcompile -c kernels/math/processor/alignement.f90
+$fcompile -c kernels/math/math/math.f90
+$fcompile -c kernels/math/math/smod/math@conversions.f90
+$fcompile -c kernels/math/sph/sph_norms.f90
+$fcompile -c output/mod/Paths.f90
+$fcompile -c output/mod/OutputMod.f90
 
 rm -f temp_averaged.spec velc_averaged.spec flux_averaged.spec || true
 rm -f curveShape_dn.dat curveShape_up.dat curveTopo_dn.dat curveTopo_up.dat || true
@@ -33,35 +42,35 @@ rm -f curveShape_dn.dat curveShape_up.dat curveTopo_dn.dat curveTopo_up.dat || t
 case $code_type in
     
     ocean_convection)
-        $compile -c code/ocean/ocean_constants.f90
-        $compile output/OutputOcean.f90 *.o -o code_out
+        $fcompile -c code/ocean/ocean_constants.f90
+        $fcompile output/OutputOcean.f90 *.o -o code_out
     ;;
     
     ocean_tides)
-        $compile -c code/ocean/ocean_constants.f90
-        $compile output/OutputOcean.f90 *.o -o code_out
+        $fcompile -c code/ocean/ocean_constants.f90
+        $fcompile output/OutputOcean.f90 *.o -o code_out
         ./code_out
     ;;
     
     ice_ocean)
-        $compile -c code/ocean/ocean_constants.f90
-        $compile output/OutputOcean.f90 *.o -o code_out
+        $fcompile -c code/ocean/ocean_constants.f90
+        $fcompile output/OutputOcean.f90 *.o -o code_out
         ./code_out
         
-        $compile -c code/ice/ice_constants.f90
-        $compile output/OutputIce.f90 *.o -o code_out
+        $fcompile -c code/ice/ice_constants.f90
+        $fcompile output/OutputIce.f90 *.o -o code_out
         ./code_out
     ;;
     
     ice_deformation)
-        $compile -c code/ice/ice_constants.f90
-        $compile output/OutputIce.f90 *.o -o code_out
+        $fcompile -c code/ice/ice_constants.f90
+        $fcompile output/OutputIce.f90 *.o -o code_out
         ./code_out
     ;;
     
     ice_convergence)
-        $compile -c code/ice/ice_constants.f90
-        $compile output/ConvergenceIce.f90 *.o -o code_out
+        $fcompile -c code/ice/ice_constants.f90
+        $fcompile output/ConvergenceIce.f90 *.o -o code_out
         ./code_out
     ;;
     
