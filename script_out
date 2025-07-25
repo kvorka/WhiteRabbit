@@ -14,14 +14,14 @@ instructions="avx2"
 ###########################################################################################
 ####                                 COMPILER SET UP                                   ####
 ###########################################################################################
-fcompile="gfortran -Ofast \
-                  -march=native \
-                  -fno-bounds-check \
-                  -flto=auto \
-                  -fwhole-program \
-                  -fopenmp \
-                  -D$instructions \
-                  -cpp"
+fcompile="gfortran-12 -Ofast \
+                      -march=native \
+                      -fno-bounds-check \
+                      -flto=auto \
+                      -fwhole-program \
+                      -fopenmp \
+                      -D$instructions \
+                      -cpp"
 
 ###########################################################################################
 ####                             COMPILATION OF THE BASELINE                           ####
