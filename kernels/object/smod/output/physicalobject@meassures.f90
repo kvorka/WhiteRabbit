@@ -47,6 +47,61 @@ submodule (physicalobject) meassures
     
   end procedure reynolds_fn
   
+  module procedure reynolds_poloidal_fn
+    integer                        :: ir, j, m
+    real(kind=dbl),    allocatable :: field_vals(:)
+    complex(kind=dbl), allocatable :: velocity(:)
+    
+    allocate( field_vals(this%nd+1), velocity(this%jmv) )
+      
+      !$omp parallel do private (j,m,velocity)
+      do ir = 1, this%nd+1
+        call this%v_rr_ijml_sub( ir, velocity )
+        
+        do j = 1, this%jmax
+          do concurrent ( m = 0:j )
+            velocity( 3*(j*(j+1)/2+m) ) = czero
+          end do
+        end do
+        
+        field_vals(ir) = vectnorm2_fn( this%jmax, velocity )
+      end do
+      !$omp end parallel do
+      
+      reynolds_poloidal_fn = sqrt( this%rad_grid%intV_fn( field_vals ) / this%rad_grid%volume )
+      
+    deallocate( field_vals, velocity )
+    
+  end procedure reynolds_poloidal_fn
+  
+  module procedure reynolds_torroidal_fn
+    integer                        :: ir, j, m
+    real(kind=dbl),    allocatable :: field_vals(:)
+    complex(kind=dbl), allocatable :: velocity(:)
+    
+    allocate( field_vals(this%nd+1), velocity(this%jmv) )
+      
+      !$omp parallel do private (j,m,velocity)
+      do ir = 1, this%nd+1
+        call this%v_rr_ijml_sub( ir, velocity )
+        
+        do j = 1, this%jmax
+          do concurrent ( m = 0:j )
+            velocity( 3*(j*(j+1)/2+m)-1 ) = czero
+            velocity( 3*(j*(j+1)/2+m)+1 ) = czero
+          end do
+        end do
+        
+        field_vals(ir) = vectnorm2_fn( this%jmax, velocity )
+      end do
+      !$omp end parallel do
+      
+      reynolds_torroidal_fn = sqrt( this%rad_grid%intV_fn( field_vals ) / this%rad_grid%volume )
+      
+    deallocate( field_vals, velocity )
+    
+  end procedure reynolds_torroidal_fn
+  
   module procedure temperature_fn
     integer                        :: ir
     real(kind=dbl),    allocatable :: field_vals(:)
